@@ -10,37 +10,27 @@ set(base_logging_src_prefixes
   format
   logger)
 
-set(base_logging_cpp)
-set(base_logging_headers)
+add_library(farm_ng_core_logging INTERFACE 
+  expected.h 
+  format.h 
+  logger.h)
 
-foreach(x ${base_logging_src_prefixes} )
-    list(APPEND base_logging_cpp ${x}.cpp)
-    list(APPEND base_logging_headers ${x}.h)
-endforeach()
-
-message(DEBUG "foo ${CMAKE_SOURCE_DIR}")
-
-farm_ng_add_library(farm_ng_core_logging
-  BUILD_INCLUDE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/../..
-  SOURCES
-    ${base_logging_cpp}
-  HEADERS
-    ${base_logging_headers}
-  LINK_LIBRARIES
-    pthread
-    boost_preprocessor
-    expected
-    fmt::fmt
+target_link_libraries(farm_ng_core_logging INTERFACE 
+  boost_preprocessor
+  expected 
+  fmt::fmt 
+  pthread
 )
 
 target_include_directories(farm_ng_core_logging INTERFACE
-  ../../thirdparty/preprocessor/include/
+  ../..
 )
 
-foreach(test_basename ${base_logging_src_prefixes})
-  farm_ng_add_test(${test_basename}
-                   PARENT_LIBRARY farm_ng_core_logging
-                   LINK_LIBRARIES 
-                   LABELS small)
-endforeach()
+if (FARM_NG_CORE_TESTS)
+  foreach(test_basename ${base_logging_src_prefixes})
+    farm_ng_add_test(${test_basename}
+                     PARENT_LIBRARY farm_ng_core_logging
+                     LINK_LIBRARIES 
+                     LABELS small)
+  endforeach()
+endif()

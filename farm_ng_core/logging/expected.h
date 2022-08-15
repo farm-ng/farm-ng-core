@@ -11,6 +11,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <iostream>
+
 
 namespace farm_ng_core {
 
@@ -18,7 +20,15 @@ struct Error {
   std::vector<ErrorDetail> details;
 };
 
-std::ostream& operator<<(std::ostream& os, const Error& error);
+inline std::ostream& operator<<(std::ostream& os, const Error& error) {
+  os << error.details.size() << "error details:\n";
+  for (const auto& error : error.details) {
+    os << FNG_FORMAT("[{}:{}] {}\n", error.file, error.line, error.msg);
+  }
+  return os;
+}
+
+
 struct Success {};
 
 template <class T, class E = Error>
@@ -84,5 +94,6 @@ Expected<T> fromOptional(std::optional<T> optional) {
   return optional ? Expected<T>(std::move(*optional))
                   : FNG_ERROR("std::nullopt");
 }
+
 
 }  // namespace farm_ng_core

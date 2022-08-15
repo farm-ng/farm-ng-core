@@ -3,7 +3,6 @@
 #pragma once
 
 #include "farm_ng_core/enum/enum.h"
-#include "farm_ng_core/enum/enum_flags.h"
 
 namespace farm_ng_core {
 
@@ -19,14 +18,20 @@ struct Uri {
   Uri() {}
 
   /// Creates Uri.
-  Uri(const UriSchemeType& scheme,
+  Uri(
+      const UriSchemeType& scheme,
       const std::string& authority,
       const std::string& path,
-      const std::string& query = {});
+      const std::string& query)
+      : scheme(scheme), authority(authority), path(path), query(query) {}
 
   /// Returns string representation of uri.
-  std::string string() const;
-
+  std::string string() const {
+    if (query.empty()) {
+      return toString(scheme) + "://" + authority + "/" + path;
+    }
+    return toString(scheme) + "://" + authority + "/" + path + "?" + query;
+  }
   /// The uri scheme, e.g. UriSchemeType::device.
   UriSchemeType scheme;
 

@@ -10,6 +10,8 @@
 #include <fmt/ostream.h>
 
 #include <functional>
+#include <iostream>
+
 
 #ifdef FNG_COMPILE_TIME_FMT
 #define FNG_STRING(x) FMT_STRING(x)
@@ -18,8 +20,21 @@
 #endif
 
 namespace farm_ng_core {
-void setLogLineFunction(std::function<void(const std::string&)> f);
-void logLine(const std::string& line);
+inline std::function<void(const std::string&)>& getLogLineFunction() {
+  static std::function<void(const std::string&)> Log_Function;
+  return Log_Function;
+}
+
+inline void setLogLineFunction(std::function<void(const std::string&)> f) {
+  getLogLineFunction() = f;
+}
+
+inline void logLine(const std::string& line) {
+  std::cerr << line << std::endl;
+  if (getLogLineFunction()) {
+    getLogLineFunction()(line);
+  }
+}
 }  // namespace farm_ng_core
 
 // Begin (Impl details)

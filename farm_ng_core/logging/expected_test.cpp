@@ -5,6 +5,7 @@
 #include "farm_ng_core/logging/logger.h"
 
 #include <gtest/gtest.h>
+#include <optional>
 
 using namespace farm_ng_core;
 

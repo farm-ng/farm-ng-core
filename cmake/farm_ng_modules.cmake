@@ -5,11 +5,11 @@ macro(farm_ng_module name VERSION)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
   endif(CCACHE_FOUND)
-  set(FARM_NG_MODULE_NAME ${name})
-  set(FARM_NG_PROJECT_NAME farm_ng_${name})
+  set(FNG_MODULE_NAME ${name})
+  set(FNG_PROJECT_NAME farm_ng_${name})
   set(farm_ng_VERSION ${VERSION})
 
-  message(STATUS "${FARM_NG_MODULE_NAME} version: -- ${VERSION} --")
+  message(STATUS "${FNG_MODULE_NAME} version: -- ${VERSION} --")
   string(REPLACE "." ";" VERSION_LIST ${VERSION})
   list(GET VERSION_LIST 0 farm_ng_VERSION_MAJOR)
   list(GET VERSION_LIST 1 farm_ng_VERSION_MINOR)
@@ -40,31 +40,31 @@ macro(farm_ng_add_library target)
     PUBLIC_INCLUDE_DIRS
     PRIVATE_LINK_LIBRARIES)
 
-  cmake_parse_arguments(FARM_NG_ADD_LIBRARY "" "${one_value_args}" "${multi_value_args}" ${ARGN})
+  cmake_parse_arguments(FNG_ADD_LIBRARY "" "${one_value_args}" "${multi_value_args}" ${ARGN})
 
-  if(NOT DEFINED FARM_NG_ADD_LIBRARY_BUILD_INCLUDE_PATH)
-    set(FARM_NG_ADD_LIBRARY_BUILD_INCLUDE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../ )
+  if(NOT DEFINED FNG_ADD_LIBRARY_BUILD_INCLUDE_PATH)
+    set(FNG_ADD_LIBRARY_BUILD_INCLUDE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../ )
   endif()
 
 
   add_library(${target} SHARED
-    ${FARM_NG_ADD_LIBRARY_SOURCES}
-    ${FARM_NG_ADD_LIBRARY_HEADERS}
+    ${FNG_ADD_LIBRARY_SOURCES}
+    ${FNG_ADD_LIBRARY_HEADERS}
     )
   add_library(farm_ng_core::${target} ALIAS ${target})
 
   target_include_directories(${target} PUBLIC INTERFACE
-    $<BUILD_INTERFACE:${FARM_NG_ADD_LIBRARY_BUILD_INCLUDE_PATH}>
+    $<BUILD_INTERFACE:${FNG_ADD_LIBRARY_BUILD_INCLUDE_PATH}>
     $<INSTALL_INTERFACE:include>
     )
 
   target_include_directories(${target} PRIVATE
-    ${FARM_NG_ADD_LIBRARY_BUILD_INCLUDE_PATH}
+    ${FNG_ADD_LIBRARY_BUILD_INCLUDE_PATH}
     )
 
-  if(DEFINED FARM_NG_ADD_LIBRARY_PUBLIC_INCLUDE_DIRS)
+  if(DEFINED FNG_ADD_LIBRARY_PUBLIC_INCLUDE_DIRS)
     target_include_directories(${target} PUBLIC
-      ${FARM_NG_ADD_LIBRARY_PUBLIC_INCLUDE_DIRS}
+      ${FNG_ADD_LIBRARY_PUBLIC_INCLUDE_DIRS}
       )
   endif()
 
@@ -78,22 +78,22 @@ macro(farm_ng_add_library target)
 
   target_link_libraries(
     ${target} PUBLIC
-    ${FARM_NG_ADD_LIBRARY_LINK_LIBRARIES}
+    ${FNG_ADD_LIBRARY_LINK_LIBRARIES}
     )
 
   target_link_libraries(
     ${target} PRIVATE
-    ${FARM_NG_ADD_LIBRARY_PRIVATE_LINK_LIBRARIES}
+    ${FNG_ADD_LIBRARY_PRIVATE_LINK_LIBRARIES}
     )
 
-  install(TARGETS ${target} EXPORT ${FARM_NG_PROJECT_NAME}Targets
+  install(TARGETS ${target} EXPORT ${FNG_PROJECT_NAME}Targets
     LIBRARY DESTINATION lib
     COMPONENT Libs
     )
 
   install(
-    FILES ${FARM_NG_ADD_LIBRARY_HEADERS}
-    DESTINATION include/farm_ng_core/${FARM_NG_MODULE_NAME}
+    FILES ${FNG_ADD_LIBRARY_HEADERS}
+    DESTINATION include/farm_ng_core/${FNG_MODULE_NAME}
     COMPONENT Devel
     )
 endmacro()
@@ -105,7 +105,7 @@ macro(farm_ng_add_executable_with_options target component)
 
   install(
     TARGETS ${target}
-    EXPORT ${FARM_NG_PROJECT_NAME}Targets
+    EXPORT ${FNG_PROJECT_NAME}Targets
     RUNTIME DESTINATION bin
     COMPONENT ${component}
     )
@@ -123,18 +123,18 @@ macro(farm_ng_add_test target_basename)
   set(multi_value_args
     LINK_LIBRARIES
     LABELS)
-  cmake_parse_arguments(FARM_NG_ADD_TEST ""
+  cmake_parse_arguments(FNG_ADD_TEST ""
                         "${one_value_args}" "${multi_value_args}" ${ARGN})
 
-  # Appends ${FARM_NG_ADD_TEST_PARENT_LIBRARY} to make target name unique,
+  # Appends ${FNG_ADD_TEST_PARENT_LIBRARY} to make target name unique,
   # which is required by cmake.
-  set(test_target ${target_basename}_test_${FARM_NG_ADD_TEST_PARENT_LIBRARY})
+  set(test_target ${target_basename}_test_${FNG_ADD_TEST_PARENT_LIBRARY})
   set(test_cpp ${target_basename}_test.cpp)
 
   add_executable(${test_target} ${test_cpp})
 
   # Create custom target for building a group of tests that share a common label
-  foreach(label ${FARM_NG_ADD_TEST_LABELS})
+  foreach(label ${FNG_ADD_TEST_LABELS})
     if (NOT TARGET test_group_${label})
       add_custom_target(test_group_${label})
     endif()
@@ -147,18 +147,18 @@ macro(farm_ng_add_test target_basename)
   endif()
   add_dependencies(test_group_all ${test_target})
 
-  target_link_libraries(${test_target} ${FARM_NG_ADD_TEST_PARENT_LIBRARY}
-                        ${FARM_NG_ADD_TEST_LINK_LIBRARIES}
+  target_link_libraries(${test_target} ${FNG_ADD_TEST_PARENT_LIBRARY}
+                        ${FNG_ADD_TEST_LINK_LIBRARIES}
                         ${GTEST_MAIN_LIBRARY} ${GTEST_LIBRARY})
   add_test(NAME ${test_target} COMMAND ${test_target} )
-  set_property(TEST ${test_target} PROPERTY LABELS ${FARM_NG_ADD_TEST_LABELS})
+  set_property(TEST ${test_target} PROPERTY LABELS ${FNG_ADD_TEST_LABELS})
 endmacro()
 
 macro(farm_ng_add_protobufs target)
   set(multi_value_args PROTO_FILES DEPENDENCIES)
-  cmake_parse_arguments(FARM_NG_ADD_PROTOBUFS "" "" "${multi_value_args}" ${ARGN})
+  cmake_parse_arguments(FNG_ADD_PROTOBUFS "" "" "${multi_value_args}" ${ARGN})
   set(${target}_PROTOBUF_IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE STRING "Path to this project's protobuf sources")
-  foreach(_dep_target ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
+  foreach(_dep_target ${FNG_ADD_PROTOBUFS_DEPENDENCIES})
     list(APPEND DEP_PROTO_INCLUDES  -I ${${_dep_target}_PROTOBUF_IMPORT_DIRS})
   endforeach()
 
@@ -173,7 +173,7 @@ macro(farm_ng_add_protobufs target)
   string(REGEX REPLACE "farm_ng_|_protobuf" "" _module ${target})
   set(_cpp_out_sources)
   set(_cpp_out_headers)
-  foreach (_proto_path ${FARM_NG_ADD_PROTOBUFS_PROTO_FILES})
+  foreach (_proto_path ${FNG_ADD_PROTOBUFS_PROTO_FILES})
     SET(_full_proto_path ${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path})
     get_filename_component(_file_we ${_proto_path} NAME_WE)
     get_filename_component(_file_dir ${_proto_path} DIRECTORY)
@@ -199,7 +199,7 @@ macro(farm_ng_add_protobufs target)
     HEADERS ${_cpp_out_headers}
     PUBLIC_INCLUDE_DIRS ${Protobuf_INCLUDE_DIRS}
     BUILD_INCLUDE_PATH ${_proto_output_dir_cpp}
-    LINK_LIBRARIES  ${Protobuf_LIBRARIES} ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
+    LINK_LIBRARIES  ${Protobuf_LIBRARIES} ${FNG_ADD_PROTOBUFS_DEPENDENCIES})
 
   set_target_properties(${target}
       PROPERTIES CXX_CLANG_TIDY "")
@@ -213,7 +213,7 @@ endmacro()
 
 
 macro(farm_ng_export_module)
-set(module_name ${FARM_NG_PROJECT_NAME})
+set(module_name ${FNG_PROJECT_NAME})
 
 set(_EXPORT_DIR ${CMAKE_BINARY_DIR}/export/${module_name})
 

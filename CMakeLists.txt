@@ -17,7 +17,7 @@ enable_testing()
 
 OPTION(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
 if(COMPILE_TIME_FMT)
-    add_definitions(-DFARM_NG_COMPILE_TIME_FMT)
+    add_definitions(-DFNG_COMPILE_TIME_FMT)
 endif()
 
 option(ADDRESS_SANITIZER "Use Address Sanitizer, incompatible with THREAD_SANITIZER" OFF)
@@ -30,10 +30,6 @@ if (ADDRESS_SANITIZER)
 elseif (THREAD_SANITIZER)
   add_compile_options(-fsanitize=thread)
   add_link_options(-fsanitize=thread)
-endif()
-
-if(CLANG_TIME_TRACE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace -Wno-unknown-warning-option")
 endif()
 
 find_program(CCACHE_FOUND ccache REQUIRED)
@@ -62,5 +58,8 @@ set(CMAKE_CXX_CLANG_TIDY "")
 set(OLD_CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "")
 
+set(EXPECTED_BUILD_TESTS FALSE)
+
 add_subdirectory(thirdparty/preprocessor)
-add_subdirectory(farm_ng/core)
+add_subdirectory(thirdparty/expected)
+add_subdirectory(farm_ng_core)

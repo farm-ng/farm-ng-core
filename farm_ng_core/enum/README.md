@@ -80,12 +80,3 @@ string_view getTypeName(FooBar) {
   return "FooBar";
 }
 ```
-
-## Requirements
-FNG_ENUM is a c++ macro library.
-* CMake configuration and build steps are tested on MacOS and Linux.
-* It depends on the BOOST preprocessor library.
-  which are pulled in through git sub-modules.
-* The FNG_ENUM cli_example depends on
-  [CLI11](https://github.com/CLIUtils/CLI11.git).
-

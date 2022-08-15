@@ -1,13 +1,12 @@
-![CI](https://github.com/facebookincubator/FNG_ENUM_WITHOUT_OSTREAM/workflows/CI/badge.svg)
+# FNG_ENUM
 
-# FNG_ENUM_WITHOUT_OSTREAM
-
-FNG_ENUM_WITHOUT_OSTREAM is a small c++ macro library to add compile-time introspection to c++
+FNG_ENUM is a small c++ macro library to add compile-time introspection to c++
 enum classes.
+This is a fork of https://github.com/facebookincubator/MY_ENUM.
 
 ## Examples
 
-For example ``FNG_ENUM_WITHOUT_OSTREAM(FooBar, int, (foo, bar));`` defines an enum class
+For example ``FNG_ENUM(FooBar, int, (foo, bar));`` defines an enum class
 
 ```cpp
 enum class FooBar : int {
@@ -83,56 +82,10 @@ string_view getTypeName(FooBar) {
 ```
 
 ## Requirements
-FNG_ENUM_WITHOUT_OSTREAM is a c++ macro library.
+FNG_ENUM is a c++ macro library.
 * CMake configuration and build steps are tested on MacOS and Linux.
 * It depends on the BOOST preprocessor library.
-* It depends on a string_view implementation: either std::string_view (c++17),
-  or fmt::string_view from the [{fmt}](https://github.com/fmtlib/fmt) library.
-* FNG_ENUM_WITHOUT_OSTREAM tests depend on [googletest](https://github.com/google/googletest.git)
   which are pulled in through git sub-modules.
-* The FNG_ENUM_WITHOUT_OSTREAM CliExample depends on
+* The FNG_ENUM cli_example depends on
   [CLI11](https://github.com/CLIUtils/CLI11.git).
 
-## Building FNG_ENUM_WITHOUT_OSTREAM
-
-In the following, we detail how to build FNG_ENUM_WITHOUT_OSTREAM for Ubuntu 18.04.
-
-Install BOOST preprocessor headers:
-
-```
-sudo apt install libboost-system-dev
-```
-
-Install CLI11 if you want to build the CliExample application:
-
-```
-git clone https://github.com/CLIUtils/CLI11.git
-cd CLI11
-git checkout v1.9.0
-mkdir build
-cd build
-cmake .. -DCLI11_BUILD_TESTS=OFF
-make -j2
-sudo make install
-```
-
-Now checkout FNG_ENUM_WITHOUT_OSTREAM from the repo and build the FNG_ENUM_WITHOUT_OSTREAM tests and example:
-
-```
-git clone https://github.com/facebook/FNG_ENUM_WITHOUT_OSTREAM
-cd FNG_ENUM_WITHOUT_OSTREAM
-git submodule update --init --recursive
-mkdir build
-cd build
-cmake ..
-make -j2
-```
-
-## Join the FNG_ENUM_WITHOUT_OSTREAM community
-* file issues here: [https://github.com/facebook/FNG_ENUM_WITHOUT_OSTREAM/issues](https://github.com/facebook/FNG_ENUM_WITHOUT_OSTREAM/issues)
-
-See the [CONTRIBUTING](CONTRIBUTING.md) file for how to help out.
-
-
-## License
-FNG_ENUM_WITHOUT_OSTREAM is MIT licensed, as found in the LICENSE file.

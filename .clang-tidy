@@ -21,7 +21,7 @@ Checks:
   modernize-use-nodiscard,
   modernize-use-using'
 WarningsAsErrors: '*'
-HeaderFilterRegex: /workplace/farm_ng/.*
+HeaderFilterRegex: .*/farm_ng/.*
 CheckOptions:
   - {key: readability-uppercase-literal-suffix.NewSuffixes,  value: L}
 

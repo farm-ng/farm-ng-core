@@ -18,9 +18,11 @@ foreach(x ${base_logging_src_prefixes} )
     list(APPEND base_logging_headers ${x}.h)
 endforeach()
 
+message(DEBUG "foo ${CMAKE_SOURCE_DIR}")
+
 farm_ng_add_library(farm_ng_core_logging
   BUILD_INCLUDE_PATH
-    ~/code/farm-ng-core/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../..
   SOURCES
     ${base_logging_cpp}
   HEADERS
@@ -30,7 +32,10 @@ farm_ng_add_library(farm_ng_core_logging
     boost_preprocessor
     expected
     fmt::fmt
-    tbb
+)
+
+target_include_directories(farm_ng_core_logging INTERFACE
+  ../../thirdparty/preprocessor/include/
 )
 
 foreach(test_basename ${base_logging_src_prefixes})

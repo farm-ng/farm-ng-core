@@ -24,7 +24,7 @@ endforeach()
 
 farm_ng_add_library(farm_ng_core_utils
   BUILD_INCLUDE_PATH
-    /workspace/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../..
   SOURCES
     ${base_enum_cpp}
   HEADERS
@@ -33,6 +33,10 @@ farm_ng_add_library(farm_ng_core_utils
     farm_ng_core_logging
     PRIVATE_LINK_LIBRARIES
     PUBLIC_INCLUDE_DIRS
+)
+
+target_include_directories(farm_ng_core_utils INTERFACE
+  ../../thirdparty/preprocessor/include/
 )
 
 foreach(test_basename ${base_enum_src_prefixes})

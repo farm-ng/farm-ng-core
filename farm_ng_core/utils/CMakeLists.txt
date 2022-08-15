@@ -35,8 +35,8 @@ target_include_directories(farm_ng_core_utils INTERFACE
 
 if (FARM_NG_CORE_TESTS)
   foreach(test_basename ${base_enum_src_prefixes})
-    farm_ng_add_test(${test_basename}
-                     PARENT_LIBRARY farm_ng_core_utils
-                     LABELS small)
+  farm_ng_core_add_test(${test_basename}
+                        PARENT_LIBRARY farm_ng_core_utils
+                        LABELS small)
   endforeach()
 endif()

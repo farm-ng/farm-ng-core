@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16.3)
-project(farm_ng_workspace)
+cmake_minimum_required(VERSION 3.19)
+project(farm_ng_core)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if (NOT (CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL ""))
@@ -52,7 +52,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(cmake/farm_ng_core_add_test.cmake)
 
-find_package(fmt REQUIRED)
 find_package(GTest REQUIRED)
 
 set(CMAKE_CXX_CLANG_TIDY "")
@@ -63,4 +62,5 @@ set(EXPECTED_BUILD_TESTS FALSE)
 
 add_subdirectory(thirdparty/preprocessor)
 add_subdirectory(thirdparty/expected)
+add_subdirectory(thirdparty/fmt)
 add_subdirectory(farm_ng_core)

@@ -18,7 +18,7 @@ add_library(farm_ng_core_logging INTERFACE
 target_link_libraries(farm_ng_core_logging INTERFACE 
   boost_preprocessor
   expected 
-  fmt::fmt 
+  fmt::fmt-header-only 
   pthread
 )
 

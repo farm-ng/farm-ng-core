@@ -26,7 +26,7 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
 
     - name: install deps
-      run: sudo apt-get install libgtest-dev -y
+      run: sudo apt-get install libgtest-dev clang-tidy-10 -y
 
     - name: clang-tidy
       run: ./farm_ng_tidy.sh

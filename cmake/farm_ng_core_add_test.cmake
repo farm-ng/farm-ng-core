@@ -30,7 +30,7 @@ macro(farm_ng_core_add_test target_basename)
 
   target_link_libraries(${test_target} ${FNG_ADD_TEST_PARENT_LIBRARY}
                         ${FNG_ADD_TEST_LINK_LIBRARIES}
-                        ${GTEST_MAIN_LIBRARY} ${GTEST_LIBRARY})
+                        gtest_main)
   add_test(NAME ${test_target} COMMAND ${test_target} )
   set_property(TEST ${test_target} PROPERTY LABELS ${FNG_ADD_TEST_LABELS})
 endmacro()

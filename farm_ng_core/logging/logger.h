@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "farm_ng_core/logging/format.h"
+#include <farm_ng_core/logging/format.h>
 
 // Begin (Impl details)
 

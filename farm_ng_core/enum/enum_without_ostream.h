@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "farm_ng_core/enum/impl/enum_details.h"
+#include <farm_ng_core/enum/impl/enum_details.h>
 
 /* FNG_ENUM_DEF(NAME, [INT_TYPE], ARGS ...)
 

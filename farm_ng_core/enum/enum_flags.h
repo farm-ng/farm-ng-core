@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "farm_ng_core/enum/enum_flags_without_ostream.h"
+#include <farm_ng_core/enum/enum_flags_without_ostream.h>
 
 #include <ostream>
 

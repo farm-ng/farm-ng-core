@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "farm_ng_core/enum/impl/compiler_attributes.h"
+#include <farm_ng_core/enum/impl/compiler_attributes.h>
 
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "farm_ng_core/enum/impl/enum_flag_details.h"
+#include <farm_ng_core/enum/impl/enum_flag_details.h>
 
 /* FNG_ENUMFLAGS_DEF(NAME, UINT_TYPE, ARGS)
 

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "farm_ng_core/enum/impl/compiler_attributes.h"
-#include "farm_ng_core/logging/logger.h"
+#include <farm_ng_core/enum/impl/compiler_attributes.h>
+#include <farm_ng_core/logging/logger.h>
 
 #include <boost/preprocessor/comparison/equal.hpp>
 #include <boost/preprocessor/control/if.hpp>

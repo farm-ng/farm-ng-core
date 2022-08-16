@@ -1,8 +1,7 @@
 // Copyright (c) farm-ng, inc. All rights reserved.
 
-#include "farm_ng_core/logging/expected.h"
-
-#include "farm_ng_core/logging/logger.h"
+#include <farm_ng_core/logging/expected.h>
+#include <farm_ng_core/logging/logger.h>
 
 #include <gtest/gtest.h>
 #include <optional>

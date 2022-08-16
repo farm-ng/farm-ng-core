@@ -16,11 +16,5 @@ jobs:
           uses: actions/checkout@v3
         - name: ccache
           uses: hendrikmuhs/ccache-action@v1
-        - name: Install pre-commit and install
-          run: |
-            pip install pre-commit
-            pre-commit install
         - name: Run pre-commit checks
           run: pre-commit run --all-files
-        - name: clang-tidy
-          run: ./farm_ng_tidy.sh

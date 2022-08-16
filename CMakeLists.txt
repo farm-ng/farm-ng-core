@@ -58,7 +58,6 @@ set(CMAKE_CXX_FLAGS "")
 
 set(EXPECTED_BUILD_TESTS FALSE)
 
-add_subdirectory(thirdparty/googletest)
 add_subdirectory(thirdparty/preprocessor)
 add_subdirectory(thirdparty/expected)
 add_subdirectory(thirdparty/fmt)

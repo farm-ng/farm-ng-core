@@ -1,5 +1,13 @@
-// Copyright (c) farm-ng, inc. All rights reserved.
+// Copyright (c) farm-ng, inc.
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 
+// FNG_ENUM is a fork of MY_ENUM.
+//
+// https://github.com/facebookincubator/MY_ENUM/
+//
 // Copyright (c) Facebook, Inc. and its affiliates.
 //
 // This source code is licensed under the MIT license found in the

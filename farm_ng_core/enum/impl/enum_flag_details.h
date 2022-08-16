@@ -1,4 +1,8 @@
-// Copyright (c) farm-ng, inc. All rights reserved.
+// Copyright (c) farm-ng, inc.
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 
 // Copyright (c) Facebook, Inc. and its affiliates.
 //
@@ -14,7 +18,6 @@
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/tuple/size.hpp>
 #include <boost/preprocessor/tuple/to_seq.hpp>
-#include <farm_ng_core/enum/impl/compiler_attributes.h>
 
 #include <array>
 #include <string>
@@ -124,111 +127,105 @@
       TYPE,                                                                  \
       BOOST_PP_SEQ_POP_FRONT(BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__)))
 
-#define FNG_ENUMFLAGS_DEF_IMPL(NAME, UINT_TYPE, ...)                        \
-  namespace enum_wrapper_ {                                                 \
-                                                                            \
-  static_assert(                                                            \
-      std::is_unsigned<UINT_TYPE>::value,                                   \
-      BOOST_PP_STRINGIZE(UINT_TYPE) " must be an unsigned integer type");   \
-                                                                            \
-  enum class NAME##Impl : UINT_TYPE{                                        \
-      none = 0u, FNG_ENUMFLAGS_DETAILS_FLAG_DEFINITIONS(__VA_ARGS__)};      \
-                                                                            \
-  NAME##Impl inline operator|(NAME##Impl left, NAME##Impl right) {          \
-    return NAME##Impl(UINT_TYPE(left) | UINT_TYPE(right));                  \
-  }                                                                         \
-                                                                            \
-  NAME##Impl inline operator&(NAME##Impl left, NAME##Impl right) {          \
-    return NAME##Impl(UINT_TYPE(left) & UINT_TYPE(right));                  \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline bool trySetFlagFromString(                   \
-      NAME##Impl &value, const std::string &str) {                          \
-    BOOST_PP_SEQ_FOR_EACH(                                                  \
-        FNG_ENUMFLAG_DETAILS_OP_SET_ENUM_FROM_STRING,                       \
-        NAME##Impl,                                                         \
-        BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                 \
-    return false;                                                           \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline bool hasMask(                                \
-      NAME##Impl value, NAME##Impl mask) {                                  \
-    return (value & mask) == mask;                                          \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline void setMask(                                \
-      NAME##Impl &value, NAME##Impl mask) {                                 \
-    value = value | mask;                                                   \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline void clearMask(                              \
-      NAME##Impl &value, NAME##Impl mask) {                                 \
-    value = value & NAME##Impl(~UINT_TYPE(mask));                           \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline void toggleMask(                             \
-      NAME##Impl &value, NAME##Impl mask) {                                 \
-    value = NAME##Impl(UINT_TYPE(value) ^ UINT_TYPE(mask));                 \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline bool isSingleFlag(NAME##Impl value) {        \
-    switch (value) {                                                        \
-      BOOST_PP_SEQ_FOR_EACH(                                                \
-          FNG_ENUMFLAG_DETAILS_OP_SINGLE_FLAG_CHECK,                        \
-          NAME##Impl,                                                       \
-          BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                               \
-      case NAME##Impl::none:                                                \
-        break;                                                              \
-    }                                                                       \
-    return false;                                                           \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline std::vector<std::string> toStrings(          \
-      NAME##Impl value) {                                                   \
-    std::vector<std::string> strings;                                       \
-    BOOST_PP_SEQ_FOR_EACH(                                                  \
-        FNG_ENUMFLAG_DETAILS_OP_PUSHBACK_STRING,                            \
-        NAME##Impl,                                                         \
-        BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                 \
-    return strings;                                                         \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED inline std::string toPretty(NAME##Impl value) {     \
-    std::string prettySet("{");                                             \
-    BOOST_PP_SEQ_FOR_EACH(                                                  \
-        FNG_ENUMFLAG_DETAILS_OP_STRING_FOR_FLAG,                            \
-        NAME##Impl,                                                         \
-        BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                 \
-    prettySet += "} (=" + std::to_string(UINT_TYPE(value)) + ")";           \
-    return prettySet;                                                       \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED FNG_ENUM_NODISCARD constexpr size_t getCount(       \
-      NAME##Impl) {                                                         \
-    return BOOST_PP_TUPLE_SIZE(__VA_ARGS__);                                \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED                                                     \
-  FNG_ENUM_NODISCARD inline std::                                           \
-      array<std::string_view, BOOST_PP_TUPLE_SIZE(__VA_ARGS__)>             \
-      getNames(NAME##Impl) {                                                \
-    return {FNG_ENUMFLAGS_DETAILS_COMMA_SEP_STRINGS(__VA_ARGS__)};          \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED FNG_ENUM_NODISCARD inline std::string_view          \
-  getStringOfNames(NAME##Impl) {                                            \
-    return FNG_ENUMFLAGS_DETAILS_CSV_STRING(__VA_ARGS__);                   \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED                                                     \
-  FNG_ENUM_NODISCARD constexpr std::                                        \
-      array<UINT_TYPE, BOOST_PP_TUPLE_SIZE(__VA_ARGS__)>                    \
-      getValues(NAME##Impl) {                                               \
-    return {FNG_ENUMFLAGS_DETAILS_COMMA_SEP_INTS(NAME##Impl, __VA_ARGS__)}; \
-  }                                                                         \
-                                                                            \
-  FNG_ENUM_MAYBE_UNUSED FNG_ENUM_NODISCARD inline std::string_view          \
-  getTypeName(NAME##Impl) {                                                 \
-    return BOOST_PP_STRINGIZE(NAME);                                        \
-  }                                                                         \
+#define FNG_ENUMFLAGS_DEF_IMPL(NAME, UINT_TYPE, ...)                           \
+  namespace enum_wrapper_ {                                                    \
+                                                                               \
+  static_assert(                                                               \
+      std::is_unsigned<UINT_TYPE>::value,                                      \
+      BOOST_PP_STRINGIZE(UINT_TYPE) " must be an unsigned integer type");      \
+                                                                               \
+  enum class NAME##Impl : UINT_TYPE{                                           \
+      none = 0u, FNG_ENUMFLAGS_DETAILS_FLAG_DEFINITIONS(__VA_ARGS__)};         \
+                                                                               \
+  NAME##Impl inline operator|(NAME##Impl left, NAME##Impl right) {             \
+    return NAME##Impl(UINT_TYPE(left) | UINT_TYPE(right));                     \
+  }                                                                            \
+                                                                               \
+  NAME##Impl inline operator&(NAME##Impl left, NAME##Impl right) {             \
+    return NAME##Impl(UINT_TYPE(left) & UINT_TYPE(right));                     \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline bool trySetFlagFromString(                           \
+      NAME##Impl &value, const std::string &str) {                             \
+    BOOST_PP_SEQ_FOR_EACH(                                                     \
+        FNG_ENUMFLAG_DETAILS_OP_SET_ENUM_FROM_STRING,                          \
+        NAME##Impl,                                                            \
+        BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                    \
+    return false;                                                              \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline bool hasMask(NAME##Impl value, NAME##Impl mask) {    \
+    return (value & mask) == mask;                                             \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline void setMask(NAME##Impl &value, NAME##Impl mask) {   \
+    value = value | mask;                                                      \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline void clearMask(NAME##Impl &value, NAME##Impl mask) { \
+    value = value & NAME##Impl(~UINT_TYPE(mask));                              \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline void toggleMask(                                     \
+      NAME##Impl &value, NAME##Impl mask) {                                    \
+    value = NAME##Impl(UINT_TYPE(value) ^ UINT_TYPE(mask));                    \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline bool isSingleFlag(NAME##Impl value) {                \
+    switch (value) {                                                           \
+      BOOST_PP_SEQ_FOR_EACH(                                                   \
+          FNG_ENUMFLAG_DETAILS_OP_SINGLE_FLAG_CHECK,                           \
+          NAME##Impl,                                                          \
+          BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                  \
+      case NAME##Impl::none:                                                   \
+        break;                                                                 \
+    }                                                                          \
+    return false;                                                              \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline std::vector<std::string> toStrings(                  \
+      NAME##Impl value) {                                                      \
+    std::vector<std::string> strings;                                          \
+    BOOST_PP_SEQ_FOR_EACH(                                                     \
+        FNG_ENUMFLAG_DETAILS_OP_PUSHBACK_STRING,                               \
+        NAME##Impl,                                                            \
+        BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                    \
+    return strings;                                                            \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline std::string toPretty(NAME##Impl value) {             \
+    std::string prettySet("{");                                                \
+    BOOST_PP_SEQ_FOR_EACH(                                                     \
+        FNG_ENUMFLAG_DETAILS_OP_STRING_FOR_FLAG,                               \
+        NAME##Impl,                                                            \
+        BOOST_PP_TUPLE_TO_SEQ(__VA_ARGS__))                                    \
+    prettySet += "} (=" + std::to_string(UINT_TYPE(value)) + ")";              \
+    return prettySet;                                                          \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] constexpr size_t getCount(NAME##Impl) {       \
+    return BOOST_PP_TUPLE_SIZE(__VA_ARGS__);                                   \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline std::                                  \
+      array<std::string_view, BOOST_PP_TUPLE_SIZE(__VA_ARGS__)>                \
+      getNames(NAME##Impl) {                                                   \
+    return {FNG_ENUMFLAGS_DETAILS_COMMA_SEP_STRINGS(__VA_ARGS__)};             \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline std::string_view getStringOfNames(     \
+      NAME##Impl) {                                                            \
+    return FNG_ENUMFLAGS_DETAILS_CSV_STRING(__VA_ARGS__);                      \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] constexpr std::                               \
+      array<UINT_TYPE, BOOST_PP_TUPLE_SIZE(__VA_ARGS__)>                       \
+      getValues(NAME##Impl) {                                                  \
+    return {FNG_ENUMFLAGS_DETAILS_COMMA_SEP_INTS(NAME##Impl, __VA_ARGS__)};    \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline std::string_view getTypeName(          \
+      NAME##Impl) {                                                            \
+    return BOOST_PP_STRINGIZE(NAME);                                           \
+  }                                                                            \
   }  // namespace enum_wrapper_

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <stdexcept>
+#include <optional>
 
 namespace farm_ng_core {
 

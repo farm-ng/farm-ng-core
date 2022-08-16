@@ -7,6 +7,3 @@
 [submodule "thirdparty/expected"]
 	path = thirdparty/expected
 	url = git@github.com:TartanLlama/expected.git
-[submodule "thirdparty/googletest"]
-	path = thirdparty/googletest
-	url = https://github.com/google/googletest

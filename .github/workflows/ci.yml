@@ -26,7 +26,16 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
 
     - name: install deps
-      run: sudo apt-get install libgtest-dev clang-tidy-10 -y
+      run: |
+        sudo apt-get install libgtest-dev clang-tidy-10 -y
+        git clone https://github.com/fmtlib/fmt.git
+        cd fmt
+        git checkout 8.3.0
+        mkdir build
+        cd build
+        make -j8
+        sudo make install
+        cd ../..
 
     - name: clang-tidy
       run: ./farm_ng_tidy.sh

@@ -52,6 +52,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(cmake/farm_ng_core_add_test.cmake)
 
+find_package(GTest REQUIRED)
+
 set(CMAKE_CXX_CLANG_TIDY "")
 set(OLD_CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "")

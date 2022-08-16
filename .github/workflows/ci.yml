@@ -30,7 +30,7 @@ jobs:
         sudo apt-get install libgtest-dev clang-tidy-10 -y
         git clone https://github.com/fmtlib/fmt.git
         cd fmt
-        git checkout 8.3.0
+        git checkout 8.1.1
         mkdir build
         cd build
         make -j8

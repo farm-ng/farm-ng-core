@@ -12,7 +12,6 @@
 #include <functional>
 #include <iostream>
 
-
 #ifdef FNG_COMPILE_TIME_FMT
 #define FNG_STRING(x) FMT_STRING(x)
 #else

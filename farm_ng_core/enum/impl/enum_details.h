@@ -1,12 +1,11 @@
+// Copyright (c) farm-ng, inc. All rights reserved.
+
 // Copyright (c) Facebook, Inc. and its affiliates.
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
 #pragma once
-
-#include <farm_ng_core/enum/impl/compiler_attributes.h>
-#include <farm_ng_core/logging/logger.h>
 
 #include <boost/preprocessor/comparison/equal.hpp>
 #include <boost/preprocessor/control/if.hpp>
@@ -18,6 +17,8 @@
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/tuple/size.hpp>
 #include <boost/preprocessor/tuple/to_seq.hpp>
+#include <farm_ng_core/enum/impl/compiler_attributes.h>
+#include <farm_ng_core/logging/logger.h>
 
 #include <array>
 #include <string>
@@ -95,10 +96,9 @@
 //   }
 #define FNG_ENUM_DETAILS_OP_TO_PRETTY_CASE(dummy, types, PAIR)        \
   case BOOST_PP_TUPLE_ELEM(0, types)::BOOST_PP_TUPLE_ELEM(0, PAIR): { \
-    return BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(0, PAIR)) +         \
-           std::string(" (=") +                                       \
-           std::to_string(BOOST_PP_TUPLE_ELEM(1, types)(value)) +     \
-           std::string(")");                                          \
+    return BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(0, PAIR)) + std::string(" (=") +                              \
+        std::to_string(BOOST_PP_TUPLE_ELEM(1, types)(value)) +        \
+        std::string(")");                                             \
   }
 
 // Output:
@@ -118,13 +118,13 @@
 
 // Input: (A, (B,3), (C,5))
 // Output: "A", "B", "C"
-#define FNG_ENUM_DETAILS_COMMA_SEP_STRINGS(...)                              \
+#define FNG_ENUM_DETAILS_COMMA_SEP_STRINGS(...)                                \
   BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(                                    \
       0,                                                                     \
       BOOST_PP_SEQ_ELEM(0, FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))) \
-  BOOST_PP_SEQ_FOR_EACH(                                                     \
-      FNG_ENUM_DETAILS_OP_COMMA_STRING,                                      \
-      _,                                                                     \
+  BOOST_PP_SEQ_FOR_EACH(                                                       \
+      FNG_ENUM_DETAILS_OP_COMMA_STRING,                                        \
+      _,                                                                       \
       BOOST_PP_SEQ_POP_FRONT(FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))
 
 // Output: ", ${PAIR}[0]"
@@ -139,13 +139,13 @@
 
 // Input: (A, (B, 5), C)
 // Output: "A, B, C"
-#define FNG_ENUM_DETAILS_CSV_STRING(...)                                     \
+#define FNG_ENUM_DETAILS_CSV_STRING(...)                                       \
   BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(                                    \
       0,                                                                     \
       BOOST_PP_SEQ_ELEM(0, FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))) \
-  BOOST_PP_SEQ_FOR_EACH(                                                     \
-      FNG_ENUM_DETAILS_OP_COMMA_VALUE_STRING,                                \
-      _,                                                                     \
+  BOOST_PP_SEQ_FOR_EACH(                                                       \
+      FNG_ENUM_DETAILS_OP_COMMA_VALUE_STRING,                                  \
+      _,                                                                       \
       BOOST_PP_SEQ_POP_FRONT(FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))
 
 // Output: , ${TYPES}[1](${TYPES}[0]::${PAIR}[0])
@@ -179,8 +179,7 @@
           FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                             \
               FNG_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                   \
     }                                                                    \
-    FNG_FATAL(                                                           \
-        BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",      \
+    FNG_FATAL(BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",                         \
         FNG_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));              \
   }                                                                      \
                                                                          \
@@ -193,8 +192,7 @@
           FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                             \
               FNG_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                   \
     }                                                                    \
-    FNG_FATAL(                                                           \
-        BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",      \
+    FNG_FATAL(BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",                         \
         FNG_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));              \
   }                                                                      \
                                                                          \
@@ -206,8 +204,7 @@
           FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                             \
               FNG_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                   \
     }                                                                    \
-    FNG_FATAL(                                                           \
-        BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",      \
+    FNG_FATAL(BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",                         \
         FNG_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));              \
   }                                                                      \
                                                                          \
@@ -260,8 +257,7 @@
           FNG_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                             \
               FNG_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                   \
     }                                                                    \
-    FNG_FATAL(                                                           \
-        BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",      \
+    FNG_FATAL(BOOST_PP_STRINGIZE(NAME) " does contain invalid value: {}",                         \
         FNG_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));              \
   }                                                                      \
                                                                          \

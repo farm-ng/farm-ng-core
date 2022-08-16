@@ -8,11 +8,10 @@
 
 #include <tl/expected.hpp>
 
+#include <iostream>
 #include <optional>
 #include <string>
 #include <vector>
-#include <iostream>
-
 
 namespace farm_ng_core {
 
@@ -27,7 +26,6 @@ inline std::ostream& operator<<(std::ostream& os, const Error& error) {
   }
   return os;
 }
-
 
 struct Success {};
 
@@ -94,6 +92,5 @@ Expected<T> fromOptional(std::optional<T> optional) {
   return optional ? Expected<T>(std::move(*optional))
                   : FNG_ERROR("std::nullopt");
 }
-
 
 }  // namespace farm_ng_core

@@ -3,14 +3,15 @@
 #pragma once
 
 #include <filesystem>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 namespace farm_ng_core {
 
 /// Splits string into N tokens (substrings) based on a delimiter
-inline std::vector<std::string> tokenize(const std::string& str, char delimiter = ' '){
+inline std::vector<std::string> tokenize(
+    const std::string& str, char delimiter = ' ') {
   std::vector<std::string> tokens;
 
   std::stringstream strstream(str);

@@ -15,16 +15,16 @@ set(base_enum_src_prefixes  erase
                             uri)
 
 
-add_library(farm_ng_core_utils INTERFACE 
-  erase.h 
-  filesystem.h 
+add_library(farm_ng_core_utils INTERFACE
+  erase.h
+  filesystem.h
   stopwatch.h
   tokenize.h
   uri.h
   variant_utils.h
   void.h)
 
-target_link_libraries(farm_ng_core_utils INTERFACE 
+target_link_libraries(farm_ng_core_utils INTERFACE
   farm_ng_core_enum farm_ng_core_logging
 )
 

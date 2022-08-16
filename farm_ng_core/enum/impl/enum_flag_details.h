@@ -1,11 +1,11 @@
+// Copyright (c) farm-ng, inc. All rights reserved.
+
 // Copyright (c) Facebook, Inc. and its affiliates.
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
 #pragma once
-
-#include <farm_ng_core/enum/impl/compiler_attributes.h>
 
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
@@ -14,6 +14,7 @@
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/tuple/size.hpp>
 #include <boost/preprocessor/tuple/to_seq.hpp>
+#include <farm_ng_core/enum/impl/compiler_attributes.h>
 
 #include <array>
 #include <string>
@@ -80,8 +81,7 @@
 //   }
 #define FNG_ENUMFLAG_DETAILS_OP_STRING_FOR_FLAG(dummy1, TYPE, FLAG) \
   if (hasMask(value, TYPE::FLAG)) {                                 \
-    prettySet += BOOST_PP_STRINGIZE(FLAG) " (=" +                   \
-                 std::to_string(uint64_t(TYPE::FLAG)) + "), ";      \
+    prettySet += BOOST_PP_STRINGIZE(FLAG) " (=" + std::to_string(uint64_t(TYPE::FLAG)) + "), "; \
   }
 
 // Output: ", ${STRING}"

@@ -2,11 +2,10 @@
 
 #pragma once
 
-#include <filesystem>
-#include <optional>
-
 #include <farm_ng_core/logging/format.h>
 
+#include <filesystem>
+#include <optional>
 
 namespace farm_ng_core {
 
@@ -41,7 +40,6 @@ inline std::optional<std::filesystem::path> createVersionedFolder(
   return path_attempt;
 }
 
-
 /// Creates a unique temporary directory with the prefix "/tmp/farm-ng-"
 ///
 /// Returns nullopt if for unexpected reason creation of the folder fails.
@@ -54,6 +52,5 @@ inline std::optional<std::filesystem::path> createUniqueTemporaryDirectory() {
   }
   return directory_str;
 }
-
 
 }  // namespace farm_ng_core

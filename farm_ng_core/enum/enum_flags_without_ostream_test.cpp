@@ -1,10 +1,11 @@
+// Copyright (c) farm-ng, inc. All rights reserved.
+
 // Copyright (c) Facebook, Inc. and its affiliates.
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
 #include <farm_ng_core/enum/enum_flags_without_ostream.h>
-
 #include <gtest/gtest.h>
 
 FNG_ENUMFLAGS_WITHOUT_OSTREAM(MyFlags, uint32_t, (foo, bar, daz));

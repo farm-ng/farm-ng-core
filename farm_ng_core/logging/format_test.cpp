@@ -2,7 +2,6 @@
 
 #include <farm_ng_core/logging/format.h>
 #include <farm_ng_core/logging/logger.h>
-
 #include <gtest/gtest.h>
 
 using namespace farm_ng_core;

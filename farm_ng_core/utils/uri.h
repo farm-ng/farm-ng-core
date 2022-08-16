@@ -18,8 +18,7 @@ struct Uri {
   Uri() {}
 
   /// Creates Uri.
-  Uri(
-      const UriSchemeType& scheme,
+  Uri(const UriSchemeType& scheme,
       const std::string& authority,
       const std::string& path,
       const std::string& query)

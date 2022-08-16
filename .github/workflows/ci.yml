@@ -36,6 +36,12 @@ jobs:
         make -j8
         sudo make install
         cd ../..
+        git@github.com:TartanLlama/expected.git
+        cd expected
+        mkdir build
+        cd build
+        sudo make install
+        cd ../..
 
     - name: clang-tidy
       run: ./farm_ng_tidy.sh

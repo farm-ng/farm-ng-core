@@ -33,7 +33,7 @@ jobs:
         git checkout 8.1.1
         mkdir build
         cd build
-        cmake .. -DFMT_TEST=OFF
+        cmake .. -DFMT_TEST=OFF -BUILD_SHARED_LIBS=ON
         make -j8
         sudo make install
         cd ../..

@@ -25,7 +25,7 @@ struct Uri {
   Uri(const UriSchemeType& scheme,
       const std::string& authority,
       const std::string& path,
-      const std::string& query)
+      const std::string& query = "")
       : scheme(scheme), authority(authority), path(path), query(query) {}
 
   /// Returns string representation of uri.

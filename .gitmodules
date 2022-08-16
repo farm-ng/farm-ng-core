@@ -1,6 +1,3 @@
-[submodule "thirdparty/preprocessor"]
-	path = thirdparty/preprocessor
-	url = https://github.com/boostorg/preprocessor
 [submodule "thirdparty/fmt"]
 	path = thirdparty/fmt
 	url = git@github.com:fmtlib/fmt.git

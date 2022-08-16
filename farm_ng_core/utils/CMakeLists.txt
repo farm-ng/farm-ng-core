@@ -15,7 +15,7 @@ set(base_enum_src_prefixes  erase
                             uri)
 
 
-add_library(farm_ng_core_utils INTERFACE
+add_library(farmngcore_utils INTERFACE
   erase.h
   filesystem.h
   stopwatch.h
@@ -24,11 +24,11 @@ add_library(farm_ng_core_utils INTERFACE
   variant_utils.h
   void.h)
 
-target_link_libraries(farm_ng_core_utils INTERFACE
-  farm_ng_core_enum farm_ng_core_logging
+target_link_libraries(farmngcore_utils INTERFACE
+  farm_ng_core_enum farmngcore_logging
 )
 
-target_include_directories(farm_ng_core_utils INTERFACE
+target_include_directories(farmngcore_utils INTERFACE
   ../..
 )
 
@@ -36,7 +36,7 @@ target_include_directories(farm_ng_core_utils INTERFACE
 if (FARM_NG_CORE_TESTS)
   foreach(test_basename ${base_enum_src_prefixes})
   farm_ng_core_add_test(${test_basename}
-                        PARENT_LIBRARY farm_ng_core_utils
+                        PARENT_LIBRARY farmngcore_utils
                         LABELS small)
   endforeach()
 endif()

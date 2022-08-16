@@ -19,7 +19,7 @@ if (FARM_NG_CORE_TESTS)
   foreach(test_basename ${FNG_ENUM_TESTS})
     farm_ng_core_add_test(${test_basename}
                           PARENT_LIBRARY farm_ng_core_enum
-                          LINK_LIBRARIES farm_ng_core_logging
+                          LINK_LIBRARIES farmngcore_logging
                           LABELS small)
   endforeach()
 endif()

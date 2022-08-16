@@ -6,4 +6,4 @@ mkdir -p build && cd build && CC=clang CXX=clang++ cmake -DCMAKE_EXPORT_COMPILE_
 cd ..
 
 # run clang tidy
-run-clang-tidy  -quiet -p build/ farm_ng_core/.*\.cpp -fix
+run-clang-tidy-10  -quiet -p build/ farm_ng_core/.*\.cpp -fix

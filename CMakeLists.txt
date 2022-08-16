@@ -60,6 +60,6 @@ set(CMAKE_CXX_FLAGS "")
 
 set(EXPECTED_BUILD_TESTS FALSE)
 
-add_subdirectory(thirdparty/expected)
-add_subdirectory(thirdparty/fmt)
+find_package(fmt REQUIRED)
+
 add_subdirectory(farm_ng_core)

@@ -17,8 +17,7 @@ add_library(farmngcore_logging INTERFACE
 
 target_link_libraries(farmngcore_logging INTERFACE
   Boost::system
-  expected
-  fmt::fmt-header-only
+  fmt::fmt
   pthread
 )
 

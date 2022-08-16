@@ -61,5 +61,6 @@ set(CMAKE_CXX_FLAGS "")
 set(EXPECTED_BUILD_TESTS FALSE)
 
 find_package(fmt REQUIRED)
+find_package(Boost 1.71.0 REQUIRED system)
 
 add_subdirectory(farm_ng_core)

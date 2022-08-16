@@ -50,25 +50,25 @@ TEST(EnumFlags, trySetFlagFromString) {
   MyFlags flags{};
   EXPECT_TRUE(hasMask(flags, MyFlags::none));
 
-  bool isSet = trySetFlagFromString(flags, "foo");
-  EXPECT_TRUE(isSet);
+  bool is_set = trySetFlagFromString(flags, "foo");
+  EXPECT_TRUE(is_set);
   EXPECT_EQ(flags, MyFlags::foo);
 
   EXPECT_TRUE(hasMask(flags, MyFlags::foo));
   EXPECT_FALSE(hasMask(flags, MyFlags::bar));
 
-  isSet = trySetFlagFromString(flags, "bar");
-  EXPECT_TRUE(isSet);
+  is_set = trySetFlagFromString(flags, "bar");
+  EXPECT_TRUE(is_set);
   EXPECT_EQ(flags, MyFlags::foo | MyFlags::bar);
   EXPECT_TRUE(hasMask(flags, MyFlags::bar));
   EXPECT_TRUE(hasMask(flags, MyFlags::foo));
 
-  isSet = trySetFlagFromString(flags, "daz");
-  EXPECT_TRUE(isSet);
+  is_set = trySetFlagFromString(flags, "daz");
+  EXPECT_TRUE(is_set);
   EXPECT_EQ(flags, MyFlags::foo | MyFlags::bar | MyFlags::daz);
 
-  isSet = trySetFlagFromString(flags, "wombaz");
-  EXPECT_TRUE(!isSet);
+  is_set = trySetFlagFromString(flags, "wombaz");
+  EXPECT_TRUE(!is_set);
   EXPECT_EQ(flags, MyFlags::foo | MyFlags::bar | MyFlags::daz);
 }
 

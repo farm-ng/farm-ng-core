@@ -22,8 +22,8 @@ TEST(EnumTest, toString) {
   Fruits fruit = Fruits::apple;
   EXPECT_EQ(toString(fruit), "apple");
   EXPECT_EQ(toPretty(fruit), "apple (=1)");
-  std::string_view appleView = toStringView(fruit);
-  EXPECT_EQ(appleView, "apple");
+  std::string_view apple_view = toStringView(fruit);
+  EXPECT_EQ(apple_view, "apple");
 
   Fruits fruit2 = Fruits::banana;
   EXPECT_EQ(toString(fruit2), "banana");
@@ -37,14 +37,14 @@ TEST(EnumTest, toString) {
 }
 
 TEST(EnumTest, StringsAndValues) {
-  std::string_view typeName = getTypeName(Fruits());
-  EXPECT_EQ(typeName, "Fruits");
+  std::string_view type_name = getTypeName(Fruits());
+  EXPECT_EQ(type_name, "Fruits");
   std::array<std::string_view, 3> strings = getStrings(Fruits());
   EXPECT_EQ(strings[0], "apple");
   EXPECT_EQ(strings[1], "banana");
   EXPECT_EQ(strings[2], "pear");
-  std::string_view stringOfNames = getStringOfNames(Fruits());
-  EXPECT_EQ(stringOfNames, std::string("apple, banana, pear"));
+  std::string_view string_of_names = getStringOfNames(Fruits());
+  EXPECT_EQ(string_of_names, std::string("apple, banana, pear"));
   std::array<uint8_t, 3> values = getValues(Fruits());
   EXPECT_EQ(values[0], 1);
   EXPECT_EQ(values[1], 3);

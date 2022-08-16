@@ -1,0 +1,51 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    - id: black
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+        exclude: \.tftpl$
+      - id: check-yaml
+      - id: check-json
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.1.13
+    hooks:
+      - id: insert-license
+        files: \.(h|cpp)$
+        exclude: thirdparty/.*$
+        args:
+          - --comment-style
+          - //
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v13.0.0
+    hooks:
+      - id: clang-format
+        exclude: thirdparty/.*$
+  - repo: local
+    hooks:
+      - id: pragma-once
+        name: pragma once check
+        entry: "#pragma once"
+        language: pygrep
+        files: \.h$
+        args: [--negate]
+        exclude: thirdparty/.*$
+      - id: no-c-std-lib
+        name: c standard library check
+        entry: |
+          (?x)<(
+            assert|complex|ctype|errno|fenv|float|inttypes|iso646|limits|locale|math|setjmp|signal|
+            stdalign|stdarg|stdatomic|stdbool|stddef|stdint|stdio|stdlib|stdnoreturn|string|tgmath|
+            threads|time|uchar|wchar|wctype
+          ).h>
+        language: pygrep
+        files: \.(h|cpp)$
+        exclude: (thirdparty/.*$)|(farm_ng/slam/raster.h)
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: master
+    hooks:
+      - id: clang-tidy

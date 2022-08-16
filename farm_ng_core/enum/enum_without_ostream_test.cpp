@@ -57,7 +57,7 @@ TEST(EnumTest, StringsAndValues) {
 }
 
 // Enum definition in global scope.
-FNG_ENUM_DEF(Autos, int, (van, truck, (sedan, 4)));
+FNG_ENUM_WITHOUT_OSTREAM_DEF(Autos, int, (van, truck, (sedan, 4)));
 
 struct Garage {
   // Enum alias can be in class scope

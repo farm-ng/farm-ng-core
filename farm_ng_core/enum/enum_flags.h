@@ -21,11 +21,11 @@
 
 // Convenience marco which defines the enum flags plus alias and adds the
 // ostream overload.
-#define FNG_ENUMFLAGS_O(EnumName, UINT_TYPE, ...)                  \
+#define FNG_ENUMFLAGS(EnumName, UINT_TYPE, ...)                    \
   FNG_ENUMFLAGS_WITHOUT_OSTREAM(EnumName, UINT_TYPE, __VA_ARGS__); \
   FNG_ENUMFLAGS_OSTREAM_OVERLOAD(EnumName)
 
 // Convenience marco which defines the enum flags and adds the ostream overload.
-#define FNG_ENUMFLAGS_DEF_O(EnumName, UINT_TYPE, ...)  \
-  FNG_ENUMFLAGS_DEF(EnumName, UINT_TYPE, __VA_ARGS__); \
+#define FNG_ENUMFLAGS_DEF(EnumName, UINT_TYPE, ...)                    \
+  FNG_ENUMFLAGS_WITHOUT_OSTREAM_DEF(EnumName, UINT_TYPE, __VA_ARGS__); \
   FNG_ENUMFLAGS_OSTREAM_OVERLOAD(EnumName)

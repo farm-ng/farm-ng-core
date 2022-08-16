@@ -26,6 +26,6 @@
   FNG_ENUM_OSTREAM_OVERLOAD(EnumName)
 
 // Convenience marco which defines the enum and adds the ostream overload.
-#define FNG_ENUM_DEF_O(EnumName, ...)  \
-  FNG_ENUM_DEF(EnumName, __VA_ARGS__); \
+#define FNG_ENUM_DEF(EnumName, ...)                    \
+  FNG_ENUM_WITHOUT_OSTREAM_DEF(EnumName, __VA_ARGS__); \
   FNG_ENUM_OSTREAM_OVERLOAD(EnumName)

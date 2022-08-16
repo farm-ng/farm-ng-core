@@ -10,7 +10,7 @@
 
 #include <sstream>
 
-FNG_ENUMFLAGS_O(MyFlags, uint32_t, (foo, bar, daz));
+FNG_ENUMFLAGS(MyFlags, uint32_t, (foo, bar, daz));
 
 TEST(EnumTest, toString) {
   MyFlags flags = MyFlags::foo;

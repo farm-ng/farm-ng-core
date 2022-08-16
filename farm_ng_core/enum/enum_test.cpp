@@ -30,7 +30,7 @@ TEST(EnumTest, toString) {
 }
 
 // Enum definition in global scope.
-FNG_ENUM_DEF_O(Autos, int32_t, (van, truck, sedan));
+FNG_ENUM_DEF(Autos, int32_t, (van, truck, sedan));
 
 struct Garage {
   // Enum alias can be in class scope

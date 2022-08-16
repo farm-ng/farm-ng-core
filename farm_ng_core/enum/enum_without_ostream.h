@@ -9,11 +9,12 @@
 
 #include <farm_ng_core/enum/impl/enum_details.h>
 
-/* FNG_ENUM_DEF(NAME, [INT_TYPE], ARGS ...)
+/* FNG_ENUM_WITHOUT_OSTREAM_DEF(NAME, [INT_TYPE], ARGS ...)
 
   Enum type definition. Can be in global, and namespace scope only. See
   FNG_ENUM_WITHOUT_OSTREAM below for details. */
-#define FNG_ENUM_DEF(NAME, ...) FNG_ENUM_DEF_IMPL(NAME, __VA_ARGS__)
+#define FNG_ENUM_WITHOUT_OSTREAM_DEF(NAME, ...) \
+  FNG_ENUM_DEF_IMPL(NAME, __VA_ARGS__)
 
 /* FNG_ENUM_ALIAS(NAME)
 
@@ -101,6 +102,6 @@
       return "FooBar";
     }
 */
-#define FNG_ENUM_WITHOUT_OSTREAM(NAME, ...) \
-  FNG_ENUM_DEF(NAME, __VA_ARGS__)           \
+#define FNG_ENUM_WITHOUT_OSTREAM(NAME, ...)       \
+  FNG_ENUM_WITHOUT_OSTREAM_DEF(NAME, __VA_ARGS__) \
   FNG_ENUM_ALIAS(NAME)

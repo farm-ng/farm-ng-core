@@ -9,11 +9,11 @@
 
 #include <farm_ng_core/enum/impl/enum_flag_details.h>
 
-/* FNG_ENUMFLAGS_DEF(NAME, UINT_TYPE, ARGS)
+/* FNG_ENUMFLAGS_WITHOUT_OSTREAM_DEF(NAME, UINT_TYPE, ARGS)
 
   Enum flags type definition. Can be in global, and namespace scope only. See
   FNG_ENUMFLAGS_WITHOUT_OSTREAM below for details. */
-#define FNG_ENUMFLAGS_DEF(NAME, UINT_TYPE, ...) \
+#define FNG_ENUMFLAGS_WITHOUT_OSTREAM_DEF(NAME, UINT_TYPE, ...) \
   FNG_ENUMFLAGS_DEF_IMPL(NAME, UINT_TYPE, __VA_ARGS__)
 
 /* FNG_ENUMFLAGS_ALIAS(NAME)
@@ -131,6 +131,6 @@
     And hence the order of exiting flags (foo, bar) is respected and their
     values do not change.
 */
-#define FNG_ENUMFLAGS_WITHOUT_OSTREAM(NAME, UINT_TYPE, ...) \
-  FNG_ENUMFLAGS_DEF(NAME, UINT_TYPE, __VA_ARGS__)           \
+#define FNG_ENUMFLAGS_WITHOUT_OSTREAM(NAME, UINT_TYPE, ...)       \
+  FNG_ENUMFLAGS_WITHOUT_OSTREAM_DEF(NAME, UINT_TYPE, __VA_ARGS__) \
   FNG_ENUMFLAGS_ALIAS(NAME)

@@ -96,7 +96,7 @@ TEST(EnumFlags, toString) {
 }
 
 // Enum definition in global scope.
-FNG_ENUMFLAGS_DEF(Bike, uint8_t, (frontWheel, backWheel));
+FNG_ENUMFLAGS_WITHOUT_OSTREAM_DEF(Bike, uint8_t, (frontWheel, backWheel));
 
 struct Garage {
   // Enum alias can be in class scope

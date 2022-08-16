@@ -10,11 +10,13 @@ on:
 
 jobs:
   pre-commit-check:
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-latest
       steps:
         - name: Checkout workspace
           uses: actions/checkout@v3
-        - name: ccache
-          uses: hendrikmuhs/ccache-action@v1
+        - name: Install pre-commit and install
+          run: |
+            pip install pre-commit
+            pre-commit install
         - name: Run pre-commit checks
           run: pre-commit run --all-files

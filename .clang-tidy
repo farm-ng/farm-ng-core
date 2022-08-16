@@ -49,7 +49,7 @@ CheckOptions:
   - {key: readability-identifier-naming.StaticConstantCase, value: CamelCase}
   - {key: readability-identifier-naming.StaticConstantPrefix, value: k}
   - {key: readability-identifier-naming.TemplateParameterCase, value: CamelCase}
-  - {key: readability-identifier-naming.TemplateParameterCase, value: k}
+  - {key: readability-identifier-naming.TemplateParameterPrefix, value: k}
 
   - {key: readability-identifier-naming.GlobalVariableCase, value: Camel_Snake_Case}
   - {key: readability-identifier-naming.StaticVariableCase, value: Camel_Snake_Case}

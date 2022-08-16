@@ -44,8 +44,4 @@ repos:
           ).h>
         language: pygrep
         files: \.(h|cpp)$
-        exclude: (thirdparty/.*$)|(farm_ng/slam/raster.h)
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: master
-    hooks:
-      - id: clang-tidy
+        exclude: (thirdparty/.*$)

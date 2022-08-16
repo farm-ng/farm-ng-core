@@ -38,8 +38,8 @@ jobs:
         sudo make install
         cd ../..
         git clone https://github.com/TartanLlama/expected.git
-        git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
         cd expected
+        git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
         mkdir build
         cd build
         cmake ..

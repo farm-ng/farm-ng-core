@@ -27,7 +27,7 @@ jobs:
 
     - name: install deps
       run: |
-        sudo apt-get install libgtest-dev clang-tidy-10 -y
+        sudo apt-get install libgtest-dev clang-tidy-10 libboost-all-dev -y
         git clone https://github.com/fmtlib/fmt.git
         cd fmt
         git checkout 8.1.1
@@ -38,6 +38,7 @@ jobs:
         sudo make install
         cd ../..
         git clone https://github.com/TartanLlama/expected.git
+        git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
         cd expected
         mkdir build
         cd build

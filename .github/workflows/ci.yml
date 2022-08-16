@@ -33,6 +33,7 @@ jobs:
         git checkout 8.1.1
         mkdir build
         cd build
+        cmake ..
         make -j8
         sudo make install
         cd ../..
@@ -40,6 +41,7 @@ jobs:
         cd expected
         mkdir build
         cd build
+        cmake ..
         sudo make install
         cd ../..
 

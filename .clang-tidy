@@ -3,6 +3,7 @@ Checks:
   readability-*,
   -readability-magic-numbers,
   cppcoreguidelines-*,
+  -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-avoid-*,
   -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-pro-*,
@@ -27,7 +28,7 @@ CheckOptions:
 
   - {key: readability-identifier-naming.ClassCase, value: CamelCase}
   - {key: readability-identifier-naming.StructCase, value: CamelCase}
-  - {key: readability-identifier-naming.TypeTemplateParameterCase, value: CamelCase}
+  - {key: readability-identifier-naming.TemplateParameterCase, value: CamelCase}
   - {key: readability-identifier-naming.TypedefCase, value: CamelCase}
 
   - {key: readability-identifier-naming.FunctionCase, value: camelBack}
@@ -43,13 +44,14 @@ CheckOptions:
   - {key: readability-identifier-naming.ConstantCase, value: lower_case}
 
   - {key: readability-identifier-naming.PrivateMemberSuffix, value: _}
+  - {key: readability-identifier-naming.ProtectedMemberSuffix, value: _}
 
   - {key: readability-identifier-naming.GlobalConstantCase, value: CamelCase}
   - {key: readability-identifier-naming.GlobalConstantPrefix, value: k}
   - {key: readability-identifier-naming.StaticConstantCase, value: CamelCase}
   - {key: readability-identifier-naming.StaticConstantPrefix, value: k}
-  - {key: readability-identifier-naming.TemplateParameterCase, value: CamelCase}
-  - {key: readability-identifier-naming.TemplateParameterPrefix, value: k}
+  - {key: readability-identifier-naming.ValueTemplateParameterCase, value: CamelCase}
+  - {key: readability-identifier-naming.ValueTemplateParameterPrefix, value: k}
 
   - {key: readability-identifier-naming.GlobalVariableCase, value: Camel_Snake_Case}
   - {key: readability-identifier-naming.StaticVariableCase, value: Camel_Snake_Case}

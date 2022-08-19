@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(farm_ng_core)
+project(fng_core)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if (NOT (CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL ""))
@@ -63,4 +63,4 @@ set(EXPECTED_BUILD_TESTS FALSE)
 find_package(fmt REQUIRED)
 find_package(Boost 1.71.0 REQUIRED system)
 
-add_subdirectory(farm_ng_core)
+add_subdirectory(fng_core)

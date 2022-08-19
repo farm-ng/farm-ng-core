@@ -61,7 +61,7 @@ ForEachMacros:
 IncludeBlocks: Regroup
 IncludeCategories:
   # first-party libraries
-  - Regex:           '\"farm_ng_core\/([A-Za-z0-9.\/-_])+\"'
+  - Regex:           '\"fng_core\/([A-Za-z0-9.\/-_])+\"'
     Priority:        1
   # standard libraries
   - Regex:           '<([A-Za-z0-_])+>'

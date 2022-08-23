@@ -1,4 +1,4 @@
-macro(fng_core_logging target_basename)
+macro(fng_core_add_test target_basename)
 
   set(one_value_args PARENT_LIBRARY)
   set(multi_value_args

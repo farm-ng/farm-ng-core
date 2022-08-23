@@ -8,7 +8,8 @@
 
 #include "fng_core/logging/format.h"
 
-#include <cstdlib>
+#include <unistd.h>
+
 #include <filesystem>
 #include <optional>
 

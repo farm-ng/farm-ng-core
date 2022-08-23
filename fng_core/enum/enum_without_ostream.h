@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <fng_core/enum/impl/enum_details.h>
+#include "fng_core/enum/impl/enum_details.h"
 
 /* FNG_ENUM_WITHOUT_OSTREAM_DEF(NAME, [INT_TYPE], ARGS ...)
 

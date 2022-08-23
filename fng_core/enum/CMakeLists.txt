@@ -1,11 +1,11 @@
 
-add_library(farm_ng_core_enum INTERFACE
+add_library(fng_core_enum INTERFACE
   enum.h
   enum_flags.h
   enum_without_ostream.h
   enum_flags_without_ostream.h)
 
-  target_include_directories(farm_ng_core_enum INTERFACE
+  target_include_directories(fng_core_enum INTERFACE
   ../..
 )
 
@@ -18,8 +18,8 @@ if (FARM_NG_CORE_TESTS)
 
   foreach(test_basename ${FNG_ENUM_TESTS})
     farm_ng_core_add_test(${test_basename}
-                          PARENT_LIBRARY farm_ng_core_enum
-                          LINK_LIBRARIES farmngcore_logging
+                          PARENT_LIBRARY fng_core_enum
+                          LINK_LIBRARIES fng_core_logging
                           LABELS small)
   endforeach()
 endif()

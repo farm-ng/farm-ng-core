@@ -4,7 +4,8 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include <fng_core/logging/logger.h>
+#include "fng_core/logging/logger.h"
+
 #include <gtest/gtest.h>
 
 #include <optional>

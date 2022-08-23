@@ -6,8 +6,9 @@
 
 #pragma once
 
+#include "fng_core/logging/logger.h"
+
 #include <Eigen/Core>
-#include <fng_core/logging/logger.h>
 
 namespace fng_core {
 namespace details {

@@ -23,7 +23,7 @@ add_library(farmngcore_utils INTERFACE
   void.h)
 
 target_link_libraries(farmngcore_utils INTERFACE
-  farm_ng_core_enum farmngcore_logging
+  fng_core_enum fng_core_logging
 )
 
 target_include_directories(farmngcore_utils INTERFACE

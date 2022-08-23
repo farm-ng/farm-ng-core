@@ -13,7 +13,8 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-#include <fng_core/enum/enum_without_ostream.h>
+#include "fng_core/enum/enum_without_ostream.h"
+
 #include <gtest/gtest.h>
 
 FNG_ENUM_WITHOUT_OSTREAM(Fruits, uint8_t, ((apple, 1), (banana, 3), pear));

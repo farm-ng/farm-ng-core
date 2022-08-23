@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <fng_core/enum/impl/enum_flag_details.h>
+#include "fng_core/enum/impl/enum_flag_details.h"
 
 /* FNG_ENUMFLAGS_WITHOUT_OSTREAM_DEF(NAME, UINT_TYPE, ARGS)
 

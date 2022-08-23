@@ -15,7 +15,10 @@ jobs:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-11]
 
     steps:
     - uses: actions/checkout@v3
@@ -25,7 +28,7 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
 
-    - name: install deps
+    - name: install deps (linux)
       run: |
         sudo apt-get install libgtest-dev clang-tidy-10 libboost-all-dev -y
         git clone https://github.com/fmtlib/fmt.git
@@ -42,12 +45,48 @@ jobs:
         git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
         mkdir build
         cd build
-        cmake ..
+        cmake .. -DEXPECTED_BUILD_TESTS=off
         sudo make install
         cd ../..
+      if: matrix.os == 'ubuntu-20.04'
+
+    - name: install deps (mac-os)
+      run: |
+        brew update
+        brew install boost
+
+        git clone https://github.com/google/googletest
+        cd googletest
+        git checkout release-1.12.1
+        mkdir build
+        cd build
+        cmake ..
+        make
+        make install
+        git clone https://github.com/fmtlib/fmt.git
+        cd fmt
+        git checkout 8.1.1
+        mkdir build
+        cd build
+        cmake .. -DFMT_TEST=OFF -DBUILD_SHARED_LIBS=ON
+        make -j8
+        sudo make install
+        cd ../..
+        git clone https://github.com/TartanLlama/expected.git
+        cd expected
+        git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
+        mkdir build
+        cd build
+        cmake .. -DEXPECTED_BUILD_TESTS=off
+        sudo make install
+        cd ../..
+      if: matrix.os == 'macos-11'
+
 
     - name: clang-tidy
       run: ./run_clang_tidy.sh
+      if: matrix.os == 'ubuntu-20.04'
+
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

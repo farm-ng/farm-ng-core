@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <fng_core/enum/enum_flags_without_ostream.h>
+#include "fng_core/enum/enum_flags_without_ostream.h"
 
 #include <ostream>
 

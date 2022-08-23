@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <fng_core/logging/format.h>
+#include "fng_core/logging/format.h"
 
+#include <cstdlib>
 #include <filesystem>
 #include <optional>
 

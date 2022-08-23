@@ -50,7 +50,7 @@ endif()
 
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(cmake/farm_ng_core_add_test.cmake)
+include(cmake/fng_core_add_test.cmake)
 
 find_package(GTest REQUIRED)
 

@@ -17,9 +17,9 @@ if (FARM_NG_CORE_TESTS)
       enum_flags_without_ostream)
 
   foreach(test_basename ${FNG_ENUM_TESTS})
-    farm_ng_core_add_test(${test_basename}
-                          PARENT_LIBRARY fng_core_enum
-                          LINK_LIBRARIES fng_core_logging
-                          LABELS small)
+    fng_core_add_test(${test_basename}
+                      PARENT_LIBRARY fng_core_enum
+                      LINK_LIBRARIES fng_core_logging
+                      LABELS small)
   endforeach()
 endif()

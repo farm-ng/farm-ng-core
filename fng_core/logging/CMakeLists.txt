@@ -27,9 +27,9 @@ target_include_directories(fng_core_logging INTERFACE
 
 if (FARM_NG_CORE_TESTS)
   foreach(test_basename ${base_logging_src_prefixes})
-  farm_ng_core_add_test(${test_basename}
-                        PARENT_LIBRARY fng_core_logging
-                        LINK_LIBRARIES
-                        LABELS small)
+  fng_core_add_test(${test_basename}
+                    PARENT_LIBRARY fng_core_logging
+                    LINK_LIBRARIES
+                    LABELS small)
   endforeach()
 endif()

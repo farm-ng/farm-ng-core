@@ -41,7 +41,7 @@ target_sources(fng_core_utils INTERFACE
                     void.h)
 
 
-if (FARM_NG_CORE_TESTS)
+if (${FNG_CORE_TESTS})
   foreach(test_basename ${base_enum_src_prefixes})
   fng_core_add_test(${test_basename}
                     PARENT_LIBRARY fng_core_utils

@@ -20,7 +20,7 @@ target_sources(fng_core_enum INTERFACE
                  impl/enum_details.h
                  impl/enum_flag_details.h)
 
-if (FARM_NG_CORE_TESTS)
+if (${FNG_CORE_TESTS})
   set(FNG_ENUM_TESTS
       enum
       enum_without_ostream

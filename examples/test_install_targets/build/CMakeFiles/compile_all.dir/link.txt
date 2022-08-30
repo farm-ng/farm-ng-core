@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/compile_all.dir/compile_all.cpp.o -o compile_all  -Wl,-rpath,/usr/local/lib /usr/local/lib/libfmt.so.8.1.1 -Wl,--as-needed 

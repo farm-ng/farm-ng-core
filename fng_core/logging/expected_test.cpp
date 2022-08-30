@@ -14,6 +14,7 @@
 
 using namespace fng_core;
 
+namespace fng_core {
 struct A {
   std::string a;
 };
@@ -93,6 +94,7 @@ Expected<A> sum(Expected<A> maybe_left, Expected<A> maybe_right) {
   A s;
   s.a = lhs.a + rhs.a;
   return s;
+}
 }
 
 TEST(expected, success) {

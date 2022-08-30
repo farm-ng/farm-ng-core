@@ -5,9 +5,20 @@ add_library(fng_core_enum INTERFACE
   enum_without_ostream.h
   enum_flags_without_ostream.h)
 
-  target_include_directories(fng_core_enum INTERFACE
-  ../..
+target_include_directories(fng_core_enum INTERFACE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>"
+  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+target_sources(fng_core_enum INTERFACE
+               FILE_SET HEADERS
+               BASE_DIRS ../..
+               FILES
+                 enum.h
+                 enum_flags.h
+                 enum_without_ostream.h
+                 enum_flags_without_ostream.h
+                 impl/enum_details.h
+                 impl/enum_flag_details.h)
 
 if (FARM_NG_CORE_TESTS)
   set(FNG_ENUM_TESTS

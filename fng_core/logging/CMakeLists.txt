@@ -20,10 +20,18 @@ target_link_libraries(fng_core_logging INTERFACE
   fmt::fmt
   pthread
 )
-
 target_include_directories(fng_core_logging INTERFACE
-  ../..
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>"
+  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+target_sources(fng_core_logging INTERFACE
+               FILE_SET HEADERS
+               BASE_DIRS ../..
+               FILES
+                 expected.h
+                 format.h
+                 logger.h)
+
 
 if (FARM_NG_CORE_TESTS)
   foreach(test_basename ${base_logging_src_prefixes})

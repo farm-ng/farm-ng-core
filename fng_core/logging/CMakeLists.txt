@@ -16,7 +16,7 @@ add_library(fng_core_logging INTERFACE
   logger.h)
 
 target_link_libraries(fng_core_logging INTERFACE
-  Boost::system
+  Boost::headers
   fmt::fmt
   pthread
 )

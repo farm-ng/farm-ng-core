@@ -8,7 +8,7 @@ include(GNUInstallDirs)
 
 find_package(fng_core 22.99.0 REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Boost 1.71.0 REQUIRED system)
+find_package(Boost 1.71.0 REQUIRED COMPONENTS headers)
 
 set(example_source compile_all)
 

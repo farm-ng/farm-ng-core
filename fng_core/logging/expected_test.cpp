@@ -95,7 +95,7 @@ Expected<A> sum(Expected<A> maybe_left, Expected<A> maybe_right) {
   s.a = lhs.a + rhs.a;
   return s;
 }
-}
+}  // namespace fng_core
 
 TEST(expected, success) {
   Expected<Abc> abc = makeAbc(false, false, false);

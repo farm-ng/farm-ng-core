@@ -1,4 +1,10 @@
 
+// Copyright (c) farm-ng, inc.
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
 #include <fng_core/enum/enum.h>
 #include <fng_core/enum/enum_flags.h>
 #include <fng_core/logging/expected.h>
@@ -73,7 +79,7 @@ int main() {
 
   Expected<Abc> abc = makeAbc(true, false, true);
 
-    std::optional<int> maybe_foo;
+  std::optional<int> maybe_foo;
   maybe_foo = 2;
   int foo = FNG_UNWRAP(maybe_foo);
   FNG_CHECK_EQ(foo, 2);

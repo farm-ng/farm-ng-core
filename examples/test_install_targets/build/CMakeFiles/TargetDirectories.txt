@@ -1,3 +1,0 @@
-/home/strasdat/code/farm-ng-core/examples/test_install_targets/build/CMakeFiles/compile_all.dir
-/home/strasdat/code/farm-ng-core/examples/test_install_targets/build/CMakeFiles/edit_cache.dir
-/home/strasdat/code/farm-ng-core/examples/test_install_targets/build/CMakeFiles/rebuild_cache.dir

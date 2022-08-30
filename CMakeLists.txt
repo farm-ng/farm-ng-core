@@ -16,7 +16,7 @@ endif()
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 
-OPTION(FNG_CORE_TESTS "Build tests" ON)
+option(FNG_CORE_TESTS "Build tests" ON)
 
 if(${FNG_CORE_TESTS})
     enable_testing()
@@ -24,7 +24,7 @@ if(${FNG_CORE_TESTS})
 endif()
 
 
-OPTION(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
+option(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
 if(COMPILE_TIME_FMT)
     add_definitions(-DFNG_COMPILE_TIME_FMT)
 endif()

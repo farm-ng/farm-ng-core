@@ -19,7 +19,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11]
-
+        tests: [unit_test, install_target]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v3
       with:
@@ -88,17 +89,32 @@ jobs:
       if: matrix.os == 'ubuntu-20.04'
 
 
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Configure And Build Tests
+      run: |
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFNG_CORE_TESTS=ON
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      if: matrix.tests == 'unit_test'
 
-    - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
+      if: matrix.tests == 'unit_test'
+
+
+    - name: Install system targets tests
+      run: |
+        mkdir -p build
+        cd build
+        pwd
+        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFNG_CORE_TESTS=OFF
+        sudo make install
+        cd ..
+        cd examples/test_install_targets/
+        mkdir -p build
+        cd build
+        cmake ..
+        make
+      if: matrix.tests == 'install_target'

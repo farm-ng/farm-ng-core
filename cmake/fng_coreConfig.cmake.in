@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(fmt REQUIRED)
+find_package(Boost 1.71.0 REQUIRED COMPONENTS headers)
+
+include ("${CMAKE_CURRENT_LIST_DIR}/fng_coreTargets.cmake")

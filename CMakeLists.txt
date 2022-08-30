@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.19)
-project(fng_core)
+cmake_minimum_required(VERSION 3.24)
+project(fng_core VERSION 22.99.0)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 if (NOT (CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL ""))
   # Default to  RelWithDebInfo if no build type is specified.
@@ -11,12 +15,16 @@ endif()
 # runtime asserts are enabled.
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
-enable_testing()
 
-OPTION(FARM_NG_CORE_TESTS "Build tests" ON)
+option(FNG_CORE_TESTS "Build tests" ON)
+
+if(${FNG_CORE_TESTS})
+    enable_testing()
+    find_package(GTest REQUIRED)
+endif()
 
 
-OPTION(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
+option(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
 if(COMPILE_TIME_FMT)
     add_definitions(-DFNG_COMPILE_TIME_FMT)
 endif()
@@ -33,7 +41,7 @@ elseif (THREAD_SANITIZER)
   add_link_options(-fsanitize=thread)
 endif()
 
-find_program(CCACHE_FOUND ccache REQUIRED)
+find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
@@ -52,8 +60,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(cmake/fng_core_add_test.cmake)
 
-find_package(GTest REQUIRED)
-
 set(CMAKE_CXX_CLANG_TIDY "")
 set(OLD_CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "")
@@ -64,3 +70,30 @@ find_package(fmt REQUIRED)
 find_package(Boost 1.71.0 REQUIRED system)
 
 add_subdirectory(fng_core)
+
+install(
+  TARGETS
+     fng_core_logging
+     fng_core_enum
+     fng_core_utils
+  EXPORT fng_coreTargets
+  FILE_SET HEADERS
+  LIBRARY DESTINATION lib
+)
+
+write_basic_package_version_file(
+    fng_coreConfigVersion.cmake
+    VERSION ${PACKAGE_VERSION}
+    COMPATIBILITY AnyNewerVersion
+    )
+
+install(EXPORT fng_coreTargets
+    FILE fng_coreTargets.cmake
+    NAMESPACE fng_core::
+    DESTINATION share/fng_core/cmake
+)
+
+configure_file(cmake/fng_coreConfig.cmake.in fng_coreConfig.cmake @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/fng_coreConfig.cmake"
+              "${CMAKE_CURRENT_BINARY_DIR}/fng_coreConfigVersion.cmake"
+        DESTINATION share/fng_core/cmake)

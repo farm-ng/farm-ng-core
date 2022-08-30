@@ -14,7 +14,7 @@ set(base_enum_src_prefixes  erase
                             tokenize)
 
 
-add_library(farmngcore_utils INTERFACE
+add_library(fng_core_utils INTERFACE
   erase.h
   filesystem.h
   stopwatch.h
@@ -22,19 +22,29 @@ add_library(farmngcore_utils INTERFACE
   variant_utils.h
   void.h)
 
-target_link_libraries(farmngcore_utils INTERFACE
+target_link_libraries(fng_core_utils INTERFACE
   fng_core_enum fng_core_logging
 )
-
-target_include_directories(farmngcore_utils INTERFACE
-  ../..
+target_include_directories(fng_core_utils INTERFACE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>"
+  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+target_sources(fng_core_utils INTERFACE
+               FILE_SET HEADERS
+               BASE_DIRS ../..
+               FILES
+                    erase.h
+                    filesystem.h
+                    stopwatch.h
+                    tokenize.h
+                    variant_utils.h
+                    void.h)
 
 
-if (FARM_NG_CORE_TESTS)
+if (${FNG_CORE_TESTS})
   foreach(test_basename ${base_enum_src_prefixes})
   fng_core_add_test(${test_basename}
-                    PARENT_LIBRARY farmngcore_utils
+                    PARENT_LIBRARY fng_core_utils
                     LABELS small)
   endforeach()
 endif()

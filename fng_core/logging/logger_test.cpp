@@ -48,16 +48,23 @@ TEST(logger, unit) {
   }
 
   {
-    std::map<int, std::string> strings = {{2, "foo"}, {7, "bar"}};
-    FNG_GET(strings, 2).second = "daz";
-    FNG_CHECK_EQ(strings[2], "daz");
+    std::map<int, std::string> map_of_strings = {{2, "foo"}, {7, "bar"}};
+    FNG_GET(map_of_strings, 2).second = "daz";
+    FNG_CHECK_EQ(map_of_strings[2], "daz");
 
-    std::string val = FNG_GET(strings, 7).second;
+    std::string val = FNG_GET(map_of_strings, 7).second;
     FNG_CHECK_EQ(val, "bar");
 
-    ASSERT_DEATH({ FNG_GET(strings, 3).second = "blabla"; }, "FNG_GET");
-    ASSERT_DEATH({ FNG_GET(strings, 3, "foo").second = "blabla"; }, "foo");
+    ASSERT_DEATH({ FNG_GET(map_of_strings, 3).second = "blabla"; }, "FNG_GET");
+    ASSERT_DEATH(
+        { FNG_GET(map_of_strings, 3, "foo").second = "blabla"; }, "foo");
 
-    ASSERT_DEATH({ std::string __ = FNG_GET(strings, 1).second; }, "FNG_GET");
+    ASSERT_DEATH(
+        { std::string __ = FNG_GET(map_of_strings, 1).second; }, "FNG_GET");
+
+    auto it = FNG_MAP_INSERT(map_of_strings, 3, "baz");
+    FNG_CHECK(it == map_of_strings.find(3));
+
+    ASSERT_DEATH(FNG_MAP_INSERT(map_of_strings, 3, "boo"), "boo");
   }
 }

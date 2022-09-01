@@ -214,6 +214,37 @@ auto checkedGetFromAssociativeContainer(
   return *it;
 }
 
+template <class MapLike, class Key, class Value>
+auto insertKeyValueInMap(
+    MapLike& map,
+    const Key& key,
+    const Value& value,
+    const char* container_cstr,
+    const char* key_cstr,
+    const char* value_cstr,
+    const std::string& file,
+    int line,
+    const std::string& str) {
+  const auto [iterator, success] = map.insert({key, value});
+
+  if (!success) {
+    FNG_IMPL_LOG_PRINTLN("[FNG_INSERT in {}:{}]", file, line);
+    FNG_IMPL_LOG_PRINTLN(
+        "key `{}` (={}) is already in map `{}` of size `{}`. \n"
+        "We cannot insert value `{}`.",
+        key_cstr,
+        key,
+        container_cstr,
+        map.size(),
+        value_cstr);
+    if (!str.empty()) {
+      ::fmt::print(stderr, str);
+    }
+    FNG_IMPL_ABORT();
+  }
+  return iterator;
+}
+
 template <class WrapperT>
 struct UnwrapImpl {
   static auto impl(
@@ -266,6 +297,20 @@ auto unwrapImpl(
       #key,                                              \
       __FILE__,                                          \
       __LINE__,                                          \
+      FNG_FORMAT(__VA_ARGS__))
+
+/// Insert `val` to `map`, but panics if the container does
+/// contain `key` already.
+#define FNG_MAP_INSERT(map, key, value, ...) \
+  fng_core::details::insertKeyValueInMap(    \
+      map,                                   \
+      key,                                   \
+      value,                                 \
+      #map,                                  \
+      #key,                                  \
+      #value,                                \
+      __FILE__,                              \
+      __LINE__,                              \
       FNG_FORMAT(__VA_ARGS__))
 
 /// Returns `*wrapper`, but panics if `wrapper` is `nullopt` or `null`.

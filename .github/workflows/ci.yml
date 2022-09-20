@@ -85,14 +85,12 @@ jobs:
 
     - name: clang-tidy
       run: |
-        cd cpp
         ./run_clang_tidy.sh
       if: matrix.os == 'ubuntu-20.04'
 
 
     - name: Configure And Build Tests
       run: |
-        cd cpp
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       if: matrix.tests == 'unit_test'
@@ -108,7 +106,6 @@ jobs:
 
     - name: Install system targets tests
       run: |
-        cd cpp
         mkdir -p build
         cd build
         pwd

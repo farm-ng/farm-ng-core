@@ -76,8 +76,6 @@ macro(farm_ng_add_protobufs target)
       VERBATIM)
   endforeach()
 
-  message(WARNING "LIST ${_proto_output_dir_cpp}")
-
   add_library(${target} SHARED ${_cpp_out_sources})
   target_link_libraries(${target} ${Protobuf_LIBRARIES} ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
 

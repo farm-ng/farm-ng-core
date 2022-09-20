@@ -8,9 +8,9 @@ set(install_library_targets
   farm_ng_core_enum
   farm_ng_core_misc)
 
-if(Protobuf_FOUND)
-  message(STATUS "Protobut found, hence we will be building farm_ng_core_protobuf")
-  list(APPEND install_library_targets farm_ng_core_protobuf)
+if(BUILD_FARM_NG_CORE_PROTOS)
+  message(STATUS "Protobuf found, hence we will be building farm_ng_core_protobuf")
+  list(APPEND install_library_targets farm_ng_core_protobuf farm_ng_core_misc_proto farm_ng_core_misc_proto_defs)
 endif()
 
 install(

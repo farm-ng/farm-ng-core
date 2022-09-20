@@ -71,7 +71,7 @@ if(BUILD_FARM_NG_CORE_PROTOS)
     add_library(farm_ng_core_misc_proto SHARED
       ${farm_ng_core_misc_proto_cpp}
       ${farm_ng_core_misc_proto_h})
-    target_link_libraries(farm_ng_core_misc_proto protobuf::libprotobuf farm_ng_core_protobuf farm_ng_core_misc_protobuf)
+    target_link_libraries(farm_ng_core_misc_proto protobuf::libprotobuf farm_ng_core_protobuf farm_ng_core_misc_proto_defs)
     add_library (farm_ng_core::farm_ng_core_misc_proto ALIAS farm_ng_core_misc_proto)
     target_include_directories(farm_ng_core_misc_proto PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"

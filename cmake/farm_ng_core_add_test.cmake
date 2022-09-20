@@ -76,14 +76,23 @@ macro(farm_ng_add_protobufs target)
       VERBATIM)
   endforeach()
 
+  message(WARNING "LIST ${_proto_output_dir_cpp}")
 
   add_library(${target} SHARED ${_cpp_out_sources})
   target_link_libraries(${target} ${Protobuf_LIBRARIES} ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
 
 
-target_include_directories(${target} PUBLIC
-  ${_proto_output_dir_cpp}
-)
+
+  target_include_directories(${target} PUBLIC
+      "$<BUILD_INTERFACE:${_proto_output_dir_cpp}>"
+      "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+  )
+
+  target_sources(${target} INTERFACE
+               FILE_SET HEADERS
+               BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/cpp
+               FILES ${_cpp_out_headers})
+
 
 set_target_properties(${target}
   PROPERTIES CXX_CLANG_TIDY "")

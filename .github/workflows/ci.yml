@@ -31,7 +31,7 @@ jobs:
 
     - name: install deps (linux)
       run: |
-        sudo apt-get install libgtest-dev clang-tidy-10 libboost-all-dev libprotobuf-dev -y
+        sudo apt-get install libgtest-dev clang-tidy-10 libboost-all-dev libprotobuf-dev protobuf-compiler -y
         git clone https://github.com/fmtlib/fmt.git
         cd fmt
         git checkout 8.1.1
@@ -83,17 +83,17 @@ jobs:
       if: matrix.os == 'macos-11'
 
 
-    - name: clang-tidy
-      run: |
-        ./run_clang_tidy.sh
-      if: matrix.os == 'ubuntu-20.04'
-
-
-    - name: Configure And Build Tests
+    - name: Configure And Build Tests (linux)
       run: |
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
+      if: matrix.tests == 'unit_test' && matrix.os == 'ubuntu-20.04'
+
+    - name: Configure And Build Tests (mac-os)
+      run: |
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON -DBUILD_FARM_NG_CORE_PROTOS=OFF
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-      if: matrix.tests == 'unit_test'
+      if: matrix.tests == 'unit_test' && matrix.os == 'macos-11'
 
 
     - name: Test
@@ -109,12 +109,18 @@ jobs:
         mkdir -p build
         cd build
         pwd
-        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFARM_NG_CORE_TESTS=OFF
+        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFARM_NG_CORE_TESTS=OFF -DBUILD_FARM_NG_CORE_PROTOS=ON
         sudo make install
         cd ..
-        cd examples/test_install_targets/
+        cd cpp/examples/test_install_targets/
         mkdir -p build
         cd build
         cmake ..
         make
       if: matrix.tests == 'install_target'
+
+
+    - name: clang-tidy
+      run: |
+        ./run_clang_tidy.sh
+      if: matrix.os == 'ubuntu-20.04'

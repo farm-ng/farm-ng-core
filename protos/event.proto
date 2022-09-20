@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package farm_ng.core;
+
+enum UriSchemeType {
+  UNKNOWN = 0;
+  FILE = 1;
+  DATA = 2;
+  DEVICE = 3;
+  OTHER = 4;
+}
+
+message Uri {
+  UriSchemeType scheme = 1;
+  string authority = 2;
+  string path = 3;
+  string query = 4;
+}
+
+message Event {
+  string module = 1;  // the class module name
+  string name = 2;    // the class name
+  int64 length_next = 3;
+  Uri uri = 4;
+}
+
+message EventHeader {
+  string robot_name = 1;
+}

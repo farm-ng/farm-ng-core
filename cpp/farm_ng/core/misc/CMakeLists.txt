@@ -56,7 +56,7 @@ if (${FARM_NG_CORE_TESTS})
 endif()
 
 
-if(Protobuf_FOUND)
+if(BUILD_FARM_NG_CORE_PROTOS)
     set(farm_ng_core_misc_proto
       to_from_proto
     )

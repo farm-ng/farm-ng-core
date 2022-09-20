@@ -29,7 +29,7 @@ struct Uri {
       : scheme(scheme), authority(authority), path(path), query(query) {}
 
   /// Returns string representation of uri.
-  std::string string() const {
+  [[nodiscard]] std::string string() const {
     if (query.empty()) {
       return toString(scheme) + "://" + authority + "/" + path;
     }

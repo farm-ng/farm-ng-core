@@ -24,7 +24,7 @@ if(${FARM_NG_CORE_TESTS})
 endif()
 
 
-option(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
+option(COMPILE_TIME_FMT "Use compile-time fmt" ON)
 if(COMPILE_TIME_FMT)
     add_definitions(-DFARM_NG_COMPILE_TIME_FMT)
 endif()
@@ -69,7 +69,7 @@ set(EXPECTED_BUILD_TESTS FALSE)
 
 find_package(fmt REQUIRED)
 
-option(BUILD_FARM_NG_CORE_PROTOS "Build protos" ON)
+option(BUILD_FARM_NG_CORE_PROTOS "Build protos" OFF)
 
 if (BUILD_FARM_NG_CORE_PROTOS)
   find_package(Protobuf REQUIRED)

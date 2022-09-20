@@ -104,13 +104,13 @@ jobs:
       if: matrix.tests == 'unit_test'
 
 
-    - name: Install system targets tests
+    - name: Install system targets tests (proto on)
       run: |
         mkdir -p build
         cd build
         pwd
         cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFARM_NG_CORE_TESTS=OFF -DBUILD_FARM_NG_CORE_PROTOS=ON
-        make 
+        make
         sudo make install
         cd ..
         cd cpp/examples/test_install_targets/
@@ -118,7 +118,24 @@ jobs:
         cd build
         cmake ..
         make
-      if: matrix.tests == 'install_target'
+      if: matrix.tests == 'install_target' && matrix.os == 'ubuntu-20.04'
+
+
+    - name: Install system targets tests (proto off)
+      run: |
+        mkdir -p build
+        cd build
+        pwd
+        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFARM_NG_CORE_TESTS=OFF -DBUILD_FARM_NG_CORE_PROTOS=OFF
+        make
+        sudo make install
+        cd ..
+        cd cpp/examples/test_install_targets/
+        mkdir -p build
+        cd build
+        cmake ..
+        make
+      if: matrix.tests == 'install_target' && matrix.os == 'macos-11'
 
 
     - name: clang-tidy

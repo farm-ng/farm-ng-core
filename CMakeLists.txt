@@ -16,7 +16,7 @@ endif()
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 
-option(FARM_NG_CORE_TESTS "Build tests" OFF)
+option(FARM_NG_CORE_TESTS "Build tests" ON)
 
 if(${FARM_NG_CORE_TESTS})
     enable_testing()
@@ -24,7 +24,7 @@ if(${FARM_NG_CORE_TESTS})
 endif()
 
 
-option(COMPILE_TIME_FMT "Use compile-time fmt" ON)
+option(COMPILE_TIME_FMT "Use compile-time fmt" OFF)
 if(COMPILE_TIME_FMT)
     add_definitions(-DFARM_NG_COMPILE_TIME_FMT)
 endif()

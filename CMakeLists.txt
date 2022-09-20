@@ -16,7 +16,7 @@ endif()
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 
-option(FARM_NG_CORE_TESTS "Build tests" ON)
+option(FARM_NG_CORE_TESTS "Build tests" OFF)
 
 if(${FARM_NG_CORE_TESTS})
     enable_testing()

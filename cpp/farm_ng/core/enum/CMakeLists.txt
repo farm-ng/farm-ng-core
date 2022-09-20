@@ -15,7 +15,7 @@ add_library(farm_ng_core_enum INTERFACE
   enum_flags_without_ostream.h)
 
 target_include_directories(farm_ng_core_enum INTERFACE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 target_sources(farm_ng_core_enum INTERFACE

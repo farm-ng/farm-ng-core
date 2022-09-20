@@ -5,6 +5,7 @@
 file(GLOB_RECURSE HPPS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "include/*.hpp")
 
 add_library(farm_pp INTERFACE ${HPPS})
+add_library(farm_pp::farm_pp ALIAS farm_pp)
 
 target_include_directories(farm_pp INTERFACE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"

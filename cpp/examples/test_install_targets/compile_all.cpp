@@ -14,6 +14,7 @@
 #include <farm_ng/core/misc/filesystem.h>
 #include <farm_ng/core/misc/stopwatch.h>
 #include <farm_ng/core/misc/tokenize.h>
+#include <farm_ng/core/misc/uri.h>
 #include <farm_ng/core/misc/void.h>
 
 using namespace farm_ng;

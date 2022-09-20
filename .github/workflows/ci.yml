@@ -31,7 +31,7 @@ jobs:
 
     - name: install deps (linux)
       run: |
-        sudo apt-get install libgtest-dev clang-tidy-10 libboost-all-dev -y
+        sudo apt-get install libgtest-dev clang-tidy-10 libboost-all-dev libprotobuf-dev -y
         git clone https://github.com/fmtlib/fmt.git
         cd fmt
         git checkout 8.1.1

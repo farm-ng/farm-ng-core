@@ -51,7 +51,9 @@ class TestEventsReader:
         assert not reader.is_open()
         assert reader.file_name is None
 
-    def test_open_close(self, writer: EventsFileWriter, reader: EventsFileReader) -> None:
+    def test_open_close(
+        self, writer: EventsFileWriter, reader: EventsFileReader
+    ) -> None:
         # touch file
         assert writer.open()
         assert writer.close()
@@ -66,7 +68,9 @@ class TestEventsReader:
         assert not reader.is_open()
         assert reader.file_name is None
 
-    def test_write_read(self, writer: EventsFileWriter, reader: EventsFileReader) -> None:
+    def test_write_read(
+        self, writer: EventsFileWriter, reader: EventsFileReader
+    ) -> None:
         # write file
         assert writer.open()
         uri = event_pb2.Uri()

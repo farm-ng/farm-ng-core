@@ -131,7 +131,9 @@ class EventsFileReader:
         event_proto.ParseFromString(event)
 
         # parse the message
-        message_cls = getattr(importlib.import_module(event_proto.module), event_proto.name)
+        message_cls = getattr(
+            importlib.import_module(event_proto.module), event_proto.name
+        )
 
         message: bytes = self._file_stream.read(event_proto.length_next)
 

@@ -26,7 +26,9 @@ class Uri:
         return Uri(event_pb2.Uri())
 
     def string(self) -> str:
-        return f"{self.scheme}://{self._uri.authority}/{self._uri.path}?{self._uri.query}"
+        return (
+            f"{self.scheme}://{self._uri.authority}/{self._uri.path}?{self._uri.query}"
+        )
 
     @classmethod
     def from_string(self, string: str) -> "Uri":
@@ -36,6 +38,14 @@ class Uri:
         return Uri.from_strings(scheme_name, authority, path, query)
 
     @classmethod
-    def from_strings(self, scheme_name: str, authority: str, path: str, query: str) -> "Uri":
-        scheme_value = event_pb2.UriSchemeType.DESCRIPTOR.values_by_name[scheme_name.upper()]
-        return Uri(event_pb2.Uri(scheme=scheme_value.number, authority=authority, path=path, query=query))
+    def from_strings(
+        self, scheme_name: str, authority: str, path: str, query: str
+    ) -> "Uri":
+        scheme_value = event_pb2.UriSchemeType.DESCRIPTOR.values_by_name[
+            scheme_name.upper()
+        ]
+        return Uri(
+            event_pb2.Uri(
+                scheme=scheme_value.number, authority=authority, path=path, query=query
+            )
+        )

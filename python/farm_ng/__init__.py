@@ -8,4 +8,4 @@ if sys.version_info >= (3, 8):  # pragma: >=3.8 cover
 else:  # pragma: <3.8 cover
     import importlib_metadata
 
-__version__ = importlib_metadata.version('farm_ng')
+__version__ = importlib_metadata.version("farm_ng")

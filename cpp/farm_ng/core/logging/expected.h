@@ -66,7 +66,7 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 
 #define FARM_ERROR(cstr, ...) \
   ::tl::make_unexpected(      \
-      Error{.details = {FARM_ERROR_DETAIL(cstr, ##__VA_ARGS__)}})
+      ::farm_ng::Error{.details = {FARM_ERROR_DETAIL(cstr, ##__VA_ARGS__)}})
 
 /// Assigns `*expected_val` to `Type_val`, but returns error if there is one.
 #define FARM_TRY(Type_val, expected_val)                \

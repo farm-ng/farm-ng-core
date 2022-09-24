@@ -23,3 +23,10 @@ target_sources(farm_ng_core_misc_proto_conv INTERFACE
               FILE_SET HEADERS
               BASE_DIRS ../../../..
               FILES ${farm_ng_core_misc_proto_conv_h})
+
+if(${FARM_NG_CORE_TESTS})
+  farm_ng_add_test(conv
+                PARENT_LIBRARY farm_ng_core_misc_proto_conv
+                LINK_LIBRARIES
+                LABELS small)
+endif()

@@ -12,7 +12,9 @@ find_package(fmt REQUIRED)
 set(example_source )
 find_package(Protobuf QUIET)
 
-if(Protobuf_FOUND)
+if (BUILD_FARM_NG_PROTOS)
+  find_package(Protobuf REQUIRED)
+
   add_executable(compile_all_proto compile_all_proto.cpp)
   target_link_libraries(compile_all_proto PUBLIC fmt::fmt farm_ng_core_prototools farm_ng_core_misc_proto_conv farm_ng_core_proto_defs)
 endif()

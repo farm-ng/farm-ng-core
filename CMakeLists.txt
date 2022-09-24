@@ -69,16 +69,16 @@ set(EXPECTED_BUILD_TESTS FALSE)
 
 find_package(fmt REQUIRED)
 
-option(BUILD_FARM_NG_CORE_PROTOS "Build protos" OFF)
+option(BUILD_FARM_NG_PROTOS "Build protos" OFF)
 
-if (BUILD_FARM_NG_CORE_PROTOS)
+if (BUILD_FARM_NG_PROTOS)
   find_package(Protobuf REQUIRED)
 endif()
 
-if(BUILD_FARM_NG_CORE_PROTOS)
-  farm_ng_add_protobufs(farm_ng_core_misc_proto_defs
+if(BUILD_FARM_NG_PROTOS)
+  farm_ng_add_protobufs(farm_ng_core_proto_defs
     PROTO_FILES
-    ./protos/farm_ng/core/misc.proto)
+    ./protos/farm_ng/core.proto)
 endif()
 
 add_subdirectory(cpp)

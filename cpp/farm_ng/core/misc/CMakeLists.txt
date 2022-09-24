@@ -56,30 +56,6 @@ if (${FARM_NG_CORE_TESTS})
 endif()
 
 
-if(BUILD_FARM_NG_CORE_PROTOS)
-    set(farm_ng_core_misc_proto
-      to_from_proto
-    )
-
-    set(farm_ng_core_misc_proto_cpp)
-    set(farm_ng_core_misc_proto_h)
-    foreach(x ${farm_ng_core_misc_proto} )
-        list(APPEND farm_ng_core_misc_proto_cpp ${x}.cpp)
-        list(APPEND farm_ng_core_misc_proto_h ${x}.h)
-    endforeach()
-
-    add_library(farm_ng_core_misc_proto SHARED
-      ${farm_ng_core_misc_proto_cpp}
-      ${farm_ng_core_misc_proto_h})
-    target_link_libraries(farm_ng_core_misc_proto protobuf::libprotobuf farm_ng_core_protobuf farm_ng_core_misc_proto_defs)
-    add_library (farm_ng_core::farm_ng_core_misc_proto ALIAS farm_ng_core_misc_proto)
-    target_include_directories(farm_ng_core_misc_proto PUBLIC
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
-      "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-    )
-
-    target_sources(farm_ng_core_misc_proto INTERFACE
-                  FILE_SET HEADERS
-                  BASE_DIRS ../../..
-                  FILES ${farm_ng_core_misc_proto_h})
+if(BUILD_FARM_NG_PROTOS)
+    add_subdirectory(proto)
 endif()

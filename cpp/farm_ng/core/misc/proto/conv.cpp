@@ -4,13 +4,13 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "farm_ng/core/misc/to_from_proto.h"
+#include "farm_ng/core/misc/proto/conv.h"
 
 #include "farm_ng/core/logging/logger.h"
 
 namespace farm_ng {
 
-Expected<Uri> fromProto(const proto::Uri& proto) {
+Expected<Uri> fromProto(proto::Uri const& proto) {
   UriSchemeType type;
   if (!trySetFromString(type, proto.scheme())) {
     return FARM_ERROR("{}", proto.scheme());
@@ -18,7 +18,7 @@ Expected<Uri> fromProto(const proto::Uri& proto) {
   return Uri(type, proto.authority(), proto.path(), proto.query());
 }
 
-proto::Uri toProto(const Uri& uri) {
+proto::Uri toProto(Uri const& uri) {
   proto::Uri proto;
   proto.set_scheme(toString(uri.scheme));
   proto.set_authority(uri.authority);

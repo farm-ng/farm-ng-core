@@ -22,10 +22,10 @@ struct Uri {
   Uri() {}
 
   /// Creates Uri.
-  Uri(const UriSchemeType& scheme,
-      const std::string& authority,
-      const std::string& path,
-      const std::string& query = "")
+  Uri(UriSchemeType const& scheme,
+      std::string const& authority,
+      std::string const& path,
+      std::string const& query = "")
       : scheme(scheme), authority(authority), path(path), query(query) {}
 
   /// Returns string representation of uri.
@@ -50,7 +50,7 @@ struct Uri {
   /// For instance: '?in=input_channel_name`.
   std::string query;
 
-  friend inline bool operator<(const Uri& lhs, const Uri& rhs) {
+  friend inline bool operator<(Uri const& lhs, Uri const& rhs) {
     return lhs.string() < rhs.string();
   }
 };

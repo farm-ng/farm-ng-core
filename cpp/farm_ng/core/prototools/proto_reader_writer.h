@@ -20,17 +20,17 @@ namespace farm_ng {
 /// TODO: Add API docs.
 
 Expected<Success> writeProtobufToJsonFile(
-    const std::filesystem::path& path, const google::protobuf::Message& proto);
+    std::filesystem::path const& path, google::protobuf::Message const& proto);
 
 Expected<Success> writeProtobufToBinaryFile(
-    const std::filesystem::path& path, const google::protobuf::Message& proto);
+    std::filesystem::path const& path, google::protobuf::Message const& proto);
 
 Expected<std::string> readJsonStringFromJsonFile(
-    const std::filesystem::path& path);
+    std::filesystem::path const& path);
 
 template <class ProtobufT>
 Expected<ProtobufT> readProtobufFromJsonFile(
-    const std::filesystem::path& path) {
+    std::filesystem::path const& path) {
   FARM_TRY(std::string json_string, readJsonStringFromJsonFile(path));
   ProtobufT message;
   google::protobuf::util::JsonOptions print_options;
@@ -45,11 +45,11 @@ Expected<ProtobufT> readProtobufFromJsonFile(
 }
 
 Expected<std::string> readBytesFromBinaryFile(
-    const std::filesystem::path& path);
+    std::filesystem::path const& path);
 
 template <class ProtobufT>
 Expected<ProtobufT> readProtobufFromBinaryFile(
-    const std::filesystem::path& path) {
+    std::filesystem::path const& path) {
   ProtobufT message;
   FARM_TRY(std::string bytes, readBytesFromBinaryFile(path));
   if (message.ParseFromString(bytes)) {

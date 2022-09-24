@@ -14,7 +14,7 @@ find_package(Protobuf QUIET)
 
 if(Protobuf_FOUND)
   add_executable(compile_all_proto compile_all_proto.cpp)
-  target_link_libraries(compile_all_proto PUBLIC fmt::fmt farm_ng_core_protobuf farm_ng_core_misc_proto farm_ng_core_misc_proto_defs)
+  target_link_libraries(compile_all_proto PUBLIC fmt::fmt farm_ng_core_prototools farm_ng_core_misc_proto_conv farm_ng_core_proto_defs)
 endif()
 
 add_executable(compile_all compile_all.cpp)

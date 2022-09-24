@@ -148,7 +148,7 @@
   }                                                                            \
                                                                                \
   [[maybe_unused]] inline bool trySetFlagFromString(                           \
-      NAME##Impl &value, const std::string &str) {                             \
+      NAME##Impl &value, std::string const &str) {                             \
     FARM_PP_SEQ_FOR_EACH(                                                      \
         FARM_ENUMFLAG_DETAILS_OP_SET_ENUM_FROM_STRING,                         \
         NAME##Impl,                                                            \

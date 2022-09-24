@@ -4,7 +4,7 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "farm_ng/core/serial/proto_reader_writer.h"
+#include "farm_ng/core/prototools/proto_reader_writer.h"
 
 #include "farm_ng/core/logging/logger.h"
 

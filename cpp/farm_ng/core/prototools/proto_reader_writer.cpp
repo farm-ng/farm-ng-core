@@ -4,12 +4,12 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "farm_ng/core/protobuf/proto_reader_writer.h"
+#include "farm_ng/core/prototools/proto_reader_writer.h"
 
 namespace farm_ng {
 
 Expected<farm_ng::Success> writeProtobufToJsonFile(
-    const std::filesystem::path& path, const google::protobuf::Message& proto) {
+    std::filesystem::path const& path, google::protobuf::Message const& proto) {
   google::protobuf::util::JsonPrintOptions print_options;
   print_options.add_whitespace = true;
   print_options.always_print_primitive_fields = true;
@@ -28,7 +28,7 @@ Expected<farm_ng::Success> writeProtobufToJsonFile(
 }
 
 Expected<Success> writeProtobufToBinaryFile(
-    const std::filesystem::path& path, const google::protobuf::Message& proto) {
+    std::filesystem::path const& path, google::protobuf::Message const& proto) {
   std::string binary_str;
   proto.SerializeToString(&binary_str);
   std::ofstream outf(path.string(), std::ofstream::binary);
@@ -44,7 +44,7 @@ Expected<Success> writeProtobufToBinaryFile(
 }
 
 Expected<std::string> readJsonStringFromJsonFile(
-    const std::filesystem::path& path) {
+    std::filesystem::path const& path) {
   if (!std::filesystem::is_regular_file(path)) {
     return FARM_ERROR("{} is not a regular file", path);
   }
@@ -61,7 +61,7 @@ Expected<std::string> readJsonStringFromJsonFile(
 }
 
 Expected<std::string> readBytesFromBinaryFile(
-    const std::filesystem::path& path) {
+    std::filesystem::path const& path) {
   std::ifstream bin_in(path.string(), std::ifstream::binary);
   if (!bin_in) {
     return FARM_ERROR("Could not open path: {}", path.string());

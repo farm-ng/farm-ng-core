@@ -23,16 +23,16 @@
 #endif
 
 namespace farm_ng {
-inline std::function<void(const std::string&)>& getLogLineFunction() {
-  static std::function<void(const std::string&)> Static_Log_Function;
+inline std::function<void(std::string const &)> &getLogLineFunction() {
+  static std::function<void(std::string const &)> Static_Log_Function;
   return Static_Log_Function;
 }
 
-inline void setLogLineFunction(std::function<void(const std::string&)> f) {
+inline void setLogLineFunction(std::function<void(std::string const &)> f) {
   getLogLineFunction() = f;
 }
 
-inline void logLine(const std::string& line) {
+inline void logLine(std::string const &line) {
   std::cerr << line << std::endl;
   if (getLogLineFunction()) {
     getLogLineFunction()(line);
@@ -67,15 +67,15 @@ inline void logLine(const std::string& line) {
 namespace farm_ng {
 namespace details {
 
-template <class... ArgsT>
+template <class... TArgs>
 std::string runtimeFormatImpl(
-    const std::string& file,
+    std::string const &file,
     int line,
-    const std::string& str,
-    ArgsT&&... args) {
+    std::string const &str,
+    TArgs &&...args) {
   try {
-    return ::fmt::format(str, std::forward<ArgsT>(args)...);
-  } catch (::fmt::format_error& e) {
+    return ::fmt::format(str, std::forward<TArgs>(args)...);
+  } catch (::fmt::format_error &e) {
     FARM_IMPL_LOG_PRINTLN("[FARM_RUNTIME_FORMAT in {}:{}]", file, line);
     FARM_IMPL_LOG_PRINTLN(
         "Runtime format error thrown for {}.\nError string: {}", str, e.what());

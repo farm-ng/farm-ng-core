@@ -5,8 +5,8 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "farm_ng/core/misc/to_from_proto.h"
-#include "farm_ng/core/protobuf/proto_reader_writer.h"
+#include "farm_ng/core/misc/proto/conv.h"
+#include "farm_ng/core/prototools/proto_reader_writer.h"
 
 using namespace farm_ng;
 

@@ -21,9 +21,9 @@ struct Error {
   std::vector<ErrorDetail> details;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Error& error) {
+inline std::ostream& operator<<(std::ostream& os, Error const& error) {
   os << error.details.size() << "error details:\n";
-  for (const auto& error : error.details) {
+  for (auto const& error : error.details) {
     os << FARM_FORMAT("[{}:{}] {}\n", error.file, error.line, error.msg);
   }
   return os;
@@ -31,16 +31,16 @@ inline std::ostream& operator<<(std::ostream& os, const Error& error) {
 
 struct Success {};
 
-template <class TT, class ET = Error>
-using Expected = tl::expected<TT, ET>;
+template <class TT, class TE = Error>
+using Expected = tl::expected<TT, TE>;
 
 namespace details {
 
-template <class TT, class ET>
-struct UnwrapImpl<tl::expected<TT, ET>> {
+template <class TT, class TE>
+struct UnwrapImpl<tl::expected<TT, TE>> {
   static auto impl(
-      tl::expected<TT, ET>& wrapper,
-      const char* wrapper_cstr,
+      tl::expected<TT, TE>& wrapper,
+      char const* wrapper_cstr,
       ::farm_ng::ErrorDetail detail) -> decltype(*wrapper) {
     if (!bool(wrapper)) {
       FARM_IMPL_LOG_PRINTLN(
@@ -84,8 +84,8 @@ struct UnwrapImpl<tl::expected<TT, ET>> {
   } while (false)
 
 namespace farm_ng {
-template <class TT, class ET = Error>
-std::optional<TT> fromExpected(Expected<TT, ET> expected) {
+template <class TT, class TE = Error>
+std::optional<TT> fromExpected(Expected<TT, TE> expected) {
   return expected ? std::optional<TT>(std::move(*expected)) : std::nullopt;
 }
 

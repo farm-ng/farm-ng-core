@@ -15,7 +15,7 @@ namespace farm_ng {
 
 /// Splits string into N tokens (substrings) based on a delimiter
 inline std::vector<std::string> tokenize(
-    const std::string& str, char delimiter = ' ') {
+    std::string const& str, char delimiter = ' ') {
   std::vector<std::string> tokens;
 
   std::stringstream strstream(str);

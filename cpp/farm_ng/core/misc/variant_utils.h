@@ -20,7 +20,7 @@ Overload(Ts...) -> Overload<Ts...>;
 
 /// https://en.cppreference.com/w/cpp/utility/variant/visit
 template <class>
-inline constexpr bool AlwaysFalse = false;
+inline bool constexpr AlwaysFalse = false;
 
 /// https://gist.github.com/s3rvac/d1f30364ce1f732d75ef0c89a1c8c1ef
 template <class Variant, typename... Alternatives>
@@ -40,6 +40,6 @@ struct HasType<T, std::variant<Us...>>
     : std::disjunction<std::is_same<T, Us>...> {};
 
 template <class T, class Variant>
-constexpr bool has_type_v = HasType<T, Variant>::value;
+bool constexpr has_type_v = HasType<T, Variant>::value;
 
 }  // namespace farm_ng

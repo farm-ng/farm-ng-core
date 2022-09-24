@@ -3,19 +3,20 @@
 add_subdirectory(thirdparty/farm_pp)
 add_subdirectory(farm_ng/core)
 
-set(install_library_targets
-  farm_pp farm_ng_core_logging
+set(farm_ng_core_install_library_targets
+  farm_pp
+  farm_ng_core_logging
   farm_ng_core_enum
   farm_ng_core_misc)
 
 if(BUILD_FARM_NG_PROTOS)
   message(STATUS "Protobuf found, hence we will be building farm_ng_core_prototools")
-  list(APPEND install_library_targets farm_ng_core_prototools farm_ng_core_misc_proto_conv farm_ng_core_proto_defs)
+  list(APPEND farm_ng_core_install_library_targets farm_ng_core_prototools farm_ng_core_misc_proto_conv farm_ng_core_proto_defs)
 endif()
 
 install(
   TARGETS
-     ${install_library_targets}
+     ${farm_ng_core_install_library_targets}
   EXPORT farm_ng_coreTargets
   FILE_SET HEADERS
   LIBRARY DESTINATION lib

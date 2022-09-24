@@ -85,7 +85,7 @@ jobs:
 
     - name: Configure And Build Tests (linux)
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON -DBUILD_FARM_NG_PROTOS=ON
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
       if: matrix.tests == 'unit_test' && matrix.os == 'ubuntu-20.04'
 

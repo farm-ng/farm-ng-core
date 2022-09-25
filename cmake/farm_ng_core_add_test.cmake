@@ -70,14 +70,14 @@ macro(farm_ng_add_protobufs target)
     add_custom_command(
       OUTPUT ${_cpp_out_src} ${_cpp_out_hdr}
       COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
-      ARGS ${_protoc_args_cpp} -I ${CMAKE_CURRENT_SOURCE_DIR} ${DEP_PROTO_INCLUDES} ${_full_proto_path}
+      ARGS ${_protoc_args_cpp} -I ${CMAKE_CURRENT_SOURCE_DIR} ${_full_proto_path}
       DEPENDS ${_full_proto_path} ${PROTOBUF_PROTOC_EXECUTABLE}
       COMMENT "Generating cpp protobuf code for ${_proto_path}"
       VERBATIM)
   endforeach()
 
   add_library(${target} SHARED ${_cpp_out_sources})
-  target_link_libraries(${target} ${Protobuf_LIBRARIES} ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
+  target_link_libraries(${target} PUBLIC protobuf::libprotobuf ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
 
 
 

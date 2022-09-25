@@ -30,6 +30,7 @@ add_library(farm_ng_core_misc INTERFACE
 target_link_libraries(farm_ng_core_misc INTERFACE
   farm_ng_core_enum farm_ng_core_logging
 )
+add_library (farm_ng_core::farm_ng_core_misc ALIAS farm_ng_core_misc)
 target_include_directories(farm_ng_core_misc INTERFACE
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"

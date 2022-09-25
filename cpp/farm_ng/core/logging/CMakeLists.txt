@@ -23,6 +23,7 @@ target_link_libraries(farm_ng_core_logging INTERFACE
   fmt::fmt
   pthread
 )
+add_library (farm_ng_core::farm_ng_core_logging ALIAS farm_ng_core_logging)
 target_include_directories(farm_ng_core_logging INTERFACE
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"

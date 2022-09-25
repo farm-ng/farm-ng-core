@@ -13,7 +13,7 @@ add_library(farm_ng_core_enum INTERFACE
   enum_flags.h
   enum_without_ostream.h
   enum_flags_without_ostream.h)
-
+add_library (farm_ng_core::farm_ng_core_enum ALIAS farm_ng_core_enum)
 target_include_directories(farm_ng_core_enum INTERFACE
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"

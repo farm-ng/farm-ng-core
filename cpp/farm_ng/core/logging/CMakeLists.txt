@@ -19,12 +19,13 @@ add_library(farm_ng_core_logging INTERFACE
   logger.h)
 
 target_link_libraries(farm_ng_core_logging INTERFACE
-  farm_pp
+  farm_pp::farm_pp
   fmt::fmt
   pthread
 )
+add_library (farm_ng_core::farm_ng_core_logging ALIAS farm_ng_core_logging)
 target_include_directories(farm_ng_core_logging INTERFACE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 target_sources(farm_ng_core_logging INTERFACE
@@ -35,6 +36,7 @@ target_sources(farm_ng_core_logging INTERFACE
                  expected.h
                  format.h
                  logger.h)
+
 
 
 if (${FARM_NG_CORE_TESTS})

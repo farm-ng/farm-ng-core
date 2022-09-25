@@ -26,7 +26,7 @@ namespace farm_ng {
 /// Returns nullopt if for unexpected reason creation of the folder fails.
 /// Otherwise, it returns the path of the created directory.
 inline std::optional<std::filesystem::path> createVersionedFolder(
-    const std::filesystem::path& target_path) {
+    std::filesystem::path const& target_path) {
   /* the following removes trailing '/', only if it is there. */
   std::filesystem::path clean_path =
       (std::filesystem::path(target_path) / "foo").parent_path();

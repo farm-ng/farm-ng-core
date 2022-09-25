@@ -108,10 +108,10 @@ namespace farm_ng {
 namespace details {
 // following:
 // https://github.com/strasdat/Sophus/blob/master/sophus/types.hpp#L94
-template <class ScalarT>
+template <class TScalar>
 class MaxMetric {
  public:
-  static ScalarT impl(ScalarT s0, ScalarT s1) {
+  static TScalar impl(TScalar s0, TScalar s1) {
     using std::abs;
     return abs(s0 - s1);
   }
@@ -121,10 +121,10 @@ class MaxMetric {
 
 /// Returns maximum metric between two points `p0` and `p1`, with `p0, p1`
 /// being matrices or a scalars.
-template <class TypeT>
-auto maxMetric(TypeT const& p0, TypeT const& p1)
-    -> decltype(details::MaxMetric<TypeT>::impl(p0, p1)) {
-  return details::MaxMetric<TypeT>::impl(p0, p1);
+template <class TType>
+auto maxMetric(TType const& p0, TType const& p1)
+    -> decltype(details::MaxMetric<TType>::impl(p0, p1)) {
+  return details::MaxMetric<TType>::impl(p0, p1);
 }
 }  // namespace farm_ng
 
@@ -163,15 +163,15 @@ struct ErrorDetail {
 
 namespace details {
 
-template <class ContainerT>
+template <class TContainer>
 auto checkedAtContiguousContainer(
-    ContainerT& container,
+    TContainer& container,
     size_t index,
-    const char* container_cstr,
-    const char* index_cstr,
-    const std::string& file,
+    char const* container_cstr,
+    char const* index_cstr,
+    std::string const& file,
     int line,
-    const std::string& str) -> decltype(container[index]) {
+    std::string const& str) -> decltype(container[index]) {
   if (index >= container.size()) {
     FARM_IMPL_LOG_PRINTLN("[FARM_AT in {}:{}]", file, line);
     FARM_IMPL_LOG_PRINTLN(
@@ -188,15 +188,15 @@ auto checkedAtContiguousContainer(
   return container[index];
 }
 
-template <class ContainerT, class KeyT>
+template <class TContainer, class TKey>
 auto checkedGetFromAssociativeContainer(
-    ContainerT& container,
-    const KeyT& key,
-    const char* container_cstr,
-    const char* key_cstr,
-    const std::string& file,
+    TContainer& container,
+    TKey const& key,
+    char const* container_cstr,
+    char const* key_cstr,
+    std::string const& file,
     int line,
-    const std::string& str) -> decltype(*(container.find(key))) {
+    std::string const& str) -> decltype(*(container.find(key))) {
   auto it = container.find(key);
   if (it == container.end()) {
     FARM_IMPL_LOG_PRINTLN("[FARM_GET in {}:{}]", file, line);
@@ -214,18 +214,18 @@ auto checkedGetFromAssociativeContainer(
   return *it;
 }
 
-template <class MapLikeT, class KeyT, class ValueT>
+template <class TMapLike, class TKey, class TValue>
 auto insertKeyValueInMap(
-    MapLikeT& map,
-    const KeyT& key,
-    const ValueT& value,
-    const char* container_cstr,
-    const char* key_cstr,
-    const char* value_cstr,
-    const std::string& file,
+    TMapLike& map,
+    TKey const& key,
+    TValue const& value,
+    char const* container_cstr,
+    char const* key_cstr,
+    char const* value_cstr,
+    std::string const& file,
     int line,
-    const std::string& str) {
-  const auto [iterator, success] = map.insert({key, value});
+    std::string const& str) {
+  auto const [iterator, success] = map.insert({key, value});
 
   if (!success) {
     FARM_IMPL_LOG_PRINTLN("[FARM_INSERT in {}:{}]", file, line);
@@ -245,11 +245,11 @@ auto insertKeyValueInMap(
   return iterator;
 }
 
-template <class WrapperT>
+template <class TWrapper>
 struct UnwrapImpl {
   static auto impl(
-      WrapperT& wrapper,
-      const char* wrapper_cstr,
+      TWrapper& wrapper,
+      char const* wrapper_cstr,
       ::farm_ng::ErrorDetail detail) -> decltype(*wrapper) {
     if (!bool(wrapper)) {
       FARM_IMPL_LOG_PRINTLN(
@@ -265,11 +265,11 @@ struct UnwrapImpl {
   }
 };
 
-template <class WrapperT>
+template <class TWrapper>
 auto unwrapImpl(
-    WrapperT& wrapper, const char* wrapper_cstr, ::farm_ng::ErrorDetail detail)
+    TWrapper& wrapper, char const* wrapper_cstr, ::farm_ng::ErrorDetail detail)
     -> decltype(*wrapper) {
-  return UnwrapImpl<WrapperT>::impl(wrapper, wrapper_cstr, std::move(detail));
+  return UnwrapImpl<TWrapper>::impl(wrapper, wrapper_cstr, std::move(detail));
 }
 
 }  // namespace details

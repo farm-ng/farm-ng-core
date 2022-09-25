@@ -68,7 +68,7 @@ class StopwatchSingleton {
   /// Return container of stopwatch timer statistics.
   std::map<std::string, StopwatchStats> getStats() {
     std::map<std::string, StopwatchStats> stats_vec;
-    for (const auto& bucket : timers_) {
+    for (auto const& bucket : timers_) {
       StopwatchStats stats;
       stats.mean = bucket.second.sum / bucket.second.num;
       stats.num = bucket.second.num;
@@ -81,7 +81,7 @@ class StopwatchSingleton {
 
   /// Prints statistics of stopwatch timers.
   void print() {
-    for (const auto& stats : getStats()) {
+    for (auto const& stats : getStats()) {
       std::cout << stats.first << " mean time: " << stats.second.mean
                 << " min time: " << stats.second.min
                 << " max time: " << stats.second.max

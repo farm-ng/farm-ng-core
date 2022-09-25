@@ -216,7 +216,7 @@
   }                                                                         \
                                                                             \
   [[maybe_unused]] [[nodiscard]] inline bool trySetFromString(              \
-      NAME##Impl &value, const std::string &str) {                          \
+      NAME##Impl &value, std::string const &str) {                          \
     FARM_PP_SEQ_FOR_EACH(                                                   \
         FARM_ENUM_DETAILS_OP_SET_VALUE_CASES,                               \
         NAME##Impl,                                                         \

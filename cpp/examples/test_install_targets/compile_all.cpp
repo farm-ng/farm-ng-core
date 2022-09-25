@@ -14,6 +14,7 @@
 #include <farm_ng/core/misc/filesystem.h>
 #include <farm_ng/core/misc/stopwatch.h>
 #include <farm_ng/core/misc/tokenize.h>
+#include <farm_ng/core/misc/uri.h>
 #include <farm_ng/core/misc/void.h>
 
 using namespace farm_ng;
@@ -64,10 +65,9 @@ Expected<Abc> makeAbc(bool a_error, bool b_error, bool c_error) {
   return abc;
 }
 
-}  // namespace farm_ng
-
 FARM_ENUM(Fruits, size_t, ((apple, 2), banana, pear));
 FARM_ENUMFLAGS_WITHOUT_OSTREAM(MyFlags, uint32_t, (foo, bar, daz));
+}  // namespace farm_ng
 
 int main() {
   Fruits fruit = Fruits::apple;

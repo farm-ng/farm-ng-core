@@ -2,9 +2,9 @@ macro(farm_ng_add_protobufs target)
   set(multi_value_args NAMESPACE PROTO_FILES DEPENDENCIES)
   cmake_parse_arguments(FARM_NG_ADD_PROTOBUFS "" "" "${multi_value_args}" ${ARGN})
   set(${target}_PROTOBUF_IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE STRING "Path to this project's protobuf sources")
-  foreach(_dep_target ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
-    list(APPEND DEP_PROTO_INCLUDES  -I ${${_dep_target}_PROTOBUF_IMPORT_DIRS})
-  endforeach()
+  # foreach(_dep_target ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
+  #   list(APPEND DEP_PROTO_INCLUDES  -I ${${_dep_target}_PROTOBUF_IMPORT_DIRS})
+  # endforeach()
 
 
   if(NOT DEFINED FARM_NG_ADD_PROTOBUFS_NAMESPACE)

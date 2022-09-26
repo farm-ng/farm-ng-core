@@ -1,8 +1,7 @@
-
-
 add_subdirectory(thirdparty/farm_pp)
-add_subdirectory(farm_ng/core)
 
+add_subdirectory(farm_ng/core)
+return()
 set(farm_ng_core_install_library_targets
   farm_pp
   farm_ng_core_logging
@@ -18,7 +17,6 @@ install(
   TARGETS
      ${farm_ng_core_install_library_targets}
   EXPORT farm_ng_coreTargets
-  FILE_SET HEADERS
   LIBRARY DESTINATION lib
 )
 

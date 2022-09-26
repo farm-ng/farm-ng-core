@@ -21,13 +21,7 @@ struct Error {
   std::vector<ErrorDetail> details;
 };
 
-inline std::ostream& operator<<(std::ostream& os, Error const& error) {
-  os << error.details.size() << "error details:\n";
-  for (auto const& error : error.details) {
-    os << FARM_FORMAT("[{}:{}] {}\n", error.file, error.line, error.msg);
-  }
-  return os;
-}
+std::ostream& operator<<(std::ostream& os, Error const& error);
 
 struct Success {};
 

@@ -1,15 +1,22 @@
-cmake_minimum_required(VERSION 3.23)
-project(farm_ng_core VERSION 22.99.0)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+cmake_minimum_required(VERSION 3.16)
+# https://semver.org/
+project(farm_ng_core VERSION 0.0.1)
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(farm_ng_add_test)
+include(farm_ng_add_library)
+include(farm_ng_add_protobufs)
+
 
 if (NOT (CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL ""))
   # Default to  RelWithDebInfo if no build type is specified.
   set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "" FORCE)
 endif()
+
+set(BUILD_SHARED_LIBS ON)
 
 # No NDEBUG for RelWithDebInfo. Among others, this makes sure that essential Eigen
 # runtime asserts are enabled.
@@ -19,8 +26,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 option(FARM_NG_CORE_TESTS "Build tests" ON)
 
 if(${FARM_NG_CORE_TESTS})
-    enable_testing()
-    find_package(GTest REQUIRED)
+  farm_ng_enable_testing()
 endif()
 
 
@@ -58,8 +64,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(cmake/farm_ng_core_add_test.cmake)
+
 
 set(CMAKE_CXX_CLANG_TIDY "")
 set(OLD_CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -78,7 +83,7 @@ endif()
 if(BUILD_FARM_NG_PROTOS)
   farm_ng_add_protobufs(farm_ng_core_proto_defs
     PROTO_FILES
-    ./protos/farm_ng/core.proto)
+    ./protos/farm_ng/core/core.proto)
 endif()
 
 add_subdirectory(cpp)

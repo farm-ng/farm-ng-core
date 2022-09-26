@@ -23,21 +23,11 @@
 #endif
 
 namespace farm_ng {
-inline std::function<void(std::string const &)> &getLogLineFunction() {
-  static std::function<void(std::string const &)> Static_Log_Function;
-  return Static_Log_Function;
-}
+std::function<void(std::string const &)> &getLogLineFunction();
 
-inline void setLogLineFunction(std::function<void(std::string const &)> f) {
-  getLogLineFunction() = f;
-}
+void setLogLineFunction(std::function<void(std::string const &)> f);
 
-inline void logLine(std::string const &line) {
-  std::cerr << line << std::endl;
-  if (getLogLineFunction()) {
-    getLogLineFunction()(line);
-  }
-}
+void logLine(std::string const &line);
 }  // namespace farm_ng
 
 // Begin (Impl details)

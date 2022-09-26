@@ -16,10 +16,10 @@ if (BUILD_FARM_NG_PROTOS)
   find_package(Protobuf REQUIRED)
 
   add_executable(compile_all_proto compile_all_proto.cpp)
-  target_link_libraries(compile_all_proto PUBLIC 
+  target_link_libraries(compile_all_proto PUBLIC
     farm_ng_core::farm_ng_core_misc_proto_conv)
 endif()
 
 add_executable(compile_all compile_all.cpp)
-target_link_libraries(compile_all PUBLIC 
+target_link_libraries(compile_all PUBLIC
   farm_ng_core::farm_ng_core_logging)

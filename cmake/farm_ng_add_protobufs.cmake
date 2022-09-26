@@ -10,9 +10,9 @@ macro(farm_ng_add_protobufs target)
   if(NOT DEFINED FARM_NG_ADD_PROTOBUFS_NAMESPACE)
     message(FATAL_ERROR "\nPlease specify NAMESPACE in farm_ng_add_protobufs(${target})\n")
   endif()
-    
+
   set(_proto_output_dir_cpp ${CMAKE_CURRENT_BINARY_DIR})
-  
+
   # Extract the module name from the target
   set(_cpp_out_sources)
   set(_cpp_out_headers)

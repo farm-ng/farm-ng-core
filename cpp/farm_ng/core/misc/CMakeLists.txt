@@ -29,7 +29,7 @@ target_link_libraries(farm_ng_core_misc INTERFACE
 )
 
 if (${FARM_NG_CORE_TESTS})
-  foreach(test_basename 
+  foreach(test_basename
     erase
     filesystem
     stopwatch

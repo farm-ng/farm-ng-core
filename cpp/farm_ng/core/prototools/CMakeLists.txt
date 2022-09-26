@@ -11,7 +11,7 @@ farm_ng_add_library(farm_ng_core_prototools
     proto_reader_writer.h
   SOURCES
     proto_reader_writer.cpp
-  
+
 )
 
 target_link_libraries(farm_ng_core_prototools protobuf::libprotobuf farm_ng_core_logging)

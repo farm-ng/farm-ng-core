@@ -16,5 +16,3 @@ message Event {
   repeated Timestamp timestamps = 2;
   int64 payload_length = 3;
 }
-
-

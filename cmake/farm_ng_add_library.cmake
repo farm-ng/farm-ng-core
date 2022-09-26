@@ -29,11 +29,11 @@ macro(farm_ng_add_library target)
   # if(DEFINED FARM_NG_ARGS_HEADERS)
   #   target_sources(${target} ${INTERFACE_OR_PUBLIC} ${FARM_NG_ARGS_HEADERS})
   # endif()
-  
+
   #set_target_properties(${target} PROPERTIES PUBLIC_HEADER "${FARM_NG_ARGS_HEADERS}")
-  
+
   add_library(${FARM_NG_ARGS_NAMESPACE}::${target} ALIAS ${target})
-  
+
   if(IS_ABSOLUTE ${FARM_NG_ARGS_INCLUDE_DIR})
     file(RELATIVE_PATH abs_include ${CMAKE_SOURCE_DIR} ${FARM_NG_ARGS_INCLUDE_DIR})
   else()
@@ -41,13 +41,13 @@ macro(farm_ng_add_library target)
   endif()
 
   message(STATUS "\n${target}\n\n${CMAKE_SOURCE_DIR}/${abs_include}")
-  
+
   target_include_directories(${target} ${INTERFACE_OR_PUBLIC}
       "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/${abs_include}>"
       "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
-  
+
   foreach ( file ${FARM_NG_ARGS_HEADERS} )
-    
+
     if(IS_ABSOLUTE ${file})
       file(RELATIVE_PATH rel ${CMAKE_SOURCE_DIR}/${abs_include} ${file})
     else()
@@ -62,7 +62,7 @@ macro(farm_ng_add_library target)
        DESTINATION include/${dir}
        COMPONENT Devel)
   endforeach()
-  
+
   # set_property(TARGET ${target} PROPERTY VERSION ${FARM_NG_ARGS_MAJOR_VERSION}.${FARM_NG_ARGS_MAJOR_VERSION}.${FARM_NG_ARGS_MAJOR_VERSION})
   # set_property(TARGET ${target} PROPERTY SOVERSION ${FARM_NG_ARGS_MAJOR_VERSION})
   # set_property(TARGET ${target} PROPERTY
@@ -76,5 +76,5 @@ macro(farm_ng_add_library target)
     LIBRARY DESTINATION lib
     COMPONENT Libs
   )
-  
+
 endmacro()

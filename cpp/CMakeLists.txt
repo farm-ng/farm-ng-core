@@ -17,7 +17,7 @@ install(EXPORT farm_ng_coreTargets
 export(EXPORT farm_ng_coreTargets
     FILE "${CMAKE_CURRENT_BINARY_DIR}/farm_ng_coreTargets.cmake"
     NAMESPACE farm_ng_core::
-)    
+)
 
 
 configure_file(../cmake/farm_ng_coreConfig.cmake.in farm_ng_coreConfig.cmake @ONLY)

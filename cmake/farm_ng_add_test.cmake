@@ -51,4 +51,3 @@ macro(farm_ng_add_test target_basename)
   add_test(NAME ${test_target} COMMAND ${test_target} )
   set_property(TEST ${test_target} PROPERTY LABELS ${FARM_NG_ADD_TEST_LABELS})
 endmacro()
-

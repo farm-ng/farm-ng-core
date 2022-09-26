@@ -6,4 +6,3 @@ ExternalProject_Add(farm-ng-core
     CMAKE_ARGS ${farm_ng_DEFAULT_ARGS} -DBUILD_FARM_NG_PROTOS=On
     TEST_BEFORE_INSTALL ON
 )
-

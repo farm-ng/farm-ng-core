@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 # https://semver.org/
-project(farm_ng_core VERSION 0.0.1)
+project(farm_ng_core VERSION 0.1.0)
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)

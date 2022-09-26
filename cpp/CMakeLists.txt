@@ -1,24 +1,6 @@
 add_subdirectory(thirdparty/farm_pp)
 
 add_subdirectory(farm_ng/core)
-return()
-set(farm_ng_core_install_library_targets
-  farm_pp
-  farm_ng_core_logging
-  farm_ng_core_enum
-  farm_ng_core_misc)
-
-if(BUILD_FARM_NG_PROTOS)
-  message(STATUS "Protobuf found, hence we will be building farm_ng_core_prototools")
-  list(APPEND farm_ng_core_install_library_targets farm_ng_core_prototools farm_ng_core_misc_proto_conv farm_ng_core_proto_defs)
-endif()
-
-install(
-  TARGETS
-     ${farm_ng_core_install_library_targets}
-  EXPORT farm_ng_coreTargets
-  LIBRARY DESTINATION lib
-)
 
 write_basic_package_version_file(
     farm_ng_coreConfigVersion.cmake
@@ -28,7 +10,7 @@ write_basic_package_version_file(
 
 install(EXPORT farm_ng_coreTargets
     FILE farm_ng_coreTargets.cmake
-    NAMESPACE farm_ng::
+    NAMESPACE farm_ng_core::
     DESTINATION share/farm_ng_core/cmake
 )
 

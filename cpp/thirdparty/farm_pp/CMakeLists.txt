@@ -5,7 +5,7 @@
 
 file(GLOB_RECURSE HPPS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.hpp")
 farm_ng_add_library(farm_pp
-    NAMESPACE farm_pp 
+    NAMESPACE farm_ng_core 
     INCLUDE_DIR include
     HEADERS ${HPPS}
 )

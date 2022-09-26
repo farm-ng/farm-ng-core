@@ -1,18 +1,18 @@
 macro(farm_ng_add_protobufs target)
-  set(multi_value_args PROTO_FILES DEPENDENCIES)
+  set(multi_value_args NAMESPACE PROTO_FILES DEPENDENCIES)
   cmake_parse_arguments(FARM_NG_ADD_PROTOBUFS "" "" "${multi_value_args}" ${ARGN})
   set(${target}_PROTOBUF_IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE STRING "Path to this project's protobuf sources")
   foreach(_dep_target ${FARM_NG_ADD_PROTOBUFS_DEPENDENCIES})
     list(APPEND DEP_PROTO_INCLUDES  -I ${${_dep_target}_PROTOBUF_IMPORT_DIRS})
   endforeach()
 
-  # Create build directories for all supported languages
-  list(APPEND _proto_languages cpp)
-  foreach(_proto_language ${_proto_languages})
-    set("_proto_output_dir_${_proto_language}" ${CMAKE_CURRENT_BINARY_DIR}/${_proto_language})
-    file(MAKE_DIRECTORY "${_proto_output_dir_${_proto_language}}")
-  endforeach()
 
+  if(NOT DEFINED FARM_NG_ADD_PROTOBUFS_NAMESPACE)
+    message(FATAL_ERROR "\nPlease specify NAMESPACE in farm_ng_add_protobufs(${target})\n")
+  endif()
+    
+  set(_proto_output_dir_cpp ${CMAKE_CURRENT_BINARY_DIR})
+  
   # Extract the module name from the target
   set(_cpp_out_sources)
   set(_cpp_out_headers)
@@ -40,8 +40,8 @@ macro(farm_ng_add_protobufs target)
   endforeach()
 
   farm_ng_add_library(${target}
-    NAMESPACE farm_ng_core::
-    INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpp
+    NAMESPACE ${FARM_NG_ADD_PROTOBUFS_NAMESPACE}
+    INCLUDE_DIR ${_proto_output_dir_cpp}
     HEADERS
       ${_cpp_out_headers}
     SOURCES

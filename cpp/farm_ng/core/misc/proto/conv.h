@@ -8,13 +8,13 @@
 
 #include "farm_ng/core/logging/expected.h"
 #include "farm_ng/core/misc/uri.h"
-#include "protos/farm_ng/core.pb.h"
+#include "farm_ng/core/uri.pb.h"
 
 namespace farm_ng {
 
 /// Convert proto::Uri to Uri.
-Expected<Uri> fromProto(proto::Uri const& proto);
+Expected<Uri> fromProto(farm_ng::core::proto::Uri const& proto);
 /// Convert Uri to proto::Uri.
-proto::Uri toProto(Uri const& uri);
+farm_ng::core::proto::Uri toProto(Uri const& uri);
 
 }  // namespace farm_ng

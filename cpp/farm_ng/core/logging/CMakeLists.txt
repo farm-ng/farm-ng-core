@@ -21,7 +21,7 @@ farm_ng_add_library(farm_ng_core_logging
 )
 
 target_link_libraries(farm_ng_core_logging PUBLIC
-  farm_pp::farm_pp
+  farm_ng_core::farm_pp
   fmt::fmt
   pthread
 )

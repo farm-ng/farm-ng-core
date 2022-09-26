@@ -81,9 +81,10 @@ if (BUILD_FARM_NG_PROTOS)
 endif()
 
 if(BUILD_FARM_NG_PROTOS)
-  farm_ng_add_protobufs(farm_ng_core_proto_defs
-    PROTO_FILES
-    ./protos/farm_ng/core/core.proto)
+  add_subdirectory(protos)
 endif()
-
 add_subdirectory(cpp)
+
+install(DIRECTORY cmake
+       DESTINATION share/farm_ng_core/
+       COMPONENT Devel)

@@ -13,7 +13,7 @@ install(EXPORT farm_ng_coreTargets
     NAMESPACE farm_ng_core::
     DESTINATION share/farm_ng_core/cmake
 )
-
+# https://cmake.org/cmake/help/latest/guide/importing-exporting/index.html#exporting-targets-from-the-build-tree
 export(EXPORT farm_ng_coreTargets
     FILE "${CMAKE_CURRENT_BINARY_DIR}/farm_ng_coreTargets.cmake"
     NAMESPACE farm_ng_core::

@@ -6,6 +6,7 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(farm_ng_module)
 include(farm_ng_add_test)
 include(farm_ng_add_library)
 include(farm_ng_add_protobufs)
@@ -88,3 +89,9 @@ add_subdirectory(cpp)
 install(DIRECTORY cmake
        DESTINATION share/farm_ng_core/
        COMPONENT Devel)
+
+
+farm_ng_export_module(
+  NAME farm_ng_core
+  REQUIRED_DEPS fmt)
+

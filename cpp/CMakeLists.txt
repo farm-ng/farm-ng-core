@@ -2,6 +2,8 @@ add_subdirectory(thirdparty/farm_pp)
 
 add_subdirectory(farm_ng/core)
 
+
+if(FALSE)
 write_basic_package_version_file(
     farm_ng_coreConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
@@ -33,3 +35,4 @@ endforeach()
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/farm_ng_coreConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/farm_ng_coreConfigVersion.cmake"
         DESTINATION share/farm_ng_core/cmake)
+endif()

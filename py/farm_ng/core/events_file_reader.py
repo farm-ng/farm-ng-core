@@ -13,17 +13,13 @@ from farm_ng.core.uri import Uri
 
 
 class EventsFileReader:
-    def __init__(self, file_name: Path) -> None:
-        self._file_name = file_name.absolute()
-        assert Path(self._file_name.parents[0]).is_dir()
-
+    def __init__(self) -> None:
         self._file_stream: Optional[BinaryIO] = None
-        # assert self.open()
+
         # store the bytes offset in a dictionary where:
         # - the key is the string representation of the Uri of the message
         # - the value is a list of offsets to messages with that Uri
         self.offsets: Optional[Dict[str, List[int]]] = None
-        # self.compute_offsets()
 
     def __repr__(self) -> str:
         return f"file_name: {str(self.file_name)}\nfile_stream: {self._file_stream}\nis_open: {self.is_open}"
@@ -93,8 +89,8 @@ class EventsFileReader:
             return True
         return self._file_stream.closed
 
-    def open(self) -> bool:
-        self._file_stream = open(self._file_name, "rb")
+    def open(self, file_name: Path) -> bool:
+        self._file_stream = open(file_name, "rb")
         return self.is_open()
 
     def close(self) -> bool:

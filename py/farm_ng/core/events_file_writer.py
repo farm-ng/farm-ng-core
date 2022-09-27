@@ -34,8 +34,9 @@ class EventsFileWriter:
         return self.is_open()
 
     def close(self) -> bool:
-        self._file_stream.close()
-        self._file_stream = None
+        if self._file_stream is not None:
+            self._file_stream.close()
+            self._file_stream = None
         return self.is_closed()
 
     def write(self, message: Any, uri: uri_pb2.Uri) -> None:

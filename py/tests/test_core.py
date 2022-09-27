@@ -30,7 +30,7 @@ class TestEventsWriter:
         assert not writer.is_open()
         assert writer.file_name is None
 
-    def test_write_images(self, tmpdir) -> None:
+    def test_write(self, tmpdir) -> None:
         file_name = Path(tmpdir) / "event.log"
         writer = EventsFileWriter()
         assert writer.open(file_name)
@@ -43,10 +43,9 @@ class TestEventsWriter:
 
 
 class TestEventsReader:
-    def test_smoke(self, tmpdir) -> None:
+    def test_smoke(self) -> None:
         # empty object
-        file_name = Path(tmpdir) / "event.log"
-        reader = EventsFileReader(file_name)
+        reader = EventsFileReader()
         assert reader.is_closed()
         assert not reader.is_open()
         assert reader.file_name is None
@@ -54,12 +53,12 @@ class TestEventsReader:
     def test_open_close(self, tmpdir) -> None:
         file_name = Path(tmpdir) / "event.log"
         writer = EventsFileWriter()
-        reader = EventsFileReader(file_name)
+        reader = EventsFileReader()
         # touch file
         assert writer.open(file_name)
         assert writer.close()
         # open the file
-        assert reader.open()
+        assert reader.open(file_name)
         assert not reader.is_closed()
         assert reader.is_open()
         assert reader.file_name.name == "event.log"  # type: ignore
@@ -72,7 +71,7 @@ class TestEventsReader:
     def test_write_read(self, tmpdir) -> None:
         file_name = Path(tmpdir) / "event.log"
         writer = EventsFileWriter()
-        reader = EventsFileReader(file_name)
+        reader = EventsFileReader()
         # write file
         assert writer.open(file_name)
         # create a dummy message in the form of uri
@@ -82,7 +81,7 @@ class TestEventsReader:
         writer.write(msg, uri.proto)
         assert writer.close()
         # read back the data
-        assert reader.open()
+        assert reader.open(file_name)
         msg_out = reader.read()
         assert reader.close()
         assert msg == msg_out

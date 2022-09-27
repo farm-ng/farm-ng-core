@@ -11,47 +11,34 @@ pull in additional dependency in the future.
 
 ]]
 
-set(base_enum_src_prefixes  erase
-                            filesystem
-                            stopwatch
-                            tokenize
-                            uri)
-
-
-add_library(farm_ng_core_misc INTERFACE
+farm_ng_add_library(farm_ng_core_misc
+  NAMESPACE farm_ng_core
+  INCLUDE_DIR ../../..
+  HEADERS
   erase.h
   filesystem.h
   stopwatch.h
   tokenize.h
   variant_utils.h
   uri.h
-  void.h)
+  void.h
+)
 
 target_link_libraries(farm_ng_core_misc INTERFACE
   farm_ng_core_enum farm_ng_core_logging
 )
-add_library (farm_ng_core::farm_ng_core_misc ALIAS farm_ng_core_misc)
-target_include_directories(farm_ng_core_misc INTERFACE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
-  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-)
-target_sources(farm_ng_core_misc INTERFACE
-               FILE_SET HEADERS
-               BASE_DIRS ../../..
-               FILES
-                    erase.h
-                    filesystem.h
-                    stopwatch.h
-                    tokenize.h
-                    variant_utils.h
-                    uri.h
-                    void.h)
-
 
 if (${FARM_NG_CORE_TESTS})
-  foreach(test_basename ${base_enum_src_prefixes})
+  foreach(test_basename
+    erase
+    filesystem
+    stopwatch
+    tokenize
+    uri
+    )
   farm_ng_add_test(${test_basename}
                     PARENT_LIBRARY farm_ng_core_misc
+                    LINK_LIBRARIES farm_ng_core_misc
                     LABELS small)
   endforeach()
 endif()

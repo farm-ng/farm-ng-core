@@ -7,27 +7,23 @@ helper functions.
 Depends on farm_ng_core_logging.
 
 ]]
-
-add_library(farm_ng_core_enum INTERFACE
-  enum.h
-  enum_flags.h
-  enum_without_ostream.h
-  enum_flags_without_ostream.h)
-add_library (farm_ng_core::farm_ng_core_enum ALIAS farm_ng_core_enum)
-target_include_directories(farm_ng_core_enum INTERFACE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>"
-  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+farm_ng_add_library(farm_ng_core_enum
+  NAMESPACE farm_ng_core
+  INCLUDE_DIR ../../..
+  HEADERS
+    enum.h
+    enum_flags.h
+    enum_without_ostream.h
+    enum_flags_without_ostream.h
+    enum.h
+    enum_flags.h
+    enum_without_ostream.h
+    enum_flags_without_ostream.h
+    impl/enum_details.h
+    impl/enum_flag_details.h
 )
-target_sources(farm_ng_core_enum INTERFACE
-               FILE_SET HEADERS
-               BASE_DIRS ../../..
-               FILES
-                 enum.h
-                 enum_flags.h
-                 enum_without_ostream.h
-                 enum_flags_without_ostream.h
-                 impl/enum_details.h
-                 impl/enum_flag_details.h)
+
+target_link_libraries(farm_ng_core_enum INTERFACE farm_ng_core_logging)
 
 if (${FARM_NG_CORE_TESTS})
   set(FARM_NG_ENUM_TESTS
@@ -39,7 +35,7 @@ if (${FARM_NG_CORE_TESTS})
   foreach(test_basename ${FARM_NG_ENUM_TESTS})
     farm_ng_add_test(${test_basename}
                       PARENT_LIBRARY farm_ng_core_enum
-                      LINK_LIBRARIES farm_ng_core_logging
+                      LINK_LIBRARIES farm_ng_core_enum
                       LABELS small)
   endforeach()
 endif()

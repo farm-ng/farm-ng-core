@@ -25,6 +25,8 @@ class BuildProtosCommand(Command):
 
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
             proto_file.rename(Path("./farm_ng/core") / proto_file.name)
+        for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
+            proto_file.rename(Path("./farm_ng/core") / proto_file.name)
 
 
 class CleanFilesCommand(Command):
@@ -39,6 +41,8 @@ class CleanFilesCommand(Command):
     def run(self):
         proto_files_root = Path("./farm_ng")
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
+            assert proto_file.unlink() is None
+        for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
             assert proto_file.unlink() is None
 
 

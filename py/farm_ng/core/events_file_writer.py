@@ -5,6 +5,7 @@ from typing import BinaryIO
 from typing import Optional
 
 from farm_ng.core import event_pb2
+from farm_ng.core import uri_pb2
 
 
 class EventsFileWriter:
@@ -40,16 +41,12 @@ class EventsFileWriter:
         self._file_stream = None
         return self.is_closed()
 
-    def write(self, message: Any, uri: Optional[event_pb2.Uri] = None) -> None:
+    def write(self, message: Any, uri: uri_pb2.Uri) -> None:
 
-        if uri is None:
-            uri = event_pb2.Uri()
-
+        # TODO: add timestamps
         event = event_pb2.Event(
-            module=str(message.__module__),
-            name=str(message.__class__.__name__),
-            length_next=message.ByteSize(),
             uri=uri,
+            payload_length=message.ByteSize(),
         )
 
         event_len: bytes = event.ByteSize().to_bytes(1, sys.byteorder)

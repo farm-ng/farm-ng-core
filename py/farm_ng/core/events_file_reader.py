@@ -132,24 +132,12 @@ class EventsFileReader:
 
         # parse the message
         message_cls = getattr(
-            importlib.import_module(event_proto.module), event_proto.name
+            importlib.import_module(event_proto.uri.scheme), event_proto.uri.authority
         )
 
-        message: bytes = self._file_stream.read(event_proto.length_next)
+        message: bytes = self._file_stream.read(event_proto.payload_length)
 
         message_out = message_cls()
         message_out.ParseFromString(message)
 
         return message_out
-
-    def header(self) -> event_pb2.EventHeader:
-        self._file_stream.seek(0)
-        header_len = int.from_bytes(self._file_stream.read(1), sys.byteorder)
-
-        # Read that number of bytes as the message bytes
-        header: bytes = self._file_stream.read(header_len)
-
-        header_proto = event_pb2.EventHeader()
-        header_proto.ParseFromString(header)
-
-        return header_proto

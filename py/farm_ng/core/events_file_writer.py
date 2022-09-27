@@ -9,10 +9,7 @@ from farm_ng.core import uri_pb2
 
 
 class EventsFileWriter:
-    def __init__(self, file_name: Path) -> None:
-        self._file_name = file_name.absolute()
-        assert Path(self._file_name.parents[0]).is_dir()
-
+    def __init__(self) -> None:
         self._file_stream: Optional[BinaryIO] = None
 
     def __repr__(self) -> str:
@@ -32,8 +29,8 @@ class EventsFileWriter:
             return True
         return self._file_stream.closed
 
-    def open(self) -> bool:
-        self._file_stream = open(self._file_name, "wb")
+    def open(self, file_name: Path) -> bool:
+        self._file_stream = open(file_name, "wb")
         return self.is_open()
 
     def close(self) -> bool:

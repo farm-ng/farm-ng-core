@@ -24,5 +24,5 @@ pip install -e .[dev]
 ## Test
 
 ```bash
-pytest -v tests/
+pytest -v tests/ --mypy
 ```

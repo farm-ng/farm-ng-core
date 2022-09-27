@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from farm_ng.core import event_pb2
 from farm_ng.core import uri_pb2
 from farm_ng.core.events_file_reader import EventsFileReader
 from farm_ng.core.events_file_writer import EventsFileWriter
@@ -32,7 +31,7 @@ class TestEventsWriter:
         assert writer.open()
         assert not writer.is_closed()
         assert writer.is_open()
-        assert writer.file_name.name == "event.log"
+        assert str(writer.file_name.name) == "event.log"
         # close the file
         assert writer.close()
         assert writer.is_closed()
@@ -66,7 +65,7 @@ class TestEventsReader:
         assert reader.open()
         assert not reader.is_closed()
         assert reader.is_open()
-        assert reader.file_name.name == "event.log"
+        assert str(reader.file_name.name) == "event.log"
         # close the file
         assert reader.close()
         assert reader.is_closed()

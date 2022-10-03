@@ -15,12 +15,23 @@ find_package(farm_ng_cmake REQUIRED)
 include(External_fmt)
 include(External_eigen)
 include(External_expected)
-include(External_subdir_farm-ng-core)
+#include(External_subdir_farm-ng-core)
+ExternalProject_Add(farm-ng-core
+    DEPENDS fmt expected eigen
+    PREFIX ${farm_ng_EXT_PREFIX}
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/farm-ng-core-build
+    CMAKE_ARGS
+        ${farm_ng_DEFAULT_ARGS}
+        -DBUILD_FARM_NG_PROTOS=On
+        -Dfarm_ng_cmake_DIR=${farm_ng_cmake_DIR}
+    TEST_BEFORE_INSTALL ON
+)
 
 ExternalProject_Add(farm-ng-core_TestInstallTargets
     DEPENDS farm-ng-core
     PREFIX ${farm_ng_EXT_PREFIX}
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/farm-ng-core/cpp/examples/test_install_targets
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cpp/examples/test_install_targets
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/farm-ng-core_TestInstallTargets-build
     CMAKE_ARGS ${farm_ng_DEFAULT_ARGS}
     -DBUILD_FARM_NG_PROTOS=${SUPER_PROJ_FARM_NG_PROTOS}

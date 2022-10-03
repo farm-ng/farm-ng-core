@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 # https://semver.org/
-project(farm_ng_all VERSION 0.0.1)
+project(farm_ng_core_super VERSION 0.0.1)
 
 include(FetchContent)
 FetchContent_Declare(
   farm_ng_cmake
   GIT_REPOSITORY https://github.com/farm-ng/farm-ng-cmake.git
-  GIT_TAG main
+  GIT_TAG v0.1.0
 )
+
 FetchContent_MakeAvailable(farm_ng_cmake)
 set(farm_ng_cmake_DIR ${farm_ng_cmake_SOURCE_DIR}/cmake)
 find_package(farm_ng_cmake REQUIRED)

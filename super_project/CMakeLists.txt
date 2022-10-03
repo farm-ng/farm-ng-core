@@ -27,6 +27,7 @@ ExternalProject_Add(farm-ng-core
         -Dfarm_ng_cmake_DIR=${farm_ng_cmake_DIR}
     TEST_BEFORE_INSTALL ON
 )
+  
 
 ExternalProject_Add(farm-ng-core_TestInstallTargets
     DEPENDS farm-ng-core
@@ -34,6 +35,6 @@ ExternalProject_Add(farm-ng-core_TestInstallTargets
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cpp/examples/test_install_targets
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/farm-ng-core_TestInstallTargets-build
     CMAKE_ARGS ${farm_ng_DEFAULT_ARGS}
-    -DBUILD_FARM_NG_PROTOS=${SUPER_PROJ_FARM_NG_PROTOS}
+    -DBUILD_FARM_NG_PROTOS=On
     INSTALL_COMMAND ""
 )

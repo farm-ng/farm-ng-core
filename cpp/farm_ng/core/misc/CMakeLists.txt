@@ -28,8 +28,7 @@ target_link_libraries(farm_ng_core_misc INTERFACE
   farm_ng_core_enum farm_ng_core_logging
 )
 
-if (${FARM_NG_CORE_TESTS})
-  foreach(test_basename
+foreach(test_basename
     erase
     filesystem
     stopwatch
@@ -40,10 +39,8 @@ if (${FARM_NG_CORE_TESTS})
                     PARENT_LIBRARY farm_ng_core_misc
                     LINK_LIBRARIES farm_ng_core_misc
                     LABELS small)
-  endforeach()
-endif()
+endforeach()
 
-
-if(BUILD_FARM_NG_PROTOS)
+if(FARM_NG_BUILD_PROTOS)
     add_subdirectory(proto)
 endif()

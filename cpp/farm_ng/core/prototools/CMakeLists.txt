@@ -17,11 +17,9 @@ farm_ng_add_library(farm_ng_core_prototools
 target_link_libraries(farm_ng_core_prototools protobuf::libprotobuf farm_ng_core_logging)
 
 
-if(${FARM_NG_CORE_TESTS})
-  foreach(test_basename proto_reader_writer)
+foreach(test_basename proto_reader_writer)
     farm_ng_add_test(${test_basename}
                           PARENT_LIBRARY farm_ng_core_prototools
                           LINK_LIBRARIES farm_ng_core_prototools
                           LABELS small)
-  endforeach()
-endif()
+endforeach()

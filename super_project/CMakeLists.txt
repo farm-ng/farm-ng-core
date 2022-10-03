@@ -27,7 +27,7 @@ ExternalProject_Add(farm-ng-core
         -Dfarm_ng_cmake_DIR=${farm_ng_cmake_DIR}
     TEST_BEFORE_INSTALL ON
 )
-  
+
 
 ExternalProject_Add(farm-ng-core_TestInstallTargets
     DEPENDS farm-ng-core

@@ -87,4 +87,3 @@ add_subdirectory(cpp)
 farm_ng_export_module(
   NAME farm_ng_core
   REQUIRED_DEPS fmt)
-

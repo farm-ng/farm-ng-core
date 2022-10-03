@@ -26,8 +26,7 @@ target_link_libraries(farm_ng_core_logging PUBLIC
   pthread
 )
 
-if (${FARM_NG_CORE_TESTS})
-  foreach(test_basename
+foreach(test_basename
     expected
     format
     logger)
@@ -35,5 +34,4 @@ if (${FARM_NG_CORE_TESTS})
                     PARENT_LIBRARY farm_ng_core_logging
                     LINK_LIBRARIES farm_ng_core_logging
                     LABELS small)
-  endforeach()
-endif()
+endforeach()

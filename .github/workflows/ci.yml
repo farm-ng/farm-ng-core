@@ -19,7 +19,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11]
-        tests: [unit_test, install_target]
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -31,112 +30,23 @@ jobs:
 
     - name: install deps (linux)
       run: |
-        sudo apt-get install libgtest-dev clang-tidy-10 libprotobuf-dev protobuf-compiler -y
-        git clone https://github.com/fmtlib/fmt.git
-        cd fmt
-        git checkout 8.1.1
-        mkdir build
-        cd build
-        cmake .. -DFMT_TEST=OFF -DBUILD_SHARED_LIBS=ON
-        make -j8
-        sudo make install
-        cd ../..
-        git clone https://github.com/TartanLlama/expected.git
-        cd expected
-        git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
-        mkdir build
-        cd build
-        cmake .. -DEXPECTED_BUILD_TESTS=off
-        sudo make install
-        cd ../..
+        sudo apt-get install clang-tidy-10 libprotobuf-dev protobuf-compiler -y
       if: matrix.os == 'ubuntu-20.04'
 
     - name: install deps (mac-os)
       run: |
-        brew update
+        wget https://github.com/macports/macports-base/releases/download/v2.7.1/MacPorts-2.7.1-11-BigSur.pkg
+        sudo installer -pkg ./MacPorts-2.7.1-11-BigSur.pkg -target /
+        export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+        sudo PATH=$PATH port install protobuf3-cpp
 
-        git clone https://github.com/google/googletest
-        cd googletest
-        git checkout release-1.12.1
-        mkdir build
-        cd build
-        cmake ..
-        make
-        make install
-        git clone https://github.com/fmtlib/fmt.git
-        cd fmt
-        git checkout 8.1.1
-        mkdir build
-        cd build
-        cmake .. -DFMT_TEST=OFF -DBUILD_SHARED_LIBS=ON
-        make -j8
-        sudo make install
-        cd ../..
-        git clone https://github.com/TartanLlama/expected.git
-        cd expected
-        git checkout 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5
-        mkdir build
-        cd build
-        cmake .. -DEXPECTED_BUILD_TESTS=off
-        sudo make install
-        cd ../..
       if: matrix.os == 'macos-11'
 
 
-    - name: Configure And Build Tests (linux)
+    - name: Configure And Build Tests
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON -DBUILD_FARM_NG_PROTOS=ON
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/super_project
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
-      if: matrix.tests == 'unit_test' && matrix.os == 'ubuntu-20.04'
-
-    - name: Configure And Build Tests (mac-os)
-      run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON -DBUILD_FARM_NG_PROTOS=OFF
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-      if: matrix.tests == 'unit_test' && matrix.os == 'macos-11'
-
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
-      if: matrix.tests == 'unit_test'
-
-
-    - name: Install system targets tests (proto on)
-      run: |
-        mkdir -p build
-        cd build
-        pwd
-        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFARM_NG_CORE_TESTS=OFF -DBUILD_FARM_NG_PROTOS=ON
-        make
-        sudo make install
-        cd ..
-        cd cpp/examples/test_install_targets/
-        mkdir -p build
-        cd build
-        cmake ..
-        make
-      if: matrix.tests == 'install_target' && matrix.os == 'ubuntu-20.04'
-
-
-    - name: Install system targets tests (proto off)
-      run: |
-        mkdir -p build
-        cd build
-        pwd
-        cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} .. -DFARM_NG_CORE_TESTS=OFF -DBUILD_FARM_NG_PROTOS=OFF
-        make
-        sudo make install
-        cd ..
-        cd cpp/examples/test_install_targets/
-        mkdir -p build
-        cd build
-        cmake ..
-        make
-      if: matrix.tests == 'install_target' && matrix.os == 'macos-11'
-
 
     - name: clang-tidy
       run: |

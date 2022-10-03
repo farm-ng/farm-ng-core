@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
-rm build -rf
-mkdir -p build && cd build && CC=clang CXX=clang++ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_FARM_NG_PROTOS=OFF ..
-cd ..
+cd super_project
+rm clang-tidy-build -rf
+mkdir clang-tidy-build
+cd clang-tidy-build
+CC=clang CXX=clang++ cmake ..
+make -j2
+cd ../..
 
 # run clang tidy
-run-clang-tidy -quiet -p build/ farm_ng/core/.*\.cpp -fix -style none
+run-clang-tidy-10  -quiet -p super_project/clang-tidy-build/farm-ng-core-build cpp/farm/.*\.cpp -fix -style none

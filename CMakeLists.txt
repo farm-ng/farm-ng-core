@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 # https://semver.org/
 project(farm_ng_core VERSION 0.1.0)
 
-include(CMakePackageConfigHelpers)
-include(GNUInstallDirs)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(farm_ng_cmake 0.1.0 REQUIRED)
+include(farm_ng_module)
 include(farm_ng_add_test)
 include(farm_ng_add_library)
 include(farm_ng_add_protobufs)
@@ -85,6 +83,7 @@ if(BUILD_FARM_NG_PROTOS)
 endif()
 add_subdirectory(cpp)
 
-install(DIRECTORY cmake
-       DESTINATION share/farm_ng_core/
-       COMPONENT Devel)
+
+farm_ng_export_module(
+  NAME farm_ng_core
+  REQUIRED_DEPS fmt)

@@ -19,7 +19,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11]
-        tests: [unit_test, install_target]
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -46,7 +45,7 @@ jobs:
 
     - name: Configure And Build Tests
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFARM_NG_CORE_TESTS=ON -DBUILD_FARM_NG_PROTOS=ON ${{github.workspace}}/super_project
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/super_project
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
 
     - name: clang-tidy

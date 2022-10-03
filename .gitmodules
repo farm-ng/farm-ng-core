@@ -1,3 +1,0 @@
-[submodule "cmake"]
-	path = cmake
-	url = git@github.com:farm-ng/farm-ng-cmake.git

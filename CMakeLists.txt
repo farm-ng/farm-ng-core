@@ -83,10 +83,6 @@ if(BUILD_FARM_NG_PROTOS)
 endif()
 add_subdirectory(cpp)
 
-install(DIRECTORY cmake
-       DESTINATION share/farm_ng_core/
-       COMPONENT Devel)
-
 
 farm_ng_export_module(
   NAME farm_ng_core

@@ -7,8 +7,6 @@ from setuptools.command.develop import develop
 from setuptools.command.egg_info import egg_info
 from setuptools.command.install import install
 
-from grpc_tools import command
-
 
 class BuildProtosCommand(Command):
     user_options = []
@@ -20,6 +18,7 @@ class BuildProtosCommand(Command):
         pass
 
     def run(self):
+        from grpc_tools import command
 
         proto_files_root = Path("../protos")
         command.build_package_protos(proto_files_root)

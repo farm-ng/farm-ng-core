@@ -7,6 +7,8 @@ from setuptools.command.develop import develop
 from setuptools.command.egg_info import egg_info
 from setuptools.command.install import install
 
+from grpc_tools import command
+
 
 class BuildProtosCommand(Command):
     user_options = []
@@ -18,12 +20,13 @@ class BuildProtosCommand(Command):
         pass
 
     def run(self):
-        from grpc_tools import command
 
         proto_files_root = Path("../protos")
         command.build_package_protos(proto_files_root)
 
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
+            proto_file.rename(Path("./farm_ng/core") / proto_file.name)
+        for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
             proto_file.rename(Path("./farm_ng/core") / proto_file.name)
 
 
@@ -39,6 +42,8 @@ class CleanFilesCommand(Command):
     def run(self):
         proto_files_root = Path("./farm_ng")
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
+            assert proto_file.unlink() is None
+        for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
             assert proto_file.unlink() is None
 
 

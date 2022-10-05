@@ -1,8 +1,8 @@
-from farm_ng.core import event_pb2
+from farm_ng.core import uri_pb2
 
 
 class Uri:
-    def __init__(self, uri: event_pb2.Uri) -> None:
+    def __init__(self, uri: uri_pb2.Uri) -> None:
         self._uri = uri
 
     def __eq__(self, other: "Uri") -> bool:
@@ -13,17 +13,17 @@ class Uri:
         return self.string()
 
     @property
-    def proto(self) -> event_pb2.Uri:
+    def proto(self) -> uri_pb2.Uri:
         return self._uri
 
     @property
     def scheme(self) -> str:
-        scheme_value = event_pb2.UriSchemeType.DESCRIPTOR.values[self._uri.scheme]
+        scheme_value = uri_pb2.UriSchemeType.DESCRIPTOR.values[self._uri.scheme]
         return scheme_value.name.lower()
 
     @classmethod
     def empty(cls) -> "Uri":
-        return Uri(event_pb2.Uri())
+        return Uri(uri_pb2.Uri())
 
     def string(self) -> str:
         return (
@@ -41,11 +41,11 @@ class Uri:
     def from_strings(
         self, scheme_name: str, authority: str, path: str, query: str
     ) -> "Uri":
-        scheme_value = event_pb2.UriSchemeType.DESCRIPTOR.values_by_name[
+        scheme_value = uri_pb2.UriSchemeType.DESCRIPTOR.values_by_name[
             scheme_name.upper()
         ]
         return Uri(
-            event_pb2.Uri(
+            uri_pb2.Uri(
                 scheme=scheme_value.number, authority=authority, path=path, query=query
             )
         )

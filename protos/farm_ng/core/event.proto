@@ -16,3 +16,8 @@ message Event {
   repeated Timestamp timestamps = 2;
   int64 payload_length = 3;
 }
+
+// TODO(edgar): remove after transition to new setup
+message EventHeader {
+  string robot_name = 1;
+}

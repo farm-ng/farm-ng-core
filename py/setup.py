@@ -24,9 +24,17 @@ class BuildProtosCommand(Command):
         command.build_package_protos(proto_files_root)
 
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
-            proto_file.rename(Path("./farm_ng/core") / proto_file.name)
+            proto_file_new = Path(*proto_file.parts[2:])
+            if not proto_file_new.exists():
+                proto_file.rename(proto_file_new)
+            if proto_file.exists():
+                proto_file.unlink()
         for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
-            proto_file.rename(Path("./farm_ng/core") / proto_file.name)
+            proto_file_new = Path(*proto_file.parts[2:])
+            if not proto_file_new.exists():
+                proto_file.rename(proto_file_new)
+            if proto_file.exists():
+                proto_file.unlink()
 
 
 class CleanFilesCommand(Command):

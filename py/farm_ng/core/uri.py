@@ -16,22 +16,15 @@ class Uri:
     def proto(self) -> uri_pb2.Uri:
         return self._uri
 
-    @property
-    def scheme(self) -> str:
-        scheme_value = uri_pb2.UriSchemeType.DESCRIPTOR.values[self._uri.scheme]
-        return scheme_value.name.lower()
-
     @classmethod
     def empty(cls) -> "Uri":
         return Uri(uri_pb2.Uri())
 
     def string(self) -> str:
-        return (
-            f"{self.scheme}://{self._uri.authority}/{self._uri.path}?{self._uri.query}"
-        )
+        return f"{self.proto.scheme}://{self.proto.authority}/{self.proto.path}?{self.proto.query}"
 
     @classmethod
-    def from_string(self, string: str) -> "Uri":
+    def from_string(cls, string: str) -> "Uri":
         scheme_name, remainder = string.split("://")
         remainder, query = remainder.split("?")
         authority, path = remainder.split("/")
@@ -39,7 +32,7 @@ class Uri:
 
     @classmethod
     def from_strings(
-        self, scheme_name: str, authority: str, path: str, query: str
+        cls, scheme_name: str, authority: str, path: str, query: str
     ) -> "Uri":
         scheme_value = uri_pb2.UriSchemeType.DESCRIPTOR.values_by_name[
             scheme_name.upper()

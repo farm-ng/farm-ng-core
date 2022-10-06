@@ -1,5 +1,3 @@
-from farm_ng import core
-
 # Version variable
 import sys
 

@@ -79,5 +79,5 @@ setup(
         "develop": BuildProtosDevelop,
         "egg_info": BuildProtosEggInfo,
         "clean": CleanFilesCommand,
-    }
+    },
 )

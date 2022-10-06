@@ -1,4 +1,5 @@
 import importlib
+from importlib.resources import Package
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -13,6 +14,16 @@ import logging
 from farm_ng.core import event_pb2
 from farm_ng.core.uri import Uri
 from farm_ng.core import uri_pb2
+
+
+def parse_protobuf_descriptor(desc) -> Tuple[str, str]:
+    # parse a proto descriptor and extract the message name and package.
+    # See: https://developers.google.com/protocol-buffers/docs/reference/python-generated#invocation
+    # NOTE: the descriptor comes in the shape of `farm_ng.core.proto.Timestamp`
+    desc_list = desc.split(".")
+    name = desc_list[-1]
+    package = desc_list[:-2] + [name.lower() + "_pb2"]
+    return name, ".".join(package)
 
 
 class EventsFileReader:
@@ -49,11 +60,11 @@ class EventsFileReader:
         return uri.string() in self.offsets.keys()
 
     def _read_next_event(self) -> Optional[event_pb2.Event]:
-        event_len = int.from_bytes(self._file_stream.read(1), sys.byteorder)
+        event_len = int.from_bytes(self._file_stream.read(4), sys.byteorder)
         # end file condition
         if event_len == 0:
             self._file_stream.seek(0)
-            return
+            return None
 
         event_bytes: bytes = self._file_stream.read(event_len)
 
@@ -63,7 +74,7 @@ class EventsFileReader:
 
     def _skip_next_message(self, event: event_pb2.Event) -> None:
         msg_bytes: int = event.payload_length
-        self._file_stream.seek(msg_bytes, 1)
+        self._file_stream.seek(msg_bytes, 4)
 
     def _compute_offsets(self) -> None:
         if not self.is_open:
@@ -123,21 +134,17 @@ class EventsFileReader:
         file_stream = cast(IO, maybe_file_stream)
         file_stream.seek(self.offsets[uri.string()][frame_id])
 
-    def seek_and_read(self, uri: Uri, frame_idx: int) -> Optional[Any]:
-        self.seek(uri, frame_idx)
-        return self.read()
-
-    def read(self) -> Optional[Tuple[Any, uri_pb2.Uri]]:
+    def read(self) -> Optional[Tuple[event_pb2.Event, Any]]:
         # Read the message's length as bytes and convert it to an integer
         maybe_file_stream = self._file_stream
         if maybe_file_stream is None:
             return None
         file_stream = cast(IO, maybe_file_stream)
 
-        event_len = int.from_bytes(file_stream.read(1), sys.byteorder)
+        event_len = int.from_bytes(file_stream.read(4), sys.byteorder)
         if event_len == 0:
             self.close()
-            return
+            return None
 
         # Read that number of bytes as the message bytes
         event: bytes = file_stream.read(event_len)
@@ -146,9 +153,8 @@ class EventsFileReader:
         event_proto.ParseFromString(event)
 
         # parse the message
-        message_cls = getattr(
-            importlib.import_module(event_proto.uri.scheme), event_proto.uri.authority
-        )
+        name, package = parse_protobuf_descriptor(event_proto.uri.scheme)
+        message_cls = getattr(importlib.import_module(package), name)
 
         message: bytes = file_stream.read(event_proto.payload_length)
 

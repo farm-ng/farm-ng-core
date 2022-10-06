@@ -50,21 +50,22 @@ class EventsFileWriter:
         self._file_stream = None
         return self.is_closed()
 
-    def write(self, message: Any, uri: Optional[uri_pb2.Uri] = None) -> None:
+    def write(self, message: Any) -> None:
         maybe_file_stream = self._file_stream
         if maybe_file_stream is None:
-            return None
+            return
         file_stream = cast(IO, maybe_file_stream)
 
-        if uri is None:
-            uri = uri_pb2.Uri()
+        # create a Uri to store the descriptor of the message
+        # it comes in the form of `farm_ng.core.proto.Timestamp`
+        uri = uri_pb2.Uri(scheme=message.DESCRIPTOR.full_name)
 
         event = event_pb2.Event(
             uri=uri,
             payload_length=message.ByteSize(),
         )
 
-        event_len: bytes = event.ByteSize().to_bytes(1, sys.byteorder)
+        event_len: bytes = event.ByteSize().to_bytes(4, sys.byteorder)
 
         file_stream.write(event_len)
         file_stream.write(event.SerializeToString())

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 from farm_ng.core import uri_pb2
+from farm_ng.core import timestamp_pb2
 from farm_ng.core.events_file_reader import EventsFileReader
 from farm_ng.core.events_file_writer import EventsFileWriter
 
@@ -73,11 +74,19 @@ class TestEventsReader:
     ) -> None:
         # write file
         assert writer.open()
-        uri = uri_pb2.Uri(scheme="farm_ng.core.uri_pb2", authority="Uri")
-        writer.write(uri, uri)
+        for i in range(1, 10):
+            time_stamp = timestamp_pb2.Timestamp(stamp=i)
+            writer.write(time_stamp)
         assert writer.close()
         # read back the data
         assert reader.open()
-        _, uri_out = reader.read()
+        count = 1
+        while True:
+            res = reader.read()
+            if res is None:
+                break
+            _, msg = res
+            assert msg.stamp == count
+            count += 1
+
         assert reader.close()
-        assert uri == uri_out

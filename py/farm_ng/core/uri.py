@@ -28,17 +28,6 @@ class Uri:
         scheme_name, remainder = string.split("://")
         remainder, query = remainder.split("?")
         authority, path = remainder.split("/")
-        return Uri.from_strings(scheme_name, authority, path, query)
-
-    @classmethod
-    def from_strings(
-        cls, scheme_name: str, authority: str, path: str, query: str
-    ) -> "Uri":
-        scheme_value = uri_pb2.UriSchemeType.DESCRIPTOR.values_by_name[
-            scheme_name.upper()
-        ]
-        return Uri(
-            uri_pb2.Uri(
-                scheme=scheme_value.number, authority=authority, path=path, query=query
-            )
+        return cls(
+            uri_pb2.Uri(scheme=scheme_name, authority=authority, path=path, query=query)
         )

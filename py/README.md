@@ -24,7 +24,7 @@ cd farm-ng-core/py
 Start a virtual environment:
 
 ```bash
-# assuming you're already in the amiga-brain-api/ directory
+# assuming you're already in farm-ng-core/py directory
 python3 -m venv venv
 source venv/bin/activate
 ```

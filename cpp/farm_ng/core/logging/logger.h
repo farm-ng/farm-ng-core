@@ -267,7 +267,7 @@ struct UnwrapImpl {
 
 template <class TWrapper>
 auto unwrapImpl(
-    TWrapper& wrapper, char const* wrapper_cstr, ::farm_ng::ErrorDetail detail)
+    TWrapper&& wrapper, char const* wrapper_cstr, ::farm_ng::ErrorDetail detail)
     -> decltype(*wrapper) {
   return UnwrapImpl<TWrapper>::impl(wrapper, wrapper_cstr, std::move(detail));
 }

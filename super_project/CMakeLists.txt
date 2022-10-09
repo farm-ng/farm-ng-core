@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
   farm_ng_cmake
   GIT_REPOSITORY https://github.com/farm-ng/farm-ng-cmake.git
-  GIT_TAG 91e279de02ef3ca65c2dab17bf772ea31eb91de2
+  GIT_TAG v0.1.1
 )
 
 FetchContent_MakeAvailable(farm_ng_cmake)

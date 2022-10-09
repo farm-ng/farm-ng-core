@@ -1,20 +1,32 @@
-import sys
+import struct
 from pathlib import Path
-from typing import Any
 from typing import cast
 from typing import IO
 from typing import Optional
+from typing import List
+import time
+from farm_ng.core.stamp import get_monotonic_now
+from google.protobuf.message import Message
 
-from farm_ng.core import event_pb2
-from farm_ng.core import uri_pb2
+# pylint can't find Event or Uri in protobuf generated files
+# https://github.com/protocolbuffers/protobuf/issues/10372
+from farm_ng.core.event_pb2 import Event
+from farm_ng.core.uri_pb2 import Uri
+from farm_ng.core.timestamp_pb2 import Timestamp
 
 
 class EventsFileWriter:
     def __init__(self, file_name: Path) -> None:
-        self._file_name = file_name.absolute()
+        self._file_name: Path = file_name.absolute()
         assert Path(self._file_name.parents[0]).is_dir()
-
         self._file_stream: Optional[IO] = None
+
+    def __enter__(self):
+        self.open()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
 
     def __repr__(self) -> str:
         return (
@@ -23,10 +35,8 @@ class EventsFileWriter:
         )
 
     @property
-    def file_name(self) -> Optional[Path]:
-        if self._file_stream is None:
-            return None
-        return Path(self._file_stream.name)
+    def file_name(self) -> Path:
+        return self._file_name
 
     def is_open(self) -> bool:
         return not self.is_closed()
@@ -41,32 +51,36 @@ class EventsFileWriter:
         return self.is_open()
 
     def close(self) -> bool:
-        maybe_file_stream = self._file_stream
-        if maybe_file_stream is None:
-            return False
-        file_stream = cast(IO, maybe_file_stream)
-
+        if self.is_closed():
+            return True
+        file_stream = cast(IO, self._file_stream)
         file_stream.close()
         self._file_stream = None
         return self.is_closed()
 
-    def write(self, message: Any) -> None:
-        maybe_file_stream = self._file_stream
-        if maybe_file_stream is None:
-            return
-        file_stream = cast(IO, maybe_file_stream)
+    def make_write_stamp(self) -> Timestamp:
+        return get_monotonic_now(semantics="events_file/write")
 
-        # create a Uri to store the descriptor of the message
-        # it comes in the form of `farm_ng.core.proto.Timestamp`
-        uri = uri_pb2.Uri(scheme=message.DESCRIPTOR.full_name)
-
-        event = event_pb2.Event(
-            uri=uri,
-            payload_length=message.ByteSize(),
+    def write(
+        self, uri: Uri, message: Message, timestamps: Optional[List[Timestamp]] = None
+    ) -> None:
+        assert self.is_open(), ("Event log is not open:", self.file_name)
+        if timestamps is None:
+            timestamps = []
+        timestamps.append(self.make_write_stamp())
+        file_stream = cast(IO, self._file_stream)
+        assert uri.scheme == message.DESCRIPTOR.full_name, (
+            uri.scheme,
+            message.DESCRIPTOR.full_name,
         )
-
-        event_len: bytes = event.ByteSize().to_bytes(4, sys.byteorder)
-
+        payload = message.SerializeToString()
+        event = Event(
+            uri=uri,
+            timestamps=timestamps,
+            payload_length=len(payload),
+        ).SerializeToString()
+        # note that < (little endian), I (4 bytes unsigned integer)
+        event_len: bytes = struct.pack("<I", len(event))
         file_stream.write(event_len)
-        file_stream.write(event.SerializeToString())
-        file_stream.write(message.SerializeToString())
+        file_stream.write(event)
+        file_stream.write(payload)

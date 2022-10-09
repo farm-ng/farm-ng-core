@@ -7,27 +7,20 @@ from farm_ng.core.events_file_reader import EventsFileReader
 from farm_ng.core.events_file_writer import EventsFileWriter
 
 
-@pytest.fixture(name="writer")
-def fixture_writer(tmpdir) -> EventsFileWriter:
-    file_name = Path(tmpdir) / "event.log"
-    return EventsFileWriter(file_name)
-
-
-@pytest.fixture(name="reader")
-def fixture_reader(tmpdir) -> EventsFileReader:
-    file_name = Path(tmpdir) / "event.log"
-    return EventsFileReader(file_name)
+@pytest.fixture(name="log_file")
+def fixture_writer(tmpdir) -> Path:
+    return Path(tmpdir) / "event.log"
 
 
 class TestEventsWriter:
-    def test_smoke(self, writer: EventsFileWriter) -> None:
-        # empty object
-        assert writer.is_closed()
-        assert not writer.is_open()
-        assert writer.file_name is None
+    def test_smoke(self, log_file: Path) -> None:
+        with EventsFileWriter(log_file) as writer:
+            assert writer.is_open()
+            assert writer.file_name == log_file
 
-    def test_open_close(self, writer: EventsFileWriter) -> None:
+    def test_open_close(self, log_file: Path) -> None:
         # open the file
+        writer = EventsFileWriter(log_file)
         assert writer.open()
         assert not writer.is_closed()
         assert writer.is_open()
@@ -36,7 +29,7 @@ class TestEventsWriter:
         assert writer.close()
         assert writer.is_closed()
         assert not writer.is_open()
-        assert writer.file_name is None
+        assert writer.file_name == log_file
 
     def test_write_images(self, writer: EventsFileWriter) -> None:
         assert writer.open()

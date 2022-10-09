@@ -1,2 +1,5 @@
+[MASTER]
+load-plugins=pylint_protobuf
+
 [MESSAGES CONTROL]
 disable=missing-module-docstring,missing-class-docstring,missing-function-docstring

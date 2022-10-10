@@ -26,6 +26,4 @@ jobs:
       run: pip3 install -e .[dev]
     - name: Run Tests
       working-directory: py
-      # TODO: enable mypy later
-      # run: pytest -v tests/ --mypy
-      run: pytest -v tests/
+      run: pytest -v tests/ --mypy

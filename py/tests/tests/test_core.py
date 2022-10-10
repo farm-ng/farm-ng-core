@@ -36,7 +36,6 @@ class TestEventsWriter:
         assert writer.open()
         writer.write("test/uri", message=get_monotonic_now(semantics="test/monotonic"))
         assert writer.close()
-        assert writer.file_length == 181, writer.file_length
 
 
 class TestEventsReader:

@@ -1,17 +1,27 @@
-from farm_ng.core import uri_pb2
-from google.protobuf.message import Message
+from dataclasses import dataclass
 import platform
 
-_g_host_name = platform.node()
+from farm_ng.core import uri_pb2
+from google.protobuf.message import Message
+
+
+@dataclass
+class PlatformConfig:
+    host_name: str = platform.node()
+
+
+# https://vald-phoenix.github.io/pylint-errors/plerr/errors/variables/W0603.html
+platform_config = PlatformConfig()
 
 
 def set_host_name(name: str) -> None:
-    global _g_host_name
-    _g_host_name = name
+    # global HOST_NAME
+    # HOST_NAME = name
+    platform_config.host_name = name
 
 
 def get_host_name() -> str:
-    return _g_host_name
+    return platform_config.host_name
 
 
 def get_authority() -> str:

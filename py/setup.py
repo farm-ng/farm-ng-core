@@ -9,7 +9,7 @@ from setuptools.command.install import install
 
 
 class BuildProtosCommand(Command):
-    user_options = []
+    user_options = []  # type: ignore
 
     def initialize_options(self):
         pass
@@ -38,7 +38,7 @@ class BuildProtosCommand(Command):
 
 
 class CleanFilesCommand(Command):
-    user_options = []
+    user_options = []  # type: ignore
 
     def initialize_options(self):
         pass

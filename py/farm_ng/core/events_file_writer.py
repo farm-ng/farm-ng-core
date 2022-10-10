@@ -1,9 +1,11 @@
 import struct
 from pathlib import Path
+from typing import Any
 from typing import cast
 from typing import IO
 from typing import Optional
 from typing import List
+from typing import Union
 from farm_ng.core.stamp import get_monotonic_now
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.message import Message
@@ -16,21 +18,29 @@ from farm_ng.core.timestamp_pb2 import Timestamp
 
 
 class EventsFileWriter:
-    def __init__(self, file_name: Path) -> None:
+    def __init__(self, file_name: Union[str, Path]) -> None:
+        if isinstance(file_name, str):
+            file_name = Path(file_name)
         self._file_name: Path = file_name.absolute()
         assert Path(self._file_name.parents[0]).is_dir()
-        self._file_stream: Optional[IO] = None
-        self._file_length = 0
 
-    def __enter__(self):
-        self.open()
+        self._file_stream: Optional[IO] = None
+        self._file_length: int = 0
+
+    def __enter__(self) -> "EventsFileWriter":
+        assert self.open()
         return self
 
-    def __exit__(self, type, value, traceback):
+    # pylint: disable=redefined-builtin
+    def __exit__(self, type: Any, value: Any, traceback: Any) -> None:
         self.close()
 
     def __repr__(self) -> str:
-        return f"file_name: {str(self._file_name)}\n" + f"is_open: {self.is_open}"
+        return (
+            f"file_name: {str(self.file_name)} "
+            + f"file_stream: {self._file_stream} "
+            + f"is_open: {self.is_open()} "
+        )
 
     @property
     def file_length(self) -> int:
@@ -67,7 +77,7 @@ class EventsFileWriter:
     def write_raw(
         self, uri: Uri, message: Message, timestamps: List[Timestamp]
     ) -> None:
-        assert self.is_open(), ("Event log is not open:", self.file_name)
+        assert self.is_open(), f"Event log is not open: {self.file_name}"
         file_stream = cast(IO, self._file_stream)
         payload = message.SerializeToString()
         event = Event(

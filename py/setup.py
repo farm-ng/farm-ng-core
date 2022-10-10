@@ -9,7 +9,7 @@ from setuptools.command.install import install
 
 
 class BuildProtosCommand(Command):
-    user_options = []
+    user_options = []  # type: ignore
 
     def initialize_options(self):
         pass
@@ -24,11 +24,21 @@ class BuildProtosCommand(Command):
         command.build_package_protos(proto_files_root)
 
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
-            proto_file.rename(Path("./farm_ng/core") / proto_file.name)
+            proto_file_new = Path(*proto_file.parts[2:])
+            if not proto_file_new.exists():
+                proto_file.rename(proto_file_new)
+            if proto_file.exists():
+                proto_file.unlink()
+        for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
+            proto_file_new = Path(*proto_file.parts[2:])
+            if not proto_file_new.exists():
+                proto_file.rename(proto_file_new)
+            if proto_file.exists():
+                proto_file.unlink()
 
 
 class CleanFilesCommand(Command):
-    user_options = []
+    user_options = []  # type: ignore
 
     def initialize_options(self):
         pass
@@ -39,6 +49,8 @@ class CleanFilesCommand(Command):
     def run(self):
         proto_files_root = Path("./farm_ng")
         for proto_file in proto_files_root.rglob("*_pb2*.py"):
+            assert proto_file.unlink() is None
+        for proto_file in proto_files_root.rglob("*_pb2*.pyi"):
             assert proto_file.unlink() is None
 
 
@@ -75,5 +87,5 @@ setup(
         "develop": BuildProtosDevelop,
         "egg_info": BuildProtosEggInfo,
         "clean": CleanFilesCommand,
-    }
+    },
 )

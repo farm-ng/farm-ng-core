@@ -1,51 +1,50 @@
-from farm_ng.core import event_pb2
+from dataclasses import dataclass
+import platform
+
+from farm_ng.core import uri_pb2
+from google.protobuf.message import Message
 
 
-class Uri:
-    def __init__(self, uri: event_pb2.Uri) -> None:
-        self._uri = uri
+@dataclass
+class PlatformConfig:
+    host_name: str = platform.node()
 
-    def __eq__(self, other: "Uri") -> bool:
-        assert isinstance(other, Uri), f"Expected Uri type. Got: {type(other)}"
-        return self.string() == other.string()
 
-    def __repr__(self) -> str:
-        return self.string()
+# https://vald-phoenix.github.io/pylint-errors/plerr/errors/variables/W0603.html
+platform_config = PlatformConfig()
 
-    @property
-    def proto(self) -> event_pb2.Uri:
-        return self._uri
 
-    @property
-    def scheme(self) -> str:
-        scheme_value = event_pb2.UriSchemeType.DESCRIPTOR.values[self._uri.scheme]
-        return scheme_value.name.lower()
+def set_host_name(name: str) -> None:
+    # global HOST_NAME
+    # HOST_NAME = name
+    platform_config.host_name = name
 
-    @classmethod
-    def empty(cls) -> "Uri":
-        return Uri(event_pb2.Uri())
 
-    def string(self) -> str:
-        return (
-            f"{self.scheme}://{self._uri.authority}/{self._uri.path}?{self._uri.query}"
-        )
+def get_host_name() -> str:
+    return platform_config.host_name
 
-    @classmethod
-    def from_string(self, string: str) -> "Uri":
-        scheme_name, remainder = string.split("://")
-        remainder, query = remainder.split("?")
-        authority, path = remainder.split("/")
-        return Uri.from_strings(scheme_name, authority, path, query)
 
-    @classmethod
-    def from_strings(
-        self, scheme_name: str, authority: str, path: str, query: str
-    ) -> "Uri":
-        scheme_value = event_pb2.UriSchemeType.DESCRIPTOR.values_by_name[
-            scheme_name.upper()
-        ]
-        return Uri(
-            event_pb2.Uri(
-                scheme=scheme_value.number, authority=authority, path=path, query=query
-            )
-        )
+def get_authority() -> str:
+    return get_host_name()
+
+
+def make_proto_uri(path, message: Message) -> uri_pb2.Uri:
+    return uri_pb2.Uri(
+        scheme="protobuf",
+        authority=get_authority(),
+        path=path,
+        query="type=" + message.DESCRIPTOR.full_name,
+    )
+
+
+def uri_to_string(uri: uri_pb2.Uri) -> str:
+    return f"{uri.scheme}://{uri.authority}/{uri.path}?{uri.query}"
+
+
+def string_to_uri(string: str) -> uri_pb2.Uri:
+    scheme_name, remainder = string.split("://")
+    remainder, query = remainder.split("?")
+    authority_path = remainder.split("/")
+    authority = authority_path[0]
+    path = "/".join(authority_path[1:])
+    return uri_pb2.Uri(scheme=scheme_name, authority=authority, path=path, query=query)

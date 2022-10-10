@@ -14,11 +14,16 @@
 #include <farm_ng/core/misc/filesystem.h>
 #include <gtest/gtest.h>
 
+#ifndef __USE_POSIX
+#define __USE_POSIX
+#endif
+#include <unistd.h>
+
 using namespace farm_ng;
 namespace {
 std::string getHostName() {
-  char hostname[HOST_NAME_MAX];
-  gethostname(hostname, HOST_NAME_MAX);
+  char hostname[_POSIX_HOST_NAME_MAX];
+  gethostname(hostname, _POSIX_HOST_NAME_MAX);
   return std::string(hostname);
 }
 }  // namespace

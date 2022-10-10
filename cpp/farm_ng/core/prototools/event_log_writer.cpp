@@ -9,6 +9,10 @@
 #include "farm_ng/core/prototools/event_log_writer.h"
 
 #include <farm_ng/core/logging/logger.h>
+
+#ifndef __USE_POSIX
+#define __USE_POSIX
+#endif
 #include <unistd.h>
 
 #include <climits>
@@ -17,14 +21,14 @@
 #include <memory>
 #include <stdexcept>
 
-char hostname[HOST_NAME_MAX];
-char username[LOGIN_NAME_MAX];
+char hostname[_POSIX_HOST_NAME_MAX];
+char username[_POSIX_LOGIN_NAME_MAX];
 
 namespace farm_ng {
 namespace {
 std::string getAuthoritySlow() {
-  char hostname[HOST_NAME_MAX];
-  gethostname(hostname, HOST_NAME_MAX);
+  char hostname[_POSIX_HOST_NAME_MAX];
+  gethostname(hostname, _POSIX_HOST_NAME_MAX);
   return std::string(hostname);
 }
 std::string const& getAuthority() {

@@ -1,33 +1,38 @@
 from farm_ng.core import uri_pb2
+from google.protobuf.message import Message
+import platform
+
+_g_host_name = platform.node()
 
 
-class Uri:
-    def __init__(self, uri: uri_pb2.Uri) -> None:
-        self._uri = uri
+def set_host_name(name: str) -> None:
+    global _g_host_name
+    _g_host_name = name
 
-    def __eq__(self, other: "Uri") -> bool:
-        assert isinstance(other, Uri), f"Expected Uri type. Got: {type(other)}"
-        return self.string() == other.string()
 
-    def __repr__(self) -> str:
-        return self.string()
+def get_host_name() -> str:
+    return _g_host_name
 
-    @property
-    def proto(self) -> uri_pb2.Uri:
-        return self._uri
 
-    @classmethod
-    def empty(cls) -> "Uri":
-        return Uri(uri_pb2.Uri())
+def get_authority() -> str:
+    return get_host_name()
 
-    def string(self) -> str:
-        return f"{self.proto.scheme}://{self.proto.authority}/{self.proto.path}?{self.proto.query}"
 
-    @classmethod
-    def from_string(cls, string: str) -> "Uri":
-        scheme_name, remainder = string.split("://")
-        remainder, query = remainder.split("?")
-        authority, path = remainder.split("/")
-        return cls(
-            uri_pb2.Uri(scheme=scheme_name, authority=authority, path=path, query=query)
-        )
+def make_proto_uri(path, message: Message) -> uri_pb2.Uri:
+    return uri_pb2.Uri(
+        scheme="protobuf",
+        authority=get_authority(),
+        path=path,
+        query="type=" + message.DESCRIPTOR.full_name,
+    )
+
+
+def uri_to_string(uri: uri_pb2.Uri) -> str:
+    return f"{uri.scheme}://{uri.authority}/{uri.path}?{uri.query}"
+
+
+def string_to_uri(string: str) -> uri_pb2.Uri:
+    scheme_name, remainder = string.split("://")
+    remainder, query = remainder.split("?")
+    authority, path = remainder.split("/")
+    return uri_pb2.Uri(scheme=scheme_name, authority=authority, path=path, query=query)

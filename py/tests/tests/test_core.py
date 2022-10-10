@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import pytest
-from farm_ng.core import uri_pb2
 from farm_ng.core import timestamp_pb2
 from farm_ng.core.events_file_reader import EventsFileReader
 from farm_ng.core.events_file_writer import EventsFileWriter
+from farm_ng.core.stamp import get_monotonic_now
 
 
 @pytest.fixture(name="log_file")
@@ -31,55 +31,46 @@ class TestEventsWriter:
         assert not writer.is_open()
         assert writer.file_name == log_file
 
-    def test_write_images(self, writer: EventsFileWriter) -> None:
+    def test_write_images(self, log_file: Path) -> None:
+        writer = EventsFileWriter(log_file)
         assert writer.open()
-        uri = uri_pb2.Uri()
-        writer.write(uri)
+        writer.write("test/uri", message=get_monotonic_now(semantics="test/monotonic"))
         assert writer.close()
+        assert writer.file_length == 181, writer.file_length
 
 
 class TestEventsReader:
-    def test_smoke(self, reader: EventsFileReader) -> None:
+    def test_smoke(self, log_file: Path) -> None:
+        with EventsFileWriter(log_file) as writer:
+            writer.write(
+                path="hello", message=get_monotonic_now(semantics="test/monotonic")
+            )
         # empty object
-        assert reader.is_closed()
-        assert not reader.is_open()
-        assert reader.file_name is None
+        with EventsFileReader(log_file) as reader:
+            assert reader.is_open()
+            print(reader.uris())
 
-    def test_open_close(
-        self, writer: EventsFileWriter, reader: EventsFileReader
-    ) -> None:
-        # touch file
-        assert writer.open()
-        assert writer.close()
-        # open the file
-        assert reader.open()
-        assert not reader.is_closed()
-        assert reader.is_open()
-        assert reader.file_name.name == "event.log"
-        # close the file
-        assert reader.close()
-        assert reader.is_closed()
-        assert not reader.is_open()
-        assert reader.file_name is None
+    def test_write_read(self, log_file: Path) -> None:
+        with EventsFileWriter(log_file) as writer:
+            for i in range(10):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+            print(writer.file_length)
+        # empty object
+        with EventsFileReader(log_file) as reader:
+            assert reader.is_open()
+            uris = reader.uris()
 
-    def test_write_read(
-        self, writer: EventsFileWriter, reader: EventsFileReader
-    ) -> None:
-        # write file
-        assert writer.open()
-        for i in range(1, 10):
-            time_stamp = timestamp_pb2.Timestamp(stamp=i)
-            writer.write(time_stamp)
-        assert writer.close()
-        # read back the data
-        assert reader.open()
-        count = 1
-        while True:
-            res = reader.read()
-            if res is None:
-                break
-            _, msg = res
-            assert msg.stamp == count
-            count += 1
+            assert len(reader.uris()) == 2, uris
+            assert uris[0].path == "hello"
+            assert uris[1].path == "world"
+            count = 0
+            for event, message in reader.read_messages():
+                if event.uri.path == "hello":
+                    assert message.stamp == count
+                elif event.uri.path == "world":
+                    assert message.stamp == count
+                    count += 1
 
         assert reader.close()

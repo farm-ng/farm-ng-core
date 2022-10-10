@@ -80,14 +80,27 @@ class TestEventsReader:
 
             uris = reader.uris()
 
+            # TODO This api is likely in flux
+            # there are several ways we want to seek and
+            # iterate over the reader
+            #    frame order, per uri
+            #    time order, per uri
+            #    time order, all uris
+            #
+            # Perhaps you can just get a list of all events
+            # and filter it at the user level.
+            # Then: reader.read(offset, event) will seek to and read the given event
+            for event, offset in reader.events(uri=uris[0]):
+                print(offset, event.timestamps[-1].stamp)
+
             assert len(reader.uris()) == 2, uris
             assert uris[0].path == "hello"
             assert uris[1].path == "world"
-            assert reader.num_frames(uris[0]) == 10
-            assert reader.num_frames(uris[1]) == 10
-            for frame_n in range(reader.num_frames(uris[0])):
-                reader.seek(uri=uris[0], frame_id=frame_n)
-                event, message = reader.read()
+            assert reader.num_events(uris[0]) == 10
+            assert reader.num_events(uris[1]) == 10
+            for frame_n in range(reader.num_events(uris[0])):
+                event, offset = reader.get_event(uri=uris[0], frame_id=frame_n)
+                message = reader.read_message(event, offset)
                 assert message.stamp == frame_n
 
         assert reader.close()

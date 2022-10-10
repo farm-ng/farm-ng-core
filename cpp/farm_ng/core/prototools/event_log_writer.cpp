@@ -73,7 +73,7 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
     event.set_payload_length(payload.size());
     std::string event_str;
     event.SerializeToString(&event_str);
-    uint64_t n_bytes = event_str.size();
+    uint32_t n_bytes = event_str.size();
     out.write(reinterpret_cast<char const*>(&n_bytes), sizeof(n_bytes));
     out << event_str;
     out << payload;

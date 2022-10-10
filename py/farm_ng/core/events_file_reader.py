@@ -23,14 +23,20 @@ def parse_protobuf_descriptor(uri: Uri) -> Tuple[str, str]:
     type_split = uri.query.split("type=")
     assert len(type_split) == 2
     desc = type_split[1].split("&")[0]  # query string can have multiple key/value pairs
-    desc_list = desc.split(".")
-    name = desc_list[-1]
-    package = desc_list[:-2] + [name.lower() + "_pb2"]
-    return name, ".".join(package)
+
+    if desc.startswith("farm_ng"):
+        desc_list = desc.split(".")
+        name = desc_list[-1]
+        package = desc_list[:-2] + [name.lower() + "_pb2"]
+        return name, ".".join(package)
+    else:
+        assert False, ("Unsupported protobuf type:", desc)
 
 
 class EventsFileReader:
     def __init__(self, file_name: Path) -> None:
+        if type(file_name) is str:
+            file_name = Path(file_name)
         self._file_name = file_name.absolute()
         assert Path(self._file_name.parents[0]).is_dir(), self._file_name
         assert self._file_name.exists(), self._file_name

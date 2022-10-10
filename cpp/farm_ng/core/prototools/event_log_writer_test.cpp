@@ -12,7 +12,6 @@
 
 #include <farm_ng/core/logging/logger.h>
 #include <farm_ng/core/misc/filesystem.h>
-#include <google/protobuf/wrappers.pb.h>
 #include <gtest/gtest.h>
 
 using namespace farm_ng;
@@ -30,10 +29,10 @@ TEST(event_log, roundtrip) {
   auto file = log_dir / "events.log";
   {
     EventLogWriter writer(file);
-    google::protobuf::Int32Value x;
+    core::proto::Timestamp x;
     for (int i = 0; i < 10; ++i) {
-      x.set_value(i);
-      writer.write("my_ints", x);
+      x.set_stamp(i);
+      writer.write("my_stamps", x);
     }
   }
   {
@@ -41,13 +40,13 @@ TEST(event_log, roundtrip) {
     for (int i = 0; i < 10; ++i) {
       std::string payload;
       auto [event, pos] = reader.readNextEvent(&payload);
-      google::protobuf::Int32Value x;
+      core::proto::Timestamp x;
       EXPECT_EQ(true, x.ParseFromString(payload));
-      EXPECT_EQ(i, x.value());
+      EXPECT_EQ(i, x.stamp());
       EXPECT_EQ("protobuf", event.uri().scheme());
-      EXPECT_EQ("my_ints", event.uri().path());
+      EXPECT_EQ("my_stamps", event.uri().path());
       EXPECT_EQ(getHostName(), event.uri().authority());
-      EXPECT_EQ("type=google.protobuf.Int32Value", event.uri().query());
+      EXPECT_EQ("type=farm_ng.core.proto.Timestamp", event.uri().query());
     }
     EXPECT_THROW(reader.readNextEvent(), std::runtime_error);
   }

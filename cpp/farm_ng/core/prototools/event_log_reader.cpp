@@ -38,7 +38,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
   }
 
   uint64_t readEventSize() {
-    uint64_t n_bytes = 0;
+    uint32_t n_bytes = 0;
     in.read(reinterpret_cast<char*>(&n_bytes), sizeof(n_bytes));
     if (!in) {
       throw std::runtime_error("Could not read packet length header");

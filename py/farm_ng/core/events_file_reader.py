@@ -93,7 +93,7 @@ class EventsFileReader:
     def uris(self) -> List[Uri]:
         if self.offsets is None:
             return []
-        return [string_to_uri(key) for key in self.offsets.keys()]
+        return [string_to_uri(key) for key in sorted(self.offsets.keys())]
 
     def has_uri(self, uri: Uri) -> bool:
         if self.offsets is None:

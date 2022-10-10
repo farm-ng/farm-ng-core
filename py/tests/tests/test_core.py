@@ -43,12 +43,22 @@ class TestEventsReader:
     def test_smoke(self, log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
             writer.write(
-                path="hello", message=get_monotonic_now(semantics="test/monotonic")
+                path="hello/world",
+                message=get_monotonic_now(semantics="test/monotonic"),
             )
+            writer.write(
+                path="/leading/slash",
+                message=get_monotonic_now(semantics="test/monotonic"),
+            )
+        # em
         # empty object
         with EventsFileReader(log_file) as reader:
             assert reader.is_open()
-            print(reader.uris())
+            uris = reader.uris()
+            print(uris)
+            # note lexographic ordering of paths.
+            assert uris[0].path == "/leading/slash"
+            assert uris[1].path == "hello/world"
 
     def test_write_read(self, log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:

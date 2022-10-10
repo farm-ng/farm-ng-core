@@ -34,5 +34,7 @@ def uri_to_string(uri: uri_pb2.Uri) -> str:
 def string_to_uri(string: str) -> uri_pb2.Uri:
     scheme_name, remainder = string.split("://")
     remainder, query = remainder.split("?")
-    authority, path = remainder.split("/")
+    authority_path = remainder.split("/")
+    authority = authority_path[0]
+    path = "/".join(authority_path[1:])
     return uri_pb2.Uri(scheme=scheme_name, authority=authority, path=path, query=query)

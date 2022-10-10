@@ -1,6 +1,4 @@
 import importlib
-from importlib.resources import Package
-import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Tuple
@@ -56,7 +54,6 @@ class EventsFileReader:
             f"file_name: {str(self.file_name)} "
             + f"file_stream: {self._file_stream} "
             + f"is_open: {self.is_open()} "
-            + f"file_length: {self.file_length}"
         )
 
     @property

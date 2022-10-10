@@ -70,11 +70,6 @@ class TestEventsReader:
         # empty object
         with EventsFileReader(log_file) as reader:
             assert reader.is_open()
-            uris = reader.uris()
-
-            assert len(reader.uris()) == 2, uris
-            assert uris[0].path == "hello"
-            assert uris[1].path == "world"
             count = 0
             for event, message in reader.read_messages():
                 if event.uri.path == "hello":
@@ -82,5 +77,17 @@ class TestEventsReader:
                 elif event.uri.path == "world":
                     assert message.stamp == count
                     count += 1
+
+            uris = reader.uris()
+
+            assert len(reader.uris()) == 2, uris
+            assert uris[0].path == "hello"
+            assert uris[1].path == "world"
+            assert reader.num_frames(uris[0]) == 10
+            assert reader.num_frames(uris[1]) == 10
+            for frame_n in range(reader.num_frames(uris[0])):
+                reader.seek(uri=uris[0], frame_id=frame_n)
+                event, message = reader.read()
+                assert message.stamp == frame_n
 
         assert reader.close()

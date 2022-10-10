@@ -40,7 +40,7 @@ class EventsFileReader:
         # store the bytes offset in a dictionary where:
         # - the key is the string representation of the Uri of the message
         # - the value is a list of offsets to messages with that Uri
-        self.offsets: DefaultDict[Uri, List[int]] = defaultdict(list)
+        self._offsets: DefaultDict[str, List[int]] = defaultdict(list)
 
     def __enter__(self):
         self.open()
@@ -73,7 +73,6 @@ class EventsFileReader:
     def open(self) -> bool:
         self._file_stream = open(self._file_name, "rb")
         self._file_length = os.path.getsize(self._file_name)
-        self._compute_offsets()
         return self.is_open()
 
     def close(self) -> bool:
@@ -85,17 +84,17 @@ class EventsFileReader:
         return self.is_closed()
 
     def reset_offsets(self) -> None:
-        self.offsets = defaultdict(list)
+        self._offsets = defaultdict(list)
 
     def uris(self) -> List[Uri]:
-        if self.offsets is None:
-            return []
-        return [string_to_uri(key) for key in sorted(self.offsets.keys())]
+        if len(self._offsets) == 0:
+            self._compute_offsets()
+        return [string_to_uri(key) for key in sorted(self._offsets.keys())]
 
     def has_uri(self, uri: Uri) -> bool:
-        if self.offsets is None:
+        if self._offsets is None:
             return False
-        return uri_to_string(uri) in self.offsets.keys()
+        return uri_to_string(uri) in self._offsets.keys()
 
     def _read_next_event(self) -> Event:
         buffer = self._file_stream.read(4)
@@ -125,27 +124,30 @@ class EventsFileReader:
             current_offset = file_stream.tell()
             try:
                 event = self._read_next_event()
-                self.offsets[uri_to_string(event.uri)].append(current_offset)
+                self._offsets[uri_to_string(event.uri)].append(current_offset)
                 self._skip_next_message(event)
             except EOFError:
                 break
 
         file_stream.seek(0)
 
+    def offsets(self, uri: Uri) -> List[int]:
+        return self._offsets[uri_to_string(uri)]
+
     def num_frames(self, uri: Uri) -> int:
-        if not self.offsets:
+        if not self._offsets:
             self._compute_offsets()
         if not self.has_uri(uri):
             return 0
-        return len(self.offsets[uri])
+        return len(self.offsets(uri))
 
     def seek(self, uri: Uri, frame_id: int) -> None:
-        assert uri in self.offsets.keys()
+        assert self.has_uri(uri)
         assert frame_id < self.num_frames(uri)
         assert self.is_open()
 
         file_stream = cast(IO, self._file_stream)
-        file_stream.seek(self.offsets[uri_to_string(uri)][frame_id])
+        file_stream.seek(self._offsets[uri_to_string(uri)][frame_id])
 
     def read(self) -> Tuple[Event, Any]:
         assert self.is_open()
@@ -163,6 +165,7 @@ class EventsFileReader:
         return event, message
 
     def read_messages(self):
+        self._file_stream.seek(0)
         try:
             while True:
                 event, message = self.read()

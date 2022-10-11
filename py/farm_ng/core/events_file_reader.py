@@ -27,8 +27,10 @@ def parse_protobuf_descriptor(uri: Uri) -> Tuple[str, str]:
     # split by the key/value in the query
     type_split, pb_split = uri.query.split("&")
     # parse the type and keep the class name
+    assert "type=" in type_split, type_split
     type_name = type_split.split("type=")[-1].split(".")[-1]
     # parse the pb file location and convert to python module extension
+    assert "pb=" in pb_split, pb_split
     package_name = pb_split.split("pb=")[-1].replace(".proto", "_pb2").replace("/", ".")
     return type_name, package_name
 

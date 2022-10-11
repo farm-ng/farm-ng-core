@@ -89,7 +89,7 @@ class TestEventsReader:
         uri = uri_pb2.Uri(
             scheme="protobuf",
             path="tik/tok",
-            query="type=Timestamp&farm_ng/core/timestamp.proto",
+            query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
         )
         name, package = parse_protobuf_descriptor(uri)
         assert name == "Timestamp"

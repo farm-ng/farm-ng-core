@@ -23,18 +23,10 @@ from google.protobuf.message import Message
 
 def parse_protobuf_descriptor(uri: Uri) -> Tuple[str, str]:
     assert uri.scheme == "protobuf"
-    type_split = uri.query.split("type=")
-    assert len(type_split) == 2
-    name, package = type_split[1].split(
-        "&"
-    )  # query string can have multiple key/value pairs
-
-    if not package.startswith("farm_ng"):
-        raise Exception(f"Unsupported protobuf type: {package}")
-
-    package = package.split("/")
-    package = package[:-1] + [package[-1].replace(".proto", "_pb2")]
-    return name, ".".join(package)
+    type_split, pb_split = uri.query.split("&")
+    type_name = type_split.split("type=")[-1].split(".")[-1]
+    package_name = pb_split.split("pb=")[-1].replace(".proto", "_pb2").replace("/", ".")
+    return type_name, package_name
 
 
 class EventsFileReader:

@@ -16,21 +16,24 @@ from farm_ng.core.uri import uri_to_string, string_to_uri
 from google.protobuf.message import Message
 
 
+# parse a proto descriptor and extract the message name and package.
+# See: https://developers.google.com/protocol-buffers/docs/reference/python-generated#invocation
+# NOTE: the descriptor comes in the shape of `type=Timestamp?farm_ng/core/timestamp.proto`
+
+
 def parse_protobuf_descriptor(uri: Uri) -> Tuple[str, str]:
     assert uri.scheme == "protobuf"
     type_split = uri.query.split("type=")
     assert len(type_split) == 2
-    desc = type_split[1].split("&")[0]  # query string can have multiple key/value pairs
+    name, package = type_split[1].split(
+        "&"
+    )  # query string can have multiple key/value pairs
 
-    if not desc.startswith("farm_ng"):
-        raise Exception(f"Unsupported protobuf type: {desc}")
+    if not package.startswith("farm_ng"):
+        raise Exception(f"Unsupported protobuf type: {package}")
 
-    # parse a proto descriptor and extract the message name and package.
-    # See: https://developers.google.com/protocol-buffers/docs/reference/python-generated#invocation
-    # NOTE: the descriptor comes in the shape of `farm_ng.core.proto.Timestamp`
-    desc_list = desc.split(".")
-    name = desc_list[-1]
-    package = desc_list[:-2] + [name.lower() + "_pb2"]
+    package = package.split("/")
+    package = package[:-1] + [package[-1].replace(".proto", "_pb2")]
     return name, ".".join(package)
 
 

@@ -10,11 +10,11 @@ def test_make_proto():
     uri: uri_pb2.Uri = make_proto_uri("tik/tok", stamp)
     assert uri.scheme == "protobuf"
     assert uri.path == "tik/tok"
-    assert uri.query == "type=farm_ng.core.proto.Timestamp"
+    assert uri.query == "type=Timestamp&farm_ng/core/timestamp.proto"
 
     uri_str: str = uri_to_string(uri)
     assert "protobuf://" in uri_str
-    assert "/tik/tok?type=farm_ng.core.proto.Timestamp" in uri_str
+    assert "/tik/tok?type=Timestamp&farm_ng/core/timestamp.proto" in uri_str
 
     uri_out: uri_pb2.Uri = string_to_uri(uri_str)
     assert uri == uri_out

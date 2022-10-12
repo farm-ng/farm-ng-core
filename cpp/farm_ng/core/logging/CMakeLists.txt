@@ -15,9 +15,11 @@ farm_ng_add_library(farm_ng_core_logging
     expected.h
     format.h
     logger.h
+    backtrace.h
   SOURCES
     format.cpp
     expected.cpp
+    backtrace.cpp
 )
 
 target_link_libraries(farm_ng_core_logging PUBLIC

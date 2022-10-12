@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <farm_ng/core/logging/backtrace.h>
 #include <farm_pp/preprocessor/comparison/equal.hpp>
 #include <farm_pp/preprocessor/control/if.hpp>
 #include <farm_pp/preprocessor/variadic/size.hpp>
@@ -50,7 +51,11 @@ void logLine(std::string const &line);
       FARM_IMPL_LOG_PRINTLN_ZERO(),                                  \
       FARM_IMPL_LOG_PRINTLN_VARG(__VA_ARGS__))
 
-#define FARM_IMPL_ABORT() ::std::abort();
+#define FARM_IMPL_ABORT()      \
+  do {                         \
+    farm_ng::printBacktrace(); \
+    ::std::abort();            \
+  } while (false)
 
 // End (Impl details)
 

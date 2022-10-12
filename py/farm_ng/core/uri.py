@@ -33,7 +33,7 @@ def make_proto_uri(path, message: Message) -> uri_pb2.Uri:
         scheme="protobuf",
         authority=get_authority(),
         path=path,
-        query="type=" + message.DESCRIPTOR.full_name,
+        query=f"type={message.DESCRIPTOR.full_name}&pb={message.DESCRIPTOR.file.name}",
     )
 
 

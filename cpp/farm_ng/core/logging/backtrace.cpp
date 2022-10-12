@@ -3,71 +3,90 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
+//
+// https://panthema.net/2008/0901-stacktrace-demangled/stacktrace.h
+// stacktrace.h (c) 2008, Timo Bingmann from http://idlebox.net/
+// published under the WTFPL v2.0
 
 #include <cxxabi.h>
 #include <execinfo.h>
 
-#include <iostream>
-#include <iterator>
-#include <memory>
-#include <sstream>
-#include <vector>
-namespace farm_ng {
-void printBacktrace() {
-  using namespace std;
+#include <cstdio>
+#include <cstdlib>
 
-  struct Row {
-    int frame;
-    string module;
-    void* load_address;
-    void* location;
-    string symbol;
-    size_t offset;
-  };
-  constexpr size_t MAX_STACK_SIZE = 1024;
-  void* buffer[MAX_STACK_SIZE];
-  const size_t stack_size = backtrace(buffer, MAX_STACK_SIZE);
-  char** out = backtrace_symbols(buffer, stack_size);
-  std::vector<Row> rows;
-  for (size_t i = 0; i < stack_size; ++i) {
-    char* str = out[i];
-    if (str) {
-      vector<string> column;
-      istringstream iss(str);
-      copy(
-          istream_iterator<string>(iss),
-          istream_iterator<string>(),
-          std::back_insert_iterator<vector<string>>(column));
-      size_t offset = stoi(column[5]);
-      char* addr = (char*)nullptr + strtoul(column[2].data(), nullptr, 0);
-      char* load_address = addr - offset;
-      if (column.size() == 6) {
-        Row row{
-            stoi(column[0]),  // frame
-            column[1],        // module
-            load_address,     // not sure about this...
-            addr,             // location
-            column[3],        // symbol
-            offset            // offset
-        };
+/** Print a demangled stack backtrace of the caller function to FILE* out. */
+inline static void print_stacktrace(
+    FILE* out = stderr, unsigned int max_frames = 63) {
+  fprintf(out, "stack trace:\n");
 
-        int status;
-        std::unique_ptr<char, decltype(free)*> demangle_name(
-            abi::__cxa_demangle(row.symbol.c_str(), 0, 0, &status), free);
-        if (demangle_name) {
-          row.symbol = demangle_name.get();
-        }
-        rows.push_back(row);
+  // storage array for stack trace address data
+  void* addrlist[max_frames + 1];
+
+  // retrieve current stack addresses
+  int addrlen = backtrace(addrlist, sizeof(addrlist) / sizeof(void*));
+
+  if (addrlen == 0) {
+    fprintf(out, "  <empty, possibly corrupt>\n");
+    return;
+  }
+
+  // resolve addresses into strings containing "filename(function+address)",
+  // this array must be free()-ed
+  char** symbollist = backtrace_symbols(addrlist, addrlen);
+
+  // allocate string which will be filled with the demangled function name
+  size_t funcnamesize = 256;
+  char* funcname = (char*)malloc(funcnamesize);
+
+  // iterate over the returned symbol lines. skip the first, it is the
+  // address of this function.
+  for (int i = 1; i < addrlen; i++) {
+    char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
+
+    // find parentheses and +address offset surrounding the mangled name:
+    // ./module(function+0x15c) [0x8048a6d]
+    for (char* p = symbollist[i]; *p; ++p) {
+      if (*p == '(')
+        begin_name = p;
+      else if (*p == '+')
+        begin_offset = p;
+      else if (*p == ')' && begin_offset) {
+        end_offset = p;
+        break;
+      }
+    }
+
+    if (begin_name && begin_offset && end_offset && begin_name < begin_offset) {
+      *begin_name++ = '\0';
+      *begin_offset++ = '\0';
+      *end_offset = '\0';
+
+      // mangled name is now in [begin_name, begin_offset) and caller
+      // offset in [begin_offset, end_offset). now apply
+      // __cxa_demangle():
+
+      int status;
+      char* ret =
+          abi::__cxa_demangle(begin_name, funcname, &funcnamesize, &status);
+      if (status == 0) {
+        funcname = ret;  // use possibly realloc()-ed string
+        fprintf(out, "  %s : %s+%s\n", symbollist[i], funcname, begin_offset);
+      } else {
+        // demangling failed. Output function name as a C function with
+        // no arguments.
+        fprintf(
+            out, "  %s : %s()+%s\n", symbollist[i], begin_name, begin_offset);
       }
     } else {
-      break;
+      // couldn't parse the line? print the whole line.
+      fprintf(out, "  %s\n", symbollist[i]);
     }
   }
-  for (auto row : rows) {
-    std::cout << row.frame << ": " << row.module
-              << ", " /*<< row.load_address << ", "*/ << row.location << ", "
-              << row.symbol << " + " << row.offset << std::endl;
-  }
-  free(out);
+
+  free(funcname);
+  free(symbollist);
 }
+
+namespace farm_ng {
+void printBacktrace() { print_stacktrace(); }
 }  // namespace farm_ng

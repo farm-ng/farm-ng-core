@@ -12,7 +12,7 @@ find_package(fmt REQUIRED)
 set(example_source )
 find_package(Protobuf QUIET)
 
-if (FARM_NG_BUILD_PROTOS)
+if (BUILD_FARM_NG_PROTOS)
   find_package(Protobuf REQUIRED)
 
   add_executable(compile_all_proto compile_all_proto.cpp)

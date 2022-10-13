@@ -41,6 +41,6 @@ foreach(test_basename
                     LABELS small)
 endforeach()
 
-if(FARM_NG_BUILD_PROTOS)
+if(BUILD_FARM_NG_PROTOS)
     add_subdirectory(proto)
 endif()

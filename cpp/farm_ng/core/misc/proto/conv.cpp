@@ -10,17 +10,13 @@
 
 namespace farm_ng {
 
-Expected<Uri> fromProto(core::proto::Uri const& proto) {
-  UriSchemeType type;
-  if (!trySetFromString(type, proto.scheme())) {
-    return FARM_ERROR("{}", proto.scheme());
-  }
-  return Uri(type, proto.authority(), proto.path(), proto.query());
+Uri fromProto(core::proto::Uri const& proto) {
+  return Uri(proto.scheme(), proto.authority(), proto.path(), proto.query());
 }
 
 core::proto::Uri toProto(Uri const& uri) {
   core::proto::Uri proto;
-  proto.set_scheme(toString(uri.scheme));
+  proto.set_scheme(uri.scheme);
   proto.set_authority(uri.authority);
   proto.set_path(uri.path);
   proto.set_query(uri.query);

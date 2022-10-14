@@ -13,7 +13,7 @@
 namespace farm_ng {
 
 /// Convert proto::Uri to Uri.
-Expected<Uri> fromProto(farm_ng::core::proto::Uri const& proto);
+Uri fromProto(farm_ng::core::proto::Uri const& proto);
 /// Convert Uri to proto::Uri.
 farm_ng::core::proto::Uri toProto(Uri const& uri);
 

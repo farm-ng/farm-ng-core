@@ -12,7 +12,7 @@
 using namespace farm_ng;
 
 TEST(to_from_proto, uri) {
-  Uri uri(UriSchemeType::other, "[authority]", "foo/bar", "in=input");
+  Uri uri("other", "[authority]", "foo/bar", "in=input");
 
   Expected<Uri> maybe_to_from_uri = fromProto(toProto(uri));
   auto to_from_uri = FARM_UNWRAP(maybe_to_from_uri);

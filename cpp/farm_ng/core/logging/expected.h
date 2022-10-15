@@ -42,7 +42,7 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
       FARM_IMPL_LOG_PRINTLN(
           "expected type `{}` does not contain a valid value", wrapper_cstr);
       if (!detail.msg.empty()) {
-        ::fmt::print(stderr, detail.msg);
+        ::fmt::print(stderr, "{}", detail.msg);
       }
       ::fmt::print(stderr, "{}", wrapper.error());
       FARM_IMPL_ABORT();

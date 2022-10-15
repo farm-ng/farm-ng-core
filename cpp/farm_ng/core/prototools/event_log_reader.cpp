@@ -74,7 +74,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
   }
 
   virtual std::string readPayload(
-      core::proto::Event const& event, std::streampos pos) {
+      core::proto::Event const& event, std::streampos pos) override {
     FARM_CHECK(in.good());
 
     in.seekg(pos);

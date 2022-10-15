@@ -10,19 +10,12 @@
 
 namespace farm_ng {
 
-/// Fix list of uri-schemes used in the codebase.
-/// file:    the uri-path is a file on disk
-/// device:  a hardware device such as sensor on the robot, or canbus, or the
-///          robot itself, or a simulated device, or ...
-/// other:   other category, e.g. for tests.
-FARM_ENUM(UriSchemeType, (file, device, other));
-
 /// https://en.wikipedia.org/w/index.php?title=Uniform_Resource_Identifier&oldid=1072892451#Syntax
 struct Uri {
   Uri() {}
 
   /// Creates Uri.
-  Uri(UriSchemeType const& scheme,
+  Uri(std::string const& scheme,
       std::string const& authority,
       std::string const& path,
       std::string const& query = "")
@@ -31,12 +24,12 @@ struct Uri {
   /// Returns string representation of uri.
   [[nodiscard]] std::string string() const {
     if (query.empty()) {
-      return toString(scheme) + "://" + authority + "/" + path;
+      return scheme + "://" + authority + "/" + path;
     }
-    return toString(scheme) + "://" + authority + "/" + path + "?" + query;
+    return scheme + "://" + authority + "/" + path + "?" + query;
   }
-  /// The uri scheme, e.g. UriSchemeType::device.
-  UriSchemeType scheme;
+  /// The uri scheme.
+  std::string scheme;
 
   /// If scheme is device, then authority is `[robot_name]`.
   std::string authority;

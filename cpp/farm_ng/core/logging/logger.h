@@ -181,7 +181,7 @@ auto checkedAtContiguousContainer(
         container_cstr,
         container.size());
     if (!str.empty()) {
-      ::fmt::print(stderr, str);
+      ::fmt::print(stderr, "{}", str);
     }
     FARM_IMPL_ABORT();
   }
@@ -207,7 +207,7 @@ auto checkedGetFromAssociativeContainer(
         container_cstr,
         container.size());
     if (!str.empty()) {
-      ::fmt::print(stderr, str);
+      ::fmt::print(stderr, "{}", str);
     }
     FARM_IMPL_ABORT();
   }
@@ -238,7 +238,7 @@ auto insertKeyValueInMap(
         map.size(),
         value_cstr);
     if (!str.empty()) {
-      ::fmt::print(stderr, str);
+      ::fmt::print(stderr, "{}", str);
     }
     FARM_IMPL_ABORT();
   }
@@ -257,7 +257,7 @@ struct UnwrapImpl {
       FARM_IMPL_LOG_PRINTLN(
           "wrapper type `{}` does not contain a valid value", wrapper_cstr);
       if (!detail.msg.empty()) {
-        ::fmt::print(stderr, detail.msg);
+        ::fmt::print(stderr, "{}", detail.msg);
       }
       FARM_IMPL_ABORT();
     }

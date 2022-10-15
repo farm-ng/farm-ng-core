@@ -60,7 +60,8 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
   void write(
       std::string path,
       google::protobuf::Message const& message,
-      std::vector<core::proto::Timestamp> const& timestamps) override {
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps) override {
     std::string payload;
     message.SerializeToString(&payload);
     core::proto::Event event;
@@ -109,9 +110,21 @@ EventLogWriter::EventLogWriter(std::filesystem::path const& log_path) noexcept
 EventLogWriter::~EventLogWriter() noexcept { impl_.reset(nullptr); }
 
 void EventLogWriter::write(
-    std::string path,
+    std::string const& path,
     google::protobuf::Message const& message,
     std::vector<core::proto::Timestamp> const& timestamps) {
+  google::protobuf::RepeatedPtrField<core::proto::Timestamp> proto_stamps;
+  for (auto stamp : timestamps) {
+    proto_stamps.Add()->CopyFrom(stamp);
+  }
+  impl_->write(path, message, proto_stamps);
+}
+
+void EventLogWriter::write(
+    std::string const& path,
+    google::protobuf::Message const& message,
+    google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+        timestamps) {
   impl_->write(path, message, timestamps);
 }
 

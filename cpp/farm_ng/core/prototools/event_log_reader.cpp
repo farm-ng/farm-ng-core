@@ -158,7 +158,9 @@ bool EventTimeCompare::operator()(
   auto maybe_lhs_stamp = getStamp(lhs.event(), clock_name, semantics);
   auto maybe_rhs_stamp = getStamp(rhs.event(), clock_name, semantics);
   if (maybe_lhs_stamp && maybe_rhs_stamp) {
-    return maybe_lhs_stamp->stamp() < maybe_rhs_stamp->stamp();
+    return maybe_lhs_stamp->stamp() < maybe_rhs_stamp->stamp() ||
+           (!(maybe_rhs_stamp->stamp() < maybe_lhs_stamp->stamp()) &&
+            lhs.event().uri().path() < rhs.event().uri().path());
   }
   return false;
 }

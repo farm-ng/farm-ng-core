@@ -26,7 +26,8 @@ class EventLogWriterImpl {
   virtual void write(
       std::string path,
       google::protobuf::Message const& message,
-      std::vector<core::proto::Timestamp> const& timestamps) = 0;
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps) = 0;
 };
 
 /// Class that serializes incoming protobuf events to a file in disk.
@@ -45,10 +46,15 @@ class EventLogWriter {
 
   /// Writes an incoming protobuf in the log file
   void write(
-      std::string path,
+      std::string const& path,
       google::protobuf::Message const& message,
       std::vector<core::proto::Timestamp> const& timestamps =
           std::vector<core::proto::Timestamp>());
+  void write(
+      std::string const& path,
+      google::protobuf::Message const& message,
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps);
 
   /// Returns the path including the fileaname
   std::filesystem::path getPath() const { return log_path_; }

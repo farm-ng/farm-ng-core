@@ -105,6 +105,9 @@ struct EventTimeCompare {
   bool operator()(EventLogPos const& lhs, EventLogPos const& rhs) const;
 };
 
+// Returns events in time order, using the given reference clock and semantics
+// If two timestamps are exactly the same, the uri().path() of the event is used
+// to disambiguate the sorting.
 std::vector<EventLogPos> eventLogTimeOrderedIndex(
     std::string const& clock_name,
     std::string const& semantics,

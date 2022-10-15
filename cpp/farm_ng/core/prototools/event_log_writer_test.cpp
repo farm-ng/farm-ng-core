@@ -127,3 +127,57 @@ TEST(event_log, time_ordered_zip) {
     }
   }
 }
+
+TEST(event_log, post_processed_time_ordered_zip) {
+  auto maybe_log_dir = createUniqueTemporaryDirectory();
+  auto log_dir = FARM_UNWRAP(maybe_log_dir);
+  auto file1 = log_dir / "events1.log";
+  auto file2 = log_dir / "events2.log";
+  {
+    EventLogWriter writer1(file1);
+    core::proto::Timestamp x;
+    for (int i = 0; i < 10; ++i) {
+      x.set_stamp(i);
+      writer1.write("my_stamps1", x);
+    }
+  }
+  {
+    EventLogReader reader1(file1);
+
+    EventLogWriter writer2(file2);
+    for (EventLogPos pos : reader1.getIndex()) {
+      core::proto::Timestamp x;
+      x.ParseFromString(pos.readPayload());
+      x.set_stamp(x.stamp() + 1.0);
+      writer2.write("my_stamps2", x, pos.event().timestamps());
+    }
+  }
+
+  {
+    EventLogReader reader1(file1);
+    EventLogReader reader2(file2);
+    // Grab a reference write stamp from the first reader.
+    core::proto::Timestamp ref =
+        reader1.readNextEvent().event().timestamps()[0];
+    EXPECT_EQ(ref.semantics(), "log/write");
+    std::vector<EventLogPos> index = eventLogTimeOrderedIndex(
+        ref.clock_name(), ref.semantics(), {reader1, reader2});
+    int i = 0;
+    for (EventLogPos const& pos : index) {
+      core::proto::Timestamp x;
+      x.ParseFromString(pos.readPayload());
+
+      EXPECT_EQ("protobuf", pos.event().uri().scheme());
+      if (i % 2 == 0) {
+        EXPECT_EQ(i / 2, x.stamp());
+        EXPECT_EQ("my_stamps1", pos.event().uri().path());
+      } else {
+        EXPECT_EQ(i / 2 + 1, x.stamp());
+        EXPECT_EQ("my_stamps2", pos.event().uri().path());
+      }
+      EXPECT_EQ(getHostName(), pos.event().uri().authority());
+      EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
+      ++i;
+    }
+  }
+}

@@ -20,37 +20,45 @@ namespace farm_ng {
 class EventLogReaderBinaryImpl : public EventLogReaderImpl {
  public:
   EventLogReaderBinaryImpl(std::filesystem::path const& log_path)
-      : log_path(log_path), in(log_path.string(), std::ofstream::binary) {
-    if (!in) {
-      throw std::runtime_error(
-          FARM_FORMAT("Could not open file: {}", log_path));
-    }
+      : log_path(log_path) {
+    reset();
   }
 
+  virtual void reset() {
+    in = std::ifstream(log_path.string(), std::ofstream::binary);
+    if (!in) {
+      throw EventLogExist(FARM_FORMAT("Could not open file: {}", log_path));
+    }
+  }
   std::string readBytes(uint64_t n_bytes) {
+    FARM_CHECK(in.good());
     std::string str;
     str.resize(n_bytes);
     in.read(str.data(), n_bytes);
     if (!in) {
-      throw std::runtime_error("Could not read data.");
+      reset();
+      throw EventLogEof("Could not read data.");
     }
     return str;
   }
 
   uint64_t readEventSize() {
+    FARM_CHECK(in.good());
     uint32_t n_bytes = 0;
     in.read(reinterpret_cast<char*>(&n_bytes), sizeof(n_bytes));
     if (!in) {
-      throw std::runtime_error("Could not read packet length header");
+      reset();
+      throw EventLogEof("Could not read packet length header");
     }
     return n_bytes;
   }
 
-  virtual std::tuple<core::proto::Event, std::streampos> readNextEvent(
-      std::string* payload = nullptr) override {
+  virtual EventLogPos readNextEvent(std::string* payload = nullptr) override {
+    FARM_CHECK(in.good());
     core::proto::Event event;
     if (!event.ParseFromString(readBytes(readEventSize()))) {
-      throw std::runtime_error("Could not parse event.");
+      reset();
+      throw EventLogEof("Could not parse event.");
     }
     std::streampos pos = in.tellg();
     if (payload) {
@@ -58,16 +66,21 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     } else {
       in.seekg(event.payload_length(), in.cur);
       if (!in) {
-        throw std::runtime_error("Could not seek past payload.");
+        reset();
+        throw EventLogEof("Could not seek past payload.");
       }
     }
-    return std::make_tuple(event, pos);
+    return EventLogPos(event, pos, this->shared_from_this());
   }
+
   virtual std::string readPayload(
       core::proto::Event const& event, std::streampos pos) override {
+    FARM_CHECK(in.good());
+
     in.seekg(pos);
     if (!in) {
-      throw std::runtime_error("Could not seek to read payload.");
+      reset();
+      throw EventLogEof("Could not seek to read payload.");
     }
     return readBytes(event.payload_length());
   }
@@ -78,34 +91,114 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
   std::ifstream in;
 };
 
-namespace {
-void resetImpl(
-    std::unique_ptr<EventLogReaderImpl>& impl,
-    std::filesystem::path const& log_path) {
-  impl = std::make_unique<EventLogReaderBinaryImpl>(log_path);
+EventLogPos::EventLogPos(
+    core::proto::Event event,
+    std::streampos pos,
+    std::weak_ptr<EventLogReaderImpl> log)
+    : event_(std::move(event)), pos_(pos), log_(log) {}
+
+core::proto::Event const& EventLogPos::event() const { return event_; }
+
+std::string EventLogPos::readPayload() const {
+  std::shared_ptr<EventLogReaderImpl> log = log_.lock();
+  FARM_CHECK(!!log, "Log closed: {}", event_.ShortDebugString());
+  return log->readPayload(event_, pos_);
 }
-}  // namespace
 
-EventLogReader::EventLogReader(std::filesystem::path const& log_path) {
-  resetImpl(impl_, log_path);
+std::vector<EventLogPos> const& EventLogReaderImpl::getIndex() {
+  if (index_.empty()) {
+    reset();
+    while (true) {
+      try {
+        index_.push_back(readNextEvent());
+      } catch (EventLogEof const& e) {
+        // throws exception at end of file.
+        break;
+      }
+    }
+  }
+  return index_;
 }
 
-EventLogReader::~EventLogReader() { impl_.reset(nullptr); }
+EventLogReader::EventLogReader(std::filesystem::path const& log_path)
+    : impl_(std::make_shared<EventLogReaderBinaryImpl>(log_path)) {}
 
-std::tuple<core::proto::Event, std::streampos> EventLogReader::readNextEvent(
-    std::string* payload) {
+EventLogReader::~EventLogReader() {}
+
+EventLogPos EventLogReader::readNextEvent(std::string* payload) {
   return impl_->readNextEvent(payload);
 }
 
-std::string EventLogReader::readPayload(
-    core::proto::Event const& event, std::streampos pos) {
-  return impl_->readPayload(event, pos);
+std::vector<EventLogPos> const& EventLogReader::getIndex() {
+  return impl_->getIndex();
 }
 
 std::filesystem::path EventLogReader::getPath() const {
   return impl_->getPath();
 }
 
-void EventLogReader::reset() { resetImpl(impl_, impl_->getPath()); }
+void EventLogReader::reset() {
+  impl_ = std::make_shared<EventLogReaderBinaryImpl>(impl_->getPath());
+}
+
+core::proto::Timestamp const* getStamp(
+    core::proto::Event const& event,
+    std::string const& clock_name,
+    std::string const& semantics) {
+  for (core::proto::Timestamp const& stamp : event.timestamps()) {
+    if (stamp.clock_name() == clock_name && stamp.semantics() == semantics) {
+      return &stamp;
+    }
+  }
+  return nullptr;
+}
+
+bool EventTimeCompareClockAndSemantics::operator()(
+    EventLogPos const& lhs, EventLogPos const& rhs) const {
+  auto maybe_lhs_stamp = getStamp(lhs.event(), clock_name, semantics);
+  auto maybe_rhs_stamp = getStamp(rhs.event(), clock_name, semantics);
+  FARM_CHECK(
+      !!maybe_lhs_stamp,
+      "Event has no stamp from the reference clock: clock_name {} semantics {} "
+      "event: {}",
+      clock_name,
+      semantics,
+      lhs.event().ShortDebugString());
+  FARM_CHECK(
+      !!maybe_rhs_stamp,
+      "Event has no stamp from the reference clock: clock_name {} semantics {} "
+      "event: {}",
+      clock_name,
+      semantics,
+      rhs.event().ShortDebugString());
+  return maybe_lhs_stamp->stamp() < maybe_rhs_stamp->stamp() ||
+         (!(maybe_rhs_stamp->stamp() < maybe_lhs_stamp->stamp()) &&
+          lhs.event().uri().path() < rhs.event().uri().path());
+}
+
+std::vector<EventLogPos> eventLogTimeOrderedIndex(
+    std::string const& clock_name,
+    std::string const& semantics,
+    std::vector<EventLogReader> const& readers) {
+  std::vector<EventLogPos> ordered_index;
+  for (EventLogReader reader : readers) {
+    for (EventLogPos const& pos : reader.getIndex()) {
+      if (!getStamp(pos.event(), clock_name, semantics)) {
+        FARM_LOG_WARNING(
+            "Event doesn't have target clock: {} clock_name: {} semantics: {}",
+            pos.event().ShortDebugString(),
+            clock_name,
+            semantics);
+        continue;
+      }
+      ordered_index.push_back(pos);
+    }
+  }
+  std::sort(
+      ordered_index.begin(),
+      ordered_index.end(),
+      EventTimeCompareClockAndSemantics{clock_name, semantics});
+  return ordered_index;
+}
 
 }  // namespace farm_ng

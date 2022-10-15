@@ -26,7 +26,8 @@ class EventLogWriterImpl {
   virtual void write(
       std::string path,
       google::protobuf::Message const& message,
-      std::vector<core::proto::Timestamp> const& timestamps) = 0;
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps) = 0;
 };
 
 /// Class that serializes incoming protobuf events to a file in disk.
@@ -38,17 +39,22 @@ class EventLogWriter {
   /// does not exist. If ``log-path`` does exist, it must be a folder and it
   /// must be empty.
   ///
-  EventLogWriter(std::filesystem::path const& log_path) noexcept;
+  EventLogWriter(std::filesystem::path const& log_path);
 
   /// Main destructor
   virtual ~EventLogWriter() noexcept;
 
   /// Writes an incoming protobuf in the log file
   void write(
-      std::string path,
+      std::string const& path,
       google::protobuf::Message const& message,
       std::vector<core::proto::Timestamp> const& timestamps =
           std::vector<core::proto::Timestamp>());
+  void write(
+      std::string const& path,
+      google::protobuf::Message const& message,
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps);
 
   /// Returns the path including the fileaname
   std::filesystem::path getPath() const { return log_path_; }
@@ -59,5 +65,7 @@ class EventLogWriter {
   // Implementation pointer of the class
   std::unique_ptr<EventLogWriterImpl> impl_;
 };
+
+core::proto::Timestamp makeWriteStamp();
 
 }  // namespace farm_ng

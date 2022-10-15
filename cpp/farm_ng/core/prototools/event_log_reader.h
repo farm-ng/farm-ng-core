@@ -10,28 +10,61 @@
 
 #include "farm_ng/core/event.pb.h"
 
+#include <exception>
 #include <filesystem>
 #include <memory>
 #include <string>
 
 namespace farm_ng {
+class EventLogEof : public std::runtime_error {
+ public:
+  explicit EventLogEof(std::string const& what) : std::runtime_error(what) {}
+};
+class EventLogExist : public std::runtime_error {
+ public:
+  explicit EventLogExist(std::string const& what) : std::runtime_error(what) {}
+};
+
+class EventLogReaderImpl;
+class EventLogPos {
+ public:
+  EventLogPos(
+      core::proto::Event event,
+      std::streampos pos,
+      std::weak_ptr<EventLogReaderImpl> log);
+
+  core::proto::Event const& event() const;
+  std::string readPayload() const;
+
+ private:
+  core::proto::Event event_;
+  std::streampos pos_;
+  std::weak_ptr<EventLogReaderImpl> log_;
+};
 
 /// Implementation of the `EventLogReader` class
 ///
-class EventLogReaderImpl {
+class EventLogReaderImpl
+    : public std::enable_shared_from_this<EventLogReaderImpl> {
  public:
   /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
   virtual ~EventLogReaderImpl() {}
 
+  virtual void reset() = 0;
+
   /// Returns next event.
-  virtual std::tuple<core::proto::Event, std::streampos> readNextEvent(
-      std::string* payload = nullptr) = 0;
+  virtual EventLogPos readNextEvent(std::string* payload = nullptr) = 0;
 
   virtual std::string readPayload(
       core::proto::Event const& event, std::streampos pos) = 0;
 
   /// Returns the path including the fileaname
   virtual std::filesystem::path getPath() const = 0;
+
+  std::vector<EventLogPos> const& getIndex();
+
+ private:
+  std::vector<EventLogPos> index_;
 };
 
 /// Reader to deserialize data written by the EventLogWriter.
@@ -44,16 +77,18 @@ class EventLogReader {
   /// contain a valid header.
   explicit EventLogReader(std::filesystem::path const& log_path);
 
-  EventLogReader(EventLogReader&&) = default;
-  EventLogReader& operator=(EventLogReader&&) = default;
-
   /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
   virtual ~EventLogReader();
 
-  std::tuple<core::proto::Event, std::streampos> readNextEvent(
-      std::string* payload = nullptr);
+  // This function throws EventLogEof if the end of file is reached or a message
+  // can not be decoded (typically due to an interrupted process).
+  EventLogPos readNextEvent(std::string* payload = nullptr);
 
-  std::string readPayload(core::proto::Event const& event, std::streampos pos);
+  // Returns an index of all the events contained in the file.  This function
+  // caches the index, so its only computed once; the index requires seeking
+  // through the entire file and decoding the events.  It should be fast as
+  // payloads are skipped with seekg and not decoded.
+  std::vector<EventLogPos> const& getIndex();
 
   /// Returns the path including the fileaname
   std::filesystem::path getPath() const;
@@ -62,7 +97,32 @@ class EventLogReader {
   void reset();
 
  private:
-  std::unique_ptr<EventLogReaderImpl> impl_;
+  std::shared_ptr<EventLogReaderImpl> impl_;
 };
+
+// finds the first matching stamp in the event.  If no stamp is found this
+// returns a nullptr. Note that this does not allocate the stamp, its a
+// reference to the underlying Timestamp owned by the event.
+core::proto::Timestamp const* getStamp(
+    core::proto::Event const& event,
+    std::string const& clock_name,
+    std::string const& semantics);
+
+struct EventTimeCompareClockAndSemantics {
+  std::string clock_name;
+  std::string semantics;
+  // precondition:
+  //    lhs and rhs both contain a stamp from the target clock_name and
+  //    semantics.
+  bool operator()(EventLogPos const& lhs, EventLogPos const& rhs) const;
+};
+
+// Returns events in time order, using the given reference clock and semantics
+// If two timestamps are exactly the same, the uri().path() of the event is used
+// to disambiguate the sorting.
+std::vector<EventLogPos> eventLogTimeOrderedIndex(
+    std::string const& clock_name,
+    std::string const& semantics,
+    std::vector<EventLogReader> const& readers);
 
 }  // namespace farm_ng

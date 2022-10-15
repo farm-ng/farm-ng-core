@@ -8,6 +8,8 @@
 
 #include "farm_ng/core/prototools/event_log_writer.h"
 
+#include "farm_ng/core/prototools/event_log_reader.h"
+
 #include <farm_ng/core/logging/logger.h>
 
 #ifndef __USE_POSIX
@@ -41,6 +43,9 @@ double monotonic() {
                           .count();
   return now;
 }
+
+}  // namespace
+
 core::proto::Timestamp makeWriteStamp() {
   core::proto::Timestamp stamp;
   stamp.set_stamp(monotonic());
@@ -48,8 +53,6 @@ core::proto::Timestamp makeWriteStamp() {
   stamp.set_clock_name(getAuthority() + "/monotonic");
   return stamp;
 }
-
-}  // namespace
 
 class EventLogWriterBinaryImpl : public EventLogWriterImpl {
  public:
@@ -59,7 +62,8 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
   void write(
       std::string path,
       google::protobuf::Message const& message,
-      std::vector<core::proto::Timestamp> const& timestamps) override {
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps) override {
     std::string payload;
     message.SerializeToString(&payload);
     core::proto::Event event;
@@ -88,19 +92,17 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
   std::ofstream out;
 };
 
-EventLogWriter::EventLogWriter(std::filesystem::path const& log_path) noexcept
+EventLogWriter::EventLogWriter(std::filesystem::path const& log_path)
     : log_path_(log_path) {
   // generate the directory tree in case it's empty or doesn't exist
 
   std::filesystem::path path_prefix = log_path;
   path_prefix.remove_filename();
-
-  if (!std::filesystem::exists(path_prefix)) {
-    FARM_CHECK(
-        std::filesystem::create_directories(path_prefix),
-        "Could not create the directory: {}. It might exist already, please "
-        "check it out",
-        path_prefix);
+  if (!path_prefix.empty() && !std::filesystem::exists(path_prefix)) {
+    if (!std::filesystem::create_directories(path_prefix)) {
+      throw EventLogExist(FARM_FORMAT(
+          "Could not create log directory: {}", path_prefix.string()));
+    }
   }
   impl_ = std::make_unique<EventLogWriterBinaryImpl>(log_path);
 }
@@ -108,9 +110,21 @@ EventLogWriter::EventLogWriter(std::filesystem::path const& log_path) noexcept
 EventLogWriter::~EventLogWriter() noexcept { impl_.reset(nullptr); }
 
 void EventLogWriter::write(
-    std::string path,
+    std::string const& path,
     google::protobuf::Message const& message,
     std::vector<core::proto::Timestamp> const& timestamps) {
+  google::protobuf::RepeatedPtrField<core::proto::Timestamp> proto_stamps;
+  for (auto stamp : timestamps) {
+    proto_stamps.Add()->CopyFrom(stamp);
+  }
+  impl_->write(path, message, proto_stamps);
+}
+
+void EventLogWriter::write(
+    std::string const& path,
+    google::protobuf::Message const& message,
+    google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+        timestamps) {
   impl_->write(path, message, timestamps);
 }
 

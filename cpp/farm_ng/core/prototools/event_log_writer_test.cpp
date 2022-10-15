@@ -57,7 +57,6 @@ TEST(event_log, roundtrip) {
   }
 }
 
-
 TEST(event_log, index) {
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
@@ -73,7 +72,7 @@ TEST(event_log, index) {
   {
     EventLogReader reader(file);
     int i = 0;
-    for(const EventLogPos& pos : reader.getIndex()) {
+    for (EventLogPos const& pos : reader.getIndex()) {
       core::proto::Timestamp x;
       x.ParseFromString(pos.readPayload());
       EXPECT_EQ(i, x.stamp());
@@ -106,14 +105,16 @@ TEST(event_log, time_ordered_zip) {
     EventLogReader reader1(file1);
     EventLogReader reader2(file2);
     // Grab a reference write stamp from the first reader.
-    core::proto::Timestamp ref = reader1.readNextEvent().event().timestamps()[0];
+    core::proto::Timestamp ref =
+        reader1.readNextEvent().event().timestamps()[0];
     EXPECT_EQ(ref.semantics(), "log/write");
-    std::vector<EventLogPos> index = eventLogTimeOrderedIndex(ref.clock_name(), ref.semantics(), {reader1, reader2});
+    std::vector<EventLogPos> index = eventLogTimeOrderedIndex(
+        ref.clock_name(), ref.semantics(), {reader1, reader2});
     int i = 0;
-    for(const EventLogPos& pos : index) {
+    for (EventLogPos const& pos : index) {
       core::proto::Timestamp x;
       x.ParseFromString(pos.readPayload());
-      EXPECT_EQ(i/2, x.stamp());
+      EXPECT_EQ(i / 2, x.stamp());
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
       EXPECT_EQ("my_stamps", pos.event().uri().path());
       EXPECT_EQ(getHostName(), pos.event().uri().authority());

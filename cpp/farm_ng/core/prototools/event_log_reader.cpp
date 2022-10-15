@@ -164,20 +164,27 @@ bool EventTimeCompare::operator()(
 }
 
 std::vector<EventLogPos> eventLogTimeOrderedIndex(
-  const std::string& clock_name,
-  const std::string& semantics,
-  const std::vector<EventLogReader>& readers) {
-    std::vector<EventLogPos> ordered_index;
+    std::string const& clock_name,
+    std::string const& semantics,
+    std::vector<EventLogReader> const& readers) {
+  std::vector<EventLogPos> ordered_index;
   for (EventLogReader reader : readers) {
-    for(const EventLogPos& pos : reader.getIndex()) {
-      if(!getStamp(pos.event(), clock_name, semantics)){
-        FARM_LOG_WARNING("Event doesn't have target clock: {} clock_name: {} semantics: {}", pos.event().ShortDebugString(), clock_name, semantics);
+    for (EventLogPos const& pos : reader.getIndex()) {
+      if (!getStamp(pos.event(), clock_name, semantics)) {
+        FARM_LOG_WARNING(
+            "Event doesn't have target clock: {} clock_name: {} semantics: {}",
+            pos.event().ShortDebugString(),
+            clock_name,
+            semantics);
         continue;
       }
       ordered_index.push_back(pos);
     }
   }
-  std::sort(ordered_index.begin(), ordered_index.end(), EventTimeCompare{clock_name, semantics});
+  std::sort(
+      ordered_index.begin(),
+      ordered_index.end(),
+      EventTimeCompare{clock_name, semantics});
   return ordered_index;
 }
 

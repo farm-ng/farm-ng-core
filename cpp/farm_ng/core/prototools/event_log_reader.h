@@ -49,7 +49,7 @@ class EventLogReaderImpl
  public:
   /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
   virtual ~EventLogReaderImpl() {}
-  
+
   virtual void reset() = 0;
 
   /// Returns next event.
@@ -77,7 +77,6 @@ class EventLogReader {
   /// contain a valid header.
   explicit EventLogReader(std::filesystem::path const& log_path);
 
-
   /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
   virtual ~EventLogReader();
 
@@ -99,7 +98,7 @@ core::proto::Timestamp const* getStamp(
     core::proto::Event const& event,
     std::string const& clock_name,
     std::string const& semantics);
-    
+
 struct EventTimeCompare {
   std::string clock_name;
   std::string semantics;

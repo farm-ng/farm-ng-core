@@ -97,8 +97,8 @@ TEST(event_log, time_ordered_zip) {
     core::proto::Timestamp x;
     for (int i = 0; i < 10; ++i) {
       x.set_stamp(i);
-      writer1.write("my_stamps", x);
-      writer2.write("my_stamps", x);
+      writer1.write("my_stamps1", x);
+      writer2.write("my_stamps2", x);
     }
   }
   {
@@ -116,7 +116,11 @@ TEST(event_log, time_ordered_zip) {
       x.ParseFromString(pos.readPayload());
       EXPECT_EQ(i / 2, x.stamp());
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
-      EXPECT_EQ("my_stamps", pos.event().uri().path());
+      if (i % 2 == 0) {
+        EXPECT_EQ("my_stamps1", pos.event().uri().path());
+      } else {
+        EXPECT_EQ("my_stamps2", pos.event().uri().path());
+      }
       EXPECT_EQ(getHostName(), pos.event().uri().authority());
       EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
       ++i;

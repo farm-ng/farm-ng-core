@@ -27,7 +27,19 @@ std::string getHostName() {
   return std::string(hostname);
 }
 }  // namespace
+TEST(event_log, no_file) {
+  EXPECT_THROW(EventLogReader("file_does_not_exist"), EventLogExist);
+  EXPECT_THROW(
+      EventLogWriter("/no/perms/file_does_not_exist"),
+      std::filesystem::filesystem_error);
+  { EventLogWriter writer_success("relative_event.log"); }
+  EXPECT_TRUE(std::filesystem::exists("relative_event.log"));
+  std::filesystem::remove("relative_event.log");
+  auto maybe_log_dir = createUniqueTemporaryDirectory();
 
+  EventLogWriter writer_success2(
+      FARM_UNWRAP(maybe_log_dir) / "tmplocal_file.log");
+}
 TEST(event_log, roundtrip) {
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
@@ -42,8 +54,13 @@ TEST(event_log, roundtrip) {
   }
   {
     EventLogReader reader(file);
-    for (int i = 0; i < 10; ++i) {
+    int i = 0;
+    while (true) {
       std::string payload;
+      if (i == 10) {
+        EXPECT_THROW(reader.readNextEvent(), EventLogEof);
+        break;
+      }
       EventLogPos pos = reader.readNextEvent(&payload);
       core::proto::Timestamp x;
       EXPECT_EQ(true, x.ParseFromString(payload));
@@ -52,8 +69,8 @@ TEST(event_log, roundtrip) {
       EXPECT_EQ("my_stamps", pos.event().uri().path());
       EXPECT_EQ(getHostName(), pos.event().uri().authority());
       EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
+      i++;
     }
-    EXPECT_THROW(reader.readNextEvent(), std::runtime_error);
   }
 }
 

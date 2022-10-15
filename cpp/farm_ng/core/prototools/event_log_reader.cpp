@@ -37,7 +37,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     in.read(str.data(), n_bytes);
     if (!in) {
       reset();
-      throw EventLogEOF("Could not read data.");
+      throw EventLogEof("Could not read data.");
     }
     return str;
   }
@@ -48,7 +48,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     in.read(reinterpret_cast<char*>(&n_bytes), sizeof(n_bytes));
     if (!in) {
       reset();
-      throw EventLogEOF("Could not read packet length header");
+      throw EventLogEof("Could not read packet length header");
     }
     return n_bytes;
   }
@@ -58,7 +58,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     core::proto::Event event;
     if (!event.ParseFromString(readBytes(readEventSize()))) {
       reset();
-      throw EventLogEOF("Could not parse event.");
+      throw EventLogEof("Could not parse event.");
     }
     std::streampos pos = in.tellg();
     if (payload) {
@@ -67,7 +67,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
       in.seekg(event.payload_length(), in.cur);
       if (!in) {
         reset();
-        throw EventLogEOF("Could not seek past payload.");
+        throw EventLogEof("Could not seek past payload.");
       }
     }
     return EventLogPos(event, pos, this->shared_from_this());
@@ -80,7 +80,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     in.seekg(pos);
     if (!in) {
       reset();
-      throw EventLogEOF("Could not seek to read payload.");
+      throw EventLogEof("Could not seek to read payload.");
     }
     return readBytes(event.payload_length());
   }
@@ -111,7 +111,7 @@ std::vector<EventLogPos> const& EventLogReaderImpl::getIndex() {
     while (true) {
       try {
         index_.push_back(readNextEvent());
-      } catch (EventLogEOF const& e) {
+      } catch (EventLogEof const& e) {
         // throws exception at end of file.
         break;
       }
@@ -153,16 +153,27 @@ core::proto::Timestamp const* getStamp(
   return nullptr;
 }
 
-bool EventTimeCompare::operator()(
+bool EventTimeCompareClockAndSemantics::operator()(
     EventLogPos const& lhs, EventLogPos const& rhs) const {
   auto maybe_lhs_stamp = getStamp(lhs.event(), clock_name, semantics);
   auto maybe_rhs_stamp = getStamp(rhs.event(), clock_name, semantics);
-  if (maybe_lhs_stamp && maybe_rhs_stamp) {
-    return maybe_lhs_stamp->stamp() < maybe_rhs_stamp->stamp() ||
-           (!(maybe_rhs_stamp->stamp() < maybe_lhs_stamp->stamp()) &&
-            lhs.event().uri().path() < rhs.event().uri().path());
-  }
-  return false;
+  FARM_CHECK(
+      !!maybe_lhs_stamp,
+      "Event has no stamp from the reference clock: clock_name {} semantics {} "
+      "event: {}",
+      clock_name,
+      semantics,
+      lhs.event().ShortDebugString());
+  FARM_CHECK(
+      !!maybe_rhs_stamp,
+      "Event has no stamp from the reference clock: clock_name {} semantics {} "
+      "event: {}",
+      clock_name,
+      semantics,
+      rhs.event().ShortDebugString());
+  return maybe_lhs_stamp->stamp() < maybe_rhs_stamp->stamp() ||
+         (!(maybe_rhs_stamp->stamp() < maybe_lhs_stamp->stamp()) &&
+          lhs.event().uri().path() < rhs.event().uri().path());
 }
 
 std::vector<EventLogPos> eventLogTimeOrderedIndex(
@@ -186,7 +197,7 @@ std::vector<EventLogPos> eventLogTimeOrderedIndex(
   std::sort(
       ordered_index.begin(),
       ordered_index.end(),
-      EventTimeCompare{clock_name, semantics});
+      EventTimeCompareClockAndSemantics{clock_name, semantics});
   return ordered_index;
 }
 

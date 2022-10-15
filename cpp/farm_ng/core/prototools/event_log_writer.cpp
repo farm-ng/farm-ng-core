@@ -8,6 +8,8 @@
 
 #include "farm_ng/core/prototools/event_log_writer.h"
 
+#include "farm_ng/core/prototools/event_log_reader.h"
+
 #include <farm_ng/core/logging/logger.h>
 
 #ifndef __USE_POSIX
@@ -90,19 +92,17 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
   std::ofstream out;
 };
 
-EventLogWriter::EventLogWriter(std::filesystem::path const& log_path) noexcept
+EventLogWriter::EventLogWriter(std::filesystem::path const& log_path)
     : log_path_(log_path) {
   // generate the directory tree in case it's empty or doesn't exist
 
   std::filesystem::path path_prefix = log_path;
   path_prefix.remove_filename();
-
-  if (!std::filesystem::exists(path_prefix)) {
-    FARM_CHECK(
-        std::filesystem::create_directories(path_prefix),
-        "Could not create the directory: {}. It might exist already, please "
-        "check it out",
-        path_prefix);
+  if (!path_prefix.empty() && !std::filesystem::exists(path_prefix)) {
+    if (!std::filesystem::create_directories(path_prefix)) {
+      throw EventLogExist(FARM_FORMAT(
+          "Could not create log directory: {}", path_prefix.string()));
+    }
   }
   impl_ = std::make_unique<EventLogWriterBinaryImpl>(log_path);
 }

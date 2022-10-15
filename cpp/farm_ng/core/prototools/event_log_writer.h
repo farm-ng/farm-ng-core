@@ -39,7 +39,7 @@ class EventLogWriter {
   /// does not exist. If ``log-path`` does exist, it must be a folder and it
   /// must be empty.
   ///
-  EventLogWriter(std::filesystem::path const& log_path) noexcept;
+  EventLogWriter(std::filesystem::path const& log_path);
 
   /// Main destructor
   virtual ~EventLogWriter() noexcept;

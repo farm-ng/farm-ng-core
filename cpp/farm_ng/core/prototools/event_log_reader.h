@@ -16,13 +16,13 @@
 #include <string>
 
 namespace farm_ng {
-class EventLogEOF : public std::runtime_error {
+class EventLogEof : public std::runtime_error {
  public:
-  EventLogEOF(std::string const& what) : std::runtime_error(what) {}
+  explicit EventLogEof(std::string const& what) : std::runtime_error(what) {}
 };
 class EventLogExist : public std::runtime_error {
  public:
-  EventLogExist(std::string const& what) : std::runtime_error(what) {}
+  explicit EventLogExist(std::string const& what) : std::runtime_error(what) {}
 };
 
 class EventLogReaderImpl;
@@ -80,8 +80,14 @@ class EventLogReader {
   /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
   virtual ~EventLogReader();
 
+  // This function throws EventLogEof if the end of file is reached or a message
+  // can not be decoded (typically due to an interrupted process).
   EventLogPos readNextEvent(std::string* payload = nullptr);
 
+  // Returns an index of all the events contained in the file.  This function
+  // caches the index, so its only computed once; the index requires seeking
+  // through the entire file and decoding the events.  It should be fast as
+  // payloads are skipped with seekg and not decoded.
   std::vector<EventLogPos> const& getIndex();
 
   /// Returns the path including the fileaname
@@ -94,14 +100,20 @@ class EventLogReader {
   std::shared_ptr<EventLogReaderImpl> impl_;
 };
 
+// finds the first matching stamp in the event.  If no stamp is found this
+// returns a nullptr. Note that this does not allocate the stamp, its a
+// reference to the underlying Timestamp owned by the event.
 core::proto::Timestamp const* getStamp(
     core::proto::Event const& event,
     std::string const& clock_name,
     std::string const& semantics);
 
-struct EventTimeCompare {
+struct EventTimeCompareClockAndSemantics {
   std::string clock_name;
   std::string semantics;
+  // precondition:
+  //    lhs and rhs both contain a stamp from the target clock_name and
+  //    semantics.
   bool operator()(EventLogPos const& lhs, EventLogPos const& rhs) const;
 };
 

@@ -41,6 +41,9 @@ double monotonic() {
                           .count();
   return now;
 }
+
+}  // namespace
+
 core::proto::Timestamp makeWriteStamp() {
   core::proto::Timestamp stamp;
   stamp.set_stamp(monotonic());
@@ -48,8 +51,6 @@ core::proto::Timestamp makeWriteStamp() {
   stamp.set_clock_name(getAuthority() + "/monotonic");
   return stamp;
 }
-
-}  // namespace
 
 class EventLogWriterBinaryImpl : public EventLogWriterImpl {
  public:

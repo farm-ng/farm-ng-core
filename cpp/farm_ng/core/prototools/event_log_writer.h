@@ -60,4 +60,6 @@ class EventLogWriter {
   std::unique_ptr<EventLogWriterImpl> impl_;
 };
 
+core::proto::Timestamp makeWriteStamp();
+
 }  // namespace farm_ng

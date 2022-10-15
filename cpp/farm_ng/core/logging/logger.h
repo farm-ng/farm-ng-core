@@ -248,7 +248,7 @@ auto insertKeyValueInMap(
 template <class TWrapper>
 struct UnwrapImpl {
   static auto impl(
-      TWrapper& wrapper,
+      TWrapper&& wrapper,
       char const* wrapper_cstr,
       ::farm_ng::ErrorDetail detail) -> decltype(*wrapper) {
     if (!bool(wrapper)) {
@@ -267,9 +267,9 @@ struct UnwrapImpl {
 
 template <class TWrapper>
 auto unwrapImpl(
-    TWrapper& wrapper, char const* wrapper_cstr, ::farm_ng::ErrorDetail detail)
+    TWrapper&& wrapper, char const* wrapper_cstr, ::farm_ng::ErrorDetail detail)
     -> decltype(*wrapper) {
-  return UnwrapImpl<TWrapper>::impl(wrapper, wrapper_cstr, std::move(detail));
+  return UnwrapImpl<TWrapper>::impl(std::forward<TWrapper>(wrapper), wrapper_cstr, std::move(detail));
 }
 
 }  // namespace details

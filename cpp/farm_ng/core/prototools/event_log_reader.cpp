@@ -64,7 +64,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     return std::make_tuple(event, pos);
   }
   virtual std::string readPayload(
-      core::proto::Event const& event, std::streampos pos) {
+      core::proto::Event const& event, std::streampos pos) override {
     in.seekg(pos);
     if (!in) {
       throw std::runtime_error("Could not seek to read payload.");

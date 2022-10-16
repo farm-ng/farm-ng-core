@@ -72,7 +72,9 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
     uri->set_scheme("protobuf");
     uri->set_authority(getAuthority());
     uri->set_path(path);
-    uri->set_query("type=" + message.GetDescriptor()->full_name());
+    uri->set_query(
+        "type=" + message.GetDescriptor()->full_name() +
+        "&pb=" + message.GetDescriptor()->file()->name());
 
     for (core::proto::Timestamp const& stamp : timestamps) {
       event.add_timestamps()->CopyFrom(stamp);

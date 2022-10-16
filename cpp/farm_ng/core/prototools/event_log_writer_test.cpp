@@ -68,7 +68,9 @@ TEST(event_log, roundtrip) {
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
       EXPECT_EQ("my_stamps", pos.event().uri().path());
       EXPECT_EQ(getHostName(), pos.event().uri().authority());
-      EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
+      EXPECT_EQ(
+          "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
+          pos.event().uri().query());
       i++;
     }
   }
@@ -96,7 +98,9 @@ TEST(event_log, index) {
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
       EXPECT_EQ("my_stamps", pos.event().uri().path());
       EXPECT_EQ(getHostName(), pos.event().uri().authority());
-      EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
+      EXPECT_EQ(
+          "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
+          pos.event().uri().query());
       ++i;
     }
   }
@@ -139,7 +143,9 @@ TEST(event_log, time_ordered_zip) {
         EXPECT_EQ("my_stamps2", pos.event().uri().path());
       }
       EXPECT_EQ(getHostName(), pos.event().uri().authority());
-      EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
+      EXPECT_EQ(
+          "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
+          pos.event().uri().query());
       ++i;
     }
   }
@@ -193,7 +199,9 @@ TEST(event_log, post_processed_time_ordered_zip) {
         EXPECT_EQ("my_stamps2", pos.event().uri().path());
       }
       EXPECT_EQ(getHostName(), pos.event().uri().authority());
-      EXPECT_EQ("type=farm_ng.core.proto.Timestamp", pos.event().uri().query());
+      EXPECT_EQ(
+          "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
+          pos.event().uri().query());
       ++i;
     }
   }

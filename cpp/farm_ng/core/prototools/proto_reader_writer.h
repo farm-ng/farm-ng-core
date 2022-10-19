@@ -33,12 +33,10 @@ Expected<ProtobufT> readProtobufFromJsonFile(
     std::filesystem::path const& path) {
   FARM_TRY(std::string json_string, readJsonStringFromJsonFile(path));
   ProtobufT message;
-  google::protobuf::util::JsonOptions print_options;
-  print_options.add_whitespace = true;
-  print_options.always_print_primitive_fields = true;
+  google::protobuf::util::JsonParseOptions parse_options;  // default
   auto status = google::protobuf::util::JsonStringToMessage(
-      json_string, &message, print_options);
-  if (!status) {
+      json_string, &message, parse_options);
+  if (!status.ok()) {
     return FARM_ERROR("Failed to parse json string: {}", status);
   }
   return message;

@@ -38,6 +38,13 @@ TEST(EnumTest, toString) {
   EXPECT_EQ(out3.str(), "pear (=4)");
 }
 
+TEST(EnumTest, getAllFruit) {
+  const std::array<Fruits, 3> all_vals = getAll(Fruits());
+  EXPECT_EQ(all_vals[0], Fruits::apple);
+  EXPECT_EQ(all_vals[1], Fruits::banana);
+  EXPECT_EQ(all_vals[2], Fruits::pear);
+}
+
 // Enum definition in global scope.
 FARM_ENUM_DEF(Autos, int32_t, (van, truck, sedan));
 
@@ -70,4 +77,29 @@ TEST(EnumTest, StringsAndValues) {
   EXPECT_EQ(values[1], 3);
   EXPECT_EQ(values[2], 4);
   EXPECT_EQ(getCount(Fruits()), 3);
+}
+
+TEST(EnumTest, getAllAutos) {
+  const std::array<Garage::Autos, 3> all_vals = getAll(Garage::Autos());
+  EXPECT_EQ(all_vals[0], Garage::Autos::van);
+  EXPECT_EQ(all_vals[1], Garage::Autos::truck);
+  EXPECT_EQ(all_vals[2], Garage::Autos::sedan);
+}
+
+TEST(EnumTest, foreach) {
+  {
+    size_t count = 0;
+    for (Fruits f : getAll(Fruits())) {
+      ++count;
+    }
+    EXPECT_EQ(count, 3);
+  }
+
+  {
+    size_t count = 0;
+    for (Garage::Autos a : getAll(Garage::Autos())) {
+      ++count;
+    }
+    EXPECT_EQ(count, 3);
+  }
 }

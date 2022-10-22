@@ -62,7 +62,7 @@
       (__VA_ARGS__)))
 
 // INPUT:  (A,2)           B              (C,3)
-// Output: , A=2           , B            , C=3
+// Output: A=2             B              C=3
 #define FARM_ENUM_DETAILS_OP_VALUE_WITH_INIT(PAIR) \
   FARM_PP_IF(                                      \
       FARM_PP_EQUAL(FARM_PP_TUPLE_SIZE(PAIR), 1),  \
@@ -70,9 +70,19 @@
       FARM_PP_TUPLE_ELEM(0, PAIR) = FARM_PP_TUPLE_ELEM(1, PAIR))
 
 // INPUT:  (A,2)           B              (C,3)
+// Output:  NAMEImpl::A    NAMEImpl::B    NAMEImpl::C
+#define FARM_ENUM_DETAILS_ENUM_NS_OP(NAME, PAIR) \
+  NAME##Impl::FARM_PP_TUPLE_ELEM(0, PAIR)
+
+// INPUT:  (A,2)           B              (C,3)
 // Output: , A=2           , B            , C=3
 #define FARM_ENUM_DETAILS_OP_COMMA_VALUE(dummy1, dummy2, PAIR) \
   , FARM_ENUM_DETAILS_OP_VALUE_WITH_INIT(PAIR)
+
+// INPUT:  (A,2)           B              (C,3)
+// Output: , A           , B            , C
+#define FARM_ENUM_DETAILS_NS_OP_COMMA(dummy1, NAME, PAIR) \
+  , FARM_ENUM_DETAILS_ENUM_NS_OP(NAME, PAIR)
 
 // Input:  ((A,2), B, C)
 // Output: A=2, B, C
@@ -82,6 +92,17 @@
   FARM_PP_SEQ_FOR_EACH(                                                     \
       FARM_ENUM_DETAILS_OP_COMMA_VALUE,                                     \
       _,                                                                    \
+      FARM_PP_SEQ_POP_FRONT(FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))
+
+// Input:  ((A,2), B, C)
+// Output: A, B, C
+#define FARM_ENUM_NS_ENUM_CSV(NAME, ...)                                    \
+  FARM_ENUM_DETAILS_ENUM_NS_OP(                                             \
+      NAME,                                                                 \
+      FARM_PP_SEQ_ELEM(0, FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__))) \
+  FARM_PP_SEQ_FOR_EACH(                                                     \
+      FARM_ENUM_DETAILS_NS_OP_COMMA,                                        \
+      NAME,                                                                 \
       FARM_PP_SEQ_POP_FRONT(FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))
 
 // Output:
@@ -171,104 +192,113 @@
       (TYPE, INT_TYPE),                                                      \
       FARM_PP_SEQ_POP_FRONT(FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(__VA_ARGS__)))
 
-#define FARM_ENUM_DEF_IMPL(NAME, ...)                                       \
-  namespace enum_wrapper_ {                                                 \
-  enum class NAME##Impl : FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__){      \
-      FARM_ENUM_DETAILS_CSV(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};      \
-                                                                            \
-  [[maybe_unused]] inline std::string toString(NAME##Impl value) {          \
-    switch (value) {                                                        \
-      FARM_PP_SEQ_FOR_EACH(                                                 \
-          FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                              \
-          NAME##Impl,                                                       \
-          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                               \
-              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                     \
-    }                                                                       \
-    FARM_FATAL(                                                             \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",          \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] inline std::string_view toStringView(NAME##Impl value) { \
-    switch (value) {                                                        \
-      FARM_PP_SEQ_FOR_EACH(                                                 \
-          FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                              \
-          NAME##Impl,                                                       \
-          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                               \
-              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                     \
-    }                                                                       \
-    FARM_FATAL(                                                             \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",          \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] inline std::string toPretty(NAME##Impl value) {          \
-    switch (value) {                                                        \
-      FARM_PP_SEQ_FOR_EACH(                                                 \
-          FARM_ENUM_DETAILS_OP_TO_PRETTY_CASE,                              \
-          (NAME##Impl, FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)),        \
-          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                               \
-              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                     \
-    }                                                                       \
-    FARM_FATAL(                                                             \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",          \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] inline bool trySetFromString(              \
-      NAME##Impl &value, std::string const &str) {                          \
-    FARM_PP_SEQ_FOR_EACH(                                                   \
-        FARM_ENUM_DETAILS_OP_SET_VALUE_CASES,                               \
-        NAME##Impl,                                                         \
-        FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                 \
-            FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                       \
-    return false;                                                           \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] constexpr size_t getCount(NAME##Impl) {    \
-    return FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__));     \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] inline std::array<                         \
-      std::string_view,                                                     \
-      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>          \
-  getStrings(NAME##Impl) {                                                  \
-    return {FARM_ENUM_DETAILS_COMMA_SEP_STRINGS(                            \
-        FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};                          \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] inline std::string_view getStringOfNames(  \
-      NAME##Impl) {                                                         \
-    return FARM_ENUM_DETAILS_CSV_STRING(                                    \
-        FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__));                           \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] constexpr std::array<                      \
-      FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                          \
-      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>          \
-  getValues(NAME##Impl) {                                                   \
-    return {FARM_ENUM_DETAILS_COMMA_SEP_INTS(                               \
-        NAME##Impl,                                                         \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                        \
-        FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};                          \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] constexpr size_t getPosition(              \
-      NAME##Impl value) {                                                   \
-    switch (value) {                                                        \
-      FARM_PP_SEQ_FOR_EACH_I(                                               \
-          FARM_ENUM_DETAILS_OP_POSITION_ICASE,                              \
-          NAME##Impl,                                                       \
-          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                               \
-              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                     \
-    }                                                                       \
-    FARM_FATAL(                                                             \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",          \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                \
-  }                                                                         \
-                                                                            \
-  [[maybe_unused]] [[nodiscard]] inline std::string_view getTypeName(       \
-      NAME##Impl) {                                                         \
-    return FARM_PP_STRINGIZE(NAME);                                         \
-  }                                                                         \
+#define FARM_ENUM_DEF_IMPL(NAME, ...)                                          \
+  namespace enum_wrapper_ {                                                    \
+  enum class NAME##Impl : FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__){         \
+      FARM_ENUM_DETAILS_CSV(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};         \
+                                                                               \
+  [[maybe_unused]] inline std::string toString(NAME##Impl value) {             \
+    switch (value) {                                                           \
+      FARM_PP_SEQ_FOR_EACH(                                                    \
+          FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                                 \
+          NAME##Impl,                                                          \
+          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
+              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
+    }                                                                          \
+    FARM_FATAL(                                                                \
+        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
+        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline std::string_view toStringView(NAME##Impl value) {    \
+    switch (value) {                                                           \
+      FARM_PP_SEQ_FOR_EACH(                                                    \
+          FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                                 \
+          NAME##Impl,                                                          \
+          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
+              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
+    }                                                                          \
+    FARM_FATAL(                                                                \
+        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
+        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] inline std::string toPretty(NAME##Impl value) {             \
+    switch (value) {                                                           \
+      FARM_PP_SEQ_FOR_EACH(                                                    \
+          FARM_ENUM_DETAILS_OP_TO_PRETTY_CASE,                                 \
+          (NAME##Impl, FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)),           \
+          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
+              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
+    }                                                                          \
+    FARM_FATAL(                                                                \
+        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
+        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline bool trySetFromString(                 \
+      NAME##Impl &value, std::string const &str) {                             \
+    FARM_PP_SEQ_FOR_EACH(                                                      \
+        FARM_ENUM_DETAILS_OP_SET_VALUE_CASES,                                  \
+        NAME##Impl,                                                            \
+        FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                    \
+            FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                          \
+    return false;                                                              \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] constexpr size_t getCount(NAME##Impl) {       \
+    return FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__));        \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline std::array<                            \
+      std::string_view,                                                        \
+      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>             \
+  getStrings(NAME##Impl) {                                                     \
+    return {FARM_ENUM_DETAILS_COMMA_SEP_STRINGS(                               \
+        FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};                             \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline std::string_view getStringOfNames(     \
+      NAME##Impl) {                                                            \
+    return FARM_ENUM_DETAILS_CSV_STRING(                                       \
+        FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__));                              \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] constexpr std::array<                         \
+      FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                             \
+      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>             \
+  getValues(NAME##Impl) {                                                      \
+    return {FARM_ENUM_DETAILS_COMMA_SEP_INTS(                                  \
+        NAME##Impl,                                                            \
+        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                           \
+        FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};                             \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] constexpr std::array<                         \
+      NAME##Impl,                                                              \
+      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>             \
+  getAll(NAME##Impl) {                                                         \
+    /* return {NAME##Impl::apple, NAME##Impl::banana, NAME##Impl::pear}; */    \
+    return {                                                                   \
+        FARM_ENUM_NS_ENUM_CSV(NAME, FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))}; \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] constexpr size_t getPosition(                 \
+      NAME##Impl value) {                                                      \
+    switch (value) {                                                           \
+      FARM_PP_SEQ_FOR_EACH_I(                                                  \
+          FARM_ENUM_DETAILS_OP_POSITION_ICASE,                                 \
+          NAME##Impl,                                                          \
+          FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
+              FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
+    }                                                                          \
+    FARM_FATAL(                                                                \
+        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
+        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+  }                                                                            \
+                                                                               \
+  [[maybe_unused]] [[nodiscard]] inline std::string_view getTypeName(          \
+      NAME##Impl) {                                                            \
+    return FARM_PP_STRINGIZE(NAME);                                            \
+  }                                                                            \
   }  // namespace enum_wrapper_

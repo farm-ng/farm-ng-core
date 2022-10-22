@@ -24,5 +24,4 @@ jobs:
     - name: Install dependencies
       run: pip3 install -e .[dev]
     - name: Run Tests
-      working-directory: py
-      run: pytest -v tests/ --mypy
+      run: pytest -v py/tests/ --mypy

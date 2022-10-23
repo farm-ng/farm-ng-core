@@ -24,8 +24,8 @@ class BuildProtosCommand(Command):
         pass
 
     def run(self):
-        sys.path.append(str(package_py))
-        import package  # = SourceFileLoader("farm_ng.core.package", package_py).load_module()
+        sys.path.insert(0, str(package_py))
+        import package
 
         package.build_package_protos(proto_root=Path("protos"), package_root=Path("py"))
 
@@ -40,8 +40,8 @@ class CleanFilesCommand(Command):
         pass
 
     def run(self):
-        sys.path.append(str(package_py))
-        import package  # = SourceFileLoader("farm_ng.core.package", package_py).load_module()
+        sys.path.insert(0, str(package_py))
+        import package
 
         package.clean_protos(package_root=Path("py"))
 

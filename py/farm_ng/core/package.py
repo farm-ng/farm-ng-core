@@ -55,7 +55,7 @@ def build_package_protos(proto_root, package_root, proto_includes=[]):
             "wt",
         ) as proto_out:
             proto_out.write("// This file generated for packaging, do not edit.\n")
-            proto_out.write(f"// To edit, see original source:\n  {proto_file}.\n")
+            proto_out.write(f"// To edit, see original source:\n// {proto_file}.\n")
             proto_out.write(f"//\n")
             with open(proto_file, "rt") as proto_in:
                 proto_out.write(proto_in.read())

@@ -77,7 +77,7 @@ std::string runtimeFormatImpl(
     std::string const &str,
     TArgs &&...args) {
   try {
-    return ::fmt::format(str, std::forward<TArgs>(args)...);
+    return ::fmt::format(fmt::runtime(str), std::forward<TArgs>(args)...);
   } catch (::fmt::format_error &e) {
     FARM_IMPL_LOG_PRINTLN("[FARM_RUNTIME_FORMAT in {}:{}]", file, line);
     FARM_IMPL_LOG_PRINTLN(

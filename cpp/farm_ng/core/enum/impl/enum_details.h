@@ -218,7 +218,8 @@
         FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline std::string_view toStringView(NAME##Impl value) {    \
+  [[maybe_unused]] inline std::string_view constexpr toStringView(             \
+      NAME##Impl value) {                                                      \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH(                                                    \
           FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                                 \

@@ -147,11 +147,11 @@
   enum class NAME##Impl : UINT_TYPE{                                           \
       none = 0u, FARM_ENUMFLAGS_DETAILS_FLAG_DEFINITIONS(__VA_ARGS__)};        \
                                                                                \
-  NAME##Impl inline operator|(NAME##Impl left, NAME##Impl right) {             \
+  NAME##Impl inline constexpr operator|(NAME##Impl left, NAME##Impl right) {   \
     return NAME##Impl(UINT_TYPE(left) | UINT_TYPE(right));                     \
   }                                                                            \
                                                                                \
-  NAME##Impl inline operator&(NAME##Impl left, NAME##Impl right) {             \
+  NAME##Impl inline constexpr operator&(NAME##Impl left, NAME##Impl right) {   \
     return NAME##Impl(UINT_TYPE(left) & UINT_TYPE(right));                     \
   }                                                                            \
                                                                                \
@@ -164,7 +164,8 @@
     return false;                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline bool hasMask(NAME##Impl value, NAME##Impl mask) {    \
+  [[maybe_unused]] inline bool constexpr hasMask(                              \
+      NAME##Impl value, NAME##Impl mask) {                                     \
     return (value & mask) == mask;                                             \
   }                                                                            \
                                                                                \
@@ -181,7 +182,7 @@
     value = NAME##Impl(UINT_TYPE(value) ^ UINT_TYPE(mask));                    \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline bool isSingleFlag(NAME##Impl value) {                \
+  [[maybe_unused]] inline bool constexpr isSingleFlag(NAME##Impl value) {      \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH(                                                    \
           FARM_ENUMFLAG_DETAILS_OP_SINGLE_FLAG_CHECK,                          \
@@ -234,8 +235,8 @@
     return {FARM_ENUMFLAGS_DETAILS_COMMA_SEP_INTS(NAME##Impl, __VA_ARGS__)};   \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline std::string_view getTypeName(          \
-      NAME##Impl) {                                                            \
+  [[maybe_unused]] [[nodiscard]] inline constexpr std::string_view             \
+  getTypeName(NAME##Impl) {                                                    \
     return FARM_PP_STRINGIZE(NAME);                                            \
   }                                                                            \
   }  // namespace enum_wrapper_

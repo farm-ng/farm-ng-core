@@ -1,3 +1,6 @@
 [build-system]
-requires = ["setuptools"]
+requires = [
+    "setuptools",
+    "farm-ng-package"
+]
 build-backend = "setuptools.build_meta"

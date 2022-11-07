@@ -5,10 +5,12 @@ from setuptools import Command
 from setuptools.command.develop import develop
 from setuptools.command.egg_info import egg_info
 from setuptools.command.install import install
+
+# pylint: disable=no-name-in-module, import-error
 from farm_ng.package.package import (
     build_package_protos,
     clean_protos,
-)  # pylint: disable=no-name-in-module,import-error
+)  # pylint: enable=no-name-in-module, import-error
 
 
 # TOOD: move `Command`` classes to farm-ng-pytsetup

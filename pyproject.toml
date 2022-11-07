@@ -1,3 +1,6 @@
 [build-system]
-requires = ["setuptools"]
+requires = [
+    "setuptools",
+    "farm_ng_package @ git+https://github.com/farm-ng/farm-ng-pysetup.git"
+]
 build-backend = "setuptools.build_meta"

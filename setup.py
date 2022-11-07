@@ -1,19 +1,14 @@
-from setuptools import setup
-
-# hack for bootstrapping and include farm_ng.core.package from it's setup.py
-import pathlib
 from pathlib import Path
-import sys
+from setuptools import setup
 
 from setuptools import Command
 from setuptools.command.develop import develop
 from setuptools.command.egg_info import egg_info
 from setuptools.command.install import install
-from importlib.machinery import SourceFileLoader
-
-package_py = pathlib.Path(__file__).parent.resolve() / "py/farm_ng/core/"
+from farm_ng.package.package import build_package_protos, clean_protos
 
 
+# TOOD: move `Command`` classes to farm-ng-pytsetup
 class BuildProtosCommand(Command):
     user_options = []  # type: ignore
 
@@ -24,10 +19,7 @@ class BuildProtosCommand(Command):
         pass
 
     def run(self):
-        sys.path.insert(0, str(package_py))
-        import package
-
-        package.build_package_protos(proto_root=Path("protos"), package_root=Path("py"))
+        build_package_protos(proto_root=Path("protos"), package_root=Path("py"))
 
 
 class CleanFilesCommand(Command):
@@ -40,10 +32,7 @@ class CleanFilesCommand(Command):
         pass
 
     def run(self):
-        sys.path.insert(0, str(package_py))
-        import package
-
-        package.clean_protos(package_root=Path("py"))
+        clean_protos(package_root=Path("py"))
 
 
 class BuildProtosInstall(install):

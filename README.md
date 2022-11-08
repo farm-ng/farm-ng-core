@@ -1,5 +1,7 @@
 # farm-ng-core
 
+[![PyPI version](https://badge.fury.io/py/farm-ng-core.svg)](https://pypi.org/project/farm-ng-core)
+
 ## Build on MacOS
 
 Make sure ports is installed: https://www.macports.org/install.php

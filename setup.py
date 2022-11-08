@@ -1,74 +1,28 @@
-from pathlib import Path
 from setuptools import setup
 
-from setuptools import Command
-from setuptools.command.develop import develop
-from setuptools.command.egg_info import egg_info
-from setuptools.command.install import install
+from farm_ng.package.commands import (
+    CleanFilesCommand,
+    BuildProtosInstall,
+    BuildProtosDevelop,
+    BuildProtosEggInfo,
+)
 
-# pylint: disable=no-name-in-module, import-error
-from farm_ng.package.package import (
-    build_package_protos,
-    clean_protos,
-)  # pylint: enable=no-name-in-module, import-error
+PROTO_ROOT: str = "protos"
+PACKAGE_ROOT: str = "py"
 
+BuildProtosDevelop.user_options.append(("proto-root=", None, PROTO_ROOT))
+BuildProtosDevelop.user_options.append(("package-root=", None, PACKAGE_ROOT))
 
-# TOOD: move `Command`` classes to farm-ng-pytsetup
-class BuildProtosCommand(Command):
-    user_options = []  # type: ignore
+BuildProtosInstall.user_options.append(("proto-root=", None, PROTO_ROOT))
+BuildProtosInstall.user_options.append(("package-root=", None, PACKAGE_ROOT))
 
-    def initialize_options(self):
-        pass
+BuildProtosEggInfo.user_options.append(("proto-root=", None, PROTO_ROOT))
+BuildProtosEggInfo.user_options.append(("package-root=", None, PACKAGE_ROOT))
 
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        build_package_protos(proto_root=Path("protos"), package_root=Path("py"))
-
-
-class CleanFilesCommand(Command):
-    user_options = []  # type: ignore
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        clean_protos(package_root=Path("py"))
-
-
-class BuildProtosInstall(install):
-    def run(self):
-        # 1. Build the protobufs
-        BuildProtosCommand.run(self)
-        # 2. Run the installation
-        install.run(self)
-        # 3. Clean the generated protobufs
-        CleanFilesCommand.run(self)
-
-
-class BuildProtosDevelop(develop):
-    def run(self):
-        # 1. Build the protobufs
-        BuildProtosCommand.run(self)
-        # 2. Run the installation
-        develop.run(self)
-
-
-class BuildProtosEggInfo(egg_info):
-    def run(self):
-        # 1. Build the protobufs
-        BuildProtosCommand.run(self)
-        # 2. Run the installation
-        egg_info.run(self)
-
+CleanFilesCommand.user_options.append(("package-root=", None, PACKAGE_ROOT))
 
 setup(
     cmdclass={
-        "build_package_protos": BuildProtosCommand,
         "install": BuildProtosInstall,
         "develop": BuildProtosDevelop,
         "egg_info": BuildProtosEggInfo,

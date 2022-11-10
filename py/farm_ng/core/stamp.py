@@ -9,3 +9,12 @@ def get_monotonic_now(semantics: str) -> Timestamp:
         clock_name=get_host_name() + "/monotonic",
         semantics=semantics,
     )
+
+
+def timestamp_from_monotonic(semantics: str, stamp: float) -> Timestamp:
+    # stamp should be from previous time.monotonic() call
+    return Timestamp(
+        stamp=stamp,
+        clock_name=get_host_name() + "/monotonic",
+        semantics=semantics,
+    )

@@ -135,7 +135,7 @@ TEST(event_log, time_ordered_zip) {
     EventLogReader reader2(file2);
     // Grab a reference write stamp from the first reader.
     core::proto::Timestamp ref =
-        reader1.readNextEvent().event().timestamps()[0];
+        reader1.readNextEvent().event().timestamps().Get(0);
     EXPECT_EQ(ref.semantics(), "log/write");
     std::vector<EventLogPos> index = eventLogTimeOrderedIndex(
         ref.clock_name(), ref.semantics(), {reader1, reader2});
@@ -189,7 +189,7 @@ TEST(event_log, post_processed_time_ordered_zip) {
     EventLogReader reader2(file2);
     // Grab a reference write stamp from the first reader.
     core::proto::Timestamp ref =
-        reader1.readNextEvent().event().timestamps()[0];
+        reader1.readNextEvent().event().timestamps().Get(0);
     EXPECT_EQ(ref.semantics(), "log/write");
     std::vector<EventLogPos> index = eventLogTimeOrderedIndex(
         ref.clock_name(), ref.semantics(), {reader1, reader2});

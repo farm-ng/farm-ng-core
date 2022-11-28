@@ -3,7 +3,11 @@ from typing import List, Tuple
 
 import pytest
 from farm_ng.core import timestamp_pb2, uri_pb2, event_pb2
-from farm_ng.core.events_file_reader import EventsFileReader, parse_protobuf_descriptor
+from farm_ng.core.events_file_reader import (
+    EventsFileReader,
+    EventLogPosition,
+    parse_protobuf_descriptor,
+)
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import get_monotonic_now
 
@@ -56,8 +60,8 @@ class TestEventsReader:
             )
         with EventsFileReader(log_file) as reader:
             assert reader.is_open()
-            uris = reader.uris()
-            print(uris)
+            assert len(reader.event_index) == 0
+            uris = reader.get_uris()
             # note lexographic ordering of paths.
             assert uris[0].path == "/leading/slash"
             assert uris[1].path == "hello/world"
@@ -114,34 +118,23 @@ class TestEventsReader:
                     count += 1
 
             # test get/has uris
-            assert not reader._event_index
-            uris: List[uri_pb2.Uri] = reader.uris()
-            assert reader._event_index
+            assert len(reader.event_index) == 0
+            uris: List[uri_pb2.Uri] = reader.get_uris()
+            assert len(reader.event_index) > 0
 
-            assert len(reader.uris()) == 2, uris
+            assert len(uris) == 2, uris
             assert uris[0].path == "hello"
             assert uris[1].path == "world"
 
-            # TODO(edgar/ethan): This api is likely in flux
-            # there are several ways we want to seek and
-            # iterate over the reader
-            #    frame order, per uri
-            #    time order, per uri
-            #    time order, all uris
-            #
-            # Perhaps you can just get a list of all events
-            # and filter it at the user level.
-            # Then: reader.read_message(event, offset) will seek to and read the given event
             for uri in uris:
                 assert reader.has_uri(uri)
 
                 # test get/has events
-                events: List[Tuple[event_pb2.Event, int]] = reader.events(uri)
+                events: List[EventLogPosition] = reader.get_events(uri)
                 assert len(events) == reader.num_events(uri) == num_events
 
-                for frame_n in range(reader.num_events(uri)):
-                    event, offset = reader.get_event(uri, frame_n)
-                    message = reader.read_message(event, offset)
-                    assert message.stamp == frame_n
+                for i, event_log in enumerate(events):
+                    message = reader.read_message(event_log)
+                    assert message.stamp == i
 
         assert reader.close()

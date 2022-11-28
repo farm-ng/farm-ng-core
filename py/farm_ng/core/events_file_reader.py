@@ -1,14 +1,14 @@
 import importlib
-from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import Tuple
 from typing import cast
-from typing import DefaultDict
 from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
+from typing import Set
 import struct
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
@@ -35,6 +35,16 @@ def parse_protobuf_descriptor(uri: Uri) -> Tuple[str, str]:
     return type_name, package_name
 
 
+@dataclass
+class EventLogPosition:
+    def __init__(self, event: Event, pos: int) -> None:
+        self.event = event
+        self.pos = pos
+
+    def __repr__(self) -> str:
+        return f"event: {self.event}\npos: {self.pos}\n"
+
+
 class EventsFileReader:
     def __init__(self, file_name: Union[str, Path]) -> None:
         if isinstance(file_name, str):
@@ -45,10 +55,8 @@ class EventsFileReader:
         self._file_stream: Optional[IO] = None
         self._file_length: int = 0
 
-        # store the bytes offset in a dictionary where:
-        # - the key is the string representation of the Uri of the message
-        # - the value is a list with tuples of Event and its offsets to messages with that Uri
-        self._event_index: DefaultDict[str, List[Tuple[Event, int]]] = defaultdict(list)
+        # store index of events in a list to seek faster
+        self._event_index: List[EventLogPosition] = []
 
     def __enter__(self) -> "EventsFileReader":
         assert self.open()
@@ -60,9 +68,9 @@ class EventsFileReader:
 
     def __repr__(self) -> str:
         return (
-            f"file_name: {str(self.file_name)} "
-            + f"file_stream: {self._file_stream} "
-            + f"is_open: {self.is_open()} "
+            f"file_name: {str(self.file_name)}\n"
+            + f"file_stream: {self._file_stream}\n"
+            + f"is_open: {self.is_open()}"
         )
 
     @property
@@ -72,6 +80,10 @@ class EventsFileReader:
     @property
     def file_name(self) -> Path:
         return self._file_name
+
+    @property
+    def event_index(self) -> List[EventLogPosition]:
+        return self._event_index
 
     def is_open(self) -> bool:
         return not self.is_closed()
@@ -95,19 +107,28 @@ class EventsFileReader:
         return self.is_closed()
 
     def _reset_event_index(self) -> None:
-        self._event_index = defaultdict(list)
+        self._event_index = []
 
-    def uris(self) -> List[Uri]:
-        if not self._event_index:
+    def get_uris(self) -> List[Uri]:
+        if len(self._event_index) == 0:
             self._build_event_index()
-        return [string_to_uri(key) for key in sorted(self._event_index.keys())]
+
+        uris_set: Set[EventLogPosition] = set()
+        for event_log in self.event_index:
+            uris_set.add(uri_to_string(event_log.event.uri))
+
+        return [string_to_uri(x) for x in sorted(uris_set)]
 
     def has_uri(self, uri: Uri) -> bool:
-        if self._event_index is None:
+        if len(self._event_index) == 0:
             return False
-        return uri_to_string(uri) in self._event_index.keys()
 
-    def _read_next_event(self) -> Event:
+        for idx in self.event_index:
+            if uri_to_string(uri) == uri_to_string(idx.event.uri):
+                return True
+        return False
+
+    def read_next_event(self) -> EventLogPosition:
         file_stream = cast(IO, self._file_stream)
         buffer = file_stream.read(4)
         if len(buffer) != 4:
@@ -117,7 +138,8 @@ class EventsFileReader:
         event_bytes: bytes = file_stream.read(event_len)
         event = Event()
         event.ParseFromString(event_bytes)
-        return event
+
+        return EventLogPosition(event, file_stream.tell())
 
     def _skip_next_message(self, event: Event) -> None:
         msg_bytes: int = event.payload_length
@@ -135,40 +157,37 @@ class EventsFileReader:
         self._reset_event_index()
         while True:
             try:
-                event = self._read_next_event()
-                current_offset = file_stream.tell()
-                self._event_index[uri_to_string(event.uri)].append(
-                    (event, current_offset)
-                )
-                self._skip_next_message(event)
+                event_log: EventLogPosition = self.read_next_event()
+                self._event_index.append(event_log)
+                self._skip_next_message(event_log.event)
             except EOFError:
                 break
 
         file_stream.seek(0)
 
-    def events(self, uri: Uri) -> List[Tuple[Event, int]]:
-        if not self._event_index:
+    def get_events(self, uri: Uri) -> List[EventLogPosition]:
+        if len(self._event_index) == 0:
             self._build_event_index()
-        return self._event_index[uri_to_string(uri)]
+        return [x for x in self.event_index if x.event.uri == uri]
 
     def num_events(self, uri: Uri) -> int:
         if not self.has_uri(uri):
             return 0
-        return len(self.events(uri))
+        return len(self.get_events(uri))
 
-    def get_event(self, uri: Uri, frame_id: int) -> Tuple[Event, int]:
-        assert self.has_uri(uri)
-        assert frame_id < self.num_events(uri)
-        return self.events(uri)[frame_id]
+    def get_index(self) -> List[EventLogPosition]:
+        if len(self._event_index) == 0:
+            self._build_event_index()
+        return self._event_index
 
-    def read_message(self, event: Event, offset: Optional[int] = None) -> Message:
+    def read_message(self, event_log: EventLogPosition) -> Message:
         file_stream = cast(IO, self._file_stream)
-        if offset is not None:
-            file_stream.seek(offset, 0)
-        name, package = parse_protobuf_descriptor(event.uri)
+        file_stream.seek(event_log.pos, 0)
+
+        name, package = parse_protobuf_descriptor(event_log.event.uri)
         message_cls = getattr(importlib.import_module(package), name)
 
-        payload: bytes = file_stream.read(event.payload_length)
+        payload: bytes = file_stream.read(event_log.event.payload_length)
 
         message: Message = message_cls()
         message.ParseFromString(payload)
@@ -176,8 +195,8 @@ class EventsFileReader:
 
     def read(self) -> Tuple[Event, Message]:
         assert self.is_open()
-        event = self._read_next_event()
-        return event, self.read_message(event)
+        event_log: EventLogPosition = self.read_next_event()
+        return event_log.event, self.read_message(event_log)
 
     def read_messages(self):
         self._file_stream.seek(0)

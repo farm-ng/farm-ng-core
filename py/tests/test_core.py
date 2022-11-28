@@ -1,8 +1,6 @@
 from pathlib import Path
-from typing import List, Tuple
 
 import pytest
-from farm_ng.core import timestamp_pb2, uri_pb2, event_pb2
 from farm_ng.core.events_file_reader import (
     EventsFileReader,
     EventLogPosition,

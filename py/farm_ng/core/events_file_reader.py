@@ -60,7 +60,7 @@ class EventsFileReader:
         self._file_length: int = 0
 
         # store index of events in a list to seek faster
-        self._event_index: List[EventLogPosition] = []
+        self._events_index: List[EventLogPosition] = []
 
     def __enter__(self) -> "EventsFileReader":
         assert self.open()
@@ -72,9 +72,11 @@ class EventsFileReader:
 
     def __repr__(self) -> str:
         return (
-            f"file_name: {str(self.file_name)}\n"
-            + f"file_stream: {self._file_stream}\n"
-            + f"is_open: {self.is_open()}"
+            "\n".join([
+                f"file_name: {str(self.file_name)}",
+                f"file_stream: {self._file_stream}",
+                f"is_open: {self.is_open()}"
+            ])
         )
 
     @property
@@ -86,8 +88,8 @@ class EventsFileReader:
         return self._file_name
 
     @property
-    def event_index(self) -> List[EventLogPosition]:
-        return self._event_index
+    def events_index(self) -> List[EventLogPosition]:
+        return self._events_index
 
     def is_open(self) -> bool:
         return not self.is_closed()
@@ -117,7 +119,7 @@ class EventsFileReader:
         if len(self._event_index) == 0:
             self._build_event_index()
 
-        uris_set: Set[EventLogPosition] = set()
+        uris_set: Set[str] = set()
         for event_log in self.event_index:
             uris_set.add(uri_to_string(event_log.event.uri))
 
@@ -170,10 +172,10 @@ class EventsFileReader:
     #        return 0
     #    return len(self.get_events(uri))
 
-    def get_index(self) -> List[EventLogPosition]:
-        if len(self._event_index) == 0:
-            self._build_event_index()
-        return self._event_index
+    def get_events_index(self) -> List[EventLogPosition]:
+        if len(self._events_index) == 0:
+            self._build_events_index()
+        return self._events_index
 
     def read_message(self, event_log: EventLogPosition) -> Message:
         file_stream = cast(IO, self._file_stream)

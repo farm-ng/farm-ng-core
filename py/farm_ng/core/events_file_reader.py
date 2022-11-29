@@ -162,16 +162,6 @@ class EventsFileReader:
 
         file_stream.seek(0)
 
-    # def get_events(self, uri: Uri) -> List[EventLogPosition]:
-    #    if len(self._event_index) == 0:
-    #        self._build_event_index()
-    #    return [x for x in self.event_index if x.event.uri == uri]
-
-    # def num_events(self, uri: Uri) -> int:
-    #    if not self.has_uri(uri):
-    #        return 0
-    #    return len(self.get_events(uri))
-
     def get_index(self) -> List[EventLogPosition]:
         if len(self._events_index) == 0:
             self._build_events_index()

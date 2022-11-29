@@ -1,11 +1,15 @@
+from typing import List
 from pathlib import Path
-from typing import List, Tuple
 
 import pytest
-from farm_ng.core import timestamp_pb2, uri_pb2, event_pb2
-from farm_ng.core.events_file_reader import EventsFileReader, parse_protobuf_descriptor
+from farm_ng.core.events_file_reader import (
+    EventsFileReader,
+    EventLogPosition,
+    parse_protobuf_descriptor,
+)
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import get_monotonic_now
+from farm_ng.core import timestamp_pb2, uri_pb2
 
 
 @pytest.fixture(name="log_file")
@@ -56,11 +60,11 @@ class TestEventsReader:
             )
         with EventsFileReader(log_file) as reader:
             assert reader.is_open()
-            uris = reader.uris()
-            print(uris)
+            assert len(reader.events_index) == 0
+            uris = sorted([*{x.event.uri.path for x in reader.get_index()}])
             # note lexographic ordering of paths.
-            assert uris[0].path == "/leading/slash"
-            assert uris[1].path == "hello/world"
+            assert uris[0] == "/leading/slash"
+            assert uris[1] == "hello/world"
 
     def test_open_close(self, log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
@@ -75,8 +79,7 @@ class TestEventsReader:
         assert reader.close()
         assert reader.is_closed()
         assert not reader.is_open()
-        assert not reader.has_uri(uri_pb2.Uri())
-        assert reader.num_events(uri_pb2.Uri()) == 0
+        assert len(reader.events_index) == 0
 
         # open object
         assert reader.open()
@@ -114,34 +117,22 @@ class TestEventsReader:
                     count += 1
 
             # test get/has uris
-            assert not reader._event_index
-            uris: List[uri_pb2.Uri] = reader.uris()
-            assert reader._event_index
+            assert len(reader.events_index) == 0
+            all_events: List[EventLogPosition] = reader.get_index()
+            assert len(reader.events_index) > 0
 
-            assert len(reader.uris()) == 2, uris
-            assert uris[0].path == "hello"
-            assert uris[1].path == "world"
+            events: dict = {}
 
-            # TODO(edgar/ethan): This api is likely in flux
-            # there are several ways we want to seek and
-            # iterate over the reader
-            #    frame order, per uri
-            #    time order, per uri
-            #    time order, all uris
-            #
-            # Perhaps you can just get a list of all events
-            # and filter it at the user level.
-            # Then: reader.read_message(event, offset) will seek to and read the given event
-            for uri in uris:
-                assert reader.has_uri(uri)
+            for event_log in all_events:
+                path: str = event_log.event.uri.path
+                if not path in events:
+                    events[path] = []
+                events[path].append(event_log)
 
-                # test get/has events
-                events: List[Tuple[event_pb2.Event, int]] = reader.events(uri)
-                assert len(events) == reader.num_events(uri) == num_events
-
-                for frame_n in range(reader.num_events(uri)):
-                    event, offset = reader.get_event(uri, frame_n)
-                    message = reader.read_message(event, offset)
-                    assert message.stamp == frame_n
+            for path, _ in events.items():
+                for i, event_log in enumerate(events[path]):
+                    message = reader.read_message(event_log)
+                    assert message == event_log.read_message()
+                    assert message.stamp == i
 
         assert reader.close()

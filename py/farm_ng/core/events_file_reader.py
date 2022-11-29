@@ -8,7 +8,6 @@ from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
-from typing import Set
 import struct
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
@@ -112,18 +111,8 @@ class EventsFileReader:
         self._file_stream = None
         return self.is_closed()
 
-    def _reset_event_index(self) -> None:
+    def _reset_events_index(self) -> None:
         self._events_index = []
-
-    def get_uris(self) -> List[Uri]:
-        if len(self._events_index) == 0:
-            self._build_event_index()
-
-        uris_set: Set[str] = set()
-        for event_log in self.events_index:
-            uris_set.add(uri_to_string(event_log.event.uri))
-
-        return [string_to_uri(x) for x in sorted(uris_set)]
 
     def read_next_event(self) -> EventLogPosition:
         file_stream = cast(IO, self._file_stream)
@@ -143,7 +132,7 @@ class EventsFileReader:
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(msg_bytes, 1)
 
-    def _build_event_index(self) -> None:
+    def _build_events_index(self) -> None:
         if not self.is_open():
             raise Exception("Reader not open. Please, use reader.open()")
 
@@ -151,7 +140,7 @@ class EventsFileReader:
         file_stream.seek(0)
 
         # clear, if any the previous offsets
-        self._reset_event_index()
+        self._reset_events_index()
         while True:
             try:
                 event_log: EventLogPosition = self.read_next_event()

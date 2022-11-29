@@ -61,10 +61,10 @@ class TestEventsReader:
         with EventsFileReader(log_file) as reader:
             assert reader.is_open()
             assert len(reader.events_index) == 0
-            uris = reader.get_uris()
+            uris = sorted([*{x.event.uri.path for x in reader.get_index()}])
             # note lexographic ordering of paths.
-            assert uris[0].path == "/leading/slash"
-            assert uris[1].path == "hello/world"
+            assert uris[0] == "/leading/slash"
+            assert uris[1] == "hello/world"
 
     def test_open_close(self, log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
@@ -118,22 +118,19 @@ class TestEventsReader:
 
             # test get/has uris
             assert len(reader.events_index) == 0
-            uris: List[uri_pb2.Uri] = reader.get_uris()
+            all_events: List[EventLogPosition] = reader.get_index()
             assert len(reader.events_index) > 0
 
-            assert len(uris) == 2, uris
-            assert uris[0].path == "hello"
-            assert uris[1].path == "world"
+            events: dict = {}
 
-            for uri in uris:
+            for event_log in all_events:
+                path: str = event_log.event.uri.path
+                if not path in events:
+                    events[path] = []
+                events[path].append(event_log)
 
-                # test get/has events
-                events: List[EventLogPosition] = [
-                    x for x in reader.get_index() if x.event.uri == uri
-                ]
-                assert len(events) > 0 and len(events) == num_events
-
-                for i, event_log in enumerate(events):
+            for path, _ in events.items():
+                for i, event_log in enumerate(events[path]):
                     message = reader.read_message(event_log)
                     assert message == event_log.read_message()
                     assert message.stamp == i

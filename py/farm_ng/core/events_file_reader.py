@@ -71,12 +71,12 @@ class EventsFileReader:
         self.close()
 
     def __repr__(self) -> str:
-        return (
-            "\n".join([
+        return "\n".join(
+            [
                 f"file_name: {str(self.file_name)}",
                 f"file_stream: {self._file_stream}",
-                f"is_open: {self.is_open()}"
-            ])
+                f"is_open: {self.is_open()}",
+            ]
         )
 
     @property
@@ -113,14 +113,14 @@ class EventsFileReader:
         return self.is_closed()
 
     def _reset_event_index(self) -> None:
-        self._event_index = []
+        self._events_index = []
 
     def get_uris(self) -> List[Uri]:
-        if len(self._event_index) == 0:
+        if len(self._events_index) == 0:
             self._build_event_index()
 
         uris_set: Set[str] = set()
-        for event_log in self.event_index:
+        for event_log in self.events_index:
             uris_set.add(uri_to_string(event_log.event.uri))
 
         return [string_to_uri(x) for x in sorted(uris_set)]
@@ -155,7 +155,7 @@ class EventsFileReader:
         while True:
             try:
                 event_log: EventLogPosition = self.read_next_event()
-                self._event_index.append(event_log)
+                self._events_index.append(event_log)
                 self._skip_next_message(event_log.event)
             except EOFError:
                 break
@@ -172,7 +172,7 @@ class EventsFileReader:
     #        return 0
     #    return len(self.get_events(uri))
 
-    def get_events_index(self) -> List[EventLogPosition]:
+    def get_index(self) -> List[EventLogPosition]:
         if len(self._events_index) == 0:
             self._build_events_index()
         return self._events_index

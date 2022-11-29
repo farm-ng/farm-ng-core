@@ -60,7 +60,7 @@ class TestEventsReader:
             )
         with EventsFileReader(log_file) as reader:
             assert reader.is_open()
-            assert len(reader.event_index) == 0
+            assert len(reader.events_index) == 0
             uris = reader.get_uris()
             # note lexographic ordering of paths.
             assert uris[0].path == "/leading/slash"
@@ -79,7 +79,7 @@ class TestEventsReader:
         assert reader.close()
         assert reader.is_closed()
         assert not reader.is_open()
-        assert len(reader.event_index) == 0
+        assert len(reader.events_index) == 0
 
         # open object
         assert reader.open()
@@ -117,9 +117,9 @@ class TestEventsReader:
                     count += 1
 
             # test get/has uris
-            assert len(reader.event_index) == 0
+            assert len(reader.events_index) == 0
             uris: List[uri_pb2.Uri] = reader.get_uris()
-            assert len(reader.event_index) > 0
+            assert len(reader.events_index) > 0
 
             assert len(uris) == 2, uris
             assert uris[0].path == "hello"

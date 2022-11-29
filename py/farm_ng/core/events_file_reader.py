@@ -37,12 +37,16 @@ def parse_protobuf_descriptor(uri: Uri) -> Tuple[str, str]:
 
 @dataclass
 class EventLogPosition:
-    def __init__(self, event: Event, pos: int) -> None:
+    def __init__(self, event: Event, pos: int, reader: "EventsFileReader") -> None:
         self.event = event
         self.pos = pos
+        self.reader = reader
 
     def __repr__(self) -> str:
         return f"event: {self.event}\npos: {self.pos}\n"
+
+    def read_message(self) -> Message:
+        return self.reader.read_message(self)
 
 
 class EventsFileReader:
@@ -119,15 +123,6 @@ class EventsFileReader:
 
         return [string_to_uri(x) for x in sorted(uris_set)]
 
-    def has_uri(self, uri: Uri) -> bool:
-        if len(self._event_index) == 0:
-            return False
-
-        for idx in self.event_index:
-            if uri_to_string(uri) == uri_to_string(idx.event.uri):
-                return True
-        return False
-
     def read_next_event(self) -> EventLogPosition:
         file_stream = cast(IO, self._file_stream)
         buffer = file_stream.read(4)
@@ -139,7 +134,7 @@ class EventsFileReader:
         event = Event()
         event.ParseFromString(event_bytes)
 
-        return EventLogPosition(event, file_stream.tell())
+        return EventLogPosition(event, file_stream.tell(), self)
 
     def _skip_next_message(self, event: Event) -> None:
         msg_bytes: int = event.payload_length
@@ -165,15 +160,15 @@ class EventsFileReader:
 
         file_stream.seek(0)
 
-    def get_events(self, uri: Uri) -> List[EventLogPosition]:
-        if len(self._event_index) == 0:
-            self._build_event_index()
-        return [x for x in self.event_index if x.event.uri == uri]
+    # def get_events(self, uri: Uri) -> List[EventLogPosition]:
+    #    if len(self._event_index) == 0:
+    #        self._build_event_index()
+    #    return [x for x in self.event_index if x.event.uri == uri]
 
-    def num_events(self, uri: Uri) -> int:
-        if not self.has_uri(uri):
-            return 0
-        return len(self.get_events(uri))
+    # def num_events(self, uri: Uri) -> int:
+    #    if not self.has_uri(uri):
+    #        return 0
+    #    return len(self.get_events(uri))
 
     def get_index(self) -> List[EventLogPosition]:
         if len(self._event_index) == 0:

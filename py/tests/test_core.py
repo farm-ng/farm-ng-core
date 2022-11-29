@@ -1,3 +1,4 @@
+from typing import List
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from farm_ng.core.events_file_reader import (
 )
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import get_monotonic_now
+from farm_ng.core import timestamp_pb2, uri_pb2
 
 
 @pytest.fixture(name="log_file")
@@ -77,8 +79,7 @@ class TestEventsReader:
         assert reader.close()
         assert reader.is_closed()
         assert not reader.is_open()
-        assert not reader.has_uri(uri_pb2.Uri())
-        assert reader.num_events(uri_pb2.Uri()) == 0
+        assert len(reader.event_index) == 0
 
         # open object
         assert reader.open()
@@ -125,14 +126,16 @@ class TestEventsReader:
             assert uris[1].path == "world"
 
             for uri in uris:
-                assert reader.has_uri(uri)
 
                 # test get/has events
-                events: List[EventLogPosition] = reader.get_events(uri)
-                assert len(events) == reader.num_events(uri) == num_events
+                events: List[EventLogPosition] = [
+                    x for x in reader.get_index() if x.event.uri == uri
+                ]
+                assert len(events) > 0 and len(events) == num_events
 
                 for i, event_log in enumerate(events):
                     message = reader.read_message(event_log)
+                    assert message == event_log.read_message()
                     assert message.stamp == i
 
         assert reader.close()

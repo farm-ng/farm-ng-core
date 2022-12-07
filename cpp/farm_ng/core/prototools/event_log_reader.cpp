@@ -32,7 +32,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     reset();
   }
 
-  virtual void reset() {
+  virtual void reset() override {
     in = std::ifstream(log_path.string(), std::ofstream::binary);
     if (!in) {
       throw EventLogExist(FARM_FORMAT("Could not open file: {}", log_path));

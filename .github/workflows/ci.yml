@@ -18,7 +18,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11]
+        include:
+          - os: ubuntu-20.04
+            compiler: gcc
+          - os: ubuntu-20.04
+            compiler: clang
+          - os: macos-11
+            compiler: clang
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -35,20 +41,23 @@ jobs:
 
     - name: install deps (mac-os)
       run: |
-        wget https://github.com/macports/macports-base/releases/download/v2.7.1/MacPorts-2.7.1-11-BigSur.pkg
-        sudo installer -pkg ./MacPorts-2.7.1-11-BigSur.pkg -target /
-        export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-        sudo PATH=$PATH port install protobuf3-cpp
-
+        brew install --verbose protobuf grpc
       if: matrix.os == 'macos-11'
 
 
-    - name: Configure And Build Tests
+    - name: Configure And Build Tests (gcc)
       run: |
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/super_project
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
+      if: matrix.compiler == 'gcc'
+
+    - name: Configure And Build Tests (clang)
+      run: |
+        CC=clang CXX=clang++ cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/super_project
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
+      if: matrix.compiler == 'clang'
 
     - name: clang-tidy
       run: |
         ./run_clang_tidy.sh
-      if: matrix.os == 'ubuntu-20.04'
+      if: matrix.os == 'ubuntu-20.04' && matrix.compiler == 'clang'

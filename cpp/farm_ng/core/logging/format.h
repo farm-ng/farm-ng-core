@@ -32,13 +32,23 @@
 #endif
 
 namespace farm_ng {
-std::function<void(std::string const &)> &getLogLineFunction();
+
+struct GetLogLineFunctionSingleton {
+  static GetLogLineFunctionSingleton &instance() {
+    static GetLogLineFunctionSingleton Singleton;
+    return Singleton;
+  }
+
+  std::function<void(std::string const &)> maybe_fn;
+
+ private:
+  GetLogLineFunctionSingleton() {}
+};
 
 void setLogLineFunction(std::function<void(std::string const &)> f);
 
 void logLine(std::string const &line);
 }  // namespace farm_ng
-
 // Begin (Impl details)
 #define FARM_IMPL_LOG_PRINTLN_ZERO()
 

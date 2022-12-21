@@ -39,7 +39,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
     }
   }
   std::string readBytes(uint64_t n_bytes) {
-    FARM_CHECK(in.good());
+    FARM_ASSERT(in.good());
     std::string str;
     str.resize(n_bytes);
     in.read(str.data(), n_bytes);
@@ -51,7 +51,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
   }
 
   uint64_t readEventSize() {
-    FARM_CHECK(in.good());
+    FARM_ASSERT(in.good());
     uint32_t n_bytes = 0;
     in.read(reinterpret_cast<char*>(&n_bytes), sizeof(n_bytes));
     if (!in) {
@@ -62,7 +62,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
   }
 
   virtual EventLogPos readNextEvent(std::string* payload = nullptr) override {
-    FARM_CHECK(in.good());
+    FARM_ASSERT(in.good());
     core::proto::Event event;
     if (!event.ParseFromString(readBytes(readEventSize()))) {
       reset();
@@ -83,7 +83,7 @@ class EventLogReaderBinaryImpl : public EventLogReaderImpl {
 
   virtual std::string readPayload(
       core::proto::Event const& event, std::streampos pos) override {
-    FARM_CHECK(in.good());
+    FARM_ASSERT(in.good());
 
     in.seekg(pos);
     if (!in) {
@@ -109,7 +109,7 @@ core::proto::Event const& EventLogPos::event() const { return event_; }
 
 std::string EventLogPos::readPayload() const {
   std::shared_ptr<EventLogReaderImpl> log = log_.lock();
-  FARM_CHECK(!!log, "Log closed: {}", event_.ShortDebugString());
+  FARM_ASSERT(!!log, "Log closed: {}", event_.ShortDebugString());
   return log->readPayload(event_, pos_);
 }
 
@@ -165,14 +165,14 @@ bool EventTimeCompareClockAndSemantics::operator()(
     EventLogPos const& lhs, EventLogPos const& rhs) const {
   auto maybe_lhs_stamp = getStamp(lhs.event(), clock_name, semantics);
   auto maybe_rhs_stamp = getStamp(rhs.event(), clock_name, semantics);
-  FARM_CHECK(
+  FARM_ASSERT(
       !!maybe_lhs_stamp,
       "Event has no stamp from the reference clock: clock_name {} semantics {} "
       "event: {}",
       clock_name,
       semantics,
       lhs.event().ShortDebugString());
-  FARM_CHECK(
+  FARM_ASSERT(
       !!maybe_rhs_stamp,
       "Event has no stamp from the reference clock: clock_name {} semantics {} "
       "event: {}",
@@ -192,7 +192,7 @@ std::vector<EventLogPos> eventLogTimeOrderedIndex(
   for (EventLogReader reader : readers) {
     for (EventLogPos const& pos : reader.getIndex()) {
       if (!getStamp(pos.event(), clock_name, semantics)) {
-        FARM_LOG_WARNING(
+        FARM_WARN(
             "Event doesn't have target clock: {} clock_name: {} semantics: {}",
             pos.event().ShortDebugString(),
             clock_name,

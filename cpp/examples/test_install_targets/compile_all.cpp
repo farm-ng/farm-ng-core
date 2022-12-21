@@ -44,7 +44,7 @@ struct Abc {
 
 Expected<A> makeA(bool a_error) {
   if (a_error) {
-    return FARM_ERROR("a - error");
+    return FARM_UNEXPECTED("a - error");
   }
   return A{.a = "a"};
 }
@@ -53,7 +53,7 @@ Expected<Ab> makeAb(bool a_error, bool b_error) {
   FARM_TRY(A a, makeA(a_error));
 
   if (b_error) {
-    return FARM_ERROR("b - {}", "error");
+    return FARM_UNEXPECTED("b - {}", "error");
   }
   Ab ab;
   ab.a = a;
@@ -65,7 +65,7 @@ Expected<Abc> makeAbc(bool a_error, bool b_error, bool c_error) {
   FARM_TRY(Ab ab, makeAb(a_error, b_error));
 
   if (c_error) {
-    return FARM_ERROR("c - error - {}", 42);
+    return FARM_UNEXPECTED("c - error - {}", 42);
   }
   Abc abc;
   abc.ab = ab;
@@ -90,7 +90,7 @@ int main() {
   std::optional<int> maybe_foo;
   maybe_foo = 2;
   int foo = FARM_UNWRAP(maybe_foo);
-  FARM_CHECK_EQ(foo, 2);
+  FARM_ASSERT_EQ(foo, 2);
   FARM_UNWRAP(maybe_foo) = 1;
-  FARM_CHECK_EQ(*maybe_foo, 1);
+  FARM_ASSERT_EQ(*maybe_foo, 1);
 }

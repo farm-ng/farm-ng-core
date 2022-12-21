@@ -2,7 +2,7 @@
 set -e
 
 cd super_project
-rm clang-tidy-build -rf
+rm -rf clang-tidy-build
 mkdir clang-tidy-build
 cd clang-tidy-build
 CC=clang CXX=clang++ cmake ..

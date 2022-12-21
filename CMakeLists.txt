@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 # https://semver.org/
-project(farm_ng_core VERSION 0.1.0)
+project(farm_ng_core VERSION 0.2.0)
 
 find_package(farm_ng_cmake 0.1.0 REQUIRED)
 farm_ng_module()

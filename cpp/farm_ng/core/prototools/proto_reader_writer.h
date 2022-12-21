@@ -45,7 +45,7 @@ Expected<ProtobufT> readProtobufFromJsonFile(
   auto status = google::protobuf::util::JsonStringToMessage(
       json_string, &message, parse_options);
   if (!status.ok()) {
-    return FARM_ERROR("Failed to parse json string: {}", status);
+    return FARM_UNEXPECTED("Failed to parse json string: {}", status);
   }
   return message;
 }
@@ -59,7 +59,7 @@ Expected<ProtobufT> readProtobufFromBinaryFile(
   ProtobufT message;
   FARM_TRY(std::string bytes, readBytesFromBinaryFile(path));
   if (message.ParseFromString(bytes)) {
-    return FARM_ERROR("Failed to parse {}", path.string());
+    return FARM_UNEXPECTED("Failed to parse {}", path.string());
   }
   return message;
 }

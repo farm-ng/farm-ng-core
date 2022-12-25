@@ -19,15 +19,15 @@
 #include <optional>
 
 TEST(logger, unit) {
-  FARM_CHECK_NEAR(1.0, 1.01, 0.03);
-  ASSERT_DEATH({ FARM_CHECK_NEAR(1.0, 1.1, 0.05); }, "CHECK_NEAR");
+  FARM_ASSERT_NEAR(1.0, 1.01, 0.03);
+  ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, 1.1, 0.05); }, "ASSERT_NEAR");
 
   std::optional<int> maybe_foo;
   maybe_foo = 2;
   int foo = FARM_UNWRAP(maybe_foo);
-  FARM_CHECK_EQ(foo, 2);
+  FARM_ASSERT_EQ(foo, 2);
   FARM_UNWRAP(maybe_foo) = 1;
-  FARM_CHECK_EQ(*maybe_foo, 1);
+  FARM_ASSERT_EQ(*maybe_foo, 1);
 
   std::optional<int> maybe_bar;
   ASSERT_DEATH({ auto bar = FARM_UNWRAP(maybe_bar); }, "UNWRAP");
@@ -44,10 +44,10 @@ TEST(logger, unit) {
     std::vector<int> ints(3u, 1);
 
     FARM_AT(ints, 0) = 2;
-    FARM_CHECK_EQ(ints.at(0), 2);
+    FARM_ASSERT_EQ(ints.at(0), 2);
 
     int val = FARM_AT(ints, 2);
-    FARM_CHECK_EQ(val, 1);
+    FARM_ASSERT_EQ(val, 1);
 
     ASSERT_DEATH({ FARM_AT(ints, 3) = 7.0; }, "FARM_AT");
 
@@ -58,10 +58,10 @@ TEST(logger, unit) {
   {
     std::map<int, std::string> map_of_strings = {{2, "foo"}, {7, "bar"}};
     FARM_GET(map_of_strings, 2).second = "daz";
-    FARM_CHECK_EQ(map_of_strings[2], "daz");
+    FARM_ASSERT_EQ(map_of_strings[2], "daz");
 
     std::string val = FARM_GET(map_of_strings, 7).second;
-    FARM_CHECK_EQ(val, "bar");
+    FARM_ASSERT_EQ(val, "bar");
 
     ASSERT_DEATH(
         { FARM_GET(map_of_strings, 3).second = "blabla"; }, "FARM_GET");
@@ -72,7 +72,7 @@ TEST(logger, unit) {
         { std::string __ = FARM_GET(map_of_strings, 1).second; }, "FARM_GET");
 
     auto it = FARM_MAP_INSERT(map_of_strings, 3, "baz");
-    FARM_CHECK(it == map_of_strings.find(3));
+    FARM_ASSERT(it == map_of_strings.find(3));
 
     ASSERT_DEATH(FARM_MAP_INSERT(map_of_strings, 3, "boo"), "boo");
   }

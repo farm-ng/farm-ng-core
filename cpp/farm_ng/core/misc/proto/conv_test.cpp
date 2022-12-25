@@ -25,6 +25,6 @@ TEST(to_from_proto, uri) {
   Expected<Uri> maybe_to_from_uri = fromProto(toProto(uri));
   auto to_from_uri = FARM_UNWRAP(maybe_to_from_uri);
 
-  FARM_CHECK_EQ(uri.string(), "other://[authority]/foo/bar?in=input");
-  FARM_CHECK_EQ(uri.string(), to_from_uri.string());
+  FARM_ASSERT_EQ(uri.string(), "other://[authority]/foo/bar?in=input");
+  FARM_ASSERT_EQ(uri.string(), to_from_uri.string());
 }

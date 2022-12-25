@@ -39,7 +39,7 @@ struct Abc {
 
 Expected<A> makeA(bool a_error) {
   if (a_error) {
-    return FARM_ERROR("a - error");
+    return FARM_UNEXPECTED("a - error");
   }
   return A{.a = "a"};
 }
@@ -48,7 +48,7 @@ Expected<Ab> makeAb(bool a_error, bool b_error) {
   FARM_TRY(A a, makeA(a_error));
 
   if (b_error) {
-    return FARM_ERROR("b - {}", "error");
+    return FARM_UNEXPECTED("b - {}", "error");
   }
   Ab ab;
   ab.a = a;
@@ -60,7 +60,7 @@ Expected<Abc> makeAbc(bool a_error, bool b_error, bool c_error) {
   FARM_TRY(Ab ab, makeAb(a_error, b_error));
 
   if (c_error) {
-    return FARM_ERROR("c - error - {}", 42);
+    return FARM_UNEXPECTED("c - error - {}", 42);
   }
   Abc abc;
   abc.ab = ab;
@@ -73,18 +73,18 @@ Expected<Abc> makeAbcAtOnce(bool a_error, bool b_error, bool c_error) {
   Error error;
 
   if (a_error) {
-    error.details.push_back(FARM_ERROR_DETAIL("a - error"));
+    error.details.push_back(FARM_UNEXPECTED_DETAIL("a - error"));
   } else {
     abc.ab.a.a = "aaa";
   }
 
   if (b_error) {
-    error.details.push_back(FARM_ERROR_DETAIL("b - error"));
+    error.details.push_back(FARM_UNEXPECTED_DETAIL("b - error"));
   } else {
     abc.ab.b = "BB";
   }
   if (c_error) {
-    error.details.push_back(FARM_ERROR_DETAIL("c - error"));
+    error.details.push_back(FARM_UNEXPECTED_DETAIL("c - error"));
   } else {
     abc.c = "cCc";
   }
@@ -107,38 +107,38 @@ Expected<A> sum(Expected<A> maybe_left, Expected<A> maybe_right) {
 
 TEST(expected, success) {
   Expected<Abc> abc = makeAbc(false, false, false);
-  FARM_CHECK(abc);
+  FARM_ASSERT(abc);
 
   abc = makeAbcAtOnce(false, false, false);
-  FARM_CHECK(abc);
+  FARM_ASSERT(abc);
 }
 
 TEST(expected, single_error) {
   Expected<Abc> abc = makeAbc(true, false, true);
-  FARM_CHECK(!abc);
-  FARM_CHECK_EQ(abc.error().details.size(), 1);
+  FARM_ASSERT(!abc);
+  FARM_ASSERT_EQ(abc.error().details.size(), 1);
 
   abc = makeAbc(false, true, false);
-  FARM_CHECK(!abc);
-  FARM_CHECK_EQ(abc.error().details.size(), 1);
+  FARM_ASSERT(!abc);
+  FARM_ASSERT_EQ(abc.error().details.size(), 1);
 
   abc = makeAbc(false, false, true);
-  FARM_CHECK(!abc);
-  FARM_CHECK_EQ(abc.error().details.size(), 1);
+  FARM_ASSERT(!abc);
+  FARM_ASSERT_EQ(abc.error().details.size(), 1);
 }
 
 TEST(expected, multi_error) {
   auto abc = makeAbcAtOnce(true, false, true);
-  FARM_CHECK(!abc);
-  FARM_CHECK_EQ(abc.error().details.size(), 2);
+  FARM_ASSERT(!abc);
+  FARM_ASSERT_EQ(abc.error().details.size(), 2);
 
   Expected<A> a_good = makeA(false);
-  FARM_CHECK(a_good);
+  FARM_ASSERT(a_good);
   Expected<A> a_bad = makeA(true);
-  FARM_CHECK(!a_bad);
+  FARM_ASSERT(!a_bad);
 
   auto s = sum(a_good, a_bad);
-  FARM_CHECK(!s);
+  FARM_ASSERT(!s);
 }
 
 TEST(expected, unwrap) {
@@ -162,21 +162,21 @@ TEST(expected, unwrap) {
 TEST(expected, optional) {
   Expected<double> expected_double = 3;
   std::optional<double> optional_double = fromExpected(expected_double);
-  FARM_CHECK(optional_double);
-  FARM_CHECK_EQ(FARM_UNWRAP(optional_double), 3);
+  FARM_ASSERT(optional_double);
+  FARM_ASSERT_EQ(FARM_UNWRAP(optional_double), 3);
 
-  expected_double = FARM_ERROR("error");
+  expected_double = FARM_UNEXPECTED("error");
   optional_double = fromExpected(expected_double);
-  FARM_CHECK(!optional_double);
+  FARM_ASSERT(!optional_double);
 
   std::optional<int> optional_int = 42;
   Expected<int> expected_int = fromOptional(optional_int);
-  FARM_CHECK(expected_int);
-  FARM_CHECK_EQ(FARM_UNWRAP(expected_int), 42);
+  FARM_ASSERT(expected_int);
+  FARM_ASSERT_EQ(FARM_UNWRAP(expected_int), 42);
 
   optional_int = std::nullopt;
   expected_int = fromOptional(optional_int);
-  FARM_CHECK(!expected_int);
+  FARM_ASSERT(!expected_int);
 
   EXPECT_DEATH(
       {
@@ -192,14 +192,14 @@ TEST(expected, fancy_error) {
     MyFancyError(Error error) : Error(error) {}
     int diagnostics;
   };
-  Expected<double, MyFancyError> with_fancy_error = FARM_ERROR("failed");
+  Expected<double, MyFancyError> with_fancy_error = FARM_UNEXPECTED("failed");
   with_fancy_error.error().diagnostics = 42;
-  FARM_CHECK(!with_fancy_error);
+  FARM_ASSERT(!with_fancy_error);
 
   using FancyExpected = Expected<double, MyFancyError>;
   EXPECT_DEATH(
       {
-        FancyExpected with_fancy_error = FARM_ERROR("failed");
+        FancyExpected with_fancy_error = FARM_UNEXPECTED("failed");
         with_fancy_error.error().diagnostics = 42;
         FARM_UNWRAP(with_fancy_error);
       },

@@ -61,14 +61,14 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 }  // namespace details
 }  // namespace farm_ng
 
-#define FARM_ERROR_DETAIL(...)                                          \
+#define FARM_UNEXPECTED_DETAIL(...)                                     \
   ::farm_ng::ErrorDetail {                                              \
     .file = __FILE__, .line = __LINE__, .msg = FARM_FORMAT(__VA_ARGS__) \
   }
 
-#define FARM_ERROR(cstr, ...) \
-  ::tl::make_unexpected(      \
-      ::farm_ng::Error{.details = {FARM_ERROR_DETAIL(cstr, ##__VA_ARGS__)}})
+#define FARM_UNEXPECTED(cstr, ...)        \
+  ::tl::make_unexpected(::farm_ng::Error{ \
+      .details = {FARM_UNEXPECTED_DETAIL(cstr, ##__VA_ARGS__)}})
 
 /// Assigns `*expected_val` to `Type_val`, but returns error if there is one.
 #define FARM_TRY(Type_val, expected_val)                \
@@ -77,9 +77,9 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
   }                                                     \
   Type_val = ::std::move(*expected_val)
 
-#define FARM_CHECK_OR_ERROR(condition, ...)                              \
+#define FARM_ASSERT_OR_ERROR(condition, ...)                             \
   if (!(condition)) {                                                    \
-    return FARM_ERROR(                                                   \
+    return FARM_UNEXPECTED(                                              \
         "bool({}) not true.\n{}", #condition, FARM_FORMAT(__VA_ARGS__)); \
   }                                                                      \
   do {                                                                   \
@@ -94,7 +94,7 @@ std::optional<TT> fromExpected(Expected<TT, TE> expected) {
 template <class TT>
 Expected<TT> fromOptional(std::optional<TT> optional) {
   return optional ? Expected<TT>(std::move(*optional))
-                  : FARM_ERROR("std::nullopt");
+                  : FARM_UNEXPECTED("std::nullopt");
 }
 
 }  // namespace farm_ng

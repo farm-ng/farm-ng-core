@@ -27,7 +27,7 @@ Expected<farm_ng::Success> writeProtobufToJsonFile(
   try {
     outf << json_str;
   } catch (std::exception& e) {
-    return FARM_ERROR(
+    return FARM_UNEXPECTED(
         "Failed to write proto to json file ({}). Error: {}",
         path.string(),
         e.what());
@@ -43,7 +43,7 @@ Expected<Success> writeProtobufToBinaryFile(
   try {
     outf << binary_str;
   } catch (std::exception& e) {
-    return FARM_ERROR(
+    return FARM_UNEXPECTED(
         "Failed to write proto to json file ({}). Error: {}",
         path.string(),
         e.what());
@@ -54,7 +54,7 @@ Expected<Success> writeProtobufToBinaryFile(
 Expected<std::string> readJsonStringFromJsonFile(
     std::filesystem::path const& path) {
   if (!std::filesystem::is_regular_file(path)) {
-    return FARM_ERROR("{} is not a regular file", path);
+    return FARM_UNEXPECTED("{} is not a regular file", path);
   }
 
   std::ifstream json_in(path.string());
@@ -63,7 +63,7 @@ Expected<std::string> readJsonStringFromJsonFile(
       std::istreambuf_iterator<char>());
 
   if (json_str.empty()) {
-    return FARM_ERROR("Did not load any text from: {}", path);
+    return FARM_UNEXPECTED("Did not load any text from: {}", path);
   }
   return json_str;
 }
@@ -72,14 +72,14 @@ Expected<std::string> readBytesFromBinaryFile(
     std::filesystem::path const& path) {
   std::ifstream bin_in(path.string(), std::ifstream::binary);
   if (!bin_in) {
-    return FARM_ERROR("Could not open path: {}", path.string());
+    return FARM_UNEXPECTED("Could not open path: {}", path.string());
   }
   std::string bin_str(
       (std::istreambuf_iterator<char>(bin_in)),
       std::istreambuf_iterator<char>());
 
   if (bin_str.empty()) {
-    return FARM_ERROR("Did not load any text from: {}", path.string());
+    return FARM_UNEXPECTED("Did not load any text from: {}", path.string());
   }
 
   return bin_str;

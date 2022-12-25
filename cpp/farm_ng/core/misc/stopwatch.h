@@ -39,7 +39,7 @@ class StopwatchSingleton {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     Bucket& b = timers_[str];
-    FARM_CHECK(!b.maybe_start, "{} is already started", str);
+    FARM_ASSERT(!b.maybe_start, "{} is already started", str);
     b.maybe_start = start_time;
   }
 
@@ -48,9 +48,9 @@ class StopwatchSingleton {
     auto stop_time = std::chrono::high_resolution_clock::now();
 
     auto it = timers_.find(str);
-    FARM_CHECK(it != timers_.end());
+    FARM_ASSERT(it != timers_.end());
     Bucket& b = it->second;
-    FARM_CHECK(b.maybe_start);
+    FARM_ASSERT(b.maybe_start);
     std::chrono::duration<double> diff = stop_time - *b.maybe_start;
     b.maybe_start.reset();
     double d = diff.count();

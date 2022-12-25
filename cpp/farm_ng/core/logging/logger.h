@@ -18,10 +18,10 @@
 
 // Begin (Impl details)
 
-#define FARM_IMPL_CHECK_OP(symbol, name_str, lhs, rhs, ...)                    \
+#define FARM_IMPL_ASSERT_OP(symbol, name_str, lhs, rhs, ...)                   \
   do {                                                                         \
     if (!((lhs)symbol(rhs))) {                                                 \
-      FARM_IMPL_LOG_HEADER("CHECK_" name_str " failed");                       \
+      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_" name_str " failed");               \
       FARM_IMPL_LOG_PRINTLN(                                                   \
           "Not true: {} " #symbol " {}\n{}\nvs.\n{}\n", #lhs, #rhs, lhs, rhs); \
       FARM_IMPL_LOG_PRINTLN(__VA_ARGS__);                                      \
@@ -30,30 +30,30 @@
   } while (false)
 
 #define FARM_IMPL_LOG_HEADER(msg) \
-  FARM_IMPL_LOG_PRINTLN("[FARM_NG {} in {}:{}]", msg, __FILE__, __LINE__)
+  FARM_IMPL_LOG_PRINTLN("[FARM {} in {}:{}]", msg, __FILE__, __LINE__)
 // End (Impl details)
 
 /// Print formatted error message and then panic.
-#define FARM_FATAL(cstr, ...)                 \
-  FARM_IMPL_LOG_HEADER("FATAL error");        \
+#define FARM_PANIC(cstr, ...)                 \
+  FARM_IMPL_LOG_HEADER("PANIC!");             \
   FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__); \
   FARM_IMPL_ABORT()
 
 /// Print formatted error message and then panic.
-#define FARM_UNIMPLEMENTED(cstr, ...)          \
-  FARM_IMPL_LOG_HEADER("NOT IMPLEMENTED YET"); \
-  FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__);  \
+#define FARM_UNIMPLEMENTED(cstr, ...)                 \
+  FARM_IMPL_LOG_HEADER("PANIC: NOT IMPLEMENTED YET"); \
+  FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__);         \
   FARM_IMPL_ABORT()
 
 #define FARM_PRINTLN(cstr, ...) FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__)
 
 /// LOG INFO: Log cstr formatted (using variadic arguments) to cerr.
-#define FARM_LOG_INFO(cstr, ...)    \
+#define FARM_INFO(cstr, ...)        \
   FARM_IMPL_LOG_HEADER("LOG INFO"); \
   FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__)
 
 /// LOG INFO: Only log every nth encounter.
-#define FARM_LOG_INFO_EVERY_N(N, cstr, ...)                \
+#define FARM_INFO_EVERY_N(N, cstr, ...)                    \
   do {                                                     \
     static std::atomic<int> counter(0);                    \
     ++counter;                                             \
@@ -67,15 +67,15 @@
   } while (false)
 
 /// LOG WARNING: Log cstr formatted (using variadic arguments) to cerr.
-#define FARM_LOG_WARNING(cstr, ...)    \
+#define FARM_WARN(cstr, ...)           \
   FARM_IMPL_LOG_HEADER("LOG WARNING"); \
   FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__)
 
 /// If condition is false, Print formatted error message and then panic.
-#define FARM_CHECK(condition, ...)                             \
+#define FARM_ASSERT(condition, ...)                            \
   do {                                                         \
     if (!(condition)) {                                        \
-      FARM_IMPL_LOG_HEADER("FARM_CHECK failed");               \
+      FARM_IMPL_LOG_HEADER("PANIC: ASSERT failed");            \
       FARM_IMPL_LOG_PRINTLN("bool({}) not true.", #condition); \
       FARM_IMPL_LOG_PRINTLN(__VA_ARGS__);                      \
       FARM_IMPL_ABORT();                                       \
@@ -84,33 +84,33 @@
 
 /// If it is false that `lhs` == `rhs`, print formatted error message and then
 /// panic.
-#define FARM_CHECK_EQ(lhs, rhs, ...) \
-  FARM_IMPL_CHECK_OP(==, "EQ", lhs, rhs, __VA_ARGS__)
+#define FARM_ASSERT_EQ(lhs, rhs, ...) \
+  FARM_IMPL_ASSERT_OP(==, "EQ", lhs, rhs, __VA_ARGS__)
 
 /// If it is false that `lhs` != `rhs`, print formatted error message and then
 /// panic.
-#define FARM_CHECK_NE(lhs, rhs, ...) \
-  FARM_IMPL_CHECK_OP(!=, "NE", lhs, rhs, __VA_ARGS__)
+#define FARM_ASSERT_NE(lhs, rhs, ...) \
+  FARM_IMPL_ASSERT_OP(!=, "NE", lhs, rhs, __VA_ARGS__)
 
 /// If it is false that `lhs` <= `rhs`, print formatted error message and then
 /// panic.
-#define FARM_CHECK_LE(lhs, rhs, ...) \
-  FARM_IMPL_CHECK_OP(<=, "LE", lhs, rhs, __VA_ARGS__)
+#define FARM_ASSERT_LE(lhs, rhs, ...) \
+  FARM_IMPL_ASSERT_OP(<=, "LE", lhs, rhs, __VA_ARGS__)
 
 /// If it is false that `lhs` < `rhs`, print formatted error message and then
 /// panic.
-#define FARM_CHECK_LT(lhs, rhs, ...) \
-  FARM_IMPL_CHECK_OP(<, "LT", lhs, rhs, __VA_ARGS__)
+#define FARM_ASSERT_LT(lhs, rhs, ...) \
+  FARM_IMPL_ASSERT_OP(<, "LT", lhs, rhs, __VA_ARGS__)
 
 /// If it is false that `lhs` >= `rhs`, print formatted error message and then
 /// panic.
-#define FARM_CHECK_GE(lhs, rhs, ...) \
-  FARM_IMPL_CHECK_OP(>=, "GE", lhs, rhs, __VA_ARGS__)
+#define FARM_ASSERT_GE(lhs, rhs, ...) \
+  FARM_IMPL_ASSERT_OP(>=, "GE", lhs, rhs, __VA_ARGS__)
 
 /// If it is false that `lhs` > `rhs`, print formatted error message and then
 /// panic.
-#define FARM_CHECK_GT(lhs, rhs, ...) \
-  FARM_IMPL_CHECK_OP(>, "GT", lhs, rhs, __VA_ARGS__)
+#define FARM_ASSERT_GT(lhs, rhs, ...) \
+  FARM_IMPL_ASSERT_OP(>, "GT", lhs, rhs, __VA_ARGS__)
 
 namespace farm_ng {
 namespace details {
@@ -140,11 +140,11 @@ auto maxMetric(TType const& p0, TType const& p1)
 /// formatted error message and then panic.
 ///
 /// `lhs` and `rhs` are near, if maxMetric(lhs, rhs) < thr.
-#define FARM_CHECK_NEAR(lhs, rhs, thr, ...)              \
+#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)             \
   do {                                                   \
     auto nrm = farm_ng::maxMetric((lhs), (rhs));         \
     if (!(nrm < (thr))) {                                \
-      FARM_IMPL_LOG_HEADER("CHECK_NEAR failed");         \
+      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_NEAR failed"); \
       FARM_IMPL_LOG_PRINTLN(                             \
           "Not true: {} near {}; has error of {} (thr: " \
           "{})\n{}\n{}\nvs.\n{}\n{}",                    \
@@ -331,59 +331,59 @@ auto unwrapImpl(
           .line = __LINE__,       \
           .msg = FARM_FORMAT(__VA_ARGS__)})
 
-/// Checks whether the given path exits.
-#define FARM_CHECK_PATH_EXIST(path)                                         \
+/// Asserts that the given path exits.
+#define FARM_ASSERT_PATH_EXIST(path)                                        \
   do {                                                                      \
     bool does_exist = std::filesystem::exists(path);                        \
     if (!does_exist) {                                                      \
-      FARM_IMPL_LOG_HEADER("FARM_CHECK_PATH_EXIST failed");                 \
+      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_PATH_EXIST failed");              \
       FARM_IMPL_LOG_PRINTLN("The following path does not exist: {}", path); \
       FARM_IMPL_ABORT();                                                    \
     }                                                                       \
   } while (false)
 
-/// Checks whether the given path is a regular file.
-/// Hence it checks whether
+/// Asserts that the given path is a regular file.
+/// Hence it asserts that
 ///  a) it does exit,
 ///  b) it is a regular file.
-#define FARM_CHECK_IS_FILE(path)                                 \
+#define FARM_ASSERT_IS_FILE(path)                                \
   do {                                                           \
-    FARM_CHECK_PATH_EXIST(path);                                 \
+    FARM_ASSERT_PATH_EXIST(path);                                \
     bool is_regular = std::filesystem::is_regular_file(path);    \
     if (!is_regular) {                                           \
-      FARM_IMPL_LOG_HEADER("FARM_CHECK_IS_FILE failed");         \
+      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_IS_FILE failed");      \
       FARM_IMPL_LOG_PRINTLN(                                     \
           "The following path is not a regular file: {}", path); \
       FARM_IMPL_ABORT();                                         \
     }                                                            \
   } while (false)
 
-/// Checks whether the given path is a folder.
-/// Hence it checks whether
+/// Asserts that the given path is a folder.
+/// Hence it asserts that
 ///  a) it does exit,
 ///  b) it is a folder (and not a file).
-#define FARM_CHECK_IS_FOLDER(path)                                           \
+#define FARM_ASSERT_IS_FOLDER(path)                                          \
   do {                                                                       \
-    FARM_CHECK_PATH_EXIST(path);                                             \
+    FARM_ASSERT_PATH_EXIST(path);                                            \
     bool is_folder = std::filesystem::is_directory(path);                    \
     if (!is_folder) {                                                        \
-      FARM_IMPL_LOG_HEADER("FARM_CHECK_IS_FOLDER failed");                   \
+      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_IS_FOLDER failed");                \
       FARM_IMPL_LOG_PRINTLN("The following path is not a folder: {}", path); \
       FARM_IMPL_ABORT();                                                     \
     }                                                                        \
   } while (false)
 
-/// Checks whether the given path is an empty folder.
-/// Hence it checks whether
+/// Asserts that the given path is an empty folder.
+/// Hence it asserts that
 ///  a) it does exit,
 ///  b) it is a folder (and not a file),
 ///  c) it is empty
-#define FARM_CHECK_FOLDER_IS_EMPTY(path)                                    \
+#define FARM_ASSERT_FOLDER_IS_EMPTY(path)                                   \
   do {                                                                      \
-    FARM_CHECK_IS_FOLDER(path);                                             \
+    FARM_ASSERT_IS_FOLDER(path);                                            \
     bool is_empty = std::filesystem::is_empty(path);                        \
     if (!is_empty) {                                                        \
-      FARM_IMPL_LOG_HEADER("FARM_CHECK_FOLDER_IS_EMPTY failed");            \
+      FARM_IMPL_LOG_HEADER("PANIC ASSERT_FOLDER_IS_EMPTY failed");          \
       FARM_IMPL_LOG_PRINTLN("The following folder is not empty: {}", path); \
       FARM_IMPL_ABORT();                                                    \
     }                                                                       \

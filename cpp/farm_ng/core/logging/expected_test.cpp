@@ -73,18 +73,18 @@ Expected<Abc> makeAbcAtOnce(bool a_error, bool b_error, bool c_error) {
   Error error;
 
   if (a_error) {
-    error.details.push_back(FARM_UNEXPECTED_DETAIL("a - error"));
+    error.details.push_back(FARM_ERROR_DETAIL("a - error"));
   } else {
     abc.ab.a.a = "aaa";
   }
 
   if (b_error) {
-    error.details.push_back(FARM_UNEXPECTED_DETAIL("b - error"));
+    error.details.push_back(FARM_ERROR_DETAIL("b - error"));
   } else {
     abc.ab.b = "BB";
   }
   if (c_error) {
-    error.details.push_back(FARM_UNEXPECTED_DETAIL("c - error"));
+    error.details.push_back(FARM_ERROR_DETAIL("c - error"));
   } else {
     abc.c = "cCc";
   }

@@ -18,6 +18,9 @@ farm_ng_add_library(farm_ng_core_misc
   erase.h
   filesystem.h
   stopwatch.h
+  shared.h
+  copy_shared.h
+  concept_utils.h
   tokenize.h
   variant_utils.h
   uri.h
@@ -31,6 +34,7 @@ target_link_libraries(farm_ng_core_misc INTERFACE
 foreach(test_basename
     erase
     filesystem
+    shared
     stopwatch
     tokenize
     uri

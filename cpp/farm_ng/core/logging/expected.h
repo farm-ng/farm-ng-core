@@ -61,14 +61,18 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 }  // namespace details
 }  // namespace farm_ng
 
-#define FARM_UNEXPECTED_DETAIL(...)                                     \
+#define FARM_ERROR_DETAIL(...)                                          \
   ::farm_ng::ErrorDetail {                                              \
     .file = __FILE__, .line = __LINE__, .msg = FARM_FORMAT(__VA_ARGS__) \
   }
 
-#define FARM_UNEXPECTED(cstr, ...)        \
-  ::tl::make_unexpected(::farm_ng::Error{ \
-      .details = {FARM_UNEXPECTED_DETAIL(cstr, ##__VA_ARGS__)}})
+#define FARM_ERROR_REPORT(cstr, ...)                      \
+  ::farm_ng::Error {                                      \
+    .details = { FARM_ERROR_DETAIL(cstr, ##__VA_ARGS__) } \
+  }
+
+#define FARM_UNEXPECTED(cstr, ...) \
+  ::tl::make_unexpected(FARM_ERROR_REPORT(cstr, ##__VA_ARGS__))
 
 /// Assigns `*expected_val` to `Type_val`, but returns error if there is one.
 #define FARM_TRY(Type_val, expected_val)                \

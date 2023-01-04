@@ -10,4 +10,4 @@ make -j2
 cd ../..
 
 # run clang tidy
-run-clang-tidy-10  -quiet -p super_project/clang-tidy-build/farm-ng-core-build cpp/farm/.*\.cpp -fix -style none
+run-clang-tidy-12 -quiet -p super_project/clang-tidy-build/farm-ng-core-build cpp/farm/.*\.cpp -fix -style none

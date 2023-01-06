@@ -19,7 +19,6 @@ farm_ng_add_library(farm_ng_core_misc
   filesystem.h
   stopwatch.h
   shared.h
-  copy_shared.h
   concept_utils.h
   tokenize.h
   variant_utils.h

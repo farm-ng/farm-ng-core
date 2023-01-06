@@ -16,7 +16,6 @@
 
 #include "farm_ng/core/logging/expected.h"
 #include "farm_ng/core/misc/concept_utils.h"
-#include "farm_ng/core/misc/copy_shared.h"
 
 #include <memory>
 
@@ -167,22 +166,6 @@ using ExpectShared = farm_ng::Expected<Shared<T>>;
 template <class T, class... Args>
 static ExpectShared<T> tryMakeShared(Args&&... args) noexcept {
   return Shared<T>::tryMake(std::forward<Args>(args)...);
-}
-
-/// + represents a checked dereference similar to operator*()
-/// Unlike Expected::operator*() which will allow for UB,
-/// + will Panic if x is in the error state.
-template <class T>
-Shared<T>& operator+(ExpectShared<T>& x) {
-  return x.value();
-}
-
-/// + represents a checked dereference similar to operator*()
-/// Unlike Expected::operator*() which will allow for UB,
-/// + will Panic if x is in the error state.
-template <class T>
-Shared<T> const& operator+(ExpectShared<T> const& x) {
-  return x.value();
 }
 
 template <typename T>

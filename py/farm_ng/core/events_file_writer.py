@@ -18,14 +18,26 @@ from farm_ng.core.timestamp_pb2 import Timestamp
 
 
 class EventsFileWriter:
-    def __init__(self, file_name: Union[str, Path]) -> None:
+    def __init__(
+        self, file_name: Union[str, Path], extension: str = ".bin", max_file_mb: int = 0
+    ) -> None:
+        """
+        file_name: Path to and base of file name (without extension) where the events file will be logged.
+        extension: Type of file to be logged. E.g., '.bin'
+        max_file_mb: Maximum log size in MB. Logging will roll over to new file when reached. Ignored if <= 0.
+        """
         if isinstance(file_name, str):
             file_name = Path(file_name)
-        self._file_name: Path = file_name.absolute()
-        assert Path(self._file_name.parents[0]).is_dir()
+        self._file_base: Path = file_name.absolute()
+        self.extension: str = extension
+
+        assert Path(self._file_base.parents[0]).is_dir()
 
         self._file_stream: Optional[IO] = None
         self._file_length: int = 0
+
+        self._max_file_length = int(max(0, max_file_mb) * 1e6)
+        self._file_idx: int = -1
 
     def __enter__(self) -> "EventsFileWriter":
         assert self.open()
@@ -43,12 +55,22 @@ class EventsFileWriter:
         )
 
     @property
+    def max_file_length(self) -> int:
+        """Max file length, in bytes"""
+        return self._max_file_length
+
+    @property
+    def file_idx(self) -> int:
+        """Current file number for this logging session"""
+        return int(max(0, self._file_idx))
+
+    @property
     def file_length(self) -> int:
         return self._file_length
 
     @property
     def file_name(self) -> Path:
-        return self._file_name
+        return self._file_base.with_suffix(f".{self.file_idx:04}" + self.extension)
 
     def is_open(self) -> bool:
         return not self.is_closed()
@@ -58,8 +80,12 @@ class EventsFileWriter:
             return True
         return self._file_stream.closed
 
+    def _increment_file_idx(self):
+        self._file_idx += 1
+
     def open(self) -> bool:
-        self._file_stream = open(self._file_name, "wb")
+        self._increment_file_idx()
+        self._file_stream = open(self.file_name, "wb")
         self._file_length = 0
         return self.is_open()
 
@@ -90,6 +116,11 @@ class EventsFileWriter:
         self._file_length += file_stream.write(event_len)
         self._file_length += file_stream.write(event)
         self._file_length += file_stream.write(payload)
+
+        # Rollover to new log if max file size reached
+        if self.max_file_length and self.file_length > self.max_file_length:
+            assert self.close()
+            assert self.open()
 
     def write(
         self, path: str, message: Message, timestamps: Optional[List[Timestamp]] = None

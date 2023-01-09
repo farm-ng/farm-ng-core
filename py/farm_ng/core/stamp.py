@@ -11,6 +11,14 @@ def get_monotonic_now(semantics: str) -> Timestamp:
     )
 
 
+def get_system_clock_now(semantics: str) -> Timestamp:
+    return Timestamp(
+        stamp=time.time(),
+        clock_name=get_host_name() + f"/system_clock/{time.localtime().tm_zone}",
+        semantics=semantics,
+    )
+
+
 def timestamp_from_monotonic(semantics: str, stamp: float) -> Timestamp:
     # stamp should be from previous time.monotonic() call
     return Timestamp(

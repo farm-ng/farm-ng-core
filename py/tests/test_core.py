@@ -26,7 +26,7 @@ class TestEventsWriter:
     def test_open_close(self, log_file: Path) -> None:
         # open the file
         writer = EventsFileWriter(log_file)
-        assert "event.log" in str(writer.file_name)
+        assert "event.0000.log" in str(writer.file_name)
         assert writer.file_length == 0
         assert writer.close()
         assert writer.is_closed()
@@ -74,7 +74,7 @@ class TestEventsReader:
             )
         # empty object
         reader = EventsFileReader(log_file)
-        assert "event.log" in str(reader.file_name)
+        assert "event.0000.log" in str(reader.file_name)
         assert reader.file_length == 0
         assert reader.close()
         assert reader.is_closed()

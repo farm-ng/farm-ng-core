@@ -22,6 +22,11 @@ def fixture_reader_log_file(tmpdir) -> Path:
     return Path(tmpdir) / "event.0000.log"
 
 
+@pytest.fixture(name="log_dir")
+def fixture_log_dir(tmpdir) -> Path:
+    return Path(tmpdir)
+
+
 class TestEventsWriter:
     def test_smoke(self, log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
@@ -141,3 +146,23 @@ class TestEventsReader:
                     assert message.stamp == i
 
         assert reader.close()
+
+    def test_write_rollover(self, log_file: Path, log_dir: Path) -> None:
+        num_events = 10000
+        with EventsFileWriter(log_file, max_file_mb=1) as writer:
+            for i in range(num_events):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+
+        assert (log_dir / "event.0001.log").exists()
+
+    def test_write_no_rollover(self, log_file: Path, log_dir: Path) -> None:
+        num_events = 10000
+        with EventsFileWriter(log_file, max_file_mb=0) as writer:
+            for i in range(num_events):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+
+        assert not (log_dir / "event.0001.log").exists()

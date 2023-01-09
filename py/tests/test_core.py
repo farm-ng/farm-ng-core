@@ -17,6 +17,11 @@ def fixture_log_file(tmpdir) -> Path:
     return Path(tmpdir) / "event.log"
 
 
+@pytest.fixture(name="reader_log_file")
+def fixture_reader_log_file(tmpdir) -> Path:
+    return Path(tmpdir) / "event.0000.log"
+
+
 class TestEventsWriter:
     def test_smoke(self, log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
@@ -48,7 +53,7 @@ class TestEventsWriter:
 
 
 class TestEventsReader:
-    def test_smoke(self, log_file: Path) -> None:
+    def test_smoke(self, log_file: Path, reader_log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
             writer.write(
                 path="hello/world",
@@ -58,7 +63,7 @@ class TestEventsReader:
                 path="/leading/slash",
                 message=get_monotonic_now(semantics="test/monotonic"),
             )
-        with EventsFileReader(log_file) as reader:
+        with EventsFileReader(reader_log_file) as reader:
             assert reader.is_open()
             assert len(reader.events_index) == 0
             uris = sorted([*{x.event.uri.path for x in reader.get_index()}])
@@ -66,14 +71,14 @@ class TestEventsReader:
             assert uris[0] == "/leading/slash"
             assert uris[1] == "hello/world"
 
-    def test_open_close(self, log_file: Path) -> None:
+    def test_open_close(self, log_file: Path, reader_log_file: Path) -> None:
         with EventsFileWriter(log_file) as writer:
             writer.write(
                 path="hello/world",
                 message=get_monotonic_now(semantics="test/monotonic"),
             )
         # empty object
-        reader = EventsFileReader(log_file)
+        reader = EventsFileReader(reader_log_file)
         assert "event.0000.log" in str(reader.file_name)
         assert reader.file_length == 0
         assert reader.close()
@@ -98,7 +103,7 @@ class TestEventsReader:
         assert name == "Timestamp"
         assert package == "farm_ng.core.timestamp_pb2"
 
-    def test_write_read(self, log_file: Path) -> None:
+    def test_write_read(self, log_file: Path, reader_log_file: Path) -> None:
         num_events = 10
         with EventsFileWriter(log_file) as writer:
             for i in range(num_events):
@@ -106,7 +111,7 @@ class TestEventsReader:
                 writer.write(path="hello", message=time_stamp)
                 writer.write(path="world", message=time_stamp)
 
-        with EventsFileReader(log_file) as reader:
+        with EventsFileReader(reader_log_file) as reader:
             assert reader.is_open()
             count = 0
             for event, message in reader.read_messages():

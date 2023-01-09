@@ -35,7 +35,7 @@ class EventsFileWriter:
         self._file_length: int = 0
 
         self._max_file_length = int(max(0, max_file_mb) * 1e6)
-        self._file_idx: int = -1
+        self._file_idx: int = 0
 
     def __enter__(self) -> "EventsFileWriter":
         assert self.open()
@@ -60,7 +60,7 @@ class EventsFileWriter:
     @property
     def file_idx(self) -> int:
         """Current file number for this logging session"""
-        return int(max(0, self._file_idx))
+        return self._file_idx
 
     @property
     def file_length(self) -> int:
@@ -82,7 +82,6 @@ class EventsFileWriter:
         self._file_idx += 1
 
     def open(self) -> bool:
-        self._increment_file_idx()
         self._file_stream = open(self.file_name, "wb")
         self._file_length = 0
         return self.is_open()
@@ -115,6 +114,7 @@ class EventsFileWriter:
         # Rollover to new log if max file size reached
         if self.max_file_length and self.file_length > self.max_file_length:
             assert self.close()
+            self._increment_file_idx()
             assert self.open()
 
     def write(

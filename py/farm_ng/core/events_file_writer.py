@@ -6,7 +6,7 @@ from typing import IO
 from typing import Optional
 from typing import List
 from typing import Union
-from farm_ng.core.stamp import get_monotonic_now
+from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.message import Message
 
@@ -95,9 +95,6 @@ class EventsFileWriter:
         self._file_stream = None
         return self.is_closed()
 
-    def make_write_stamp(self) -> Timestamp:
-        return get_monotonic_now(semantics="log/write")
-
     def write_raw(
         self, uri: Uri, message: Message, timestamps: List[Timestamp]
     ) -> None:
@@ -125,6 +122,7 @@ class EventsFileWriter:
     ) -> None:
         if timestamps is None:
             timestamps = []
-        timestamps.append(self.make_write_stamp())
+        timestamps.append(get_monotonic_now(semantics="log/write"))
+        timestamps.append(get_system_clock_now(semantics="log/write"))
         uri = make_proto_uri(path=path, message=message)
         self.write_raw(uri=uri, message=message, timestamps=timestamps)

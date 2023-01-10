@@ -12,14 +12,14 @@ from farm_ng.core.stamp import get_monotonic_now
 from farm_ng.core import timestamp_pb2, uri_pb2
 
 
-@pytest.fixture(name="log_file")
-def fixture_log_file(tmpdir) -> Path:
-    return Path(tmpdir) / "event.log"
+@pytest.fixture(name="log_base")
+def fixture_log_base(tmpdir) -> Path:
+    return Path(tmpdir) / "event"
 
 
 @pytest.fixture(name="reader_log_file")
 def fixture_reader_log_file(tmpdir) -> Path:
-    return Path(tmpdir) / "event.0000.log"
+    return Path(tmpdir) / "event.0000.bin"
 
 
 @pytest.fixture(name="log_dir")
@@ -28,15 +28,20 @@ def fixture_log_dir(tmpdir) -> Path:
 
 
 class TestEventsWriter:
-    def test_smoke(self, log_file: Path) -> None:
-        with EventsFileWriter(log_file) as writer:
+    def test_smoke(self, log_base: Path) -> None:
+        with EventsFileWriter(file_base=log_base) as writer:
             assert writer.is_open()
-            # assert writer.file_name == log_file
+            assert writer.file_name == log_base.with_suffix(".0000.bin")
 
-    def test_open_close(self, log_file: Path) -> None:
+    def test_ext(self, log_base: Path) -> None:
+        with EventsFileWriter(file_base=log_base, extension=".log") as writer:
+            assert writer.is_open()
+            assert writer.file_name == log_base.with_suffix(".0000.log")
+
+    def test_open_close(self, log_base: Path) -> None:
         # open the file
-        writer = EventsFileWriter(log_file)
-        assert "event.0000.log" in str(writer.file_name)
+        writer = EventsFileWriter(file_base=log_base)
+        assert "event.0000.bin" in str(writer.file_name)
         assert writer.file_length == 0
         assert writer.close()
         assert writer.is_closed()
@@ -48,8 +53,8 @@ class TestEventsWriter:
         assert writer.is_open()
         assert writer.close()
 
-    def test_write_stamp(self, log_file: Path) -> None:
-        writer = EventsFileWriter(log_file)
+    def test_write_stamp(self, log_base: Path) -> None:
+        writer = EventsFileWriter(file_base=log_base)
         assert writer.open()
         writer.write("test/uri", message=get_monotonic_now(semantics="test/monotonic"))
         writer.write("test/uri", message=get_monotonic_now(semantics="test/monotonic"))
@@ -58,8 +63,8 @@ class TestEventsWriter:
 
 
 class TestEventsReader:
-    def test_smoke(self, log_file: Path, reader_log_file: Path) -> None:
-        with EventsFileWriter(log_file) as writer:
+    def test_smoke(self, log_base: Path, reader_log_file: Path) -> None:
+        with EventsFileWriter(file_base=log_base) as writer:
             writer.write(
                 path="hello/world",
                 message=get_monotonic_now(semantics="test/monotonic"),
@@ -76,15 +81,15 @@ class TestEventsReader:
             assert uris[0] == "/leading/slash"
             assert uris[1] == "hello/world"
 
-    def test_open_close(self, log_file: Path, reader_log_file: Path) -> None:
-        with EventsFileWriter(log_file) as writer:
+    def test_open_close(self, log_base: Path, reader_log_file: Path) -> None:
+        with EventsFileWriter(file_base=log_base) as writer:
             writer.write(
                 path="hello/world",
                 message=get_monotonic_now(semantics="test/monotonic"),
             )
         # empty object
         reader = EventsFileReader(reader_log_file)
-        assert "event.0000.log" in str(reader.file_name)
+        assert "event.0000.bin" in str(reader.file_name)
         assert reader.file_length == 0
         assert reader.close()
         assert reader.is_closed()
@@ -108,9 +113,9 @@ class TestEventsReader:
         assert name == "Timestamp"
         assert package == "farm_ng.core.timestamp_pb2"
 
-    def test_write_read(self, log_file: Path, reader_log_file: Path) -> None:
+    def test_write_read(self, log_base: Path, reader_log_file: Path) -> None:
         num_events = 10
-        with EventsFileWriter(log_file) as writer:
+        with EventsFileWriter(file_base=log_base) as writer:
             for i in range(num_events):
                 time_stamp = timestamp_pb2.Timestamp(stamp=i)
                 writer.write(path="hello", message=time_stamp)
@@ -147,22 +152,22 @@ class TestEventsReader:
 
         assert reader.close()
 
-    def test_write_rollover(self, log_file: Path, log_dir: Path) -> None:
+    def test_write_rollover(self, log_base: Path, log_dir: Path) -> None:
         num_events = 10000
-        with EventsFileWriter(log_file, max_file_mb=1) as writer:
+        with EventsFileWriter(file_base=log_base, max_file_mb=1) as writer:
             for i in range(num_events):
                 time_stamp = timestamp_pb2.Timestamp(stamp=i)
                 writer.write(path="hello", message=time_stamp)
                 writer.write(path="world", message=time_stamp)
 
-        assert (log_dir / "event.0001.log").exists()
+        assert (log_dir / "event.0001.bin").exists()
 
-    def test_write_no_rollover(self, log_file: Path, log_dir: Path) -> None:
+    def test_write_no_rollover(self, log_base: Path, log_dir: Path) -> None:
         num_events = 10000
-        with EventsFileWriter(log_file, max_file_mb=0) as writer:
+        with EventsFileWriter(file_base=log_base, max_file_mb=0) as writer:
             for i in range(num_events):
                 time_stamp = timestamp_pb2.Timestamp(stamp=i)
                 writer.write(path="hello", message=time_stamp)
                 writer.write(path="world", message=time_stamp)
 
-        assert not (log_dir / "event.0001.log").exists()
+        assert not (log_dir / "event.0001.bin").exists()

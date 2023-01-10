@@ -61,6 +61,43 @@ class TestEventsWriter:
         assert writer.file_length > 0
         assert writer.close()
 
+    def test_write_rollover(self, log_base: Path, log_dir: Path) -> None:
+        num_events: int = 5000
+        max_mb: int = 1
+
+        # Default - without rollover
+        with EventsFileWriter(file_base=log_base) as writer:
+            for i in range(num_events):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+
+            assert writer.file_idx == 0
+            assert writer.max_file_length == 0
+            assert not (log_dir / "event.0001.bin").exists()
+
+        # Specified - without rollover
+        with EventsFileWriter(file_base=log_base, max_file_mb=-1) as writer:
+            for i in range(num_events):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+
+            assert writer.file_idx == 0
+            assert writer.max_file_length == 0
+            assert not (log_dir / "event.0001.bin").exists()
+
+        # With rollover
+        with EventsFileWriter(file_base=log_base, max_file_mb=max_mb) as writer:
+            for i in range(num_events):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+
+            assert writer.file_idx > 0
+            assert writer.max_file_length == max_mb * 1e6
+            assert (log_dir / "event.0001.bin").exists()
+
 
 class TestEventsReader:
     def test_smoke(self, log_base: Path, reader_log_file: Path) -> None:
@@ -151,23 +188,3 @@ class TestEventsReader:
                     assert message.stamp == i
 
         assert reader.close()
-
-    def test_write_rollover(self, log_base: Path, log_dir: Path) -> None:
-        num_events = 10000
-        with EventsFileWriter(file_base=log_base, max_file_mb=1) as writer:
-            for i in range(num_events):
-                time_stamp = timestamp_pb2.Timestamp(stamp=i)
-                writer.write(path="hello", message=time_stamp)
-                writer.write(path="world", message=time_stamp)
-
-        assert (log_dir / "event.0001.bin").exists()
-
-    def test_write_no_rollover(self, log_base: Path, log_dir: Path) -> None:
-        num_events = 10000
-        with EventsFileWriter(file_base=log_base, max_file_mb=0) as writer:
-            for i in range(num_events):
-                time_stamp = timestamp_pb2.Timestamp(stamp=i)
-                writer.write(path="hello", message=time_stamp)
-                writer.write(path="world", message=time_stamp)
-
-        assert not (log_dir / "event.0001.bin").exists()

@@ -18,18 +18,20 @@ from farm_ng.core.timestamp_pb2 import Timestamp
 
 
 class EventsFileWriter:
-    def __init__(self, file_name: Union[str, Path], max_file_mb: int = 0) -> None:
+    def __init__(
+        self, file_base: Union[str, Path], extension: str = ".bin", max_file_mb: int = 0
+    ) -> None:
         """
-        file_name: Path to and base of file name where the events file will be logged.
+        file_base: Path to and base of file name (without extension) where the events file will be logged.
+        extension: Extension of the file to be logged. E.g., '.bin' or '.log'
         max_file_mb: Maximum log size in MB. Logging will roll over to new file when reached. Ignored if <= 0.
         """
-        if isinstance(file_name, str):
-            file_name = Path(file_name)
+        if isinstance(file_base, str):
+            file_base = Path(file_base)
+        self._file_base: Path = file_base.absolute()
+        self.extension: str = extension
 
-        assert Path(file_name.parents[0]).is_dir()
-
-        self._file_base: Path = (file_name.parents[0] / file_name.stem).absolute()
-        self.extension: str = file_name.suffix
+        assert Path(self._file_base.parents[0]).is_dir()
 
         self._file_stream: Optional[IO] = None
         self._file_length: int = 0

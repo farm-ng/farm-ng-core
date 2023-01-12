@@ -240,9 +240,10 @@
           FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
               FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
     }                                                                          \
-    FARM_PANIC(                                                                \
+    FARM_WARN(                                                                 \
         FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
         FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+    return "#BAD_ENUM#";                                                       \
   }                                                                            \
                                                                                \
   [[maybe_unused]] [[nodiscard]] inline bool trySetFromString(                 \

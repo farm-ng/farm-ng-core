@@ -16,6 +16,8 @@
 
 #include "farm_ng/core/logging/format.h"
 
+#include <filesystem>
+
 // Begin (Impl details)
 
 #define FARM_IMPL_ASSERT_OP(symbol, name_str, lhs, rhs, ...)                   \

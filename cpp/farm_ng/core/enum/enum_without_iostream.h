@@ -25,20 +25,20 @@
 
 #include "farm_ng/core/enum/impl/enum_details.h"
 
-/* FARM_ENUM_WITHOUT_OSTREAM_DEF(NAME, [INT_TYPE], ARGS ...)
+/* FARM_ENUM_WITHOUT_IOSTREAM_DEF(NAME, [INT_TYPE], ARGS ...)
 
   Enum type definition. Can be in global, and namespace scope only. See
-  FARM_ENUM_WITHOUT_OSTREAM below for details. */
-#define FARM_ENUM_WITHOUT_OSTREAM_DEF(NAME, ...) \
+  FARM_ENUM_WITHOUT_IOSTREAM below for details. */
+#define FARM_ENUM_WITHOUT_IOSTREAM_DEF(NAME, ...) \
   FARM_ENUM_DEF_IMPL(NAME, __VA_ARGS__)
 
 /* FARM_ENUM_ALIAS(NAME)
 
-  Enum type alias. Can be in any scope. See FARM_ENUM_WITHOUT_OSTREAM below for
+  Enum type alias. Can be in any scope. See FARM_ENUM_WITHOUT_IOSTREAM below for
   details. */
 #define FARM_ENUM_ALIAS(NAME) using NAME = enum_wrapper_::NAME##Impl
 
-/* FARM_ENUM_WITHOUT_OSTREAM(NAME, [INT_TYPE], ARGS ...)
+/* FARM_ENUM_WITHOUT_IOSTREAM(NAME, [INT_TYPE], ARGS ...)
   Enum type. Can be in global, and namespace scope only.
 
       NAME:     Name of the enum class.
@@ -46,8 +46,8 @@
       ARGS:     Tuple of enums. Could be just names, such as (foo, bar), or
                 also name/value pairs, such as ((one,1), (two,2)).
 
-  For example ``FARM_ENUM_WITHOUT_OSTREAM(FooBar, int, (foo, bar));`` defines an
-  enum class
+  For example ``FARM_ENUM_WITHOUT_IOSTREAM(FooBar, int, (foo, bar));`` defines
+  an enum class
 
     enum class FooBar : int {
       foo,
@@ -118,6 +118,6 @@
       return "FooBar";
     }
 */
-#define FARM_ENUM_WITHOUT_OSTREAM(NAME, ...)       \
-  FARM_ENUM_WITHOUT_OSTREAM_DEF(NAME, __VA_ARGS__) \
+#define FARM_ENUM_WITHOUT_IOSTREAM(NAME, ...)       \
+  FARM_ENUM_WITHOUT_IOSTREAM_DEF(NAME, __VA_ARGS__) \
   FARM_ENUM_ALIAS(NAME)

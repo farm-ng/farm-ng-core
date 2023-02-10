@@ -18,6 +18,136 @@
 
 #include <filesystem>
 
+#define FARM_LEVEL_DEBUG 0
+#define FARM_LEVEL_INFO 1
+#define FARM_LEVEL_WARN 2
+#define FARM_LEVEL_ERROR 3
+#define FARM_LEVEL_CRITICAL 4
+#define FARM_LEVEL_OFF 5
+
+#ifndef FARM_LOG_LEVEL
+#define FARM_LOG_LEVEL FARM_LEVEL_INFO
+#endif
+
+namespace farm_ng {
+enum class LogLevel { DEBUG, INFO, WARN, ERROR, OFF };
+
+class StreamLogger {
+ public:
+  //  A {fmt}-style format string that may include the
+  //  named arguments {header}, {file}, {line}, {function}, {timestamp}.
+  inline void setHeaderFormat(std::string const& str) { header_format_ = str; }
+
+  template <typename... T>
+  inline void log(
+      LogLevel log_level,
+      std::string const& log_level_str,
+      std::string const& header,
+      std::string const& file,
+      int line,
+      std::string const& function,
+      std::string const& message,
+      T&&... args) {
+    if (s_log_level <= log_level) {
+      writeToStream(FARM_FORMAT(
+          header_format_,
+          fmt::arg("level", log_level_str),
+          fmt::arg("header", header),
+          fmt::arg("file", file),
+          fmt::arg("line", line),
+          fmt::arg("function", function)));
+      flushToStream(FARM_FORMAT(message, std::forward<T>(args)...));
+    }
+  }
+
+ private:
+  inline void writeToStream(std::string const& str) { std::cerr << str; }
+
+  inline void flushToStream(std::string const& str) {
+    std::cerr << str << std::endl;
+  }
+
+  std::string header_format_ = "[FARM {header} in {file}:{line}]";
+  static LogLevel s_log_level;
+};
+
+StreamLogger& DefaultLogger() {
+  static StreamLogger logger;
+  return logger;
+}
+
+#if FARM_LOG_LEVEL == FARM_LEVEL_DEBUG
+LogLevel StreamLogger::s_log_level = LogLevel::DEBUG;
+#elif FARM_LOG_LEVEL == FARM_LEVEL_INFO
+LogLevel StreamLogger::s_log_level = LogLevel::INFO;
+#elif FARM_LOG_LEVEL == FARM_LEVEL_WARN
+LogLevel StreamLogger::s_log_level = LogLevel::WARN;
+#elif FARM_LOG_LEVEL == FARM_LEVEL_ERROR
+LogLevel StreamLogger::s_log_level = LogLevel::ERROR;
+#elif FARM_LOG_LEVEL == FARM_LEVEL_OFF
+LogLevel StreamLogger::s_log_level = LogLevel::OFF;
+#else
+LogLevel StreamLogger::s_log_level = LogLevel::INFO;
+#endif
+
+}  // namespace farm_ng
+
+#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG
+#define FARM_DEBUG_V2(...)      \
+  farm_ng::DefaultLogger().log( \
+      farm_ng::LogLevel::DEBUG, \
+      "DEBUG",                  \
+      "DEBUG",                  \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+#else
+#define FARM_DEBUG_V2(...)
+#endif
+
+#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_INFO
+#define FARM_INFO_V2(...)       \
+  farm_ng::DefaultLogger().log( \
+      farm_ng::LogLevel::INFO,  \
+      "INFO",                   \
+      "INFO",                   \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+#else
+#define FARM_INFO_V2(...)
+#endif
+
+#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_WARN
+#define FARM_WARN_V2(...)       \
+  farm_ng::DefaultLogger().log( \
+      farm_ng::LogLevel::WARN,  \
+      "WARN",                   \
+      "WARN",                   \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+#else
+#define FARM_WARN_V2(...)
+#endif
+
+#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_ERROR
+#define FARM_ERROR_V2(...)      \
+  farm_ng::DefaultLogger().log( \
+      farm_ng::LogLevel::ERROR, \
+      "ERROR",                  \
+      "ERROR",                  \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+#else
+#define FARM_ERROR_V2(x, ...)
+#endif
+
 // Begin (Impl details)
 
 #define FARM_IMPL_ASSERT_OP(symbol, name_str, lhs, rhs, ...)                   \

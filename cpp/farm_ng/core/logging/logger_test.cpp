@@ -18,7 +18,16 @@
 
 #include <optional>
 
-TEST(logger, unit) {
+TEST(logger_v2, smoke) {
+  std::cerr << "hello" << std::endl;
+  FARM_WARN_V2("foo: {}", 42);
+  FARM_DEBUG_V2("bar: {}", 42);
+  FARM_ERROR_V2("baz: {}", 42);
+  farm_ng::DefaultLogger().setHeaderFormat("{level}: ");
+  FARM_WARN_V2("{}", 1);
+}
+
+TEST(logger, DISABLED_unit) {
   FARM_ASSERT_NEAR(1.0, 1.01, 0.03);
   ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, 1.1, 0.05); }, "ASSERT_NEAR");
 

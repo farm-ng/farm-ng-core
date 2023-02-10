@@ -16,202 +16,265 @@
 
 #include "farm_ng/core/logging/format.h"
 
+#include <farm_pp/preprocessor/comma.hpp>
+#include <farm_pp/preprocessor/empty.hpp>
+
 #include <filesystem>
 
-#define FARM_LEVEL_DEBUG 0
-#define FARM_LEVEL_INFO 1
-#define FARM_LEVEL_WARN 2
-#define FARM_LEVEL_ERROR 3
-#define FARM_LEVEL_CRITICAL 4
-#define FARM_LEVEL_OFF 5
+#define FARM_LEVEL_TRACE 0
+#define FARM_LEVEL_DEBUG 1
+#define FARM_LEVEL_INFO 2
+#define FARM_LEVEL_WARN 3
+#define FARM_LEVEL_ERROR 4
+#define FARM_LEVEL_CRITICAL 5
+#define FARM_LEVEL_OFF 6
 
+// Define FARM_LOG_LEVEL to set the compile-time log level
 #ifndef FARM_LOG_LEVEL
 #define FARM_LOG_LEVEL FARM_LEVEL_INFO
 #endif
 
 namespace farm_ng {
-enum class LogLevel { DEBUG, INFO, WARN, ERROR, OFF };
+enum class LogLevel : int {
+  trace = FARM_LEVEL_TRACE,
+  debug = FARM_LEVEL_DEBUG,
+  info = FARM_LEVEL_INFO,
+  warning = FARM_LEVEL_WARN,
+  error = FARM_LEVEL_ERROR,
+  critical = FARM_LEVEL_CRITICAL,
+  off = FARM_LEVEL_OFF,
+  n_levels
+};
 
+namespace details {
+
+std::string stringFromLogLevel(LogLevel level);
+
+}  // namespace details
+
+// A logger that writes to std::cerr
 class StreamLogger {
  public:
-  //  A {fmt}-style format string that may include the
-  //  named arguments {header}, {file}, {line}, {function}, {timestamp}.
-  inline void setHeaderFormat(std::string const& str) { header_format_ = str; }
+  // The header format is a {fmt}-style format string that may include the
+  //  named arguments {level}, {text}, {file}, {line}, {function}, {timestamp}.
+  void setHeaderFormat(std::string const& str);
+  std::string getHeaderFormat() const;
+
+  // Set the runtime log level
+  void setLogLevel(LogLevel level);
+
+  void log(
+      LogLevel log_level,
+      std::string const& header_text,
+      std::string const& file,
+      int line,
+      std::string const& function);
 
   template <typename... T>
   inline void log(
       LogLevel log_level,
-      std::string const& log_level_str,
-      std::string const& header,
+      std::string const& header_text,
       std::string const& file,
       int line,
       std::string const& function,
       std::string const& message,
       T&&... args) {
-    if (s_log_level <= log_level) {
-      writeToStream(FARM_FORMAT(
-          header_format_,
-          fmt::arg("level", log_level_str),
-          fmt::arg("header", header),
-          fmt::arg("file", file),
-          fmt::arg("line", line),
-          fmt::arg("function", function)));
-      flushToStream(FARM_FORMAT(message, std::forward<T>(args)...));
+    if (log_level_ <= log_level) {
+      writeHeader(log_level, header_text, file, line, function);
+      write(FARM_FORMAT(message, std::forward<T>(args)...));
+      flush();
     }
   }
 
  private:
-  inline void writeToStream(std::string const& str) { std::cerr << str; }
+  void writeHeader(
+      LogLevel log_level,
+      std::string const& header_text,
+      std::string const& file,
+      int line,
+      std::string const& function);
+  void write(std::string const& str);
+  void flush();
 
-  inline void flushToStream(std::string const& str) {
-    std::cerr << str << std::endl;
-  }
-
-  std::string header_format_ = "[FARM {header} in {file}:{line}]";
-  static LogLevel s_log_level;
+  std::string header_format_ = "[FARM {text} in {file}:{line}]";
+  LogLevel log_level_ = LogLevel(FARM_LOG_LEVEL);
 };
 
-StreamLogger& DefaultLogger() {
+static StreamLogger& defaultLogger() {
   static StreamLogger logger;
   return logger;
 }
 
-#if FARM_LOG_LEVEL == FARM_LEVEL_DEBUG
-LogLevel StreamLogger::s_log_level = LogLevel::DEBUG;
-#elif FARM_LOG_LEVEL == FARM_LEVEL_INFO
-LogLevel StreamLogger::s_log_level = LogLevel::INFO;
-#elif FARM_LOG_LEVEL == FARM_LEVEL_WARN
-LogLevel StreamLogger::s_log_level = LogLevel::WARN;
-#elif FARM_LOG_LEVEL == FARM_LEVEL_ERROR
-LogLevel StreamLogger::s_log_level = LogLevel::ERROR;
-#elif FARM_LOG_LEVEL == FARM_LEVEL_OFF
-LogLevel StreamLogger::s_log_level = LogLevel::OFF;
-#else
-LogLevel StreamLogger::s_log_level = LogLevel::INFO;
-#endif
-
 }  // namespace farm_ng
 
+#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_TRACE
+#define FARM_TRACE(...)         \
+  farm_ng::defaultLogger().log( \
+      farm_ng::LogLevel::trace, \
+      "TRACE",                  \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+#else
+#define FARM_TRACE(...)
+#endif
+
 #if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG
-#define FARM_DEBUG_V2(...)      \
-  farm_ng::DefaultLogger().log( \
-      farm_ng::LogLevel::DEBUG, \
-      "DEBUG",                  \
+#define FARM_DEBUG(...)         \
+  farm_ng::defaultLogger().log( \
+      farm_ng::LogLevel::debug, \
       "DEBUG",                  \
       __FILE__,                 \
       __LINE__,                 \
       __func__,                 \
       __VA_ARGS__)
 #else
-#define FARM_DEBUG_V2(...)
+#define FARM_DEBUG(...)
 #endif
 
 #if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_INFO
-#define FARM_INFO_V2(...)       \
-  farm_ng::DefaultLogger().log( \
-      farm_ng::LogLevel::INFO,  \
-      "INFO",                   \
+#define FARM_INFO(...)          \
+  farm_ng::defaultLogger().log( \
+      farm_ng::LogLevel::info,  \
       "INFO",                   \
       __FILE__,                 \
       __LINE__,                 \
       __func__,                 \
       __VA_ARGS__)
 #else
-#define FARM_INFO_V2(...)
+#define FARM_INFO(...)
 #endif
 
 #if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_WARN
-#define FARM_WARN_V2(...)       \
-  farm_ng::DefaultLogger().log( \
-      farm_ng::LogLevel::WARN,  \
-      "WARN",                   \
-      "WARN",                   \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
+#define FARM_WARN(...)            \
+  farm_ng::defaultLogger().log(   \
+      farm_ng::LogLevel::warning, \
+      "WARN",                     \
+      __FILE__,                   \
+      __LINE__,                   \
+      __func__,                   \
       __VA_ARGS__)
 #else
-#define FARM_WARN_V2(...)
+#define FARM_WARN(...)
 #endif
 
 #if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_ERROR
-#define FARM_ERROR_V2(...)      \
-  farm_ng::DefaultLogger().log( \
-      farm_ng::LogLevel::ERROR, \
-      "ERROR",                  \
+#define FARM_ERROR(...)         \
+  farm_ng::defaultLogger().log( \
+      farm_ng::LogLevel::error, \
       "ERROR",                  \
       __FILE__,                 \
       __LINE__,                 \
       __func__,                 \
       __VA_ARGS__)
 #else
-#define FARM_ERROR_V2(x, ...)
+#define FARM_ERROR(...)
+#endif
+
+#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_CRITICAL
+#define FARM_CRITICAL(...)         \
+  farm_ng::defaultLogger().log(    \
+      farm_ng::LogLevel::critical, \
+      "CRITICAL",                  \
+      __FILE__,                    \
+      __LINE__,                    \
+      __func__,                    \
+      __VA_ARGS__)
+#else
+#define FARM_CRITICAL(...)
 #endif
 
 // Begin (Impl details)
+#define FARM_VARGS(...) FARM_PP_COMMA() __VA_ARGS__
 
-#define FARM_IMPL_ASSERT_OP(symbol, name_str, lhs, rhs, ...)                   \
-  do {                                                                         \
-    if (!((lhs)symbol(rhs))) {                                                 \
-      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_" name_str " failed");               \
-      FARM_IMPL_LOG_PRINTLN(                                                   \
-          "Not true: {} " #symbol " {}\n{}\nvs.\n{}\n", #lhs, #rhs, lhs, rhs); \
-      FARM_IMPL_LOG_PRINTLN(__VA_ARGS__);                                      \
-      FARM_IMPL_ABORT();                                                       \
-    }                                                                          \
+#define FARM_VARGS_NONE(...)
+
+#define FARM_MAYBE_VARGS(...)                                        \
+  FARM_PP_IF(                                                        \
+      FARM_PP_EQUAL(FARM_PP_VARIADIC_SIZE(dummy, ##__VA_ARGS__), 1), \
+      FARM_VARGS_NONE,                                               \
+      FARM_VARGS)
+
+#define FARM_IMPL_ASSERT_OP(symbol, name_str, lhs, rhs, ...)                 \
+  do {                                                                       \
+    if (!((lhs)symbol(rhs))) {                                               \
+      farm_ng::defaultLogger().log(                                          \
+          farm_ng::LogLevel::critical,                                       \
+          FARM_FORMAT(                                                       \
+              "PANIC: ASSERT_{} failed\n Not true: {} {} {}\n{}\nvs.\n{}\n", \
+              name_str,                                                      \
+              #lhs,                                                          \
+              #symbol,                                                       \
+              #rhs,                                                          \
+              lhs,                                                           \
+              rhs),                                                          \
+          __FILE__,                                                          \
+          __LINE__,                                                          \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));              \
+      FARM_IMPL_ABORT();                                                     \
+    }                                                                        \
   } while (false)
 
+// Deprecate
 #define FARM_IMPL_LOG_HEADER(msg) \
   FARM_IMPL_LOG_PRINTLN("[FARM {} in {}:{}]", msg, __FILE__, __LINE__)
+
 // End (Impl details)
 
 /// Print formatted error message and then panic.
-#define FARM_PANIC(cstr, ...)                 \
-  FARM_IMPL_LOG_HEADER("PANIC!");             \
-  FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__); \
+#define FARM_PANIC(...)                                     \
+  farm_ng::defaultLogger().log(                             \
+      farm_ng::LogLevel::critical,                          \
+      "PANIC!",                                             \
+      __FILE__,                                             \
+      __LINE__,                                             \
+      __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__)); \
   FARM_IMPL_ABORT()
 
 /// Print formatted error message and then panic.
-#define FARM_UNIMPLEMENTED(cstr, ...)                 \
-  FARM_IMPL_LOG_HEADER("PANIC: NOT IMPLEMENTED YET"); \
-  FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__);         \
+#define FARM_UNIMPLEMENTED(...)                             \
+  farm_ng::defaultLogger().log(                             \
+      farm_ng::LogLevel::critical,                          \
+      "PANIC: NOT IMPLEMENTED YET",                         \
+      __FILE__,                                             \
+      __LINE__,                                             \
+      __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__)); \
   FARM_IMPL_ABORT()
 
+// Deprecate
 #define FARM_PRINTLN(cstr, ...) FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__)
 
-/// LOG INFO: Log cstr formatted (using variadic arguments) to cerr.
-#define FARM_INFO(cstr, ...)        \
-  FARM_IMPL_LOG_HEADER("LOG INFO"); \
-  FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__)
-
 /// LOG INFO: Only log every nth encounter.
-#define FARM_INFO_EVERY_N(N, cstr, ...)                    \
-  do {                                                     \
-    static std::atomic<int> counter(0);                    \
-    ++counter;                                             \
-    if (counter > (N)) {                                   \
-      counter -= (N);                                      \
-    }                                                      \
-    if (counter == 1) {                                    \
-      FARM_IMPL_LOG_HEADER("LOG INFO EVERY N( =" #N " )"); \
-      FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__);          \
-    }                                                      \
+#define FARM_INFO_EVERY_N(N, ...)                               \
+  do {                                                          \
+    static std::atomic<int> counter(0);                         \
+    ++counter;                                                  \
+    if (counter > (N)) {                                        \
+      counter -= (N);                                           \
+    }                                                           \
+    if (counter == 1) {                                         \
+      farm_ng::defaultLogger().log(                             \
+          farm_ng::LogLevel::info,                              \
+          FARM_FORMAT("LOG INFO EVERY N( = {} )", #N),          \
+          __FILE__,                                             \
+          __LINE__,                                             \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__)); \
+    }                                                           \
   } while (false)
 
-/// LOG WARNING: Log cstr formatted (using variadic arguments) to cerr.
-#define FARM_WARN(cstr, ...)           \
-  FARM_IMPL_LOG_HEADER("LOG WARNING"); \
-  FARM_IMPL_LOG_PRINTLN(cstr, ##__VA_ARGS__)
-
 /// If condition is false, Print formatted error message and then panic.
-#define FARM_ASSERT(condition, ...)                            \
-  do {                                                         \
-    if (!(condition)) {                                        \
-      FARM_IMPL_LOG_HEADER("PANIC: ASSERT failed");            \
-      FARM_IMPL_LOG_PRINTLN("bool({}) not true.", #condition); \
-      FARM_IMPL_LOG_PRINTLN(__VA_ARGS__);                      \
-      FARM_IMPL_ABORT();                                       \
-    }                                                          \
+#define FARM_ASSERT(condition, ...)                                            \
+  do {                                                                         \
+    if (!(condition)) {                                                        \
+      farm_ng::defaultLogger().log(                                            \
+          farm_ng::LogLevel::critical,                                         \
+          FARM_FORMAT("PANIC: ASSERT failed\nbool({}) not true.", #condition), \
+          __FILE__,                                                            \
+          __LINE__,                                                            \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));                \
+      FARM_IMPL_ABORT();                                                       \
+    }                                                                          \
   } while (false)
 
 /// If it is false that `lhs` == `rhs`, print formatted error message and then
@@ -272,25 +335,28 @@ auto maxMetric(TType const& p0, TType const& p1)
 /// formatted error message and then panic.
 ///
 /// `lhs` and `rhs` are near, if maxMetric(lhs, rhs) < thr.
-#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)             \
-  do {                                                   \
-    auto nrm = farm_ng::maxMetric((lhs), (rhs));         \
-    if (!(nrm < (thr))) {                                \
-      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_NEAR failed"); \
-      FARM_IMPL_LOG_PRINTLN(                             \
-          "Not true: {} near {}; has error of {} (thr: " \
-          "{})\n{}\n{}\nvs.\n{}\n{}",                    \
-          #lhs,                                          \
-          #rhs,                                          \
-          nrm,                                           \
-          thr,                                           \
-          #lhs,                                          \
-          lhs,                                           \
-          #rhs,                                          \
-          rhs);                                          \
-      FARM_IMPL_LOG_PRINTLN(__VA_ARGS__);                \
-      FARM_IMPL_ABORT();                                 \
-    }                                                    \
+#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)                                 \
+  do {                                                                       \
+    auto nrm = farm_ng::maxMetric((lhs), (rhs));                             \
+    if (!(nrm < (thr))) {                                                    \
+      farm_ng::defaultLogger().log(                                          \
+          farm_ng::LogLevel::critical,                                       \
+          FARM_FORMAT(                                                       \
+              "PANIC: ASSERT_NEAR failed\n Not true: {} near {}; has error " \
+              "of {} (thr: {})\n{}\n{}\nvs.\n{}\n{}",                        \
+              #lhs,                                                          \
+              #rhs,                                                          \
+              nrm,                                                           \
+              thr,                                                           \
+              #lhs,                                                          \
+              lhs,                                                           \
+              #rhs,                                                          \
+              rhs),                                                          \
+          __FILE__,                                                          \
+          __LINE__,                                                          \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));              \
+      FARM_IMPL_ABORT();                                                     \
+    }                                                                        \
   } while (false)
 // End (ASSERT macros)
 
@@ -311,18 +377,22 @@ auto checkedAtContiguousContainer(
     char const* index_cstr,
     std::string const& file,
     int line,
+    std::string const& func,
     std::string const& str) -> decltype(container[index]) {
   if (index >= container.size()) {
-    FARM_IMPL_LOG_PRINTLN("[FARM_AT in {}:{}]", file, line);
-    FARM_IMPL_LOG_PRINTLN(
-        "index `{}` (={}) not in contiguous container `{}` of size `{}`",
-        index_cstr,
-        index,
-        container_cstr,
-        container.size());
-    if (!str.empty()) {
-      ::fmt::print(stderr, "{}", str);
-    }
+    farm_ng::defaultLogger().log(
+        farm_ng::LogLevel::critical,
+        FARM_FORMAT(
+            "FARM_AT index `{}` (={}) not in contiguous container `{}` of size "
+            "`{}`",
+            index_cstr,
+            index,
+            container_cstr,
+            container.size()),
+        file,
+        line,
+        func,
+        str);
     FARM_IMPL_ABORT();
   }
   return container[index];
@@ -336,19 +406,23 @@ auto checkedGetFromAssociativeContainer(
     char const* key_cstr,
     std::string const& file,
     int line,
+    std::string const& func,
     std::string const& str) -> decltype(*(container.find(key))) {
   auto it = container.find(key);
   if (it == container.end()) {
-    FARM_IMPL_LOG_PRINTLN("[FARM_GET in {}:{}]", file, line);
-    FARM_IMPL_LOG_PRINTLN(
-        "key `{}` (={}) not in associative container `{}` of size `{}`",
-        key_cstr,
-        key,
-        container_cstr,
-        container.size());
-    if (!str.empty()) {
-      ::fmt::print(stderr, "{}", str);
-    }
+    farm_ng::defaultLogger().log(
+        farm_ng::LogLevel::critical,
+        FARM_FORMAT(
+            "FARM_GET key `{}` (={}) not in associative container `{}` of size "
+            "`{}`",
+            key_cstr,
+            key,
+            container_cstr,
+            container.size()),
+        file,
+        line,
+        func,
+        str);
     FARM_IMPL_ABORT();
   }
   return *it;
@@ -364,22 +438,25 @@ auto insertKeyValueInMap(
     char const* value_cstr,
     std::string const& file,
     int line,
+    std::string const& func,
     std::string const& str) {
   auto const [iterator, success] = map.insert({key, value});
 
   if (!success) {
-    FARM_IMPL_LOG_PRINTLN("[FARM_INSERT in {}:{}]", file, line);
-    FARM_IMPL_LOG_PRINTLN(
-        "key `{}` (={}) is already in map `{}` of size `{}`. \n"
-        "We cannot insert value `{}`.",
-        key_cstr,
-        key,
-        container_cstr,
-        map.size(),
-        value_cstr);
-    if (!str.empty()) {
-      ::fmt::print(stderr, "{}", str);
-    }
+    farm_ng::defaultLogger().log(
+        farm_ng::LogLevel::critical,
+        FARM_FORMAT(
+            "FARM_INSERT key `{}` (={}) is already in map `{}` of size `{}`. "
+            "\nWe cannot insert value `{}`.",
+            key_cstr,
+            key,
+            container_cstr,
+            map.size(),
+            value_cstr),
+        file,
+        line,
+        func,
+        str);
     FARM_IMPL_ABORT();
   }
   return iterator;
@@ -392,13 +469,15 @@ struct UnwrapImpl {
       char const* wrapper_cstr,
       ::farm_ng::ErrorDetail detail) -> decltype(*wrapper) {
     if (!bool(wrapper)) {
-      FARM_IMPL_LOG_PRINTLN(
-          "[FARM_UNWRAP failed in {}:{}]", detail.file, detail.line);
-      FARM_IMPL_LOG_PRINTLN(
-          "wrapper type `{}` does not contain a valid value", wrapper_cstr);
-      if (!detail.msg.empty()) {
-        ::fmt::print(stderr, "{}", detail.msg);
-      }
+      farm_ng::defaultLogger().log(
+          farm_ng::LogLevel::critical,
+          FARM_FORMAT(
+              "FARM_UNWRAP wrapper type `{}` does not contain a valid value",
+              wrapper_cstr),
+          detail.file,
+          detail.line,
+          "",
+          detail.msg);
       FARM_IMPL_ABORT();
     }
     return *wrapper;
@@ -425,6 +504,7 @@ auto unwrapImpl(
       #index,                                     \
       __FILE__,                                   \
       __LINE__,                                   \
+      __func__,                                   \
       FARM_FORMAT(__VA_ARGS__))
 
 /// Returns `associative_container[key]`, but panics if the container does not
@@ -437,6 +517,7 @@ auto unwrapImpl(
       #key,                                             \
       __FILE__,                                         \
       __LINE__,                                         \
+      __func__,                                         \
       FARM_FORMAT(__VA_ARGS__))
 
 /// Insert `val` to `map`, but panics if the container does
@@ -451,6 +532,7 @@ auto unwrapImpl(
       #value,                                 \
       __FILE__,                               \
       __LINE__,                               \
+      __func__,                               \
       FARM_FORMAT(__VA_ARGS__))
 
 /// Returns `*wrapper`, but panics if `wrapper` is `nullopt` or `null`.
@@ -464,43 +546,63 @@ auto unwrapImpl(
           .msg = FARM_FORMAT(__VA_ARGS__)})
 
 /// Asserts that the given path exits.
-#define FARM_ASSERT_PATH_EXIST(path)                                        \
-  do {                                                                      \
-    bool does_exist = std::filesystem::exists(path);                        \
-    if (!does_exist) {                                                      \
-      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_PATH_EXIST failed");              \
-      FARM_IMPL_LOG_PRINTLN("The following path does not exist: {}", path); \
-      FARM_IMPL_ABORT();                                                    \
-    }                                                                       \
+#define FARM_ASSERT_PATH_EXIST(path, ...)                                     \
+  do {                                                                        \
+    bool does_exist = std::filesystem::exists(path);                          \
+    if (!does_exist) {                                                        \
+      farm_ng::defaultLogger().log(                                           \
+          farm_ng::LogLevel::critical,                                        \
+          FARM_FORMAT(                                                        \
+              "PANIC: ASSERT_PATH_EXIST failed\nThe following path does not " \
+              "exist: {}",                                                    \
+              path),                                                          \
+          __FILE__,                                                           \
+          __LINE__,                                                           \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));               \
+      FARM_IMPL_ABORT();                                                      \
+    }                                                                         \
   } while (false)
 
 /// Asserts that the given path is a regular file.
 /// Hence it asserts that
 ///  a) it does exit,
 ///  b) it is a regular file.
-#define FARM_ASSERT_IS_FILE(path)                                \
-  do {                                                           \
-    FARM_ASSERT_PATH_EXIST(path);                                \
-    bool is_regular = std::filesystem::is_regular_file(path);    \
-    if (!is_regular) {                                           \
-      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_IS_FILE failed");      \
-      FARM_IMPL_LOG_PRINTLN(                                     \
-          "The following path is not a regular file: {}", path); \
-      FARM_IMPL_ABORT();                                         \
-    }                                                            \
+#define FARM_ASSERT_IS_FILE(path, ...)                                     \
+  do {                                                                     \
+    FARM_ASSERT_PATH_EXIST(path);                                          \
+    bool is_regular = std::filesystem::is_regular_file(path);              \
+    if (!is_regular) {                                                     \
+      farm_ng::defaultLogger().log(                                        \
+          farm_ng::LogLevel::critical,                                     \
+          FARM_FORMAT(                                                     \
+              "PANIC: ASSERT_IS_FILE failed\nThe following path is not a " \
+              "regular file: {}",                                          \
+              path),                                                       \
+          __FILE__,                                                        \
+          __LINE__,                                                        \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));            \
+      FARM_IMPL_ABORT();                                                   \
+    }                                                                      \
   } while (false)
 
 /// Asserts that the given path is a folder.
 /// Hence it asserts that
 ///  a) it does exit,
 ///  b) it is a folder (and not a file).
-#define FARM_ASSERT_IS_FOLDER(path)                                          \
+#define FARM_ASSERT_IS_FOLDER(path, ...)                                     \
   do {                                                                       \
     FARM_ASSERT_PATH_EXIST(path);                                            \
     bool is_folder = std::filesystem::is_directory(path);                    \
     if (!is_folder) {                                                        \
-      FARM_IMPL_LOG_HEADER("PANIC: ASSERT_IS_FOLDER failed");                \
-      FARM_IMPL_LOG_PRINTLN("The following path is not a folder: {}", path); \
+      farm_ng::defaultLogger().log(                                          \
+          farm_ng::LogLevel::critical,                                       \
+          FARM_FORMAT(                                                       \
+              "PANIC: ASSERT_IS_FOLDER failed\nThe following path is not a " \
+              "folder: {}",                                                  \
+              path),                                                         \
+          __FILE__,                                                          \
+          __LINE__,                                                          \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));              \
       FARM_IMPL_ABORT();                                                     \
     }                                                                        \
   } while (false)
@@ -510,13 +612,20 @@ auto unwrapImpl(
 ///  a) it does exit,
 ///  b) it is a folder (and not a file),
 ///  c) it is empty
-#define FARM_ASSERT_FOLDER_IS_EMPTY(path)                                   \
-  do {                                                                      \
-    FARM_ASSERT_IS_FOLDER(path);                                            \
-    bool is_empty = std::filesystem::is_empty(path);                        \
-    if (!is_empty) {                                                        \
-      FARM_IMPL_LOG_HEADER("PANIC ASSERT_FOLDER_IS_EMPTY failed");          \
-      FARM_IMPL_LOG_PRINTLN("The following folder is not empty: {}", path); \
-      FARM_IMPL_ABORT();                                                    \
-    }                                                                       \
+#define FARM_ASSERT_FOLDER_IS_EMPTY(path, ...)                                 \
+  do {                                                                         \
+    FARM_ASSERT_IS_FOLDER(path);                                               \
+    bool is_empty = std::filesystem::is_empty(path);                           \
+    if (!is_empty) {                                                           \
+      farm_ng::defaultLogger().log(                                            \
+          farm_ng::LogLevel::critical,                                         \
+          FARM_FORMAT(                                                         \
+              "PANIC: ASSERT_FOLDER_IS_EMPTY failed\nThe following folder is " \
+              "not empty: {}",                                                 \
+              path),                                                           \
+          __FILE__,                                                            \
+          __LINE__,                                                            \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));                \
+      FARM_IMPL_ABORT();                                                       \
+    }                                                                          \
   } while (false)

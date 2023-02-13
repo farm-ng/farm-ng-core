@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "farm_ng/core/enum/enum.h"
 #include "farm_ng/core/logging/format.h"
 
 #include <farm_pp/preprocessor/comma.hpp>
@@ -31,7 +32,7 @@
 
 // Define FARM_LOG_LEVEL to set the compile-time log level
 #ifndef FARM_LOG_LEVEL
-#define FARM_LOG_LEVEL FARM_LEVEL_INFO
+#define FARM_LOG_LEVEL FARM_LEVEL_DEBUG
 #endif
 
 namespace farm_ng {
@@ -46,22 +47,21 @@ enum class LogLevel : int {
   n_levels
 };
 
-namespace details {
-
 std::string stringFromLogLevel(LogLevel level);
-
-}  // namespace details
 
 // A logger that writes to std::cerr
 class StreamLogger {
  public:
   // The header format is a {fmt}-style format string that may include the
-  //  named arguments {level}, {text}, {file}, {line}, {function}, {timestamp}.
+  //  named arguments {level}, {text}, {file}, {line}, {function}, {time},
+  //  {time_ms}.
   void setHeaderFormat(std::string const& str);
   std::string getHeaderFormat() const;
 
   // Set the runtime log level
   void setLogLevel(LogLevel level);
+
+  LogLevel getLogLevel();
 
   void log(
       LogLevel log_level,
@@ -100,7 +100,7 @@ class StreamLogger {
   LogLevel log_level_ = LogLevel(FARM_LOG_LEVEL);
 };
 
-static StreamLogger& defaultLogger() {
+inline StreamLogger& defaultLogger() {
   static StreamLogger logger;
   return logger;
 }

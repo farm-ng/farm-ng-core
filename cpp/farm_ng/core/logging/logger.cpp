@@ -14,9 +14,10 @@
 
 #include "farm_ng/core/logging/logger.h"
 
+#include <fmt/chrono.h>
+
 namespace farm_ng {
 
-namespace details {
 std::string stringFromLogLevel(LogLevel level) {
   switch (level) {
     case LogLevel::trace:
@@ -37,7 +38,6 @@ std::string stringFromLogLevel(LogLevel level) {
       return "";
   }
 }
-}  // namespace details
 
 void StreamLogger::setHeaderFormat(std::string const& str) {
   header_format_ = str;
@@ -45,6 +45,7 @@ void StreamLogger::setHeaderFormat(std::string const& str) {
 std::string StreamLogger::getHeaderFormat() const { return header_format_; }
 
 void StreamLogger::setLogLevel(LogLevel level) { log_level_ = level; }
+LogLevel StreamLogger::getLogLevel() { return log_level_; }
 
 void StreamLogger::log(
     LogLevel log_level,
@@ -64,9 +65,16 @@ void StreamLogger::writeHeader(
     std::string const& file,
     int line,
     std::string const& function) {
+  auto const now = std::chrono::system_clock::now();
+  auto const millis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          now.time_since_epoch())
+                          .count() %
+                      1000;
   write(FARM_FORMAT(
       header_format_,
-      fmt::arg("level", details::stringFromLogLevel(log_level)),
+      fmt::arg("time_ms", millis),
+      fmt::arg("time", now),
+      fmt::arg("level", stringFromLogLevel(log_level)),
       fmt::arg("text", header_text),
       fmt::arg("file", file),
       fmt::arg("line", line),

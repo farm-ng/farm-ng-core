@@ -23,7 +23,7 @@ farm_ng_add_library(farm_ng_core_enum
     impl/enum_flag_details.h
 )
 
-target_link_libraries(farm_ng_core_enum INTERFACE farm_ng_core_logging)
+target_link_libraries(farm_ng_core_enum INTERFACE farm_ng_core::farm_pp)
 
 set(FARM_NG_ENUM_TESTS
       enum

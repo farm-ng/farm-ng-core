@@ -22,17 +22,13 @@
 
 #include <filesystem>
 
-#define FARM_LEVEL_TRACE 0
-#define FARM_LEVEL_DEBUG 1
-#define FARM_LEVEL_INFO 2
-#define FARM_LEVEL_WARN 3
-#define FARM_LEVEL_ERROR 4
-#define FARM_LEVEL_CRITICAL 5
-#define FARM_LEVEL_OFF 6
-
-// Define FARM_LOG_LEVEL to set the compile-time log level
-#ifndef FARM_LOG_LEVEL
-#define FARM_LOG_LEVEL FARM_LEVEL_INFO
+#ifdef FARM_ONLY_INCLUDE_ME_IN_CPP_FILE
+static_assert(
+    false,
+    "Shoot FARM_ONLY_INCLUDE_ME_IN_CPP_FILE is already define, but it should "
+    "not! You must include log_macros.h only from a *.cpp file and you must "
+    "define "
+    "FARM_LOG_LEVEL right above the include.");
 #endif
 
 namespace farm_ng {
@@ -88,7 +84,7 @@ class StreamLogger {
   void flush();
 
   std::string header_format_ = "[FARM {text} in {file}:{line}]";
-  LogLevel log_level_ = LogLevel(FARM_LOG_LEVEL);
+  LogLevel log_level_ = LogLevel(LogLevel::info);
 };
 
 inline StreamLogger& defaultLogger() {
@@ -98,34 +94,9 @@ inline StreamLogger& defaultLogger() {
 
 }  // namespace farm_ng
 
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_TRACE
-#define FARM_TRACE(...)         \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::trace, \
-      "TRACE",                  \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_TRACE(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG
-#define FARM_DEBUG(...)         \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::debug, \
-      "DEBUG",                  \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_DEBUG(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_INFO
-#define FARM_INFO(...)          \
+// Log macro used from header file. It is preferable to use FARM_TRACE,
+// FARM_DEBUG, FARM_INFO, ... from log_macros.h, if called from *.cpp.
+#define FARM_LOG(...)           \
   farm_ng::defaultLogger().log( \
       farm_ng::LogLevel::info,  \
       "INFO",                   \
@@ -133,48 +104,6 @@ inline StreamLogger& defaultLogger() {
       __LINE__,                 \
       __func__,                 \
       __VA_ARGS__)
-#else
-#define FARM_INFO(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_WARN
-#define FARM_WARN(...)            \
-  farm_ng::defaultLogger().log(   \
-      farm_ng::LogLevel::warning, \
-      "WARN",                     \
-      __FILE__,                   \
-      __LINE__,                   \
-      __func__,                   \
-      __VA_ARGS__)
-#else
-#define FARM_WARN(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_ERROR
-#define FARM_ERROR(...)         \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::error, \
-      "ERROR",                  \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_ERROR(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_CRITICAL
-#define FARM_CRITICAL(...)         \
-  farm_ng::defaultLogger().log(    \
-      farm_ng::LogLevel::critical, \
-      "CRITICAL",                  \
-      __FILE__,                    \
-      __LINE__,                    \
-      __func__,                    \
-      __VA_ARGS__)
-#else
-#define FARM_CRITICAL(...)
-#endif
 
 // Begin (Impl details)
 #define FARM_VARGS(...) FARM_PP_COMMA() __VA_ARGS__

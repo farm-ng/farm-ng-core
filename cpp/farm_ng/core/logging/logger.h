@@ -32,7 +32,7 @@
 
 // Define FARM_LOG_LEVEL to set the compile-time log level
 #ifndef FARM_LOG_LEVEL
-#define FARM_LOG_LEVEL FARM_LEVEL_DEBUG
+#define FARM_LOG_LEVEL FARM_LEVEL_INFO
 #endif
 
 namespace farm_ng {

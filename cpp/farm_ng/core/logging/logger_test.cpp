@@ -14,7 +14,6 @@
 
 // Change FARM_LOG_LEVEL define to see the effect of compile-time log levels
 // #define FARM_LOG_LEVEL FARM_LEVEL_TRACE
-#define FARM_LOG_LEVEL FARM_LEVEL_DEBUG
 
 #include "farm_ng/core/logging/logger.h"
 

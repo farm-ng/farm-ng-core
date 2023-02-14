@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "farm_ng/core/logging/logger.h"
-
 #include <farm_pp/preprocessor/comparison/equal.hpp>
 #include <farm_pp/preprocessor/control/if.hpp>
 #include <farm_pp/preprocessor/punctuation/remove_parens.hpp>
@@ -213,9 +211,7 @@
           FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
               FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
     }                                                                          \
-    FARM_PANIC(                                                                \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+    std::abort();                                                              \
   }                                                                            \
                                                                                \
   [[maybe_unused]] inline std::string_view constexpr toStringView(             \
@@ -227,9 +223,7 @@
           FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
               FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
     }                                                                          \
-    FARM_PANIC(                                                                \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+    std::abort();                                                              \
   }                                                                            \
                                                                                \
   [[maybe_unused]] inline std::string toPretty(NAME##Impl value) {             \
@@ -240,9 +234,7 @@
           FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
               FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
     }                                                                          \
-    FARM_PANIC(                                                                \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+    std::abort();                                                              \
   }                                                                            \
                                                                                \
   [[maybe_unused]] [[nodiscard]] inline bool trySetFromString(                 \
@@ -301,9 +293,7 @@
           FARM_ENUM_DETAILS_TO_SEQ_OF_TUPLES(                                  \
               FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__)))                        \
     }                                                                          \
-    FARM_PANIC(                                                                \
-        FARM_PP_STRINGIZE(NAME) " does contain invalid value: {}",             \
-        FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__)(value));                   \
+    std::abort();                                                              \
   }                                                                            \
                                                                                \
   [[maybe_unused]] [[nodiscard]] inline std::string_view getTypeName(          \

@@ -12,8 +12,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// Uncomment to see the effect of compile-time log levels
+// Change FARM_LOG_LEVEL define to see the effect of compile-time log levels
 // #define FARM_LOG_LEVEL FARM_LEVEL_TRACE
+#define FARM_LOG_LEVEL FARM_LEVEL_DEBUG
 
 #include "farm_ng/core/logging/logger.h"
 

@@ -45,6 +45,15 @@ void expectNotContains(std::string const& str, std::regex const& regex) {
   EXPECT_FALSE(std::regex_search(str, regex)) << str;
 }
 
+void expectContainsIf(
+    bool condition, std::string const& str, std::regex const& regex) {
+  if (condition) {
+    expectContains(str, regex);
+  } else {
+    expectNotContains(str, regex);
+  }
+}
+
 TEST(logger, default_log_level) {
   CaptureStdErr capture;
   FARM_CRITICAL("0");
@@ -57,13 +66,16 @@ TEST(logger, default_log_level) {
   expectContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*1)"});
   expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*2)"});
   expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*34)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*5)"});
 
-#if FARM_LOG_LEVEL == FARM_LEVEL_TRACE
-  expectContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*6)"});
-#else
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*6)"});
-#endif
+  expectContainsIf(
+      FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG,
+      capture.buffer(),
+      std::regex{R"(\[FARM DEBUG in.*5)"});
+
+  expectContainsIf(
+      FARM_LOG_LEVEL <= FARM_LEVEL_TRACE,
+      capture.buffer(),
+      std::regex{R"(\[FARM TRACE in.*6)"});
 }
 
 TEST(logger, runtime_log_level) {
@@ -85,9 +97,15 @@ TEST(logger, runtime_log_level) {
   expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*34)"});
   expectContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*5)"});
 
-#if FARM_LOG_LEVEL == FARM_LEVEL_TRACE
-  expectContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*6)"});
-#endif
+  expectContainsIf(
+      FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG,
+      capture.buffer(),
+      std::regex{R"(\[FARM DEBUG in.*5)"});
+
+  expectContainsIf(
+      FARM_LOG_LEVEL <= FARM_LEVEL_TRACE,
+      capture.buffer(),
+      std::regex{R"(\[FARM TRACE in.*6)"});
 
   // Revert
   //

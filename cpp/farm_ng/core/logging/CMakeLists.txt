@@ -3,8 +3,8 @@ farm_ng_core_logging
 
 Console logging, string format and CHECK macros.
 
-No dependency, but libfmt, expected (both part of future c++ standards) and
-thirdparty/farm_pp.
+Depends on libfmt, expected (both part of future c++ standards),
+thirdparty/farm_pp, and farm_ng_core_enum.
 
 ]]
 farm_ng_add_library(farm_ng_core_logging
@@ -24,6 +24,7 @@ farm_ng_add_library(farm_ng_core_logging
 )
 
 target_link_libraries(farm_ng_core_logging PUBLIC
+  farm_ng_core_enum
   farm_ng_core::farm_pp
   fmt::fmt
   pthread

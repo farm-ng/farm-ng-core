@@ -36,16 +36,7 @@
 #endif
 
 namespace farm_ng {
-enum class LogLevel : int {
-  trace = FARM_LEVEL_TRACE,
-  debug = FARM_LEVEL_DEBUG,
-  info = FARM_LEVEL_INFO,
-  warning = FARM_LEVEL_WARN,
-  error = FARM_LEVEL_ERROR,
-  critical = FARM_LEVEL_CRITICAL,
-  off = FARM_LEVEL_OFF,
-  n_levels
-};
+FARM_ENUM(LogLevel, int, (trace, debug, info, warning, error, critical, off));
 
 std::string stringFromLogLevel(LogLevel level);
 

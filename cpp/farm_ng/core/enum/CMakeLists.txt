@@ -1,10 +1,10 @@
 #[[
 farm_ng_core_enum
 
-Set of macros for compile-time enum introspection / autogeneration of auxilary
+Set of macros for compile-time enum introspection / autogeneration of auxiliary
 helper functions.
 
-Depends on farm_ng_core_logging.
+Depends on third_party/farm_pp.
 
 ]]
 farm_ng_add_library(farm_ng_core_enum

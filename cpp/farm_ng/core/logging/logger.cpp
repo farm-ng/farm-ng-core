@@ -19,24 +19,9 @@
 namespace farm_ng {
 
 std::string stringFromLogLevel(LogLevel level) {
-  switch (level) {
-    case LogLevel::trace:
-      return "TRACE";
-    case LogLevel::debug:
-      return "DEBUG";
-    case LogLevel::info:
-      return "INFO";
-    case LogLevel::warning:
-      return "WARN";
-    case LogLevel::error:
-      return "ERROR";
-    case LogLevel::critical:
-      return "CRITICAL";
-    case LogLevel::off:
-      return "OFF";
-    default:
-      return "";
-  }
+  auto str = toString(level);
+  std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+  return str;
 }
 
 void StreamLogger::setHeaderFormat(std::string const& str) {

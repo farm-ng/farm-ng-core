@@ -1,9 +1,3 @@
-[submodule "infra/submodules/expected"]
-	path = infra/ci-submodules/expected
-	url = https://github.com/TartanLlama/expected.git
 [submodule "infra/submodules/farm-ng-cmake"]
 	path = infra/ci-submodules/farm-ng-cmake
 	url = https://github.com/farm-ng/farm-ng-cmake.git
-[submodule "infra/submodules/fmt"]
-	path = infra/ci-submodules/fmt
-	url = https://github.com/fmtlib/fmt.git

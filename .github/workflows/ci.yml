@@ -24,7 +24,7 @@ jobs:
             compiler: gcc
           - os: ubuntu-20.04
             compiler: clang
-          - os: macos-12
+          - os: macos-11
             compiler: clang
       fail-fast: false
     steps:
@@ -43,7 +43,7 @@ jobs:
       working-directory: ./infra/scripts
       run: |
         ./install_deps_mac.sh
-      if: matrix.os == 'macos-12'
+      if: matrix.os == 'macos-11'
 
     - name: Download dependencies (proto)
       working-directory: ./infra/

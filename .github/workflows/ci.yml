@@ -31,34 +31,47 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: "recursive"
-
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
-
-    - name: install deps (linux)
+    - name: Install dependencies (Ubuntu)
+      working-directory: ./infra/scripts
       run: |
-        sudo apt-get install clang-tidy-10 libprotobuf-dev protobuf-compiler -y
+        ./install_deps_ubuntu.sh
       if: matrix.os == 'ubuntu-20.04'
 
-    - name: install deps (mac-os)
+    - name: Install dependencies (Mac)
+      working-directory: ./infra/scripts
       run: |
-        brew install --verbose protobuf grpc
+        ./install_deps_mac.sh
       if: matrix.os == 'macos-11'
 
-
-    - name: Configure And Build Tests (gcc)
+    - name: Download dependencies (proto)
+      working-directory: ./infra/
       run: |
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/super_project
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
+        source ./bootstrap_venv.sh
+        cd scripts
+        ./install_farm_ng_cmake.sh
+
+    - name: Compile (gcc)
+      working-directory: ./infra/scripts
+      run: |
+          ls
+          source ../venv/bin/activate
+          ./compile_gcc.sh
       if: matrix.compiler == 'gcc'
 
-    - name: Configure And Build Tests (clang)
+    - name: Compile (clang)
+      working-directory: ./infra/scripts
       run: |
-        CC=clang CXX=clang++ cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/super_project
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
+        ls
+        source ../venv/bin/activate
+        ./compile_clang.sh
       if: matrix.compiler == 'clang'
 
     - name: clang-tidy
+      working-directory: ./infra/
       run: |
+        source ./bootstrap_venv.sh
+        cd ..
         ./run_clang_tidy.sh
       if: matrix.os == 'ubuntu-20.04' && matrix.compiler == 'clang'

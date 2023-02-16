@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-cd super_project
 rm -rf clang-tidy-build
 mkdir clang-tidy-build
 cd clang-tidy-build
 CC=clang CXX=clang++ cmake ..
 make -j2
-cd ../..
+cd ..
 
 # run clang tidy
-run-clang-tidy-12 -quiet -p super_project/clang-tidy-build/farm-ng-core-build cpp/farm/.*\.cpp -fix -style none
+run-clang-tidy-12 -quiet -p clang-tidy-build cpp/farm/.*\.cpp -fix -style none

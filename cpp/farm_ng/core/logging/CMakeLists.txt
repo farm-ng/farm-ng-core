@@ -14,12 +14,12 @@ farm_ng_add_library(farm_ng_core_logging
     eigen.h
     expected.h
     format.h
-    logger.h
+    logger_impl.h
     backtrace.h
   SOURCES
     format.cpp
     expected.cpp
-    logger.cpp
+    logger_impl.cpp
     backtrace.cpp
 )
 
@@ -33,7 +33,8 @@ target_link_libraries(farm_ng_core_logging PUBLIC
 foreach(test_basename
     expected
     format
-    logger)
+    logger
+    logger_define)
   farm_ng_add_test(${test_basename}
                     PARENT_LIBRARY farm_ng_core_logging
                     LINK_LIBRARIES farm_ng_core_logging

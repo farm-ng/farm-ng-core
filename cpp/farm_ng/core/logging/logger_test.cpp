@@ -12,125 +12,88 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#define FARM_LOG_LEVEL FARM_LEVEL_DEBUG
-#include "farm_ng/core/logging/log_macros.h"
+#include "farm_ng/core/logging/logger.h"
+
+#include "farm_ng/core/logging/test_common.h"
 
 #include <gtest/gtest.h>
 
 #include <optional>
 #include <regex>
 
-class CaptureStdErr {
- public:
-  CaptureStdErr() {
-    orig_std_err_buffer_ = std::cerr.rdbuf();
-    std::cerr.rdbuf(buffer_.rdbuf());
-  }
-  ~CaptureStdErr() { std::cerr.rdbuf(orig_std_err_buffer_); }
+using namespace farm_ng;
+using namespace farm_ng::testing;
 
-  std::string buffer() const { return buffer_.str(); }
-
- private:
-  std::stringstream buffer_;
-  std::streambuf* orig_std_err_buffer_;
-};
-
-void expectContains(std::string const& str, std::regex const& regex) {
-  EXPECT_TRUE(std::regex_search(str, regex)) << str;
+void invokeAllLogMacros() {
+  FARM_CRITICAL("5");
+  FARM_ERROR("{}", 4);
+  FARM_WARN("{}", 3);
+  FARM_INFO("{}", 2);
+  FARM_DEBUG("{}", 1);
+  FARM_TRACE("{}", 0);
 }
 
-void expectNotContains(std::string const& str, std::regex const& regex) {
-  EXPECT_FALSE(std::regex_search(str, regex)) << str;
-}
-
-void expectContainsIf(
-    bool condition, std::string const& str, std::regex const& regex) {
-  if (condition) {
-    expectContains(str, regex);
-  } else {
-    expectNotContains(str, regex);
-  }
-}
-
-TEST(logger, default_log_level) {
+TEST(logger, compile_time_default_runtime_default) {
   CaptureStdErr capture;
-  FARM_CRITICAL("0");
-  FARM_ERROR("{}", 1);
-  FARM_WARN("{}", 2);
-  FARM_INFO("{}{}", 3, 4);
-  FARM_DEBUG("{}", 5);
-  FARM_TRACE("{}", 6);
-  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*0)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*1)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*2)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*34)"});
-
-  expectContainsIf(
-      FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG,
-      capture.buffer(),
-      std::regex{R"(\[FARM DEBUG in.*5)"});
-
-  expectContainsIf(
-      FARM_LOG_LEVEL <= FARM_LEVEL_TRACE,
-      capture.buffer(),
-      std::regex{R"(\[FARM TRACE in.*6)"});
+  invokeAllLogMacros();
+  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  expectContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
+  expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
 }
 
-TEST(logger, runtime_log_level) {
+TEST(logger, compile_time_default_runtime_critical) {
   CaptureStdErr capture;
-  auto const orig_log_level = farm_ng::defaultLogger().getLogLevel();
+  auto const orig_log_level = defaultLogger().getLogLevel();
 
-  farm_ng::defaultLogger().setLogLevel(farm_ng::LogLevel::critical);
-  FARM_CRITICAL("0");
-  FARM_ERROR("{}", 1);
-  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*0)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*1)"});
+  defaultLogger().setLogLevel(LogLevel::critical);
+  invokeAllLogMacros();
+  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
 
-  farm_ng::defaultLogger().setLogLevel(farm_ng::LogLevel::trace);
-  FARM_WARN("{}", 2);
-  FARM_INFO("{}{}", 3, 4);
-  FARM_DEBUG("{}", 5);
-  FARM_TRACE("{}", 6);
-  expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*2)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*34)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*5)"});
+  defaultLogger().setLogLevel(orig_log_level);
+}
 
-  expectContainsIf(
-      FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG,
-      capture.buffer(),
-      std::regex{R"(\[FARM DEBUG in.*5)"});
+TEST(logger, compile_time_default_runtime_trace) {
+  CaptureStdErr capture;
+  auto const orig_log_level = defaultLogger().getLogLevel();
 
-  expectContainsIf(
-      FARM_LOG_LEVEL <= FARM_LEVEL_TRACE,
-      capture.buffer(),
-      std::regex{R"(\[FARM TRACE in.*6)"});
+  defaultLogger().setLogLevel(LogLevel::trace);
+  invokeAllLogMacros();
+  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  expectContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
+  expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
+  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
 
-  // Revert
-  //
-  // With a more expressive API for the log macros, e.g. LOG_WARN(logger, ...),
-  // we could test against a local logger rather than defaultLogger().
-  farm_ng::defaultLogger().setLogLevel(orig_log_level);
+  defaultLogger().setLogLevel(orig_log_level);
 }
 
 TEST(logger, header_format) {
   CaptureStdErr capture;
-  auto const orig_header_format = farm_ng::defaultLogger().getHeaderFormat();
+  auto const orig_header_format = defaultLogger().getHeaderFormat();
 
   // Example 1
-  farm_ng::defaultLogger().setHeaderFormat("{level}!");
+  defaultLogger().setHeaderFormat("{level}!");
   FARM_CRITICAL("foo");
   expectContains(capture.buffer(), std::regex{R"(CRITICAL!foo)"});
 
   // Example 2, custom formatting
-  farm_ng::defaultLogger().setHeaderFormat(
-      "[{time:%Y-%m-%d %H:%M:%S}.{time_ms}]");
+  defaultLogger().setHeaderFormat("[{time:%Y-%m-%d %H:%M:%S}.{time_ms}]");
   FARM_INFO("bar");
   expectContains(
       capture.buffer(),
       std::regex{R"(\[\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}.\d{3}\]bar)"});
 
   // Revert
-  farm_ng::defaultLogger().setHeaderFormat(orig_header_format);
+  defaultLogger().setHeaderFormat(orig_header_format);
   FARM_CRITICAL("baz");
   expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*baz)"});
 }

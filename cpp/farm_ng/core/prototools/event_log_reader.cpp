@@ -16,8 +16,7 @@
 
 #include "farm_ng/core/prototools/event_log_reader.h"
 
-#define FARM_LOG_LEVEL FARM_LEVEL_WARN
-#include "farm_ng/core/logging/log_macros.h"
+#include "farm_ng/core/logging/logger.h"
 
 #include <filesystem>
 #include <fstream>

@@ -37,10 +37,11 @@ class CaptureStdErr {
 
 // Theses are macros so we see the line number in the test where the error
 // occurs.
-#define EXPECT_CONTAINS(str, regex) \
-  EXPECT_TRUE(std::regex_search((str), (regex))) << str
+#define EXPECT_CONTAINS(str, regex)              \
+  EXPECT_TRUE(std::regex_search((str), (regex))) \
+      << FARM_FORMAT("str = `{}`", str)
 
-#define EXPECT_NOT_CONTAINS(str, regex) \
-  EXPECT_FALSE(std::regex_search((str), (regex))) << str
-
+#define EXPECT_NOT_CONTAINS(str, regex)           \
+  EXPECT_FALSE(std::regex_search((str), (regex))) \
+      << FARM_FORMAT("str = `{}`", str)
 }  // namespace farm_ng::testing

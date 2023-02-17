@@ -36,9 +36,9 @@ TEST(logger, compile_time_debug_runtime_info) {
   defaultLogger().setLogLevel(LogLevel::info);
 
   invokeInfoDebugTraceLogMacros();
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
-  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
-  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*\n2)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*\n1)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*\n0)"});
 
   defaultLogger().setLogLevel(orig_log_level);
 }
@@ -49,9 +49,9 @@ TEST(logger, compile_time_debug_runtime_debug) {
   defaultLogger().setLogLevel(LogLevel::debug);
 
   invokeInfoDebugTraceLogMacros();
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
-  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*\n2)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*\n1)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*\n0)"});
 
   defaultLogger().setLogLevel(orig_log_level);
 }
@@ -62,9 +62,9 @@ TEST(logger, compile_time_debug_runtime_trace) {
   defaultLogger().setLogLevel(LogLevel::trace);
 
   invokeInfoDebugTraceLogMacros();
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
-  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*\n2)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*\n1)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*\n0)"});
 
   defaultLogger().setLogLevel(orig_log_level);
 }

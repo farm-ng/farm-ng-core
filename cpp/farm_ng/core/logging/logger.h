@@ -22,27 +22,24 @@
 
 #include <filesystem>
 
-#define FARM_LEVEL_TRACE 0
-#define FARM_LEVEL_DEBUG 1
-#define FARM_LEVEL_INFO 2
-#define FARM_LEVEL_WARN 3
-#define FARM_LEVEL_ERROR 4
-#define FARM_LEVEL_CRITICAL 5
-#define FARM_LEVEL_OFF 6
-
-// Define FARM_LOG_LEVEL to set the compile-time log level
-#ifndef FARM_LOG_LEVEL
-#define FARM_LOG_LEVEL FARM_LEVEL_INFO
-#endif
-
 namespace farm_ng {
-FARM_ENUM(LogLevel, int, (trace, debug, info, warning, error, critical, off));
+FARM_ENUM(
+    LogLevel,
+    int,
+    ((trace, 0),
+     (debug, 1),
+     (info, 2),
+     (warning, 3),
+     (error, 4),
+     (critical, 5)));
 
 std::string stringFromLogLevel(LogLevel level);
 
 // A logger that writes to std::cerr
 class StreamLogger {
  public:
+  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::warning);
+
   // The header format is a {fmt}-style format string that may include the
   //  named arguments {level}, {text}, {file}, {line}, {function}, {time},
   //  {time_ms}.
@@ -88,7 +85,7 @@ class StreamLogger {
   void flush();
 
   std::string header_format_ = "[FARM {text} in {file}:{line}]";
-  LogLevel log_level_ = LogLevel(FARM_LOG_LEVEL);
+  LogLevel log_level_ = kDefaultLogLevel;
 };
 
 inline StreamLogger& defaultLogger() {
@@ -97,84 +94,6 @@ inline StreamLogger& defaultLogger() {
 }
 
 }  // namespace farm_ng
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_TRACE
-#define FARM_TRACE(...)         \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::trace, \
-      "TRACE",                  \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_TRACE(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_DEBUG
-#define FARM_DEBUG(...)         \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::debug, \
-      "DEBUG",                  \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_DEBUG(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_INFO
-#define FARM_INFO(...)          \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::info,  \
-      "INFO",                   \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_INFO(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_WARN
-#define FARM_WARN(...)            \
-  farm_ng::defaultLogger().log(   \
-      farm_ng::LogLevel::warning, \
-      "WARN",                     \
-      __FILE__,                   \
-      __LINE__,                   \
-      __func__,                   \
-      __VA_ARGS__)
-#else
-#define FARM_WARN(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_ERROR
-#define FARM_ERROR(...)         \
-  farm_ng::defaultLogger().log( \
-      farm_ng::LogLevel::error, \
-      "ERROR",                  \
-      __FILE__,                 \
-      __LINE__,                 \
-      __func__,                 \
-      __VA_ARGS__)
-#else
-#define FARM_ERROR(...)
-#endif
-
-#if defined FARM_LOG_LEVEL && FARM_LOG_LEVEL <= FARM_LEVEL_CRITICAL
-#define FARM_CRITICAL(...)         \
-  farm_ng::defaultLogger().log(    \
-      farm_ng::LogLevel::critical, \
-      "CRITICAL",                  \
-      __FILE__,                    \
-      __LINE__,                    \
-      __func__,                    \
-      __VA_ARGS__)
-#else
-#define FARM_CRITICAL(...)
-#endif
 
 // Begin (Impl details)
 #define FARM_VARGS(...) FARM_PP_COMMA() __VA_ARGS__
@@ -186,6 +105,60 @@ inline StreamLogger& defaultLogger() {
       FARM_PP_EQUAL(FARM_PP_VARIADIC_SIZE(dummy, ##__VA_ARGS__), 1), \
       FARM_VARGS_NONE,                                               \
       FARM_VARGS)
+
+// Global toggle to enable logging, undefined to disable logging globally
+#define FARM_LOG_ENABLED 1
+
+#ifdef FARM_LOG_ENABLED
+/// Log level to be used for more noisy FYI type of status. Don't use FARM_INFO
+/// if the pure compile-time invocation of the macro would hurt performance.
+/// E.g. if this code might be executed within an inner loop such as for every
+/// pixel of an image. Use FARM_DEBUG or FARM_TRACE instead which can be toggled
+/// at compile-time (and are turned off by default).
+#define FARM_INFO(...)          \
+  farm_ng::defaultLogger().log( \
+      farm_ng::LogLevel::info,  \
+      "INFO",                   \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+/// More significant information with high signal to noise. Typically to
+/// communicate an usual but valid state of the program.
+#define FARM_WARN(...)            \
+  farm_ng::defaultLogger().log(   \
+      farm_ng::LogLevel::warning, \
+      "WARN",                     \
+      __FILE__,                   \
+      __LINE__,                   \
+      __func__,                   \
+      __VA_ARGS__)
+/// Error state (but not logical error/precondition violation nor panic).
+/// Currently not used.
+#define FARM_ERROR(...)         \
+  farm_ng::defaultLogger().log( \
+      farm_ng::LogLevel::error, \
+      "ERROR",                  \
+      __FILE__,                 \
+      __LINE__,                 \
+      __func__,                 \
+      __VA_ARGS__)
+/// Critical error state to communicated. Often followed by a panic (i.e.
+/// std::abort, if enabled).
+#define FARM_CRITICAL(...)         \
+  farm_ng::defaultLogger().log(    \
+      farm_ng::LogLevel::critical, \
+      "CRITICAL",                  \
+      __FILE__,                    \
+      __LINE__,                    \
+      __func__,                    \
+      __VA_ARGS__)
+#else
+#define FARM_INFO(...)
+#define FARM_WARN(...)
+#define FARM_ERROR(...)
+#define FARM_CRITICAL(...)
+#endif
 
 #define FARM_IMPL_ASSERT_OP(symbol, name_str, lhs, rhs, ...)                 \
   do {                                                                       \

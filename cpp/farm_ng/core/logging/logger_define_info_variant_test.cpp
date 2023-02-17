@@ -12,7 +12,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// Enabling trace-level logging
 #define FARM_LOG_LEVEL FARM_LOG_LEVEL_INFO
 #include "farm_ng/core/logging/test_common.h"
 #include "farm_ng/core/logging/trace_debug_log.h"

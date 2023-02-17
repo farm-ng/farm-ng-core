@@ -12,7 +12,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// Enabling trace-level logging
 #define FARM_LOG_LEVEL FARM_LOG_LEVEL_TRACE
 #include "farm_ng/core/logging/test_common.h"
 #include "farm_ng/core/logging/trace_debug_log.h"
@@ -31,7 +30,7 @@ void invokeInfoDebugTraceLogMacros() {
   FARM_TRACE("{}", 0);
 }
 
-TEST(logger, compile_time_info_runtime_info) {
+TEST(logger, compile_time_trace_runtime_info) {
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
   defaultLogger().setLogLevel(LogLevel::info);
@@ -44,7 +43,7 @@ TEST(logger, compile_time_info_runtime_info) {
   defaultLogger().setLogLevel(orig_log_level);
 }
 
-TEST(logger, compile_time_info_runtime_debug) {
+TEST(logger, compile_time_trace_runtime_debug) {
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
   defaultLogger().setLogLevel(LogLevel::debug);
@@ -57,7 +56,7 @@ TEST(logger, compile_time_info_runtime_debug) {
   defaultLogger().setLogLevel(orig_log_level);
 }
 
-TEST(logger, compile_time_info_runtime_trace) {
+TEST(logger, compile_time_trace_runtime_trace) {
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
   defaultLogger().setLogLevel(LogLevel::trace);

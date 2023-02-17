@@ -29,19 +29,16 @@ void invokeAllLogMacros() {
   FARM_ERROR("{}", 4);
   FARM_WARN("{}", 3);
   FARM_INFO("{}", 2);
-  FARM_DEBUG("{}", 1);
-  FARM_TRACE("{}", 0);
 }
 
 TEST(logger, compile_time_default_runtime_default) {
   CaptureStdErr capture;
   invokeAllLogMacros();
-  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
+  // default log level is WARN and higher, so we do not expect to see INFO.
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
 }
 
 TEST(logger, compile_time_default_runtime_critical) {
@@ -50,13 +47,10 @@ TEST(logger, compile_time_default_runtime_critical) {
 
   defaultLogger().setLogLevel(LogLevel::critical);
   invokeAllLogMacros();
-  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
-
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
   defaultLogger().setLogLevel(orig_log_level);
 }
 
@@ -64,15 +58,12 @@ TEST(logger, compile_time_default_runtime_trace) {
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
 
-  defaultLogger().setLogLevel(LogLevel::trace);
+  defaultLogger().setLogLevel(LogLevel::info);
   invokeAllLogMacros();
-  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
-  expectContains(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*1)"});
-  expectNotContains(capture.buffer(), std::regex{R"(\[FARM TRACE in.*0)"});
-
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
   defaultLogger().setLogLevel(orig_log_level);
 }
 
@@ -83,19 +74,19 @@ TEST(logger, header_format) {
   // Example 1
   defaultLogger().setHeaderFormat("{level}!");
   FARM_CRITICAL("foo");
-  expectContains(capture.buffer(), std::regex{R"(CRITICAL!foo)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(CRITICAL!foo)"});
 
   // Example 2, custom formatting
   defaultLogger().setHeaderFormat("[{time:%Y-%m-%d %H:%M:%S}.{time_ms}]");
-  FARM_INFO("bar");
-  expectContains(
+  FARM_WARN("bar");
+  EXPECT_CONTAINS(
       capture.buffer(),
       std::regex{R"(\[\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}.\d{3}\]bar)"});
 
   // Revert
   defaultLogger().setHeaderFormat(orig_header_format);
   FARM_CRITICAL("baz");
-  expectContains(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*baz)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*baz)"});
 }
 
 TEST(logger, unit) {

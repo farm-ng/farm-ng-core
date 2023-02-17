@@ -12,7 +12,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "farm_ng/core/logging/logger_impl.h"
+#include "farm_ng/core/logging/logger.h"
 
 #include <fmt/chrono.h>
 

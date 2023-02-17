@@ -12,6 +12,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#pragma once
+
 #include <gtest/gtest.h>
 
 #include <regex>
@@ -33,12 +35,12 @@ class CaptureStdErr {
   std::streambuf* orig_std_err_buffer_;
 };
 
-void expectContains(std::string const& str, std::regex const& regex) {
-  EXPECT_TRUE(std::regex_search(str, regex)) << str;
-}
+// Theses are macros so we see the line number in the test where the error
+// occurs.
+#define EXPECT_CONTAINS(str, regex) \
+  EXPECT_TRUE(std::regex_search((str), (regex))) << str
 
-void expectNotContains(std::string const& str, std::regex const& regex) {
-  EXPECT_FALSE(std::regex_search(str, regex)) << str;
-}
+#define EXPECT_NOT_CONTAINS(str, regex) \
+  EXPECT_FALSE(std::regex_search((str), (regex))) << str
 
 }  // namespace farm_ng::testing

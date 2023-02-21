@@ -19,8 +19,8 @@
 namespace farm_ng {
 
 /// https://en.cppreference.com/w/cpp/container/deque/erase2
-template <class TContainerT, class TPredT>
-size_t eraseIf(TContainerT& c, TPredT pred) {
+template <class TContainer, class TPred>
+size_t eraseIf(TContainer& c, TPred pred) {
   auto it = std::remove_if(c.begin(), c.end(), pred);
   auto r = std::distance(it, c.end());
   c.erase(it, c.end());

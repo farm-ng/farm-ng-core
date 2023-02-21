@@ -16,9 +16,8 @@
 
 #include "farm_ng/core/prototools/event_log_writer.h"
 
+#include "farm_ng/core/logging/logger.h"
 #include "farm_ng/core/prototools/event_log_reader.h"
-
-#include <farm_ng/core/logging/logger.h>
 
 #ifndef __USE_POSIX
 #define __USE_POSIX

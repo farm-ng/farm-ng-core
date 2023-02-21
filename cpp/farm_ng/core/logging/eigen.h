@@ -21,9 +21,11 @@
 namespace farm_ng {
 namespace details {
 
-template <class Scalar, int M, int N>
-class MaxMetric<Eigen::Matrix<Scalar, M, N>> {
+template <class TScalar, int kRows, int kCols>
+class MaxMetric<Eigen::Matrix<TScalar, kRows, kCols>> {
  public:
+  using Scalar = TScalar;
+
   static Scalar impl(
       Eigen::Matrix<Scalar, M, N> const& p0,
       Eigen::Matrix<Scalar, M, N> const& p1) {

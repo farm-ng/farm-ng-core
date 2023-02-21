@@ -4,14 +4,12 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
   description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Core layer',
-    Svg: require('@site/static/img/Farm-ng_Logo_Black.svg').default,
     description: (
       <>
         Foundational core layer for new c++ projects.
@@ -23,7 +21,6 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Convenient macros',
-    Svg: require('@site/static/img/Farm-ng_Logo_Black.svg').default,
     description: (
       <>
         FARM_ENUM enables to/from string conversions. FARM_ASSERT_* for
@@ -35,7 +32,6 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Event logging and more',
-    Svg: require('@site/static/img/Farm-ng_Logo_Black.svg').default,
     description: (
       <>
         EventLogReader and EventLogWriter to create and playback Protocol
@@ -48,9 +44,6 @@ const FeatureList: FeatureItem[] = [
 function Feature({title, Svg, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>
         <p>{description}</p>

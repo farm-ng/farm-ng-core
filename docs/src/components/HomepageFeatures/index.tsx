@@ -28,7 +28,7 @@ const FeatureList: FeatureItem[] = [
       <>
         FARM_ENUM enables to/from string conversions. FARM_ASSERT_* for
         documenting and enforcing preconditions. FARM_INFO_* log macros with
-        run-time and compile time log levels. Convient macros around Expected
+        run-time and compile time log levels. Convenient macros around Expected
         and more.
       </>
     ),

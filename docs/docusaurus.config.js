@@ -76,10 +76,10 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'products',
+            title: 'farm-ng inc.',
             items: [
               {
-                label: 'Amiga',
+                label: 'website',
                 href: 'https://farm-ng.com/',
               },
             ],
@@ -94,6 +94,27 @@ const config = {
               {
                 label: 'Linkedin',
                 href: 'https://www.linkedin.com/company/farm-ng',
+              },
+            ],
+          },
+          {
+            title: 'farm-ng and sister projects',
+            items: [
+              {
+                label: 'farm-ng-core',
+                href: 'https://farm-ng.github.io/farm-ng-core/',
+              },
+              {
+                label: 'Sophus',
+                href: 'https://strasdat.github.io/Sophus/latest/',
+              },
+              {
+                label: 'Pangolin',
+                href: 'https://github.com/stevenlovegrove/Pangolin',
+              },
+              {
+                label: 'Amiga Development Kit',
+                href: 'https://amiga.farm-ng.com/docs/getting-started',
               },
             ],
           },

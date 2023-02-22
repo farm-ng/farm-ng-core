@@ -21,11 +21,11 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-#include "farm_ng/core/enum/enum_without_ostream.h"
+#include "farm_ng/core/enum/enum_without_iostream.h"
 
 #include <gtest/gtest.h>
 
-FARM_ENUM_WITHOUT_OSTREAM(Fruits, uint8_t, ((apple, 1), (banana, 3), pear));
+FARM_ENUM_WITHOUT_IOSTREAM(Fruits, uint8_t, ((apple, 1), (banana, 3), pear));
 
 TEST(EnumTest, defaultDeath) {
   Fruits fruit{};
@@ -74,7 +74,7 @@ TEST(EnumTest, StringsAndValues) {
 }
 
 // Enum definition in global scope.
-FARM_ENUM_WITHOUT_OSTREAM_DEF(Autos, int, (van, truck, (sedan, 4)));
+FARM_ENUM_WITHOUT_IOSTREAM_DEF(Autos, int, (van, truck, (sedan, 4)));
 
 struct Garage {
   // Enum alias can be in class scope

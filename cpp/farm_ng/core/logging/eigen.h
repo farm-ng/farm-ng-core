@@ -27,8 +27,8 @@ class MaxMetric<Eigen::Matrix<TScalar, kRows, kCols>> {
   using Scalar = TScalar;
 
   static Scalar impl(
-      Eigen::Matrix<Scalar, M, N> const& p0,
-      Eigen::Matrix<Scalar, M, N> const& p1) {
+      Eigen::Matrix<Scalar, kRows, kCols> const& p0,
+      Eigen::Matrix<Scalar, kRows, kCols> const& p1) {
     return (p0 - p1).template lpNorm<Eigen::Infinity>();
   }
 };

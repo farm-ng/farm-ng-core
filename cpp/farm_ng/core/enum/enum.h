@@ -23,25 +23,34 @@
 
 #pragma once
 
-#include "farm_ng/core/enum/enum_without_ostream.h"
+#include "farm_ng/core/enum/enum_without_iostream.h"
 
+#include <istream>
 #include <ostream>
 
-#define FARM_ENUM_OSTREAM_OVERLOAD(EnumName)                                \
-  namespace enum_wrapper_ {                                                 \
-  inline std::ostream &operator<<(std::ostream &os, EnumName##Impl value) { \
-    os << toPretty(value);                                                  \
-    return os;                                                              \
-  }                                                                         \
+#define FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)                                \
+  namespace enum_wrapper_ {                                                  \
+  inline std::ostream &operator<<(std::ostream &os, EnumName##Impl value) {  \
+    os << toPretty(value);                                                   \
+    return os;                                                               \
+  }                                                                          \
+  inline std::istream &operator>>(std::istream &is, EnumName##Impl &value) { \
+    std::string str;                                                         \
+    is >> str;                                                               \
+    if (!trySetFromString(value, str)) {                                     \
+      throw std::runtime_error(std::string("Bad Value: ") + str);            \
+    }                                                                        \
+    return is;                                                               \
+  }                                                                          \
   }  // namespace enum_wrapper_
 
 // Convenience marco which defines the enum plus alias and adds the ostream
 // overload.
-#define FARM_ENUM(EnumName, ...)                    \
-  FARM_ENUM_WITHOUT_OSTREAM(EnumName, __VA_ARGS__); \
-  FARM_ENUM_OSTREAM_OVERLOAD(EnumName)
+#define FARM_ENUM(EnumName, ...)                     \
+  FARM_ENUM_WITHOUT_IOSTREAM(EnumName, __VA_ARGS__); \
+  FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)
 
 // Convenience marco which defines the enum and adds the ostream overload.
-#define FARM_ENUM_DEF(EnumName, ...)                    \
-  FARM_ENUM_WITHOUT_OSTREAM_DEF(EnumName, __VA_ARGS__); \
-  FARM_ENUM_OSTREAM_OVERLOAD(EnumName)
+#define FARM_ENUM_DEF(EnumName, ...)                     \
+  FARM_ENUM_WITHOUT_IOSTREAM_DEF(EnumName, __VA_ARGS__); \
+  FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)

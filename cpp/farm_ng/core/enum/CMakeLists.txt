@@ -11,14 +11,10 @@ farm_ng_add_library(farm_ng_core_enum
   NAMESPACE farm_ng_core
   INCLUDE_DIR ../../..
   HEADERS
-    enum.h
-    enum_flags.h
-    enum_without_ostream.h
     enum_flags_without_ostream.h
-    enum.h
     enum_flags.h
-    enum_without_ostream.h
-    enum_flags_without_ostream.h
+    enum_without_iostream.h
+    enum.h
     impl/enum_details.h
     impl/enum_flag_details.h
 )
@@ -27,7 +23,7 @@ target_link_libraries(farm_ng_core_enum INTERFACE farm_ng_core::farm_pp)
 
 set(FARM_NG_ENUM_TESTS
       enum
-      enum_without_ostream
+      enum_without_iostream
       enum_flags
       enum_flags_without_ostream)
 

@@ -82,7 +82,6 @@ class StreamLogger {
 
     if (log_level_ <= log_level) {
       writeHeader(log_level, header_text, file, line, function);
-      write("\n");
       write(FARM_FORMAT(message, std::forward<T>(args)...));
       flush();
     }
@@ -107,7 +106,7 @@ class StreamLogger {
   void write(std::string const& str);
   void flush();
 
-  std::string header_format_ = "[FARM {text} in {file}:{line}]";
+  std::string header_format_ = "[FARM {text} in {file}:{line}]\n";
   LogLevel log_level_ = kDefaultLogLevel;
   std::unordered_set<std::string> noisy_modules_;
 };

@@ -91,7 +91,14 @@ TEST(logger, header_format) {
 
 TEST(logger, unit) {
   FARM_ASSERT_NEAR(1.0, 1.01, 0.03);
-  ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, 1.1, 0.05); }, "ASSERT_NEAR");
+  FARM_ASSERT_NEAR(999999.0, 999999.9, 0.001);
+  ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, 1.1, 0.001); }, "ASSERT_NEAR relative");
+  ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, -1.01, 0.03); }, "ASSERT_NEAR relative");
+  ASSERT_DEATH(
+      { FARM_ASSERT_NEAR(999999.0, 999999.9, 0.00000001); },
+      "ASSERT_NEAR relative");
+  ASSERT_DEATH(
+      { FARM_ASSERT_NEAR(0.0, 0.001, 0.0000001); }, "ASSERT_NEAR absolute");
 
   std::optional<int> maybe_foo;
   maybe_foo = 2;

@@ -18,18 +18,77 @@
 
 #include <Eigen/Core>
 
+// TODO: Move to Sophus.
 namespace farm_ng {
 namespace details {
 
-template <class TScalar, int kRows, int kCols>
-class MaxMetric<Eigen::Matrix<TScalar, kRows, kCols>> {
- public:
-  using Scalar = TScalar;
+template <class Scalar, int M, int N>
+struct CheckNear<Eigen::Matrix<Scalar, M, N>> {
+  static void impl(
+      Eigen::Matrix<Scalar, M, N> const& lhs,
+      Eigen::Matrix<Scalar, M, N> const& rhs,
+      Scalar const& thr,
+      char const* lhs_cstr,
+      char const* rhs_cstr,
+      char const* thr_cstr,
+      std::string const& file,
+      int line,
+      std::string const& func,
+      std::string const& str) {
+    using std::abs;
+    using std::min;
 
-  static Scalar impl(
-      Eigen::Matrix<Scalar, kRows, kCols> const& p0,
-      Eigen::Matrix<Scalar, kRows, kCols> const& p1) {
-    return (p0 - p1).template lpNorm<Eigen::Infinity>();
+    Scalar max_error = 0.0;
+    int max_error_dim = -1;
+    bool absolute = true;
+    for (int i = 0; i < lhs.reshaped().rows(); ++i) {
+      auto lhs_abs = abs(lhs.reshaped()[i]);
+      auto rhs_abs = abs(rhs.reshaped()[i]);
+
+      if (min(lhs_abs, rhs_abs) < thr) {
+        /* close to zero, we are doing an absolute comparison*/
+        Scalar err = abs(lhs.reshaped()[i] - rhs.reshaped()[i]);
+        if (err > max_error) {
+          max_error = err;
+          max_error_dim = i;
+          absolute = true;
+        }
+      } else {
+        Scalar err = abs((lhs.reshaped()[i] / rhs.reshaped()[i]) - 1.0);
+        if (err > max_error) {
+          max_error = err;
+          max_error_dim = i;
+          absolute = false;
+        }
+      }
+    }
+    if (max_error < thr) {
+      // all errors below threshold
+      return;
+    }
+    farm_ng::defaultLogger().log(
+        farm_ng::LogLevel::critical,
+        FARM_FORMAT(
+            "ASSERT_NEAR({})]"
+            "Not true: {} near {}; has error of {} in {} (thr: "
+            "{})\n{}\n{}\n{}\nvs.\n{}\n{}\n{}",
+            absolute ? "absolute" : "relative",
+            lhs_cstr,
+            rhs_cstr,
+            max_error,
+            max_error_dim,
+            thr,
+            lhs.reshaped()[max_error_dim],
+            lhs_cstr,
+            lhs,
+            rhs.reshaped()[max_error_dim],
+            rhs_cstr,
+            rhs),
+        file,
+        line,
+        func,
+        str);
+    FARM_IMPL_ABORT();
   }
 };
 

@@ -273,56 +273,113 @@ inline StreamLogger& defaultLogger() {
 
 namespace farm_ng {
 namespace details {
-// following:
-// https://github.com/strasdat/Sophus/blob/master/sophus/types.hpp#L94
-template <class TScalar>
-class MaxMetric {
- public:
-  static TScalar impl(TScalar s0, TScalar s1) {
+
+template <class Point>
+struct CheckNear;
+
+template <>
+struct CheckNear<double> {
+  static void impl(
+      double const& lhs,
+      double const& rhs,
+      double const& thr,
+      char const* lhs_cstr,
+      char const* rhs_cstr,
+      char const* thr_cstr,
+      std::string const& file,
+      int line,
+      std::string const& func,
+      std::string const& str) {
     using std::abs;
-    return abs(s0 - s1);
+    using std::min;
+    auto lhs_abs = abs(lhs);
+    auto rhs_abs = abs(rhs);
+    if (min(lhs_abs, rhs_abs) < thr) {
+      /* close to zero, we are doing an absolute comparison*/
+      auto err = abs(lhs - rhs);
+      if (!(err < (thr))) {
+        farm_ng::defaultLogger().log(
+            farm_ng::LogLevel::critical,
+            FARM_FORMAT(
+                "ASSERT_NEAR absolute]\n"
+                "Not true: {} (={}) near {} (={}); has error of {} (thr: "
+                "{} (={}))",
+                lhs,
+                lhs_cstr,
+                rhs,
+                rhs_cstr,
+                err,
+                thr,
+                thr_cstr),
+            file,
+            line,
+            func,
+            str);
+        FARM_IMPL_ABORT();
+      }
+    } else {
+      /*  relative comparison*/
+      double err = abs(lhs / rhs - 1.0);
+      if (!(err < (thr))) {
+        farm_ng::defaultLogger().log(
+            farm_ng::LogLevel::critical,
+            FARM_FORMAT(
+                "ASSERT_NEAR relative]\n"
+                "Not true: {} (={}) near {} (={}); has error of {} (thr: "
+                "{} (={}))",
+                lhs,
+                lhs_cstr,
+                rhs,
+                rhs_cstr,
+                err,
+                thr,
+                thr_cstr),
+            file,
+            line,
+            func,
+            str);
+        FARM_IMPL_ABORT();
+      }
+    }
   }
 };
 
+template <>
+struct CheckNear<float> {
+  static void impl(
+      float const& lhs,
+      float const& rhs,
+      float const& thr,
+      char const* lhs_cstr,
+      char const* rhs_cstr,
+      char const* thr_cstr,
+      std::string const& file,
+      int line,
+      std::string const& func,
+      std::string const& str) {
+    CheckNear<double>::impl(
+        lhs, rhs, thr, lhs_cstr, rhs_cstr, thr_cstr, file, line, func, str);
+  }
+};
 }  // namespace details
-
-/// Returns maximum metric between two points `p0` and `p1`, with `p0, p1`
-/// being matrices or a scalars.
-template <class TType>
-auto maxMetric(TType const& p0, TType const& p1)
-    -> decltype(details::MaxMetric<TType>::impl(p0, p1)) {
-  return details::MaxMetric<TType>::impl(p0, p1);
-}
 }  // namespace farm_ng
 
 /// If it is false that `lhs` is near `rhs` according to threshold `thr`, print
 /// formatted error message and then panic.
 ///
 /// `lhs` and `rhs` are near, if maxMetric(lhs, rhs) < thr.
-#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)                                 \
-  do {                                                                       \
-    auto nrm = farm_ng::maxMetric((lhs), (rhs));                             \
-    if (!(nrm < (thr))) {                                                    \
-      farm_ng::defaultLogger().log(                                          \
-          farm_ng::LogLevel::critical,                                       \
-          FARM_FORMAT(                                                       \
-              "PANIC: ASSERT_NEAR failed\n Not true: {} near {}; has error " \
-              "of {} (thr: {})\n{}\n{}\nvs.\n{}\n{}",                        \
-              #lhs,                                                          \
-              #rhs,                                                          \
-              nrm,                                                           \
-              thr,                                                           \
-              #lhs,                                                          \
-              lhs,                                                           \
-              #rhs,                                                          \
-              rhs),                                                          \
-          __FILE__,                                                          \
-          __LINE__,                                                          \
-          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));              \
-      FARM_IMPL_ABORT();                                                     \
-    }                                                                        \
-  } while (false)
-// End (ASSERT macros)
+#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)                        \
+  ::farm_ng::details::CheckNear<std::decay_t<decltype(lhs)>>::impl( \
+      lhs,                                                          \
+      rhs,                                                          \
+      thr,                                                          \
+      #lhs,                                                         \
+      #rhs,                                                         \
+      #thr,                                                         \
+      __FILE__,                                                     \
+      __LINE__,                                                     \
+      __func__,                                                     \
+      FARM_FORMAT(__VA_ARGS__))
 
 namespace farm_ng {
 struct ErrorDetail {

@@ -32,18 +32,6 @@ std::string StreamLogger::getHeaderFormat() const { return header_format_; }
 void StreamLogger::setLogLevel(LogLevel level) { log_level_ = level; }
 LogLevel StreamLogger::getLogLevel() { return log_level_; }
 
-void StreamLogger::log(
-    LogLevel log_level,
-    std::string const& header,
-    std::string const& file,
-    int line,
-    std::string const& function) {
-  if (log_level_ <= log_level) {
-    writeHeader(log_level, header, file, line, function);
-    flush();
-  }
-}
-
 void StreamLogger::writeHeader(
     LogLevel log_level,
     std::string const& header_text,

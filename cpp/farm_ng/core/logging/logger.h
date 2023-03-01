@@ -21,6 +21,7 @@
 #include <farm_pp/preprocessor/empty.hpp>
 
 #include <filesystem>
+#include <unordered_set>
 
 namespace farm_ng {
 FARM_ENUM(
@@ -38,7 +39,7 @@ std::string stringFromLogLevel(LogLevel level);
 // A logger that writes to std::cerr
 class StreamLogger {
  public:
-  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::warning);
+  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::info);
 
   // The header format is a {fmt}-style format string that may include the
   //  named arguments {level}, {text}, {file}, {line}, {function}, {time},
@@ -51,13 +52,6 @@ class StreamLogger {
 
   LogLevel getLogLevel();
 
-  void log(
-      LogLevel log_level,
-      std::string const& header_text,
-      std::string const& file,
-      int line,
-      std::string const& function);
-
   template <typename... T>
   inline void log(
       LogLevel log_level,
@@ -67,11 +61,39 @@ class StreamLogger {
       std::string const& function,
       std::string const& message,
       T&&... args) {
+    if (log_level_ <= LogLevel::warning &&
+        (log_level == LogLevel::debug || log_level == LogLevel::trace)) {
+      // We are already in compile-time enabled noisy log-level territory. Hence
+      // it is fine to do this hash map look-up from a performance standpoint.
+      if (noisy_modules_.find(file) == noisy_modules_.end()) {
+        // Only warn about noisy log level once per enabled compilation unit.
+        noisy_modules_.insert(file);
+        write("\n");
+        writeHeader(LogLevel::warning, header_text, file, line, function);
+        write(FARM_FORMAT(
+            "Noisy logging (DEBUG or TRACE) enabled for module: {}  (runtime "
+            "log "
+            "level: {})",
+            file,
+            log_level_));
+        flush();
+      }
+    }
+
     if (log_level_ <= log_level) {
       writeHeader(log_level, header_text, file, line, function);
       write(FARM_FORMAT(message, std::forward<T>(args)...));
       flush();
     }
+  }
+
+  void log(
+      LogLevel log_level,
+      std::string const& header_text,
+      std::string const& file,
+      int line,
+      std::string const& function) {
+    this->log(log_level, header_text, file, line, function, std::string(""));
   }
 
  private:
@@ -84,8 +106,9 @@ class StreamLogger {
   void write(std::string const& str);
   void flush();
 
-  std::string header_format_ = "[FARM {text} in {file}:{line}]";
+  std::string header_format_ = "[FARM {text} in {file}:{line}]\n";
   LogLevel log_level_ = kDefaultLogLevel;
+  std::unordered_set<std::string> noisy_modules_;
 };
 
 inline StreamLogger& defaultLogger() {

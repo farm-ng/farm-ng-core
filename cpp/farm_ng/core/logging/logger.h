@@ -39,7 +39,7 @@ std::string stringFromLogLevel(LogLevel level);
 // A logger that writes to std::cerr
 class StreamLogger {
  public:
-  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::warning);
+  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::info);
 
   // The header format is a {fmt}-style format string that may include the
   //  named arguments {level}, {text}, {file}, {line}, {function}, {time},

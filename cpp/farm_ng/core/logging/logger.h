@@ -297,11 +297,11 @@ inline StreamLogger& defaultLogger() {
 namespace farm_ng {
 namespace details {
 
-template <class Point>
+template <class Point, class Enabler = void>
 struct CheckNear;
 
-template <>
-struct CheckNear<double> {
+template <class T>
+struct CheckNear<T, std::enable_if_t<std::is_arithmetic_v<T>, void>> {
   static void impl(
       double const& lhs,
       double const& rhs,
@@ -367,23 +367,6 @@ struct CheckNear<double> {
   }
 };
 
-template <>
-struct CheckNear<float> {
-  static void impl(
-      float const& lhs,
-      float const& rhs,
-      float const& thr,
-      char const* lhs_cstr,
-      char const* rhs_cstr,
-      char const* thr_cstr,
-      std::string const& file,
-      int line,
-      std::string const& func,
-      std::string const& str) {
-    CheckNear<double>::impl(
-        lhs, rhs, thr, lhs_cstr, rhs_cstr, thr_cstr, file, line, func, str);
-  }
-};
 }  // namespace details
 }  // namespace farm_ng
 

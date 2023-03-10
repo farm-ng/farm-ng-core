@@ -52,7 +52,7 @@ class StreamLogger {
 
   LogLevel getLogLevel();
 
-  template <typename... T>
+  template <typename... TT>
   inline void log(
       LogLevel log_level,
       std::string const& header_text,
@@ -60,7 +60,7 @@ class StreamLogger {
       int line,
       std::string const& function,
       std::string const& message,
-      T&&... args) {
+      TT&&... args) {
     if (log_level_ <= LogLevel::warning &&
         (log_level == LogLevel::debug || log_level == LogLevel::trace)) {
       // We are already in compile-time enabled noisy log-level territory. Hence
@@ -82,7 +82,7 @@ class StreamLogger {
 
     if (log_level_ <= log_level) {
       writeHeader(log_level, header_text, file, line, function);
-      write(FARM_FORMAT(message, std::forward<T>(args)...));
+      write(FARM_FORMAT(message, std::forward<TT>(args)...));
       flush();
     }
   }
@@ -103,8 +103,8 @@ class StreamLogger {
       std::string const& file,
       int line,
       std::string const& function);
-  void write(std::string const& str);
-  void flush();
+  static void write(std::string const& str);
+  static void flush();
 
   std::string header_format_ = "[FARM {text} in {file}:{line}]\n";
   LogLevel log_level_ = kDefaultLogLevel;
@@ -112,8 +112,8 @@ class StreamLogger {
 };
 
 inline StreamLogger& defaultLogger() {
-  static StreamLogger logger;
-  return logger;
+  static StreamLogger Static_Logger;
+  return Static_Logger;
 }
 
 }  // namespace farm_ng
@@ -297,11 +297,11 @@ inline StreamLogger& defaultLogger() {
 namespace farm_ng {
 namespace details {
 
-template <class Point, class Enabler = void>
+template <class TPoint, class TEnabler = void>
 struct CheckNear;
 
-template <class T>
-struct CheckNear<T, std::enable_if_t<std::is_arithmetic_v<T>, void>> {
+template <class TT>
+struct CheckNear<TT, std::enable_if_t<std::is_arithmetic_v<TT>, void>> {
   static void impl(
       double const& lhs,
       double const& rhs,

@@ -27,7 +27,7 @@
 
 FARM_ENUMFLAGS_WITHOUT_OSTREAM(MyFlags, uint32_t, (foo, bar, daz));
 
-TEST(EnumFlags, none) {
+TEST(EnumFlags, none) {  // NOLINT
   MyFlags flags{};
   EXPECT_FALSE(hasMask(flags, MyFlags::foo));
   EXPECT_FALSE(hasMask(flags, MyFlags::bar));
@@ -51,7 +51,7 @@ TEST(EnumFlags, none) {
 FARM_ENUMFLAGS_WITHOUT_OSTREAM(
     EightFlags, uint8_t, (bit0, bit1, bit2, bit3, bit4, bit5, bit6, bit7));
 
-TEST(EnumFlags, bits) {
+TEST(EnumFlags, bits) {  // NOLINT
   EXPECT_EQ(uint8_t(EightFlags::none), 0);
   EXPECT_EQ(uint8_t(EightFlags::bit0), 1);
   EXPECT_EQ(uint8_t(EightFlags::bit1), 2);
@@ -63,7 +63,7 @@ TEST(EnumFlags, bits) {
   EXPECT_EQ(uint8_t(EightFlags::bit7), 128);
 }
 
-TEST(EnumFlags, trySetFlagFromString) {
+TEST(EnumFlags, trySetFlagFromString) {  // NOLINT
   MyFlags flags{};
   EXPECT_TRUE(hasMask(flags, MyFlags::none));
 
@@ -89,7 +89,7 @@ TEST(EnumFlags, trySetFlagFromString) {
   EXPECT_EQ(flags, MyFlags::foo | MyFlags::bar | MyFlags::daz);
 }
 
-TEST(EnumFlags, setClearToggle) {
+TEST(EnumFlags, setClearToggle) {  // NOLINT
   MyFlags flags = MyFlags::foo | MyFlags::daz;
   setMask(flags, MyFlags::bar);
   EXPECT_EQ(flags, MyFlags::foo | MyFlags::bar | MyFlags::daz);
@@ -103,7 +103,7 @@ TEST(EnumFlags, setClearToggle) {
   EXPECT_EQ(flags, MyFlags::foo);
 }
 
-TEST(EnumFlags, toString) {
+TEST(EnumFlags, toString) {  // NOLINT
   MyFlags flags = MyFlags::foo | MyFlags::bar;
   EXPECT_EQ(toPretty(flags), "{foo (=1), bar (=2), } (=3)");
   auto str = toStrings(flags);
@@ -120,7 +120,7 @@ struct Garage {
   FARM_ENUMFLAGS_ALIAS(Bike);
 };
 
-TEST(EnumTest, nestedEnumFlags) {
+TEST(EnumTest, nestedEnumFlags) {  // NOLINT
   Garage::Bike bike{};
   bool is_set = trySetFlagFromString(bike, "frontWheel");
   ASSERT_TRUE(is_set);

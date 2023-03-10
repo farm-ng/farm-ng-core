@@ -18,4 +18,4 @@
 
 #include <gtest/gtest.h>
 
-TEST(erase, smoke) {}
+TEST(erase, smoke) {}  // NOLINT

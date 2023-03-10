@@ -31,7 +31,7 @@ void invokeAllLogMacros() {
   FARM_INFO("{}", 2);
 }
 
-TEST(logger, compile_time_default_runtime_default) {
+TEST(logger, compile_time_default_runtime_default) {  // NOLINT
   CaptureStdErr capture;
   invokeAllLogMacros();
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
@@ -41,7 +41,7 @@ TEST(logger, compile_time_default_runtime_default) {
   EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
 }
 
-TEST(logger, compile_time_default_runtime_critical) {
+TEST(logger, compile_time_default_runtime_critical) {  // NOLINT
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
 
@@ -54,7 +54,7 @@ TEST(logger, compile_time_default_runtime_critical) {
   defaultLogger().setLogLevel(orig_log_level);
 }
 
-TEST(logger, compile_time_default_runtime_trace) {
+TEST(logger, compile_time_default_runtime_trace) {  // NOLINT
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
 
@@ -67,7 +67,7 @@ TEST(logger, compile_time_default_runtime_trace) {
   defaultLogger().setLogLevel(orig_log_level);
 }
 
-TEST(logger, header_format) {
+TEST(logger, header_format) {  // NOLINT
   CaptureStdErr capture;
   auto const orig_header_format = defaultLogger().getHeaderFormat();
 
@@ -89,7 +89,7 @@ TEST(logger, header_format) {
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*baz)"});
 }
 
-TEST(logger, unit) {
+TEST(logger, unit) {  // NOLINT
   FARM_ASSERT_NEAR(1.0, 1.01, 0.03);
   FARM_ASSERT_NEAR(999999.0, 999999.9, 0.001);
   ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, 1.1, 0.001); }, "ASSERT_NEAR relative");

@@ -24,7 +24,7 @@
 #include <cstdlib>
 
 /** Print a demangled stack backtrace of the caller function to FILE* out. */
-inline static void print_stacktrace(
+inline static void printStacktrace(
     FILE* out = stderr, unsigned int max_frames = 63) {
   fprintf(out, "stack trace:\n");
 
@@ -45,27 +45,30 @@ inline static void print_stacktrace(
 
   // allocate string which will be filled with the demangled function name
   size_t funcnamesize = 256;
-  char* funcname = (char*)malloc(funcnamesize);
+  char* funcname = (char*)malloc(funcnamesize);  // NOLINT
 
   // iterate over the returned symbol lines. skip the first, it is the
   // address of this function.
   for (int i = 1; i < addrlen; i++) {
-    char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
+    char* begin_name = 0;
+    char* begin_offset = 0;
+    char* end_offset = 0;
 
     // find parentheses and +address offset surrounding the mangled name:
     // ./module(function+0x15c) [0x8048a6d]
-    for (char* p = symbollist[i]; *p; ++p) {
-      if (*p == '(')
+    for (char* p = symbollist[i]; *p != 0; ++p) {
+      if (*p == '(') {
         begin_name = p;
-      else if (*p == '+')
+      } else if (*p == '+') {
         begin_offset = p;
-      else if (*p == ')' && begin_offset) {
+      } else if (*p == ')' && (begin_offset != nullptr)) {
         end_offset = p;
         break;
       }
     }
 
-    if (begin_name && begin_offset && end_offset && begin_name < begin_offset) {
+    if ((begin_name != nullptr) && (begin_offset != nullptr) &&
+        (end_offset != nullptr) && begin_name < begin_offset) {
       *begin_name++ = '\0';
       *begin_offset++ = '\0';
       *end_offset = '\0';
@@ -74,7 +77,7 @@ inline static void print_stacktrace(
       // offset in [begin_offset, end_offset). now apply
       // __cxa_demangle():
 
-      int status;
+      int status = 0;
       char* ret =
           abi::__cxa_demangle(begin_name, funcname, &funcnamesize, &status);
       if (status == 0) {
@@ -92,10 +95,10 @@ inline static void print_stacktrace(
     }
   }
 
-  free(funcname);
-  free(symbollist);
+  free(funcname);    // NOLINT
+  free(symbollist);  // NOLINT
 }
 
 namespace farm_ng {
-void printBacktrace() { print_stacktrace(); }
+void printBacktrace() { printStacktrace(); }
 }  // namespace farm_ng

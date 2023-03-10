@@ -28,20 +28,22 @@
 #include <istream>
 #include <ostream>
 
-#define FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)                                \
-  namespace enum_wrapper_ {                                                  \
-  inline std::ostream &operator<<(std::ostream &os, EnumName##Impl value) {  \
-    os << toPretty(value);                                                   \
-    return os;                                                               \
-  }                                                                          \
-  inline std::istream &operator>>(std::istream &is, EnumName##Impl &value) { \
-    std::string str;                                                         \
-    is >> str;                                                               \
-    if (!trySetFromString(value, str)) {                                     \
-      throw std::runtime_error(std::string("Bad Value: ") + str);            \
-    }                                                                        \
-    return is;                                                               \
-  }                                                                          \
+#define FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)                     \
+  namespace enum_wrapper_ {                                       \
+  inline auto operator<<(std::ostream &os, EnumName##Impl value)  \
+      -> std::ostream & {                                         \
+    os << toPretty(value);                                        \
+    return os;                                                    \
+  }                                                               \
+  inline auto operator>>(std::istream &is, EnumName##Impl &value) \
+      -> std::istream & {                                         \
+    std::string str;                                              \
+    is >> str;                                                    \
+    if (!trySetFromString(value, str)) {                          \
+      throw std::runtime_error(std::string("Bad Value: ") + str); \
+    }                                                             \
+    return is;                                                    \
+  }                                                               \
   }  // namespace enum_wrapper_
 
 // Convenience marco which defines the enum plus alias and adds the ostream

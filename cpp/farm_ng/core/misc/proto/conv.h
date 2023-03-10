@@ -16,7 +16,8 @@
 
 #include "farm_ng/core/logging/expected.h"
 #include "farm_ng/core/misc/uri.h"
-#include "farm_ng/core/uri.pb.h"
+
+#include <farm_ng/core/uri.pb.h>
 
 namespace farm_ng {
 

@@ -16,7 +16,7 @@
 
 namespace farm_ng {
 
-std::function<void(std::string const &)> &getLogLineFunction() {
+auto getLogLineFunction() -> std::function<void(std::string const &)> & {
   static std::function<void(std::string const &)> Static_Log_Function;
   return Static_Log_Function;
 }

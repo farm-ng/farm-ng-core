@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "farm_ng/core/event.pb.h"
+#include <farm_ng/core/event.pb.h>
 
 #include <exception>
 #include <filesystem>
@@ -99,7 +99,7 @@ class EventLogReader {
   std::vector<EventLogPos> const& getIndex();
 
   /// Returns the path including the fileaname
-  std::filesystem::path getPath() const;
+  [[nodiscard]] std::filesystem::path getPath() const;
 
   /// Reset the writer to the beginning of the file
   void reset();

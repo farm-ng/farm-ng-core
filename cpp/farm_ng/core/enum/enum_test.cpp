@@ -29,7 +29,7 @@
 
 FARM_ENUM(Fruits, size_t, ((apple, 2), banana, pear));
 
-TEST(EnumTest, toString) {
+TEST(EnumTest, toString) {  // NOLINT
   Fruits fruit = Fruits::apple;
   std::stringstream out;
   out << fruit;
@@ -46,7 +46,7 @@ TEST(EnumTest, toString) {
   EXPECT_EQ(out3.str(), "pear (=4)");
 }
 
-TEST(EnumTest, getAllFruit) {
+TEST(EnumTest, getAllFruit) {  // NOLINT
   const std::array<Fruits, 3> all_vals = getAll(Fruits());
   EXPECT_EQ(all_vals[0], Fruits::apple);
   EXPECT_EQ(all_vals[1], Fruits::banana);
@@ -61,7 +61,7 @@ struct Garage {
   FARM_ENUM_ALIAS(Autos);
 };
 
-TEST(EnumTest, trySetFromString) {
+TEST(EnumTest, trySetFromString) {  // NOLINT
   Garage::Autos car;
   bool is_set = trySetFromString(car, "sedan");
   ASSERT_TRUE(is_set);
@@ -71,7 +71,7 @@ TEST(EnumTest, trySetFromString) {
   EXPECT_EQ(out.str(), "sedan (=2)");
 }
 
-TEST(EnumTest, StringsAndValues) {
+TEST(EnumTest, StringsAndValues) {  // NOLINT
   std::string_view type_name = getTypeName(Fruits());
   EXPECT_EQ(type_name, "Fruits");
   std::array<std::string_view, 3> strings = getStrings(Fruits());
@@ -87,14 +87,14 @@ TEST(EnumTest, StringsAndValues) {
   EXPECT_EQ(getCount(Fruits()), 3);
 }
 
-TEST(EnumTest, getAllAutos) {
+TEST(EnumTest, getAllAutos) {  // NOLINT
   const std::array<Garage::Autos, 3> all_vals = getAll(Garage::Autos());
   EXPECT_EQ(all_vals[0], Garage::Autos::van);
   EXPECT_EQ(all_vals[1], Garage::Autos::truck);
   EXPECT_EQ(all_vals[2], Garage::Autos::sedan);
 }
 
-TEST(EnumTest, foreach) {
+TEST(EnumTest, foreach) {  // NOLINT
   {
     size_t count = 0;
     for (Fruits f : getAll(Fruits())) {

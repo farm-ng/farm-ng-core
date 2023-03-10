@@ -27,12 +27,13 @@
 
 #include <ostream>
 
-#define FARM_ENUMFLAGS_OSTREAM_OVERLOAD(NAME)                           \
-  namespace enum_wrapper_ {                                             \
-  inline std::ostream &operator<<(std::ostream &os, NAME##Impl value) { \
-    os << toPretty(value);                                              \
-    return os;                                                          \
-  }                                                                     \
+#define FARM_ENUMFLAGS_OSTREAM_OVERLOAD(NAME)                \
+  namespace enum_wrapper_ {                                  \
+  inline auto operator<<(std::ostream &os, NAME##Impl value) \
+      -> std::ostream & {                                    \
+    os << toPretty(value);                                   \
+    return os;                                               \
+  }                                                          \
   }  // namespace enum_wrapper_
 
 // Convenience marco which defines the enum flags plus alias and adds the

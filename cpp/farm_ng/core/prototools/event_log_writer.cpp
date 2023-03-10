@@ -30,21 +30,21 @@
 #include <memory>
 #include <stdexcept>
 
-char hostname[_POSIX_HOST_NAME_MAX];
-char username[_POSIX_LOGIN_NAME_MAX];
+char Static_Hostname[_POSIX_HOST_NAME_MAX];
+char Static_Username[_POSIX_LOGIN_NAME_MAX];
 
 namespace farm_ng {
 namespace {
-std::string getAuthoritySlow() {
+auto getAuthoritySlow() -> std::string {
   char hostname[_POSIX_HOST_NAME_MAX];
   gethostname(hostname, _POSIX_HOST_NAME_MAX);
   return std::string(hostname);
 }
-std::string const& getAuthority() {
-  static std::string host_name = getAuthoritySlow();
-  return host_name;
+auto getAuthority() -> std::string const& {
+  static std::string Static_Host_Name = getAuthoritySlow();
+  return Static_Host_Name;
 }
-double monotonic() {
+auto monotonic() -> double {
   double now = 1e-6 * std::chrono::duration_cast<std::chrono::microseconds>(
                           std::chrono::steady_clock::now().time_since_epoch())
                           .count();
@@ -53,7 +53,7 @@ double monotonic() {
 
 }  // namespace
 
-core::proto::Timestamp makeWriteStamp() {
+auto makeWriteStamp() -> core::proto::Timestamp {
   core::proto::Timestamp stamp;
   stamp.set_stamp(monotonic());
   stamp.set_semantics("log/write");

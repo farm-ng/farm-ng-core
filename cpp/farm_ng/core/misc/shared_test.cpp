@@ -16,27 +16,28 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+
 using namespace farm_ng;
 
 struct ErrorTag {};
 
 struct Foo {
-  Foo(int val) : val_(val) {}
-  Foo(ErrorTag) { throw std::runtime_error("ConstructorThrows"); }
-  int test_method() { return val_; }
+  Foo(int val) : val(val) {}
+  Foo(ErrorTag /*unused*/) { throw std::runtime_error("ConstructorThrows"); }
+  [[nodiscard]] auto testMethod() const -> int { return val; }
 
-  int val_;
+  int val;
 };
 
-ExpectShared<Foo> makeSomething(int val, bool succeed) {
+auto makeSomething(int val, bool succeed) -> ExpectShared<Foo> {
   if (succeed) {
     return tryMakeShared<Foo>(val);
-  } else {
-    return tryMakeShared<Foo>(ErrorTag());
   }
+  return tryMakeShared<Foo>(ErrorTag());
 }
 
-TEST(Shared, Basic) {
+TEST(Shared, Basic) {  // NOLINT
   if (auto maybe_int = tryMakeShared<int>(5)) {
     int t = **maybe_int + 10;
     EXPECT_EQ(t, 15);
@@ -45,32 +46,32 @@ TEST(Shared, Basic) {
   }
 }
 
-TEST(Shared, Rethrow) {
+TEST(Shared, Rethrow) {  // NOLINT
   // User doesn't deal with error so we must throw
   if (auto t = makeSomething(42, true)) {
-    EXPECT_EQ((*t)->test_method(), 42);
+    EXPECT_EQ((*t)->testMethod(), 42);
   } else {
     FAIL();
   }
 
-  if (auto t = makeSomething(73, false)) {
+  auto t = makeSomething(73, false);
+  if (t) {
     FAIL();
-  } else {
-    EXPECT_FALSE(t.has_value());
   }
+  EXPECT_FALSE(t.has_value());
 }
 
-TEST(Shared, Conversions) {
+TEST(Shared, Conversions) {  // NOLINT
   struct Base {};
   struct Derived : public Base {};
 
   Shared<Base> x1 = Shared<Base>::make();
   Shared<Base> x2 = Shared<Derived>::make();
   Shared<Base> x3 = x1;
-  Shared<Base> x4 = std::unique_ptr<Base>(new Base());
-  Shared<Base> x5 = std::shared_ptr<Base>(new Base());
-  Shared<Base> x6 = std::unique_ptr<Derived>(new Derived());
-  Shared<Base> x7 = std::shared_ptr<Derived>(new Derived());
+  Shared<Base> x4 = std::make_unique<Base>();
+  Shared<Base> x5 = std::make_shared<Base>();
+  Shared<Base> x6 = std::make_unique<Derived>();
+  Shared<Base> x7 = std::make_shared<Derived>();
 
   EXPECT_ANY_THROW(
       []() { Shared<Base> x = std::unique_ptr<Derived>(nullptr); }());

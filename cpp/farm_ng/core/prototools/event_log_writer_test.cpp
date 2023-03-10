@@ -29,13 +29,13 @@
 
 using namespace farm_ng;
 namespace {
-std::string getHostName() {
+auto getHostName() -> std::string {
   char hostname[_POSIX_HOST_NAME_MAX];
   gethostname(hostname, _POSIX_HOST_NAME_MAX);
   return std::string(hostname);
 }
 }  // namespace
-TEST(event_log, no_file) {
+TEST(event_log, no_file) {  // NOLINT
   EXPECT_THROW(EventLogReader("file_does_not_exist"), EventLogExist);
   EXPECT_THROW(
       EventLogWriter("/no/perms/file_does_not_exist"),
@@ -48,7 +48,7 @@ TEST(event_log, no_file) {
   EventLogWriter writer_success2(
       FARM_UNWRAP(maybe_log_dir) / "tmplocal_file.log");
 }
-TEST(event_log, roundtrip) {
+TEST(event_log, roundtrip) {  // NOLINT
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
   auto file = log_dir / "events.log";
@@ -84,7 +84,7 @@ TEST(event_log, roundtrip) {
   }
 }
 
-TEST(event_log, index) {
+TEST(event_log, index) {  // NOLINT
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
   auto file = log_dir / "events.log";
@@ -114,7 +114,7 @@ TEST(event_log, index) {
   }
 }
 
-TEST(event_log, time_ordered_zip) {
+TEST(event_log, time_ordered_zip) {  // NOLINT
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
   auto file1 = log_dir / "events1.log";
@@ -159,7 +159,7 @@ TEST(event_log, time_ordered_zip) {
   }
 }
 
-TEST(event_log, post_processed_time_ordered_zip) {
+TEST(event_log, post_processed_time_ordered_zip) {  // NOLINT
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
   auto file1 = log_dir / "events1.log";

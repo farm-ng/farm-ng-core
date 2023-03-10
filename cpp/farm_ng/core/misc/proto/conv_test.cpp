@@ -19,7 +19,7 @@
 
 using namespace farm_ng;
 
-TEST(to_from_proto, uri) {
+TEST(to_from_proto, uri) {  // NOLINT
   Uri uri("other", "[authority]", "foo/bar", "in=input");
 
   Expected<Uri> maybe_to_from_uri = fromProto(toProto(uri));

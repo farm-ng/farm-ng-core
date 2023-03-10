@@ -16,7 +16,7 @@
 
 namespace farm_ng {
 
-std::ostream& operator<<(std::ostream& os, Error const& error) {
+auto operator<<(std::ostream& os, Error const& error) -> std::ostream& {
   os << error.details.size() << "error details:\n";
   for (auto const& error : error.details) {
     os << FARM_FORMAT("[{}:{}] {}\n", error.file, error.line, error.msg);

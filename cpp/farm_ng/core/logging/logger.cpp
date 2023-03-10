@@ -18,7 +18,7 @@
 
 namespace farm_ng {
 
-std::string stringFromLogLevel(LogLevel level) {
+auto stringFromLogLevel(LogLevel level) -> std::string {
   auto str = toString(level);
   std::transform(str.begin(), str.end(), str.begin(), ::toupper);
   return str;
@@ -27,10 +27,12 @@ std::string stringFromLogLevel(LogLevel level) {
 void StreamLogger::setHeaderFormat(std::string const& str) {
   header_format_ = str;
 }
-std::string StreamLogger::getHeaderFormat() const { return header_format_; }
+auto StreamLogger::getHeaderFormat() const -> std::string {
+  return header_format_;
+}
 
 void StreamLogger::setLogLevel(LogLevel level) { log_level_ = level; }
-LogLevel StreamLogger::getLogLevel() { return log_level_; }
+auto StreamLogger::getLogLevel() -> LogLevel { return log_level_; }
 
 void StreamLogger::writeHeader(
     LogLevel log_level,

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "farm_ng/core/event.pb.h"
+#include <farm_ng/core/event.pb.h>
 
 #include <filesystem>
 #include <memory>
@@ -65,7 +65,7 @@ class EventLogWriter {
           timestamps);
 
   /// Returns the path including the fileaname
-  std::filesystem::path getPath() const { return log_path_; }
+  [[nodiscard]] std::filesystem::path getPath() const { return log_path_; }
 
  private:
   // The log path including the filename

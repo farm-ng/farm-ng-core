@@ -37,14 +37,14 @@ struct Abc {
   std::string c;
 };
 
-Expected<A> makeA(bool a_error) {
+auto makeA(bool a_error) -> Expected<A> {
   if (a_error) {
     return FARM_UNEXPECTED("a - error");
   }
   return A{.a = "a"};
 }
 
-Expected<Ab> makeAb(bool a_error, bool b_error) {
+auto makeAb(bool a_error, bool b_error) -> Expected<Ab> {
   FARM_TRY(A a, makeA(a_error));
 
   if (b_error) {
@@ -56,7 +56,7 @@ Expected<Ab> makeAb(bool a_error, bool b_error) {
   return ab;
 }
 
-Expected<Abc> makeAbc(bool a_error, bool b_error, bool c_error) {
+auto makeAbc(bool a_error, bool b_error, bool c_error) -> Expected<Abc> {
   FARM_TRY(Ab ab, makeAb(a_error, b_error));
 
   if (c_error) {
@@ -68,7 +68,7 @@ Expected<Abc> makeAbc(bool a_error, bool b_error, bool c_error) {
   return abc;
 }
 
-Expected<Abc> makeAbcAtOnce(bool a_error, bool b_error, bool c_error) {
+auto makeAbcAtOnce(bool a_error, bool b_error, bool c_error) -> Expected<Abc> {
   Abc abc;
   Error error;
 
@@ -95,7 +95,7 @@ Expected<Abc> makeAbcAtOnce(bool a_error, bool b_error, bool c_error) {
   return abc;
 }
 
-Expected<A> sum(Expected<A> maybe_left, Expected<A> maybe_right) {
+auto sum(Expected<A> maybe_left, Expected<A> maybe_right) -> Expected<A> {
   FARM_TRY(A lhs, maybe_left);
   FARM_TRY(A rhs, maybe_right);
 
@@ -105,7 +105,7 @@ Expected<A> sum(Expected<A> maybe_left, Expected<A> maybe_right) {
 }
 }  // namespace farm_ng
 
-TEST(expected, success) {
+TEST(expected, success) {  // NOLINT
   Expected<Abc> abc = makeAbc(false, false, false);
   FARM_ASSERT(abc);
 
@@ -113,7 +113,7 @@ TEST(expected, success) {
   FARM_ASSERT(abc);
 }
 
-TEST(expected, single_error) {
+TEST(expected, single_error) {  // NOLINT
   Expected<Abc> abc = makeAbc(true, false, true);
   FARM_ASSERT(!abc);
   FARM_ASSERT_EQ(abc.error().details.size(), 1);
@@ -127,7 +127,7 @@ TEST(expected, single_error) {
   FARM_ASSERT_EQ(abc.error().details.size(), 1);
 }
 
-TEST(expected, multi_error) {
+TEST(expected, multi_error) {  // NOLINT
   auto abc = makeAbcAtOnce(true, false, true);
   FARM_ASSERT(!abc);
   FARM_ASSERT_EQ(abc.error().details.size(), 2);
@@ -141,7 +141,7 @@ TEST(expected, multi_error) {
   FARM_ASSERT(!s);
 }
 
-TEST(expected, unwrap) {
+TEST(expected, unwrap) {  // NOLINT
   EXPECT_DEATH(
       {
         Expected<Abc> abc = makeAbc(true, false, true);
@@ -159,7 +159,7 @@ TEST(expected, unwrap) {
       "expected type `abc` does not contain a valid.*a - error.*c - error");
 }
 
-TEST(expected, optional) {
+TEST(expected, optional) {  // NOLINT
   Expected<double> expected_double = 3;
   std::optional<double> optional_double = fromExpected(expected_double);
   FARM_ASSERT(optional_double);
@@ -187,7 +187,7 @@ TEST(expected, optional) {
       "expected type `expected_int` does not contain a valid.*std::nullopt");
 }
 
-TEST(expected, fancy_error) {
+TEST(expected, fancy_error) {  // NOLINT
   struct MyFancyError : Error {
     MyFancyError(Error error) : Error(error) {}
     int diagnostics;

@@ -16,4 +16,4 @@
 
 #include <gtest/gtest.h>
 
-TEST(tokenize, smoke) {}
+TEST(tokenize, smoke) {}  // NOLINT

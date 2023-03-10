@@ -147,16 +147,18 @@
   enum class NAME##Impl : UINT_TYPE{                                           \
       none = 0u, FARM_ENUMFLAGS_DETAILS_FLAG_DEFINITIONS(__VA_ARGS__)};        \
                                                                                \
-  NAME##Impl inline constexpr operator|(NAME##Impl left, NAME##Impl right) {   \
+  inline auto constexpr operator|(NAME##Impl left, NAME##Impl right) -> NAME   \
+      ##Impl {                                                                 \
     return NAME##Impl(UINT_TYPE(left) | UINT_TYPE(right));                     \
   }                                                                            \
                                                                                \
-  NAME##Impl inline constexpr operator&(NAME##Impl left, NAME##Impl right) {   \
+  inline auto constexpr operator&(NAME##Impl left, NAME##Impl right) -> NAME   \
+      ##Impl {                                                                 \
     return NAME##Impl(UINT_TYPE(left) & UINT_TYPE(right));                     \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline bool trySetFlagFromString(                           \
-      NAME##Impl &value, std::string const &str) {                             \
+  [[maybe_unused]] inline auto trySetFlagFromString(                           \
+      NAME##Impl &value, std::string const &str) -> bool {                     \
     FARM_PP_SEQ_FOR_EACH(                                                      \
         FARM_ENUMFLAG_DETAILS_OP_SET_ENUM_FROM_STRING,                         \
         NAME##Impl,                                                            \
@@ -164,25 +166,28 @@
     return false;                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline bool constexpr hasMask(                              \
-      NAME##Impl value, NAME##Impl mask) {                                     \
+  [[maybe_unused]] inline auto constexpr hasMask(                              \
+      NAME##Impl value, NAME##Impl mask) -> bool {                             \
     return (value & mask) == mask;                                             \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline void setMask(NAME##Impl &value, NAME##Impl mask) {   \
+  [[maybe_unused]] inline auto setMask(NAME##Impl &value, NAME##Impl mask)     \
+      -> void {                                                                \
     value = value | mask;                                                      \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline void clearMask(NAME##Impl &value, NAME##Impl mask) { \
+  [[maybe_unused]] inline auto clearMask(NAME##Impl &value, NAME##Impl mask)   \
+      -> void {                                                                \
     value = value & NAME##Impl(~UINT_TYPE(mask));                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline void toggleMask(                                     \
-      NAME##Impl &value, NAME##Impl mask) {                                    \
+  [[maybe_unused]] inline auto toggleMask(NAME##Impl &value, NAME##Impl mask)  \
+      -> void {                                                                \
     value = NAME##Impl(UINT_TYPE(value) ^ UINT_TYPE(mask));                    \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline bool constexpr isSingleFlag(NAME##Impl value) {      \
+  [[maybe_unused]] inline auto constexpr isSingleFlag(NAME##Impl value)        \
+      -> bool {                                                                \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH(                                                    \
           FARM_ENUMFLAG_DETAILS_OP_SINGLE_FLAG_CHECK,                          \
@@ -194,8 +199,8 @@
     return false;                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline std::vector<std::string> toStrings(                  \
-      NAME##Impl value) {                                                      \
+  [[maybe_unused]] inline auto toStrings(NAME##Impl value)                     \
+      -> std::vector<std::string> {                                            \
     std::vector<std::string> strings;                                          \
     FARM_PP_SEQ_FOR_EACH(                                                      \
         FARM_ENUMFLAG_DETAILS_OP_PUSHBACK_STRING,                              \
@@ -204,7 +209,7 @@
     return strings;                                                            \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline std::string toPretty(NAME##Impl value) {             \
+  [[maybe_unused]] inline auto toPretty(NAME##Impl value) -> std::string {     \
     std::string prettySet("{");                                                \
     FARM_PP_SEQ_FOR_EACH(                                                      \
         FARM_ENUMFLAG_DETAILS_OP_STRING_FOR_FLAG,                              \
@@ -214,29 +219,28 @@
     return prettySet;                                                          \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] constexpr size_t getCount(NAME##Impl) {       \
+  [[maybe_unused]] [[nodiscard]] auto constexpr getCount(NAME##Impl)           \
+      -> size_t {                                                              \
     return FARM_PP_TUPLE_SIZE(__VA_ARGS__);                                    \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline std::                                  \
-      array<std::string_view, FARM_PP_TUPLE_SIZE(__VA_ARGS__)>                 \
-      getNames(NAME##Impl) {                                                   \
+  [[maybe_unused]] [[nodiscard]] inline auto getNames(NAME##Impl)              \
+      -> std::array<std::string_view, FARM_PP_TUPLE_SIZE(__VA_ARGS__)> {       \
     return {FARM_ENUMFLAGS_DETAILS_COMMA_SEP_STRINGS(__VA_ARGS__)};            \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline std::string_view getStringOfNames(     \
-      NAME##Impl) {                                                            \
+  [[maybe_unused]] [[nodiscard]] inline auto getStringOfNames(NAME##Impl)      \
+      -> std::string_view {                                                    \
     return FARM_ENUMFLAGS_DETAILS_CSV_STRING(__VA_ARGS__);                     \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] constexpr std::                               \
-      array<UINT_TYPE, FARM_PP_TUPLE_SIZE(__VA_ARGS__)>                        \
-      getValues(NAME##Impl) {                                                  \
+  [[maybe_unused]] [[nodiscard]] auto constexpr getValues(NAME##Impl)          \
+      -> std::array<UINT_TYPE, FARM_PP_TUPLE_SIZE(__VA_ARGS__)> {              \
     return {FARM_ENUMFLAGS_DETAILS_COMMA_SEP_INTS(NAME##Impl, __VA_ARGS__)};   \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline constexpr std::string_view             \
-  getTypeName(NAME##Impl) {                                                    \
+  [[maybe_unused]] [[nodiscard]] inline auto constexpr getTypeName(NAME##Impl) \
+      -> std::string_view {                                                    \
     return FARM_PP_STRINGIZE(NAME);                                            \
   }                                                                            \
   }  // namespace enum_wrapper_

@@ -27,7 +27,7 @@
 
 FARM_ENUM_WITHOUT_IOSTREAM(Fruits, uint8_t, ((apple, 1), (banana, 3), pear));
 
-TEST(EnumTest, defaultDeath) {
+TEST(EnumTest, defaultDeath) {  // NOLINT
   Fruits fruit{};
   // We must initialize Fruits to a valid explicit value; the default (=0) would
   // not work here.
@@ -35,7 +35,7 @@ TEST(EnumTest, defaultDeath) {
   EXPECT_DEATH(toPretty(fruit), "");
 }
 
-TEST(EnumTest, toString) {
+TEST(EnumTest, toString) {  // NOLINT
   Fruits fruit = Fruits::apple;
   EXPECT_EQ(toString(fruit), "apple");
   EXPECT_EQ(toPretty(fruit), "apple (=1)");
@@ -53,7 +53,7 @@ TEST(EnumTest, toString) {
       "pear (=4)");  // since 3+1 is 4, and pear is the successor of banana.
 }
 
-TEST(EnumTest, StringsAndValues) {
+TEST(EnumTest, StringsAndValues) {  // NOLINT
   std::string_view type_name = getTypeName(Fruits());
   EXPECT_EQ(type_name, "Fruits");
   std::array<std::string_view, 3> strings = getStrings(Fruits());
@@ -81,7 +81,7 @@ struct Garage {
   FARM_ENUM_ALIAS(Autos);
 };
 
-TEST(EnumTest, trySetFromString) {
+TEST(EnumTest, trySetFromString) {  // NOLINT
   Garage::Autos car;
   bool is_set = trySetFromString(car, "van");
   EXPECT_EQ(car, Garage::Autos::van);

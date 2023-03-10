@@ -203,7 +203,7 @@
   enum class NAME##Impl : FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__){         \
       FARM_ENUM_DETAILS_CSV(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};         \
                                                                                \
-  [[maybe_unused]] inline std::string toString(NAME##Impl value) {             \
+  [[maybe_unused]] inline auto toString(NAME##Impl value) -> std::string {     \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH(                                                    \
           FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                                 \
@@ -214,8 +214,8 @@
     std::abort();                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline std::string_view constexpr toStringView(             \
-      NAME##Impl value) {                                                      \
+  [[maybe_unused]] inline auto constexpr toStringView(NAME##Impl value)        \
+      -> std::string_view {                                                    \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH(                                                    \
           FARM_ENUM_DETAILS_OP_TO_STRING_CASE,                                 \
@@ -226,7 +226,7 @@
     std::abort();                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] inline std::string toPretty(NAME##Impl value) {             \
+  [[maybe_unused]] inline auto toPretty(NAME##Impl value) -> std::string {     \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH(                                                    \
           FARM_ENUM_DETAILS_OP_TO_PRETTY_CASE,                                 \
@@ -237,8 +237,8 @@
     std::abort();                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline bool trySetFromString(                 \
-      NAME##Impl &value, std::string const &str) {                             \
+  [[maybe_unused]] [[nodiscard]] inline auto trySetFromString(                 \
+      NAME##Impl &value, std::string const &str) -> bool {                     \
     FARM_PP_SEQ_FOR_EACH(                                                      \
         FARM_ENUM_DETAILS_OP_SET_VALUE_CASES,                                  \
         NAME##Impl,                                                            \
@@ -247,45 +247,46 @@
     return false;                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] constexpr size_t getCount(NAME##Impl) {       \
+  [[maybe_unused]] [[nodiscard]] auto constexpr getCount(NAME##Impl)           \
+      -> size_t {                                                              \
     return FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__));        \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline std::array<                            \
-      std::string_view,                                                        \
-      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>             \
-  getStrings(NAME##Impl) {                                                     \
+  [[maybe_unused]] [[nodiscard]] inline auto getStrings(NAME##Impl)            \
+      -> std::array<                                                           \
+          std::string_view,                                                    \
+          FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))> {       \
     return {FARM_ENUM_DETAILS_COMMA_SEP_STRINGS(                               \
         FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};                             \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline std::string_view getStringOfNames(     \
-      NAME##Impl) {                                                            \
+  [[maybe_unused]] [[nodiscard]] inline auto getStringOfNames(NAME##Impl)      \
+      -> std::string_view {                                                    \
     return FARM_ENUM_DETAILS_CSV_STRING(                                       \
         FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__));                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] constexpr std::array<                         \
-      FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                             \
-      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>             \
-  getValues(NAME##Impl) {                                                      \
+  [[maybe_unused]] [[nodiscard]] auto constexpr getValues(NAME##Impl)          \
+      -> std::array<                                                           \
+          FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                         \
+          FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))> {       \
     return {FARM_ENUM_DETAILS_COMMA_SEP_INTS(                                  \
         NAME##Impl,                                                            \
         FARM_ENUM_DETAILS_GET_INT_TYPE(__VA_ARGS__),                           \
         FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))};                             \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] constexpr std::array<                         \
-      NAME##Impl,                                                              \
-      FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))>             \
-  getAll(NAME##Impl) {                                                         \
+  [[maybe_unused]] [[nodiscard]] auto constexpr getAll(NAME##Impl)             \
+      -> std::array<                                                           \
+          NAME##Impl,                                                          \
+          FARM_PP_TUPLE_SIZE(FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))> {       \
     /* return {NAME##Impl::apple, NAME##Impl::banana, NAME##Impl::pear}; */    \
     return {                                                                   \
         FARM_ENUM_NS_ENUM_CSV(NAME, FARM_ENUM_DETAILS_GET_VARS(__VA_ARGS__))}; \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] constexpr size_t getPosition(                 \
-      NAME##Impl value) {                                                      \
+  [[maybe_unused]] [[nodiscard]] auto constexpr getPosition(NAME##Impl value)  \
+      -> size_t {                                                              \
     switch (value) {                                                           \
       FARM_PP_SEQ_FOR_EACH_I(                                                  \
           FARM_ENUM_DETAILS_OP_POSITION_ICASE,                                 \
@@ -296,8 +297,8 @@
     std::abort();                                                              \
   }                                                                            \
                                                                                \
-  [[maybe_unused]] [[nodiscard]] inline std::string_view getTypeName(          \
-      NAME##Impl) {                                                            \
+  [[maybe_unused]] [[nodiscard]] inline auto getTypeName(NAME##Impl)           \
+      -> std::string_view {                                                    \
     return FARM_PP_STRINGIZE(NAME);                                            \
   }                                                                            \
   }  // namespace enum_wrapper_

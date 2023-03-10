@@ -29,7 +29,7 @@
 
 FARM_ENUMFLAGS(MyFlags, uint32_t, (foo, bar, daz));
 
-TEST(EnumTest, toString) {
+TEST(EnumTest, toString) {  // NOLINT
   MyFlags flags = MyFlags::foo;
   std::stringstream out;
   out << flags;
@@ -44,7 +44,7 @@ TEST(EnumTest, toString) {
   EXPECT_EQ(out3.str(), "{bar (=2), daz (=4), } (=6)");
 }
 
-TEST(EnumFlags, StringsAndValues) {
+TEST(EnumFlags, StringsAndValues) {  // NOLINT
   std::string_view type_name = getTypeName(MyFlags());
   EXPECT_EQ(type_name, "MyFlags");
   std::array<std::string_view, 3> strings = getNames(MyFlags());

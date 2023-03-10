@@ -16,8 +16,9 @@
 
 namespace farm_ng {
 
-Expected<farm_ng::Success> writeProtobufToJsonFile(
-    std::filesystem::path const& path, google::protobuf::Message const& proto) {
+auto writeProtobufToJsonFile(
+    std::filesystem::path const& path, google::protobuf::Message const& proto)
+    -> Expected<farm_ng::Success> {
   google::protobuf::util::JsonPrintOptions print_options;
   print_options.add_whitespace = true;
   print_options.always_print_primitive_fields = true;
@@ -35,8 +36,9 @@ Expected<farm_ng::Success> writeProtobufToJsonFile(
   return Success{};
 }
 
-Expected<Success> writeProtobufToBinaryFile(
-    std::filesystem::path const& path, google::protobuf::Message const& proto) {
+auto writeProtobufToBinaryFile(
+    std::filesystem::path const& path, google::protobuf::Message const& proto)
+    -> Expected<Success> {
   std::string binary_str;
   proto.SerializeToString(&binary_str);
   std::ofstream outf(path.string(), std::ofstream::binary);
@@ -51,8 +53,8 @@ Expected<Success> writeProtobufToBinaryFile(
   return Success{};
 }
 
-Expected<std::string> readJsonStringFromJsonFile(
-    std::filesystem::path const& path) {
+auto readJsonStringFromJsonFile(std::filesystem::path const& path)
+    -> Expected<std::string> {
   if (!std::filesystem::is_regular_file(path)) {
     return FARM_UNEXPECTED("{} is not a regular file", path);
   }
@@ -68,8 +70,8 @@ Expected<std::string> readJsonStringFromJsonFile(
   return json_str;
 }
 
-Expected<std::string> readBytesFromBinaryFile(
-    std::filesystem::path const& path) {
+auto readBytesFromBinaryFile(std::filesystem::path const& path)
+    -> Expected<std::string> {
   std::ifstream bin_in(path.string(), std::ifstream::binary);
   if (!bin_in) {
     return FARM_UNEXPECTED("Could not open path: {}", path.string());

@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(format, functional) {
+TEST(format, functional) {  // NOLINT
   int i = 10;
   uint8_t hex = 0x1f;
   double d = -11.2348677;
@@ -31,7 +31,7 @@ TEST(format, functional) {
       FARM_FORMAT("d: {:0.3f} | s: {}", d, s), "d: -11.235 | s: " + s);
 }
 
-TEST(runtime_format, functional) {
+TEST(runtime_format, functional) {  // NOLINT
   int i = 10;
   uint8_t hex = 0x1f;
   double d = -11.2348677;

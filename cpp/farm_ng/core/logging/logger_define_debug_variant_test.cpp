@@ -30,7 +30,7 @@ void invokeInfoDebugTraceLogMacros() {
   FARM_TRACE("{}", 0);
 }
 
-TEST(logger, compile_time_debug_runtime_info) {
+TEST(logger, compile_time_debug_runtime_info) {  // NOLINT
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
   defaultLogger().setLogLevel(LogLevel::info);
@@ -43,7 +43,7 @@ TEST(logger, compile_time_debug_runtime_info) {
   defaultLogger().setLogLevel(orig_log_level);
 }
 
-TEST(logger, compile_time_debug_runtime_debug) {
+TEST(logger, compile_time_debug_runtime_debug) {  // NOLINT
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
   defaultLogger().setLogLevel(LogLevel::debug);
@@ -56,7 +56,7 @@ TEST(logger, compile_time_debug_runtime_debug) {
   defaultLogger().setLogLevel(orig_log_level);
 }
 
-TEST(logger, compile_time_debug_runtime_trace) {
+TEST(logger, compile_time_debug_runtime_trace) {  // NOLINT
   CaptureStdErr capture;
   auto const orig_log_level = defaultLogger().getLogLevel();
   defaultLogger().setLogLevel(LogLevel::trace);

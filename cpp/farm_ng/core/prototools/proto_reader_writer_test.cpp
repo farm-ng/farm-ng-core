@@ -20,6 +20,6 @@
 
 using namespace farm_ng;
 
-TEST(proto_reader_writer, smoke) {
+TEST(proto_reader_writer, smoke) {  // NOLINT
   /// TODO
 }

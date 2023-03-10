@@ -36,11 +36,11 @@ Expected<Success> writeProtobufToBinaryFile(
 Expected<std::string> readJsonStringFromJsonFile(
     std::filesystem::path const& path);
 
-template <class ProtobufT>
-Expected<ProtobufT> readProtobufFromJsonFile(
+template <class TProtobufT>
+Expected<TProtobufT> readProtobufFromJsonFile(
     std::filesystem::path const& path) {
   FARM_TRY(std::string json_string, readJsonStringFromJsonFile(path));
-  ProtobufT message;
+  TProtobufT message;
   google::protobuf::util::JsonParseOptions parse_options;  // default
   auto status = google::protobuf::util::JsonStringToMessage(
       json_string, &message, parse_options);
@@ -53,10 +53,10 @@ Expected<ProtobufT> readProtobufFromJsonFile(
 Expected<std::string> readBytesFromBinaryFile(
     std::filesystem::path const& path);
 
-template <class ProtobufT>
-Expected<ProtobufT> readProtobufFromBinaryFile(
+template <class TProtobufT>
+Expected<TProtobufT> readProtobufFromBinaryFile(
     std::filesystem::path const& path) {
-  ProtobufT message;
+  TProtobufT message;
   FARM_TRY(std::string bytes, readBytesFromBinaryFile(path));
   if (message.ParseFromString(bytes)) {
     return FARM_UNEXPECTED("Failed to parse {}", path.string());

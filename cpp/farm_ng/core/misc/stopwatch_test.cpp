@@ -16,4 +16,4 @@
 
 #include <gtest/gtest.h>
 
-TEST(stopwatch, integrations) {}
+TEST(stopwatch, integrations) {}  // NOLINT

@@ -18,7 +18,7 @@
 
 using namespace farm_ng;
 
-TEST(filesystem, smoke) {
+TEST(filesystem, smoke) {  // NOLINT
   std::filesystem::path tmp_path = std::string("/tmp");
   std::filesystem::remove_all(tmp_path / "foo.00");
   std::filesystem::remove_all(tmp_path / "foo.01");
@@ -43,7 +43,7 @@ TEST(filesystem, smoke) {
   // ASSERT_FALSE(output_folder);
 }
 
-TEST(filesystem, createUniqueTemporaryDirectory) {
+TEST(filesystem, createUniqueTemporaryDirectory) {  // NOLINT
   auto output_folder = createUniqueTemporaryDirectory();
   ASSERT_TRUE(output_folder);
   std::string prefix = "/tmp/farm-ng-";
@@ -51,7 +51,7 @@ TEST(filesystem, createUniqueTemporaryDirectory) {
   ASSERT_TRUE(std::filesystem::exists(output_folder.value()));
 }
 
-TEST(filesystem, no_parent_path) {
+TEST(filesystem, no_parent_path) {  // NOLINT
   std::filesystem::path tmp_path = std::string("/tmp/tmp");
   auto output_folder = createVersionedFolder(tmp_path / "foo/bar");
   ASSERT_FALSE(output_folder);

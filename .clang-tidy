@@ -19,10 +19,12 @@ Checks:
   modernize-make-unique,
   modernize-make-shared,
   modernize-use-bool-literals,
+  modernize-use-default-member-init,
   modernize-use-nodiscard,
+  modernize-use-trailing-return-type,
   modernize-use-using'
 WarningsAsErrors: '*'
-HeaderFilterRegex: .*/farm_ng/.*
+HeaderFilterRegex: '".*/farm_ng/.*"'
 CheckOptions:
   - {key: readability-uppercase-literal-suffix.NewSuffixes,  value: L}
 
@@ -30,6 +32,7 @@ CheckOptions:
   - {key: readability-identifier-naming.StructCase, value: CamelCase}
   - {key: readability-identifier-naming.TemplateParameterCase, value: CamelCase}
   - {key: readability-identifier-naming.TemplateParameterPrefix, value: T}
+  - {key: readability-identifier-naming.TemplateParameterIgnoredRegexp, value: 'expr-type'}
   - {key: readability-identifier-naming.TypedefCase, value: CamelCase}
 
   - {key: readability-identifier-naming.FunctionCase, value: camelBack}

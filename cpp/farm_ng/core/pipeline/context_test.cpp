@@ -32,7 +32,7 @@ TEST(Context, Construct) {  // NOLINT
   EXPECT_EQ(ctx2.getAsioIoContextPtr(), ctx3.getAsioIoContextPtr());
 }
 
-TEST(ContextStrand, Construct) {
+TEST(ContextStrand, Construct) {  // NOLINT
   Context ctx1;
   ContextStrand strand1(ctx1);
   EXPECT_EQ(&ctx1.getAsioIoContext(), &strand1.getAsioIoContext());

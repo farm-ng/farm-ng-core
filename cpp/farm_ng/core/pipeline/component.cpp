@@ -19,7 +19,7 @@
 #include <cxxabi.h>
 namespace farm_ng {
 
-auto demangleTypeid(std::type_info const& type) -> std::string {
+std::string demangleTypeid(std::type_info const& type) {
   std::string demangled_type;
   char* c_demangled = nullptr;
   int status = 0;
@@ -31,14 +31,10 @@ auto demangleTypeid(std::type_info const& type) -> std::string {
   return demangled_type;
 }
 
-auto Component::getContext() const -> Context {
-  return context_strand_.getContext();
-};
+Context Component::getContext() const { return context_strand_.getContext(); };
 
-auto Component::getContextStrand() const -> ContextStrand {
-  return context_strand_;
-};
+ContextStrand Component::getContextStrand() const { return context_strand_; };
 
-auto Component::uri() const -> Uri const& { return uri_; }
+Uri const& Component::uri() const { return uri_; }
 
 }  // namespace farm_ng

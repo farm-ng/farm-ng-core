@@ -31,10 +31,10 @@ namespace farm_ng {
 
 class Component;
 
-template <class T>
+template <class TArg>
 class Input;
 
-template <class T>
+template <class TArg>
 class Output;
 
 /// Contains the execution state context.
@@ -96,7 +96,7 @@ class ContextStrand {
   Context::Strand& getAsioStrand();
 
   /// Returns the owned ``Context`` by the component.
-  Context getContext() const;
+  [[nodiscard]] Context getContext() const;
 
  private:
   // The ``Context`` object owned by the class.

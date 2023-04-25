@@ -20,7 +20,7 @@
 
 using namespace farm_ng;
 
-TEST(Context, Construct) {  // NOLINT
+TEST(Context, Construct) {
   Context ctx1;
   Context ctx2;
 
@@ -32,7 +32,7 @@ TEST(Context, Construct) {  // NOLINT
   EXPECT_EQ(ctx2.getAsioIoContextPtr(), ctx3.getAsioIoContextPtr());
 }
 
-TEST(ContextStrand, Construct) {  // NOLINT
+TEST(ContextStrand, Construct) {
   Context ctx1;
   ContextStrand strand1(ctx1);
   EXPECT_EQ(&ctx1.getAsioIoContext(), &strand1.getAsioIoContext());

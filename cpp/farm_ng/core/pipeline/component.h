@@ -36,19 +36,19 @@ std::string demangleTypeid(std::type_info const &type);
 class Component {
  public:
   /// Default constructor of a context, it gets its own `io_context`.
-  template <class Derived>
+  template <class TDerived>
   explicit Component(
       Context const &ctx,
       std::string scheme,
-      Derived *,
+      TDerived * /*unused*/,
       std::string const &path)
       : context_strand_(ctx),
         uri_(
             scheme,
-            FARM_FORMAT("[{}]", demangleTypeid(typeid(Derived))),
+            FARM_FORMAT("[{}]", demangleTypeid(typeid(TDerived))),
             path) {
     static_assert(
-        std::is_base_of_v<Component, Derived>,
+        std::is_base_of_v<Component, TDerived>,
         "must be derived from Component");
   }
 
@@ -56,17 +56,17 @@ class Component {
   virtual ~Component() = default;
 
   /// Returns the owned ``Context`` by the component.
-  Context getContext() const;
+  [[nodiscard]] Context getContext() const;
 
   /// Returns the owned ``ContextStrand`` by the component.
-  ContextStrand getContextStrand() const;
+  [[nodiscard]] ContextStrand getContextStrand() const;
 
   /// Returns the unique uri of the component instance.
-  Uri const &uri() const;
+  [[nodiscard]] Uri const &uri() const;
 
  protected:
   /// Placeholder for a component reset callback
-  virtual void onReset(Void const &) {}
+  virtual void onReset(Void const & /*unused*/) {}
 
  private:
   ContextStrand context_strand_;
@@ -74,11 +74,11 @@ class Component {
 };
 
 /// Templated ``Input`` constructor
-template <class T>
-Input<T>::Input(
+template <class TArg>
+Input<TArg>::Input(
     Component const *component,
     std::string const &name,
-    std::function<void(T)> const &f,
+    std::function<void(TArg)> const &f,
     InputConfig const &config)
     : context_strand_(FARM_UNWRAP(component).getContextStrand()),
       uri_(FARM_UNWRAP(component).uri()),

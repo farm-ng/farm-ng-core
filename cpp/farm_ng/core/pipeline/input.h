@@ -36,7 +36,7 @@ class InputConfig {
 };
 
 /// A class that represents in ``Input`` type to be used in a ``Component``.
-template <class T>
+template <class TArg>
 class Input {
  public:
   /// Default constructor, takes its `component`, its `name`, a callback
@@ -47,7 +47,7 @@ class Input {
   explicit Input(
       Component const* component,
       std::string const& name,
-      std::function<void(T)> const& f,
+      std::function<void(TArg)> const& f,
       InputConfig const& config = InputConfig());
 
   /// Default destructor
@@ -55,22 +55,22 @@ class Input {
 
   /// Add a connection between the input signal with the internal signal_slot
   /// function
-  Input<T>& connect(boost::signals2::signal<void(T)>& signal) {
+  Input<TArg>& connect(boost::signals2::signal<void(TArg)>& signal) {
     connections_.push_back(
         std::make_shared<boost::signals2::scoped_connection>(signal.connect(
-            std::bind(&Input<T>::signalSlot, this, std::placeholders::_1))));
+            std::bind(&Input<TArg>::signalSlot, this, std::placeholders::_1))));
     return *this;
   }
 
   /// Call the actual function and send the result through the signal.
-  void send(T const& value) { signalSlot(value); }
+  void send(TArg const& value) { signalSlot(value); }
 
   /// Returns the unique uri of the input.
-  Uri const& uri() const { return uri_; }
+  [[nodiscard]] Uri const& uri() const { return uri_; }
 
  private:
   // signalSlot is called by the signal, on the sending thread.
-  bool signalSlot(T value) {
+  bool signalSlot(TArg value) {
     int count = count_.load();
     if (config_.max_queue_length != 0 && count > 0 &&
         size_t(count) >= config_.max_queue_length) {
@@ -90,7 +90,7 @@ class Input {
   // strandedSlot is called on the strand associated with ContextStrand
   // context_strand_, and it can be a generic place to track things like
   // function execution time, and manage the queue length.
-  void strandedSlot(T value) {
+  void strandedSlot(TArg value) {
     // begin timing
     function_(std::move(value));
     // end timing
@@ -105,7 +105,7 @@ class Input {
   /// The configuration structure for the class instance.
   InputConfig config_;
   /// The callback function definition.
-  std::function<void(T)> function_;
+  std::function<void(TArg)> function_;
   /// The list contained connections between other functions.
   std::vector<std::shared_ptr<boost::signals2::scoped_connection>> connections_;
   /// A counter tracking the number of calls made to the function.

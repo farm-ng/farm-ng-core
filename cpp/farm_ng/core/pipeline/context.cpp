@@ -28,9 +28,9 @@ Context::Context()
 // new WorkGuard(boost::asio::make_work_guard(*ctx_))))
 {}
 
-auto Context::getAsioIoContext() -> Context::IoContext& { return *ctx_; }
+Context::IoContext& Context::getAsioIoContext() { return *ctx_; }
 
-auto Context::getAsioIoContextPtr() -> std::shared_ptr<Context::IoContext> {
+std::shared_ptr<Context::IoContext> Context::getAsioIoContextPtr() {
   return ctx_;
 }
 
@@ -49,13 +49,13 @@ ContextStrand::ContextStrand(Context const& ctx)
     : ctx_(ctx),
       strand_(std::make_shared<Context::Strand>(ctx_.getAsioIoContext())) {}
 
-auto ContextStrand::getAsioIoContext() -> Context::IoContext& {
+Context::IoContext& ContextStrand::getAsioIoContext() {
   return ctx_.getAsioIoContext();
 }
 
-auto ContextStrand::getAsioStrand() -> Context::Strand& { return *strand_; }
+Context::Strand& ContextStrand::getAsioStrand() { return *strand_; }
 
 /// Returns the owned ``Context`` by the component.
-auto ContextStrand::getContext() const -> Context { return ctx_; }
+Context ContextStrand::getContext() const { return ctx_; }
 
 }  // namespace farm_ng

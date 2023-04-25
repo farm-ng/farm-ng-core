@@ -30,7 +30,7 @@ struct InputTestComponent : Component {
   int aaa = 1;
 };
 
-TEST(Component, Construct) {  // NOLINT
+TEST(Component, Construct) {
   Context ctx;
   InputTestComponent comp(ctx);
   comp.in_int.send(4);

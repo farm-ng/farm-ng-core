@@ -27,11 +27,11 @@
 
 namespace farm_ng {
 
-template <class T>
+template <class TArg>
 class Input;
 
 /// A class that represents an ``Output`` type to be used in a ``Component``.
-template <class T>
+template <class TArg>
 class Output {
  public:
   /// Default constructor, takes its `component`, and its `name`.
@@ -48,16 +48,16 @@ class Output {
   ~Output() {}
 
   /// Call the actual function and send the result through the signal.
-  void send(const T& out) { signal_(out); }
+  void send(const TArg& out) { signal_(out); }
 
   /// Return the signal to the output function signature.
-  boost::signals2::signal<void(T)>& signal() { return signal_; }
+  boost::signals2::signal<void(TArg)>& signal() { return signal_; }
 
   /// Create a connection between the current signal and the receiving input.
-  void connect(Input<T>& input) { input.connect(signal()); }
+  void connect(Input<TArg>& input) { input.connect(signal()); }
 
   /// Returns the unique uri of the output.
-  Uri const& uri() const { return uri_; }
+  [[nodiscard]] Uri const& uri() const { return uri_; }
 
  private:
   /// The stranded context of the function.
@@ -65,7 +65,7 @@ class Output {
   /// The configuration structure for the class instance.
   Uri uri_;
   /// The signal to the function.
-  boost::signals2::signal<void(T)> signal_;
+  boost::signals2::signal<void(TArg)> signal_;
 };
 
 }  // namespace farm_ng

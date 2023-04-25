@@ -29,7 +29,7 @@ struct OutputTestComponent : Component {
   Output<int&> out_int;
 };
 
-TEST(Component, Construct) {  // NOLINT
+TEST(Component, Construct) {
   Context ctx;
   OutputTestComponent comp(ctx);
 
@@ -37,7 +37,7 @@ TEST(Component, Construct) {  // NOLINT
   ctx.getAsioIoContext().run();
 }
 
-TEST(Component, Signal) {  // NOLINT
+TEST(Component, Signal) {
   Context ctx;
   OutputTestComponent comp(ctx);
 

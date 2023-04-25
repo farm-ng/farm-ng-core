@@ -32,9 +32,9 @@ class Adder : public Component {
         in_b_(this, "b", std::bind(&Adder::onB, this, std::placeholders::_1)),
         out_sum_(this, "sum") {}
 
-  auto inA() -> Input<int>& { return in_a_; }
-  auto inB() -> Input<int>& { return in_b_; }
-  auto outSum() -> Output<int>& { return out_sum_; }
+  Input<int>& inA() { return in_a_; }
+  Input<int>& inB() { return in_b_; }
+  Output<int>& outSum() { return out_sum_; }
 
  private:
   void onA(int a) {
@@ -73,7 +73,7 @@ class Printer : public Component {
 
 using namespace farm_ng;
 
-TEST(Component, Connect) {  // NOLINT
+TEST(Component, Connect) {
   Context ctx;
   Adder adder(ctx);
   FARM_ASSERT_EQ(
@@ -88,7 +88,7 @@ TEST(Component, Connect) {  // NOLINT
   adder.inB().send(2);
 }
 
-TEST(Component, TwoThreadsTest) {  // NOLINT
+TEST(Component, TwoThreadsTest) {
   Context ctx1;
   Adder adder(ctx1);
   Context ctx2;

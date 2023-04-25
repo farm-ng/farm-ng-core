@@ -20,4 +20,4 @@
 
 using namespace farm_ng;
 
-TEST(thread_pool, unit) {}  // NOLINT
+TEST(thread_pool, unit) {}

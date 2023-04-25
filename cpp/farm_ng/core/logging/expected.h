@@ -74,10 +74,10 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 #define FARM_UNEXPECTED(cstr, ...) \
   ::tl::make_unexpected(FARM_ERROR_REPORT(cstr, ##__VA_ARGS__))
 
-/// Assigns `*expected_val` to `var` of `Type`, but returns error if there is
+/// Assigns `*expression` to `var` of `Type`, but returns error if there is
 /// one.
-#define FARM_TRY(Type, var, expected_val)             \
-  auto maybe##var = (expected_val);                   \
+#define FARM_TRY(Type, var, expression)               \
+  auto maybe##var = (expression);                     \
   if (!maybe##var) {                                  \
     return ::tl::make_unexpected(maybe##var.error()); \
   }                                                   \

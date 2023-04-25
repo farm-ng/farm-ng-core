@@ -76,7 +76,7 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 
 /// Assigns `*expected_val` to `var` of `Type`, but returns error if there is
 /// one.
-#define FARM_TRY_ASSIGN(Type, var, expected_val)      \
+#define FARM_TRY(Type, var, expected_val)             \
   auto maybe##var = (expected_val);                   \
   if (!maybe##var) {                                  \
     return ::tl::make_unexpected(maybe##var.error()); \

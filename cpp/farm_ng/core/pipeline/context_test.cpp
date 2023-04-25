@@ -20,7 +20,7 @@
 
 using namespace farm_ng;
 
-TEST(Context, Construct) {
+TEST(Context, Construct) {  // NOLINT
   Context ctx1;
   Context ctx2;
 

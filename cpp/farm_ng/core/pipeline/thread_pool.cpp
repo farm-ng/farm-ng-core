@@ -46,6 +46,6 @@ void ThreadPool::join() {
   threads_.clear();
 }
 
-Context::IoContext& ThreadPool::getAsioIoContext() { return *ctx_; }
+auto ThreadPool::getAsioIoContext() -> Context::IoContext& { return *ctx_; }
 
 }  // namespace farm_ng

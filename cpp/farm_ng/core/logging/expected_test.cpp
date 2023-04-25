@@ -45,7 +45,7 @@ auto makeA(bool a_error) -> Expected<A> {
 }
 
 auto makeAb(bool a_error, bool b_error) -> Expected<Ab> {
-  FARM_TRY_ASSIGN(A, a, makeA(a_error));
+  FARM_TRY(A, a, makeA(a_error));
 
   if (b_error) {
     return FARM_UNEXPECTED("b - {}", "error");
@@ -57,7 +57,7 @@ auto makeAb(bool a_error, bool b_error) -> Expected<Ab> {
 }
 
 auto makeAbc(bool a_error, bool b_error, bool c_error) -> Expected<Abc> {
-  FARM_TRY_ASSIGN(Ab, ab, makeAb(a_error, b_error));
+  FARM_TRY(Ab, ab, makeAb(a_error, b_error));
 
   if (c_error) {
     return FARM_UNEXPECTED("c - error - {}", 42);
@@ -96,8 +96,8 @@ auto makeAbcAtOnce(bool a_error, bool b_error, bool c_error) -> Expected<Abc> {
 }
 
 auto sum(Expected<A> maybe_left, Expected<A> maybe_right) -> Expected<A> {
-  FARM_TRY_ASSIGN(A, lhs, maybe_left);
-  FARM_TRY_ASSIGN(A, rhs, maybe_right);
+  FARM_TRY(A, lhs, maybe_left);
+  FARM_TRY(A, rhs, maybe_right);
 
   A s;
   s.a = lhs.a + rhs.a;

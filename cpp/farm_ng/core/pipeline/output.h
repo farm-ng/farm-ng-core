@@ -48,7 +48,7 @@ class Output {
   ~Output() {}
 
   /// Call the actual function and send the result through the signal.
-  void send(const TArg& out) { signal_(out); }
+  void send(TArg const& out) { signal_(out); }
 
   /// Return the signal to the output function signature.
   boost::signals2::signal<void(TArg)>& signal() { return signal_; }

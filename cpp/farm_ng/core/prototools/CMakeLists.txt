@@ -1,9 +1,3 @@
-#[[
-sophus_serial
-
-
-
-]]
 farm_ng_add_library(farm_ng_core_prototools
   NAMESPACE farm_ng_core
   INCLUDE_DIR ../../..

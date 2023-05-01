@@ -29,8 +29,29 @@ class EventAndPayload {
   virtual ~EventAndPayload();
 
   virtual core::proto::Event const& event() const = 0;
-  virtual std::string readPayload() const = 0;
+  virtual void stamp(core::proto::Timestamp const& stamp) const = 0;
+  virtual std::string const& readPayload() const = 0;
+  static Shared<EventAndPayload> make(
+      core::proto::Event const& event, std::string const& payload);
+
+  static Shared<EventAndPayload> make(
+      std::string const& path,
+      google::protobuf::Message const& message,
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
+          timestamps);
+
+  static Shared<EventAndPayload> make(
+      std::string const& path,
+      google::protobuf::Message const& message,
+      std::vector<core::proto::Timestamp> const& timestamps =
+          std::vector<core::proto::Timestamp>());
 };
 
 typedef Shared<EventAndPayload> SharedEventAndPayload;
+
+std::string const& getAuthority();
+core::proto::Timestamp makeWriteStamp();
+core::proto::Timestamp makeRecvStamp();
+core::proto::Timestamp makeSendStamp();
+
 }  // namespace farm_ng

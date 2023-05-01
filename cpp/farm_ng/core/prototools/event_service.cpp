@@ -13,6 +13,7 @@
 //    limitations under the License.
 
 #include <farm_ng/core/event_service.grpc.pb.h>
+#include <farm_ng/core/prototools/event_log_writer.h>
 #include <farm_ng/core/prototools/event_service.h>
 #include <grpcpp/grpcpp.h>
 namespace farm_ng {
@@ -55,9 +56,9 @@ class EventServiceClientImpl : public EventServiceClient {
 
     while (true) {
       if (reader->Read(&reply)) {
+        *reply.mutable_event()->add_timestamps() = makeRecvStamp();
         FARM_INFO("{}", reply.event().DebugString());
-        // out_events_.send(reply.event());
-        // self_->outMessages().send(r.messages());
+        out_events_.send(EventAndPayload::make(reply.event(), reply.payload()));
       } else {
         FARM_WARN("Events stream ended.");
         break;
@@ -70,12 +71,22 @@ class EventServiceClientImpl : public EventServiceClient {
         server_address_, grpc::InsecureChannelCredentials()));
     subscribeToEvents();
   }
-  void onEvents(SharedEventAndPayload event_and_payload) {}
+  void onEvents(SharedEventAndPayload event_and_payload) {
+    core::proto::PublishEventRequest request;
+    request.mutable_event()->CopyFrom(event_and_payload->event());
+    request.set_payload(event_and_payload->readPayload());
+
+    *request.mutable_event()->add_timestamps() = makeSendStamp();
+    core::proto::PublishEventReply reply;
+    stub_->publishEvent(&context_, request, &reply);
+    FARM_INFO("publish: {}", reply.ShortDebugString());
+  }
 
   Input<SharedEventAndPayload> in_events_;
   Output<SharedEventAndPayload> out_events_;
   std::string server_address_;
 
+  grpc::ClientContext context_;
   std::unique_ptr<core::proto::EventService::Stub> stub_;
 };
 

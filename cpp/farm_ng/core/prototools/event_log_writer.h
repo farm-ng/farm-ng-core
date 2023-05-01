@@ -17,6 +17,7 @@
 #pragma once
 
 #include <farm_ng/core/event.pb.h>
+#include <farm_ng/core/prototools/event_and_payload.h>
 
 #include <filesystem>
 #include <memory>
@@ -31,6 +32,7 @@ class EventLogWriterImpl {
   /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
   virtual ~EventLogWriterImpl() {}
 
+  virtual void write(SharedEventAndPayload const& event) = 0;
   virtual void write(
       std::string path,
       google::protobuf::Message const& message,
@@ -73,7 +75,5 @@ class EventLogWriter {
   // Implementation pointer of the class
   std::unique_ptr<EventLogWriterImpl> impl_;
 };
-
-core::proto::Timestamp makeWriteStamp();
 
 }  // namespace farm_ng

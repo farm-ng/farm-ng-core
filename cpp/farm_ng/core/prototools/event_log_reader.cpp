@@ -107,10 +107,18 @@ EventLogPos::EventLogPos(
 
 auto EventLogPos::event() const -> core::proto::Event const& { return event_; }
 
-auto EventLogPos::readPayload() const -> std::string {
+void EventLogPos::stamp(core::proto::Timestamp const& stamp) const {
+  event_.add_timestamps()->CopyFrom(stamp);
+}
+
+auto EventLogPos::readPayload() const -> std::string const& {
+  if (!payload_.empty()) {
+    return payload_;
+  }
   std::shared_ptr<EventLogReaderImpl> log = log_.lock();
   FARM_ASSERT(!!log, "Log closed: {}", event_.ShortDebugString());
-  return log->readPayload(event_, pos_);
+  const_cast<EventLogPos*>(this)->payload_ = log->readPayload(event_, pos_);
+  return payload_;
 }
 
 auto EventLogReaderImpl::getIndex() -> std::vector<EventLogPos> const& {

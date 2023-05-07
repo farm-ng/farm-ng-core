@@ -28,13 +28,21 @@ service EventService {
     rpc publishEvents(stream PublishEventsRequest) returns (PublishEventsReply) {}
 }
 
-
-message SubscribeToEventsRequest {
+message EventSubscription {
     Uri consumer_uri = 1; // URI of the consumer
-    string filter = 2; // Filter for events that the consumer is interested in
+    string topic = 2; // Filter for events that the consumer is interested in
     int32 every_n = 3; // Only send every n-th event, if 0 send all messages
     int32 k_messages = 4; // Stop subscription after k messages, if 0 never stop
     bool discard_payload = 5; // The consumer isn't interested in the payload
+}
+
+message EventSubscriptions {
+    repeated EventSubscription subscriptions = 1;
+}
+
+
+message SubscribeToEventsRequest {
+    EventSubscription subscription = 1;
 }
 
 message SubscribeToEventsReply {
@@ -48,12 +56,12 @@ message PublishEventRequest{
 }
 
 message PublishEventReply {
-    repeated SubscribeToEventsRequest subscriptions = 1;
 }
 
 message PublishEventsRequest{
-    repeated PublishEventRequest events = 1;
+    Event event = 1;
+    bytes payload = 2;
 }
+
 message PublishEventsReply{
-    repeated SubscribeToEventsRequest subscriptions = 1;
 }

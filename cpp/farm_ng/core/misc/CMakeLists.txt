@@ -22,7 +22,6 @@ farm_ng_add_library(farm_ng_core_misc
   concept_utils.h
   tokenize.h
   variant_utils.h
-  uri.h
   void.h
 )
 
@@ -36,14 +35,9 @@ foreach(test_basename
     shared
     stopwatch
     tokenize
-    uri
     )
   farm_ng_add_test(${test_basename}
                     PARENT_LIBRARY farm_ng_core_misc
                     LINK_LIBRARIES farm_ng_core_misc
                     LABELS small)
 endforeach()
-
-if(BUILD_FARM_NG_PROTOS)
-    add_subdirectory(proto)
-endif()

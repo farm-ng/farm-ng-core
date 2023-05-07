@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "farm_ng/core/misc/uri.h"
 #include "farm_ng/core/pipeline/context.h"
 #include "farm_ng/core/pipeline/input.h"
 
@@ -36,6 +35,11 @@ std::string demangleTypeid(std::type_info const &type);
 class Component {
  public:
   /// Default constructor of a context, it gets its own `io_context`.
+
+  explicit Component(
+      Context const &ctx, std::string scheme, std::string const &path)
+      : context_strand_(ctx), uri_(scheme + "://" + path) {}
+
   template <class TDerived>
   explicit Component(
       Context const &ctx,
@@ -44,9 +48,8 @@ class Component {
       std::string const &path)
       : context_strand_(ctx),
         uri_(
-            scheme,
-            FARM_FORMAT("[{}]", demangleTypeid(typeid(TDerived))),
-            path) {
+            scheme + "://" +
+            FARM_FORMAT("[{}]/{}", demangleTypeid(typeid(TDerived)), path)) {
     static_assert(
         std::is_base_of_v<Component, TDerived>,
         "must be derived from Component");
@@ -62,7 +65,7 @@ class Component {
   [[nodiscard]] ContextStrand getContextStrand() const;
 
   /// Returns the unique uri of the component instance.
-  [[nodiscard]] Uri const &uri() const;
+  [[nodiscard]] std::string const &uri() const;
 
  protected:
   /// Placeholder for a component reset callback
@@ -70,7 +73,7 @@ class Component {
 
  private:
   ContextStrand context_strand_;
-  Uri uri_;
+  std::string uri_;
 };
 
 /// Templated ``Input`` constructor
@@ -81,11 +84,9 @@ Input<TArg>::Input(
     std::function<void(TArg)> const &f,
     InputConfig const &config)
     : context_strand_(FARM_UNWRAP(component).getContextStrand()),
-      uri_(FARM_UNWRAP(component).uri()),
+      uri_(FARM_UNWRAP(component).uri() + "?in=" + name),
       config_(config),
       function_(f),
-      count_(0) {
-  uri_.query = FARM_FORMAT("in={}", name);
-}
+      count_(0) {}
 
 }  // namespace farm_ng

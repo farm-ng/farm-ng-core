@@ -54,4 +54,6 @@ core::proto::Timestamp makeWriteStamp();
 core::proto::Timestamp makeRecvStamp();
 core::proto::Timestamp makeSendStamp();
 
+std::string uriString(core::proto::Uri const& uri);
+
 }  // namespace farm_ng

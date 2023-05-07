@@ -128,4 +128,12 @@ Shared<EventAndPayload> EventAndPayload::make(
   return EventAndPayload::make(path, message, proto_stamps);
 }
 
+std::string uriString(core::proto::Uri const& uri) {
+  if (uri.query().empty()) {
+    return uri.scheme() + "://" + uri.authority() + "/" + uri.path();
+  }
+  return uri.scheme() + "://" + uri.authority() + "/" + uri.path() + "?" +
+         uri.query();
+}
+
 }  // namespace farm_ng

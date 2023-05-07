@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "farm_ng/core/misc/uri.h"
-
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 // #include <boost/asio/executor_work_guard.hpp>

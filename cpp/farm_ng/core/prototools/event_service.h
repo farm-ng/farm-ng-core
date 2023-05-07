@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <farm_ng/core/event_service.pb.h>
 #include <farm_ng/core/misc/shared.h>
 #include <farm_ng/core/pipeline/component.h>
 #include <farm_ng/core/pipeline/input.h>
@@ -28,14 +29,24 @@ namespace farm_ng {
 
 class EventServiceClient : public Component {
  public:
-  EventServiceClient(Context const &ctx, std::string const &path);
+  EventServiceClient(
+      Context const &ctx,
+      std::string const &path,
+      core::proto::EventSubscriptions const &subscriptions);
   virtual ~EventServiceClient();
+
+  core::proto::EventSubscriptions const &getSubscriptions() const;
+
   virtual Input<SharedEventAndPayload> &inEvents() = 0;
   virtual Output<SharedEventAndPayload> &outEvents() = 0;
   static Shared<EventServiceClient> create(
       Context const &ctx,
       std::string const &path,
-      std::string const &server_address);
+      std::string const &server_address,
+      core::proto::EventSubscriptions const &subscriptions);
+
+ private:
+  core::proto::EventSubscriptions subscriptions_;
 };
 
 }  // namespace farm_ng

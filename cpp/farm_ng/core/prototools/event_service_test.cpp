@@ -20,9 +20,37 @@
 
 using namespace farm_ng;
 
+core::proto::EventSubscription makeSubscription(
+    std::string topic,
+    std::string consumer_path,
+    int every_n = 0,
+    int k_messages = 0,
+    bool discard_payload = false) {
+  core::proto::EventSubscription subscription;
+  subscription.mutable_consumer_uri()->set_authority(getAuthority());
+  subscription.mutable_consumer_uri()->set_path(consumer_path);
+  subscription.mutable_consumer_uri()->set_scheme("protobuf");
+  subscription.set_topic(topic);
+  subscription.set_every_n(every_n);
+  subscription.set_k_messages(k_messages);
+  subscription.set_discard_payload(discard_payload);
+  return subscription;
+}
+
 TEST(event_service_client, connect) {  // NOLINT
   Context ctx;
 
-  auto client = EventServiceClient::create(ctx, "events", "localhost:95076");
+  core::proto::EventSubscriptions subscriptions;
+  subscriptions.add_subscriptions()->CopyFrom(
+      makeSubscription("source/foo/a", "dest/foo/a"));
+
+  subscriptions.add_subscriptions()->CopyFrom(
+      makeSubscription("source/foo/b", "dest/foo/b"));
+
+  auto client1 = EventServiceClient::create(
+      ctx, "events1", "localhost:95076", subscriptions);
+  auto client2 = EventServiceClient::create(
+      ctx, "events2", "localhost:95076", subscriptions);
+
   ctx.run();
 }

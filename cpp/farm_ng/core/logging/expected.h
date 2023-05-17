@@ -83,7 +83,7 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
   }                                                   \
   Type var = ::std::move(*maybe##var);
 
-#define FARM_ASSERT_OR_ERROR(condition, ...)                             \
+#define FARM_TRY_ASSERT(condition, ...)                                  \
   if (!(condition)) {                                                    \
     return FARM_UNEXPECTED(                                              \
         "bool({}) not true.\n{}", #condition, FARM_FORMAT(__VA_ARGS__)); \
@@ -103,4 +103,32 @@ Expected<TT> fromOptional(std::optional<TT> optional) {
                   : FARM_UNEXPECTED("std::nullopt");
 }
 
+namespace detail {
+
+template <class TT>
+struct AssertTrue<Expected<TT>> {
+  static void impl(
+      Expected<TT> const& condition,
+      std::string const& condition_str,
+      std::string const& file,
+      int line,
+      std::string const& func,
+      std::string const& str) {
+    if (!condition) {
+      farm_ng::defaultLogger().log(
+          farm_ng::LogLevel::critical,
+          FARM_FORMAT(
+              "PANIC: ASSERT failed\n Expected ({}) has error: {}",
+              condition_str,
+              condition.error()),
+          file,
+          line,
+          func,
+          str);
+      FARM_IMPL_ABORT();
+    }
+  }
+};
+
+}  // namespace detail
 }  // namespace farm_ng

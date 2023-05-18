@@ -49,8 +49,6 @@ jobs:
       working-directory: ./infra/
       run: |
         source ./bootstrap_venv.sh
-        cd scripts
-        ./install_farm_ng_cmake.sh
 
     - name: Compile (gcc)
       working-directory: ./infra/scripts

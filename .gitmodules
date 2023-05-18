@@ -1,3 +1,0 @@
-[submodule "infra/submodules/farm-ng-cmake"]
-	path = infra/ci-submodules/farm-ng-cmake
-	url = https://github.com/farm-ng/farm-ng-cmake.git

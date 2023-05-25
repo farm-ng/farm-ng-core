@@ -70,7 +70,11 @@ class EventsFileWriter:
 
     @property
     def file_name(self) -> Path:
-        return self._file_base.with_suffix(f".{self.file_idx:04}" + self.extension)
+        return (
+            self._file_base.with_suffix(f".{self.file_idx:04}" + self.extension)
+            if self.max_file_length > 0
+            else self._file_base.with_suffix(self.extension)
+        )
 
     def is_open(self) -> bool:
         return not self.is_closed()

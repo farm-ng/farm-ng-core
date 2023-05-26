@@ -250,55 +250,19 @@ inline StreamLogger& defaultLogger() {
     }                                                           \
   } while (false)
 
-namespace farm_ng {
-namespace detail {
-
-template <class TT>
-struct AssertTrue {
-  static void impl(
-      TT const& condition,
-      std::string const& condition_str,
-      std::string const& file,
-      int line,
-      std::string const& func,
-      std::string const& str) {
-    if (!condition) {
-      farm_ng::defaultLogger().log(
-          farm_ng::LogLevel::critical,
-          FARM_FORMAT(
-              "PANIC: ASSERT failed\nbool({}) not true.", condition_str),
-          file,
-          line,
-          func,
-          str);
-      FARM_IMPL_ABORT();
-    }
-  }
-};
-
-template <class TT>
-auto assertTrue(
-    TT const& condition,
-    std::string const& condition_str,
-    std::string const& file,
-    int line,
-    std::string const& func,
-    std::string const& str) {
-  AssertTrue<TT>::impl(condition, condition_str, file, line, func, str);
-}
-
-}  // namespace detail
-}  // namespace farm_ng
-
 /// If condition is false, Print formatted error message and then panic.
-#define FARM_ASSERT(condition, ...) \
-  ::farm_ng::detail::assertTrue(    \
-      (condition),                  \
-      #condition,                   \
-      __FILE__,                     \
-      __LINE__,                     \
-      __func__,                     \
-      FARM_FORMAT(__VA_ARGS__))
+#define FARM_ASSERT(condition, ...)                                            \
+  do {                                                                         \
+    if (!(condition)) {                                                        \
+      farm_ng::defaultLogger().log(                                            \
+          farm_ng::LogLevel::critical,                                         \
+          FARM_FORMAT("PANIC: ASSERT failed\nbool({}) not true.", #condition), \
+          __FILE__,                                                            \
+          __LINE__,                                                            \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));                \
+      FARM_IMPL_ABORT();                                                       \
+    }                                                                          \
+  } while (false)
 
 /// If it is false that `lhs` == `rhs`, print formatted error message and then
 /// panic.

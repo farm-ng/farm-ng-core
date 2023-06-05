@@ -5,11 +5,12 @@ import pytest
 from farm_ng.core.events_file_reader import (
     EventsFileReader,
     EventLogPosition,
-    parse_protobuf_descriptor,
+    event_has_message,
+    _parse_protobuf_descriptor,
 )
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import get_monotonic_now
-from farm_ng.core import timestamp_pb2, uri_pb2
+from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 
 
 @pytest.fixture(name="log_base")
@@ -25,6 +26,27 @@ def fixture_reader_log_file(tmpdir) -> Path:
 @pytest.fixture(name="log_dir")
 def fixture_log_dir(tmpdir) -> Path:
     return Path(tmpdir)
+
+
+def test_event_has_message() -> None:
+    event = event_pb2.Event(
+        uri=uri_pb2.Uri(
+            scheme="protobuf",
+            authority="farm_ng.core.proto.Timestamp",
+            path="/farm_ng/core/timestamp.proto",
+            query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
+        ),
+        timestamps=[
+            timestamp_pb2.Timestamp(
+                stamp=0.0,
+                clock_name="test/monotonic",
+                semantics="test/monotonic",
+            )
+        ],
+        payload_length=11,
+    )
+    assert event_has_message(event, timestamp_pb2.Timestamp)
+    assert not event_has_message(event, event_pb2.Event)
 
 
 class TestEventsWriter:
@@ -146,7 +168,7 @@ class TestEventsReader:
             path="tik/tok",
             query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
         )
-        name, package = parse_protobuf_descriptor(uri)
+        name, package = _parse_protobuf_descriptor(uri)
         assert name == "Timestamp"
         assert package == "farm_ng.core.timestamp_pb2"
 

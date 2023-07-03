@@ -90,7 +90,6 @@ class EventsFileWriter:
             else self._file_base.with_suffix(self.extension)
         )
 
-
     def is_open(self) -> bool:
         """Return True if the file is open."""
         return not self.is_closed()

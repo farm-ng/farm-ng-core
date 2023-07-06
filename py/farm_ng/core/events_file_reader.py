@@ -8,10 +8,12 @@ from typing import IO
 from typing import Generator
 from typing import Type
 import struct
+import json
 
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
+from google.protobuf import json_format
 
 # public symbols
 
@@ -19,7 +21,33 @@ __all__ = [
     "event_has_message",
     "EventsFileReader",
     "EventLogPosition",
+    "proto_from_json_file",
 ]
+
+
+def proto_from_json_file(file_path: str | Path, empty_proto_message):
+    """
+    Load a proto Message from a JSON file.
+    The ``empty_proto_message`` must be the type of the proto message to load.
+
+
+    Args:
+        file_path (str | Path): The path to the JSON file.
+        empty_proto_message: The empty proto message to parse into.
+
+    Returns:
+        LauncherConfiguration: The LauncherConfiguration proto.
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path).absolute()
+
+    if not file_path.is_file():
+        raise FileNotFoundError(f"Invalid file: {str(file_path)}")
+
+    with open(file_path) as f:
+        json_pb = json.load(f)
+
+    return json_format.ParseDict(json_pb, empty_proto_message)
 
 
 def event_has_message(event: Event, message_type: Type[Any]) -> bool:

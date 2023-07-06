@@ -36,7 +36,7 @@ def proto_from_json_file(file_path: str | Path, empty_proto_message):
         empty_proto_message: The empty proto message to parse into.
 
     Returns:
-        LauncherConfiguration: The LauncherConfiguration proto.
+        A proto message of the type given in empty_proto_message read from the JSON file.
     """
     if isinstance(file_path, str):
         file_path = Path(file_path).absolute()

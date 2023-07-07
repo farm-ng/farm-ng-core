@@ -13,13 +13,39 @@ from google.protobuf.message import Message
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
 from farm_ng.core.timestamp_pb2 import Timestamp
+from google.protobuf.json_format import MessageToJson
 
 
 # public symbols
 
 __all__ = [
     "EventsFileWriter",
+    "proto_to_json_file",
 ]
+
+
+def proto_to_json_file(file_path: str | Path, proto_message: Message) -> bool:
+    """
+    Write a proto Message to a JSON file. The parent directory of the file must exist.
+
+    Args:
+        file_path (str | Path): The path to the JSON file to create / overwrite.
+        proto_message (Message): The proto message to write to the JSON file.
+
+    Returns:
+        True if the file was written successfully, False otherwise.
+    """
+    if isinstance(file_path, str):
+        file_path = Path(file_path).absolute()
+
+    if not file_path.parent.is_dir():
+        print(f"Invalid directory: {str(file_path.parent)}")
+        return False
+
+    with open(file_path, "w") as f:
+        f.write(MessageToJson(proto_message))
+
+    return True
 
 
 class EventsFileWriter:

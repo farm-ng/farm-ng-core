@@ -32,7 +32,6 @@ def proto_from_json_file(
     Load a proto Message from a JSON file.
     The ``empty_proto_message`` must be the type of the proto message to load.
 
-
     Args:
         file_path (str | Path): The path to the JSON file.
         empty_proto_message (Message): The empty proto message to parse into.

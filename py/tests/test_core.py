@@ -7,8 +7,9 @@ from farm_ng.core.events_file_reader import (
     EventLogPosition,
     event_has_message,
     _parse_protobuf_descriptor,
+    proto_from_json_file,
 )
-from farm_ng.core.events_file_writer import EventsFileWriter
+from farm_ng.core.events_file_writer import EventsFileWriter, proto_to_json_file
 from farm_ng.core.stamp import get_monotonic_now
 from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 
@@ -210,3 +211,31 @@ class TestEventsReader:
                     assert message.stamp == i
 
         assert reader.close()
+
+
+class TestEventsJson:
+    def test_json_write_read(self):
+        stamp = timestamp_pb2.Timestamp(
+            stamp=1.2, clock_name="clock0", semantics="test/proto"
+        )
+        stamp_1 = timestamp_pb2.Timestamp(
+            stamp=9.67832, clock_name="clock1", semantics="test/proto_again"
+        )
+
+        # Test write w/ str, read w/ Path
+        assert proto_to_json_file("/tmp/test.json", stamp)
+        assert stamp == proto_from_json_file(
+            Path("/tmp/test.json"), timestamp_pb2.Timestamp()
+        )
+
+        # Test write w/ Path, read w/ str
+        assert proto_to_json_file(Path("/tmp/test_1.json"), stamp_1)
+        assert stamp_1 == proto_from_json_file(
+            "/tmp/test_1.json", timestamp_pb2.Timestamp()
+        )
+
+        # Test overwrite
+        assert proto_to_json_file(Path("/tmp/test.json"), stamp_1)
+        assert stamp_1 == proto_from_json_file(
+            Path("/tmp/test.json"), timestamp_pb2.Timestamp()
+        )

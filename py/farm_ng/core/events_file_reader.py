@@ -45,8 +45,8 @@ def proto_from_json_file(
     if not file_path.is_file():
         raise FileNotFoundError(f"Invalid file: {str(file_path)}")
 
-    with open(file_path) as f:
-        json_pb = json.load(f)
+    with open(file_path, "r", encoding="utf-8") as file:
+        json_pb = json.load(file)
 
     return json_format.ParseDict(json_pb, empty_proto_message)
 
@@ -241,7 +241,7 @@ class EventsFileReader:
     def _build_events_index(self) -> None:
         """Build the index of events in the file."""
         if not self.is_open():
-            raise Exception("Reader not open. Please, use reader.open()")
+            raise IOError("Reader not open. Please, use reader.open()")
 
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(0)

@@ -17,7 +17,7 @@ class StampSemantics:
     DEVICE_SAMPLE = "device/sample"
     DRIVER_RECEIVE = "driver/receive"
     DRIVER_SEND = "driver/send"
-    RECORDER_WRITE = "recorder/write"
+    FILE_WRITE = "file/write"
 
 
 def get_monotonic_now(semantics: str) -> Timestamp:

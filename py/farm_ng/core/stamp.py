@@ -1,4 +1,5 @@
 import time
+from dataclasses import dataclass
 from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.uri import get_host_name
 

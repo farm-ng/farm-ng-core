@@ -101,7 +101,7 @@ class ServiceClient:
     
 
 async def test_get_state():
-    config = ClientConfig(port=50051)
+    config = ClientConfig(port=5001)
     client = ServiceClient(config)
     print(await client.get_state())
 

@@ -200,7 +200,7 @@ class EventServiceGrpc:
 
         self._counts[uri.path] = count + 1
 
-    def send(
+    def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
     ) -> None:
 
@@ -217,7 +217,7 @@ async def test_send_smoke(event_service: EventServiceGrpc) -> None:
     count = 0
     while True:
         await asyncio.sleep(1)
-        event_service.send("/test", Int32Value(value=count))
+        event_service.publish("/test", Int32Value(value=count))
         count += 1
 
 

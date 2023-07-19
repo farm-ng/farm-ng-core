@@ -5,7 +5,7 @@ from farm_ng.core import event_service_pb2_grpc
 import asyncio
 from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
 from farm_ng.core.uri_pb2 import Uri
-from farm_ng.core.event_service_pb2 import EventServiceConfig, ServiceState as ServiceStatePb, SubscribeReply,SubscribeRequest, PublishRequest, PublishReply, ListUrisRequest, ListUrisReply, GetServiceStateRequest, GetServiceStateReply
+from farm_ng.core.event_service_pb2 import EventServiceConfig, ServiceState as ServiceStatePb, SubscribeReply,SubscribeRequest, ListUrisRequest, ListUrisReply, GetServiceStateRequest, GetServiceStateReply
 from farm_ng.core.events_file_reader import _parse_protobuf_descriptor
 import importlib
 from google.protobuf.message import Message
@@ -144,9 +144,7 @@ class EventClient:
             message.ParseFromString(response.payload)
             
             yield response.event, message
-    
-    def publish(self, request: PublishRequest):
-        return self.stub.publish(request)
+
     
     async def listUris(self):
         if not self.try_connect():

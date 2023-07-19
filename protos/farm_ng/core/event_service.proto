@@ -77,4 +77,9 @@ message EventServiceConfig {
     int32 port = 2;
     string host = 3;
     repeated SubscribeRequest subscriptions = 4;
+    repeated Uri uris = 5;
+}
+
+message EventServiceConfigList {
+    repeated EventServiceConfig configs = 1;
 }

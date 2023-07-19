@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 import asyncio
 
@@ -6,18 +8,35 @@ from typing import AsyncIterator
 import logging
 import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core import event_service_pb2
+from farm_ng.core.event_service_pb2 import (
+    EventServiceConfig,
+    SubscribeReply,
+    SubscribeRequest,
+    PublishReply,
+    PublishRequest,
+    ListUrisReply,
+    ListUrisRequest,
+    ServiceState,
+    GetServiceStateReply,
+    GetServiceStateRequest,
+)
 import time
 import os
 
+import struct
+from typing import Any
+from typing import cast
+from typing import IO
+from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
+from farm_ng.core.uri import make_proto_uri
+from google.protobuf.message import Message
+from google.protobuf.wrappers_pb2 import Int32Value
 
-@dataclass
-class ServiceGrpcConfiguration:
-    """Configuration for a service."""
-
-    name: str
-    port: int
-    host: str
+# pylint can't find Event or Uri in protobuf generated files
+# https://github.com/protocolbuffers/protobuf/issues/10372
+from farm_ng.core.event_pb2 import Event
+from farm_ng.core.uri_pb2 import Uri
+from farm_ng.core.timestamp_pb2 import Timestamp
 
 
 class EventServiceGrpc:
@@ -26,7 +45,7 @@ class EventServiceGrpc:
     def __init__(
         self,
         server: grpc.aio.Server,
-        config: ServiceGrpcConfiguration,
+        config: EventServiceConfig,
         logger: logging.Logger = None,
     ) -> None:
         """Initializes a new service.
@@ -46,10 +65,14 @@ class EventServiceGrpc:
             self._logger = logging.getLogger(config.name)
 
         # the initial state when doing nothing must be IDLE
-        self.state: event_service_pb2.ServiceState = event_service_pb2.ServiceState.IDLE
+        self.state: ServiceState = ServiceState.IDLE
 
         # the time when the service was started
         self.time_started: float = time.monotonic()
+
+        self._client_queues: list[asyncio.Queue] = []
+
+        self._uris = dict()
 
         # add the service to the server
         event_service_pb2_grpc.add_EventServiceServicer_to_server(self, server)
@@ -60,7 +83,7 @@ class EventServiceGrpc:
         return self._server
 
     @property
-    def config(self) -> ServiceGrpcConfiguration:
+    def config(self) -> EventServiceConfig:
         """Returns the service configuration."""
         return self._config
 
@@ -84,9 +107,9 @@ class EventServiceGrpc:
 
     def getServiceState(
         self,
-        request: event_service_pb2.GetServiceStateRequest,
+        request: GetServiceStateRequest,
         context: grpc.aio.ServicerContext,
-    ) -> event_service_pb2.GetServiceStateReply:
+    ) -> GetServiceStateReply:
         """Get the service state.
 
         Args:
@@ -96,7 +119,7 @@ class EventServiceGrpc:
         Returns:
             service_pb2.GetServiceStateReply: The reply.
         """
-        return event_service_pb2.GetServiceStateReply(
+        return GetServiceStateReply(
             state=self.state,
             pid=os.getpid(),
             uptime=time.monotonic() - self.time_started,
@@ -105,9 +128,9 @@ class EventServiceGrpc:
 
     async def listUris(
         self,
-        request: event_service_pb2.ListUrisRequest,
+        request: ListUrisRequest,
         context: grpc.aio.ServicerContext,
-    ) -> event_service_pb2.ListUrisReply:
+    ) -> ListUrisReply:
         """List the URIs of the service.
 
         Args:
@@ -117,9 +140,13 @@ class EventServiceGrpc:
         Returns:
             service_pb2.ListUrisReply: The reply.
         """
-        return event_service_pb2.ListUrisReply(uris=[])
-    
-    async def publish(self, request: event_service_pb2.PublishRequest, context: grpc.aio.ServicerContext) -> event_service_pb2.PublishReply:
+        return ListUrisReply(uris=[uri for _, uri in self._uris.items()])
+
+    async def publish(
+        self,
+        request: PublishRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> PublishReply:
         """Publish an event.
 
         Args:
@@ -129,42 +156,80 @@ class EventServiceGrpc:
         Returns:
             service_pb2.PublishReply: The reply.
         """
-        return event_service_pb2.PublishReply()
-    
+        return PublishReply()
+
     async def subscribe(
         self,
-        request: event_service_pb2.SubscribeRequest,
+        request: SubscribeRequest,
         context: grpc.aio.ServicerContext,
-    ) -> AsyncIterator[event_service_pb2.SubscribeReply]:
+    ) -> AsyncIterator[SubscribeReply]:
 
-        if self.state != event_service_pb2.ServiceState.RUNNING:
-            self.logger.info(f"Setting {self.__class__.__name__} state to running")
-            self.state = event_service_pb2.ServiceState.RUNNING
+        if self.state != ServiceState.RUNNING:
+            self.logger.info(f"Setting {self._config.name} state to running")
+            self.state = ServiceState.RUNNING
 
         # create a queue for this client
-        queue = asyncio.Queue(maxsize=10)
-        self.listener.client_queues_rawcan.append(queue)
+        queue = asyncio.Queue(maxsize=2)
+        self._client_queues.append(queue)
 
         def delete_queue(_) -> None:
             # remove the queue from the list of queues
-            self.listener.client_queues_rawcan.remove(queue)
+            self._client_queues.remove(queue)
 
             # check that there are no more clients connected
-            if self.listener.num_clients() == 0:
-                self.logger.info(f"Setting {self.__class__.__name__} to idle state")
-                self.state = event_service_pb2.ServiceState.IDLE
+            if len(self._client_queues) == 0:
+                self.logger.info(f"Setting {self._config.name} to idle state")
+                self.state = ServiceState.IDLE
 
         context.add_done_callback(delete_queue)
 
         while True:
             yield await queue.get()
 
+    def _send_raw(
+        self, uri: Uri, message: Message, timestamps: list[Timestamp]
+    ) -> None:
+        self._uris[uri.path] = uri
 
+        payload = message.SerializeToString()
+        reply = SubscribeReply(event=Event(
+            uri=uri,
+            timestamps=timestamps,
+            payload_length=len(payload),
+        ), payload=payload)
+
+        print(f"Sending {reply} to {len(self._client_queues)} clients")
+        for queue in self._client_queues:
+            queue.put_nowait(reply)
+
+    def send(
+        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+    ) -> None:
+
+        if timestamps is None:
+            timestamps = []
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.DRIVER_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.DRIVER_SEND))
+        uri = make_proto_uri(path=path, message=message)
+        uri.query += f"&service_port={self.config.port}&service_name={self.config.name}"
+        self._send_raw(uri=uri, message=message, timestamps=timestamps)
+
+
+async def test_send_smoke(event_service: EventServiceGrpc) -> None:
+    count = 0
+    while True:
+        await asyncio.sleep(1)
+        event_service.send("/test", Int32Value(value=count))
+        count += 1
+
+                           
 # main function to run the service and all the async tasks
-async def main(event_service: EventServiceGrpc) -> None:
+async def test_main(event_service: EventServiceGrpc) -> None:
     # define the async tasks
     async_tasks: list[asyncio.Task] = []
+    
     async_tasks.append(event_service.serve())
+    async_tasks.append(test_send_smoke(event_service))
 
     # run the tasks
     await asyncio.gather(*async_tasks)
@@ -172,7 +237,7 @@ async def main(event_service: EventServiceGrpc) -> None:
 
 if __name__ == "__main__":
 
-    service_config = ServiceGrpcConfiguration(
+    service_config = EventServiceConfig(
         name="test_service",
         port=5001,
         host="localhost",
@@ -183,4 +248,4 @@ if __name__ == "__main__":
     event_service: EventServiceGrpc = EventServiceGrpc(server, service_config)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(event_service=event_service))
+    loop.run_until_complete(test_main(event_service=event_service))

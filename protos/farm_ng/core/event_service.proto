@@ -34,7 +34,8 @@ service EventService {
     // this allows services to interact with clients that they are not aware of easily, or many to one communication.
     rpc publish(stream PublishRequest) returns (PublishReply) {}
 }
-  
+
+
 enum ServiceState {
     // Service state is not known
     UNKNOWN = 0;
@@ -82,4 +83,11 @@ message PublishRequest {
 }
 
 message PublishReply {
+}
+
+message EventServiceConfig {
+    string name = 1;
+    int32 port = 2;
+    string host = 3;
+    repeated SubscribeRequest subscriptions = 4;
 }

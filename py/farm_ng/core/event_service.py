@@ -70,10 +70,10 @@ class EventServiceGrpc:
         # the time when the service was started
         self.time_started: float = time.monotonic()
 
-        self._client_queues: list[asyncio.Queue] = []
+        self._client_queues: dict(str, list[asyncio.Queue]) = dict()
 
         self._uris = dict()
-
+        self._counts = dict()
         # add the service to the server
         event_service_pb2_grpc.add_EventServiceServicer_to_server(self, server)
 
@@ -169,38 +169,53 @@ class EventServiceGrpc:
             self.state = ServiceState.RUNNING
 
         # create a queue for this client
-        queue = asyncio.Queue(maxsize=2)
-        self._client_queues.append(queue)
+        req_queue = (request, asyncio.Queue(maxsize=2))
+        if request.uri.path not in self._client_queues.keys():
+            self._client_queues[request.uri.path] = []
+
+        self._client_queues[request.uri.path].append(req_queue)
 
         def delete_queue(_) -> None:
             # remove the queue from the list of queues
-            self._client_queues.remove(queue)
+            self._client_queues[request.uri.path].remove(req_queue)
 
             # check that there are no more clients connected
-            if len(self._client_queues) == 0:
+            client_count = 0
+            for _, queues in self._client_queues.items():
+                client_count += len(queues)
+
+            if client_count == 0:
                 self.logger.info(f"Setting {self._config.name} to idle state")
                 self.state = ServiceState.IDLE
 
         context.add_done_callback(delete_queue)
 
         while True:
-            yield await queue.get()
+            yield await req_queue[1].get()
 
     def _send_raw(
         self, uri: Uri, message: Message, timestamps: list[Timestamp]
     ) -> None:
         self._uris[uri.path] = uri
+        count = self._counts.get(uri.path, 0)
 
         payload = message.SerializeToString()
-        reply = SubscribeReply(event=Event(
-            uri=uri,
-            timestamps=timestamps,
-            payload_length=len(payload),
-        ), payload=payload)
+        reply = SubscribeReply(
+            event=Event(
+                uri=uri,
+                timestamps=timestamps,
+                payload_length=len(payload),
+                sequence=count,
+            ),
+            payload=payload
+        )
 
         print(f"Sending {reply} to {len(self._client_queues)} clients")
-        for queue in self._client_queues:
-            queue.put_nowait(reply)
+        for request, queue in self._client_queues.get(uri.path, []):
+            if request.every_n == 0 or count % request.every_n == 0:
+                queue.put_nowait(reply)
+
+        self._counts[uri.path] = count + 1
 
     def send(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
@@ -222,12 +237,12 @@ async def test_send_smoke(event_service: EventServiceGrpc) -> None:
         event_service.send("/test", Int32Value(value=count))
         count += 1
 
-                           
+
 # main function to run the service and all the async tasks
 async def test_main(event_service: EventServiceGrpc) -> None:
     # define the async tasks
     async_tasks: list[asyncio.Task] = []
-    
+
     async_tasks.append(event_service.serve())
     async_tasks.append(test_send_smoke(event_service))
 

@@ -132,6 +132,7 @@ class EventClient:
                 self.logger.warning("%s",exc)
                 response_stream.cancel()
                 response_stream = None
+                await asyncio.sleep(1)
                 continue
 
             if message_cls is None:
@@ -160,7 +161,7 @@ class EventClient:
 
 async def test_subscribe(client:EventClient, uri: Uri):
     _parse_protobuf_descriptor(uri)
-    async for uri, message in client.subscribe(SubscribeRequest(uri=uri)):
+    async for uri, message in client.subscribe(SubscribeRequest(uri=uri, every_n=2)):
         print(uri, message)
 
 async def test_get_state():

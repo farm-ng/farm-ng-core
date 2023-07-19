@@ -23,6 +23,7 @@ package farm_ng.core.proto;
 
 message Event {
   Uri uri = 1;
+  int64 sequence = 4;
   repeated Timestamp timestamps = 2;
   int64 payload_length = 3;
 }

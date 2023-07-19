@@ -28,11 +28,6 @@ service EventService {
 
     // subscribe to single URI topic
     rpc subscribe(SubscribeRequest) returns (stream SubscribeReply) {}
-
-    // publish an event stream to this service
-    // An alternative would be that the service subscribes to another service,
-    // this allows services to interact with clients that they are not aware of easily, or many to one communication.
-    rpc publish(stream PublishRequest) returns (PublishReply) {}
 }
 
 
@@ -75,14 +70,6 @@ message ListUrisRequest {
 
 message ListUrisReply {
     repeated Uri uris = 1;
-}
-
-message PublishRequest {
-    Event event = 1;
-    bytes payload = 2;
-}
-
-message PublishReply {
 }
 
 message EventServiceConfig {

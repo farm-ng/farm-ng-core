@@ -12,8 +12,6 @@ from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
     SubscribeReply,
     SubscribeRequest,
-    PublishReply,
-    PublishRequest,
     ListUrisReply,
     ListUrisRequest,
     ServiceState,
@@ -142,21 +140,6 @@ class EventServiceGrpc:
         """
         return ListUrisReply(uris=[uri for _, uri in self._uris.items()])
 
-    async def publish(
-        self,
-        request: PublishRequest,
-        context: grpc.aio.ServicerContext,
-    ) -> PublishReply:
-        """Publish an event.
-
-        Args:
-            request (service_pb2.PublishRequest): The request.
-            context (grpc.aio.ServicerContext): The context.
-
-        Returns:
-            service_pb2.PublishReply: The reply.
-        """
-        return PublishReply()
 
     async def subscribe(
         self,

@@ -1,0 +1,85 @@
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+
+
+syntax = "proto3";
+
+import "farm_ng/core/uri.proto";
+import "farm_ng/core/timestamp.proto";
+import "farm_ng/core/event.proto";
+
+package farm_ng.core.proto;
+
+service EventService {
+    rpc getServiceState(GetServiceStateRequest) returns (GetServiceStateReply) {}
+    rpc listUris(ListUrisRequest) returns (ListUrisReply) {}
+
+    // subscribe to single URI topic
+    rpc subscribe(SubscribeRequest) returns (stream SubscribeReply) {}
+
+    // publish an event stream to this service
+    // An alternative would be that the service subscribes to another service,
+    // this allows services to interact with clients that they are not aware of easily, or many to one communication.
+    rpc publish(stream PublishRequest) returns (PublishReply) {}
+}
+  
+enum ServiceState {
+    // Service state is not known
+    UNKNOWN = 0;
+    // Running, and actively serving data
+    RUNNING = 1;
+    // Idle, waiting for clients
+    IDLE = 2;
+    // Service isn't running at all
+    UNAVAILABLE = 3;
+    // Service is in some error state
+    ERROR = 4;
+}
+
+message GetServiceStateRequest {
+}
+
+message GetServiceStateReply {
+    ServiceState state = 1;
+    uint32 pid = 2; // process id
+    double uptime = 3;
+    repeated Timestamp timestamps = 4;
+}
+  
+
+message SubscribeRequest {
+    Uri uri = 1;
+    uint32 every_n = 2;
+}
+
+message SubscribeReply {
+    Event event = 1;
+    bytes payload = 2;
+}
+
+message ListUrisRequest {
+}
+
+message ListUrisReply {
+    repeated Uri uris = 1;
+}
+
+message PublishRequest {
+    Event event = 1;
+    bytes payload = 2;
+}
+
+message PublishReply {
+}

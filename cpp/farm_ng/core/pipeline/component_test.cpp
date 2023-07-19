@@ -76,11 +76,9 @@ using namespace farm_ng;
 TEST(Component, Connect) {
   Context ctx;
   Adder adder(ctx);
-  FARM_ASSERT_EQ(
-      adder.uri().string(), "other://[farm_ng::Adder]/component_test");
+  FARM_ASSERT_EQ(adder.uri(), "other://[farm_ng::Adder]/component_test");
   Printer printer(ctx);
-  FARM_ASSERT_EQ(
-      printer.uri().string(), "other://[farm_ng::Printer]/component_test");
+  FARM_ASSERT_EQ(printer.uri(), "other://[farm_ng::Printer]/component_test");
   adder.outSum().connect(printer.in_x);
   ctx.clearWorkGuard();
   ctx.getAsioIoContext().run();

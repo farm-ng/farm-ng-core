@@ -35,6 +35,6 @@ Context Component::getContext() const { return context_strand_.getContext(); };
 
 ContextStrand Component::getContextStrand() const { return context_strand_; };
 
-Uri const& Component::uri() const { return uri_; }
+std::string const& Component::uri() const { return uri_; }
 
 }  // namespace farm_ng

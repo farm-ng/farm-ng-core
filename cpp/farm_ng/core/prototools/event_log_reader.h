@@ -17,6 +17,7 @@
 #pragma once
 
 #include <farm_ng/core/event.pb.h>
+#include <farm_ng/core/prototools/event_and_payload.h>
 
 #include <exception>
 #include <filesystem>
@@ -34,18 +35,21 @@ class EventLogExist : public std::runtime_error {
 };
 
 class EventLogReaderImpl;
-class EventLogPos {
+class EventLogPos : public EventAndPayload {
  public:
   EventLogPos(
       core::proto::Event event,
       std::streampos pos,
       std::weak_ptr<EventLogReaderImpl> log);
 
-  core::proto::Event const& event() const;
-  std::string readPayload() const;
+  virtual ~EventLogPos() = default;
+  core::proto::Event const& event() const override;
+  std::string const& readPayload() const override;
+  void stamp(core::proto::Timestamp const& stamp) const override;
 
  private:
-  core::proto::Event event_;
+  mutable core::proto::Event event_;
+  std::string payload_;
   std::streampos pos_;
   std::weak_ptr<EventLogReaderImpl> log_;
 };

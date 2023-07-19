@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "farm_ng/core/misc/uri.h"
 #include "farm_ng/core/pipeline/context.h"
 
 #include <boost/signals2/connection.hpp>
@@ -66,7 +65,7 @@ class Input {
   void send(TArg const& value) { signalSlot(value); }
 
   /// Returns the unique uri of the input.
-  [[nodiscard]] Uri const& uri() const { return uri_; }
+  [[nodiscard]] std::string const& uri() const { return uri_; }
 
  private:
   // signalSlot is called by the signal, on the sending thread.
@@ -101,7 +100,7 @@ class Input {
   /// The stranded context of the function.
   ContextStrand context_strand_;
   /// The uri of the input.
-  Uri uri_;
+  std::string uri_;
   /// The configuration structure for the class instance.
   InputConfig config_;
   /// The callback function definition.

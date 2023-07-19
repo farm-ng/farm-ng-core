@@ -1,0 +1,67 @@
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+
+
+syntax = "proto3";
+
+import "farm_ng/core/event.proto";
+import "farm_ng/core/uri.proto";
+
+package farm_ng.core.proto;
+
+service EventService {
+    rpc subscribeToEvents(SubscribeToEventsRequest)
+        returns (stream SubscribeToEventsReply) {}
+    rpc publishEvent(PublishEventRequest) returns (PublishEventReply) {}
+    rpc publishEvents(stream PublishEventsRequest) returns (PublishEventsReply) {}
+}
+
+message EventSubscription {
+    Uri consumer_uri = 1; // URI of the consumer
+    string topic = 2; // Filter for events that the consumer is interested in
+    int32 every_n = 3; // Only send every n-th event, if 0 send all messages
+    int32 k_messages = 4; // Stop subscription after k messages, if 0 never stop
+    bool discard_payload = 5; // The consumer isn't interested in the payload
+}
+
+message EventSubscriptions {
+    repeated EventSubscription subscriptions = 1;
+}
+
+
+message SubscribeToEventsRequest {
+    EventSubscription subscription = 1;
+}
+
+message SubscribeToEventsReply {
+    Event event = 1; // The event that was published
+    bytes payload = 2; // The payload referenced in the event
+}
+
+message PublishEventRequest{
+    Event event = 1;
+    bytes payload = 2;
+}
+
+message PublishEventReply {
+}
+
+message PublishEventsRequest{
+    Event event = 1;
+    bytes payload = 2;
+}
+
+message PublishEventsReply{
+}

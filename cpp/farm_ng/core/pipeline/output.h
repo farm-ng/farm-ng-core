@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "farm_ng/core/misc/uri.h"
 #include "farm_ng/core/pipeline/component.h"
 #include "farm_ng/core/pipeline/context.h"
 
@@ -40,9 +39,7 @@ class Output {
   ///             `name` shall be `foo`.
   Output(Component const* component, std::string const& name)
       : context_strand_(FARM_UNWRAP(component).getContextStrand()),
-        uri_(FARM_UNWRAP(component).uri()) {
-    uri_.query = FARM_FORMAT("out={}", name);
-  }
+        uri_(FARM_UNWRAP(component).uri() + "?out=" + name) {}
 
   /// Default destructor
   ~Output() {}
@@ -57,13 +54,13 @@ class Output {
   void connect(Input<TArg>& input) { input.connect(signal()); }
 
   /// Returns the unique uri of the output.
-  [[nodiscard]] Uri const& uri() const { return uri_; }
+  [[nodiscard]] std::string const& uri() const { return uri_; }
 
  private:
   /// The stranded context of the function.
   ContextStrand context_strand_;
   /// The configuration structure for the class instance.
-  Uri uri_;
+  std::string uri_;
   /// The signal to the function.
   boost::signals2::signal<void(TArg)> signal_;
 };

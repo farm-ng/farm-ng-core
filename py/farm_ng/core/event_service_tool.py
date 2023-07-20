@@ -114,6 +114,30 @@ def launch1_command(args):
     asyncio.get_event_loop().run_until_complete(job())
 
 
+def launch_command(args):
+    config_list, service_config = load_service_config(args)
+    my_process = Subprocess(
+        service_config.name,
+        [
+            "python",
+            "-m",
+            service_config.python_module,
+            "--service-config",
+            args.service_config,
+            "--service-name",
+            args.service_name,
+        ],
+    )
+
+    async def job():
+        await my_process.start()
+        while True:
+            await asyncio.sleep(1)
+            print(my_process.name, my_process.pid, my_process.state)
+
+    asyncio.get_event_loop().run_until_complete(job())
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     sub_parsers = parser.add_subparsers()
@@ -134,6 +158,10 @@ if __name__ == "__main__":
     launch_parser = sub_parsers.add_parser("launch1")
     add_service_parser(launch_parser)
     launch_parser.set_defaults(func=launch1_command)
+
+    launch_parser = sub_parsers.add_parser("launch")
+    add_service_parser(launch_parser)
+    launch_parser.set_defaults(func=launch_command)
 
     args = parser.parse_args()
     if hasattr(args, "func"):

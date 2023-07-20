@@ -8,10 +8,12 @@ import asyncio
 import logging
 import os
 import time
+import importlib
 from typing import Any, AsyncIterator
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
+from farm_ng.core.events_file_reader import _parse_protobuf_descriptor
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -25,6 +27,8 @@ from farm_ng.core.event_service_pb2 import (
     ServiceState,
     SubscribeReply,
     SubscribeRequest,
+    SendRequest,
+    SendReply,
 )
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.timestamp_pb2 import Timestamp
@@ -66,7 +70,7 @@ class EventServiceGrpc:
 
         # the time when the service was started
         self.time_started: float = time.monotonic()
-
+        self._recv_queue = asyncio.Queue(maxsize=10)
         self._client_queues: dict(str, list[asyncio.Queue]) = dict()
 
         self._uris = dict()
@@ -139,6 +143,17 @@ class EventServiceGrpc:
         """
         return ListUrisReply(uris=[uri for _, uri in self._uris.items()])
 
+    def client_count(self):
+        client_count = 0
+        for _, queues in self._client_queues.items():
+            client_count += len(queues)
+        return client_count
+
+    def update_state_idle(self):
+        if self.client_count() == 0:
+            self.logger.info(f"Setting {self._config.name} to idle state")
+            self.state = ServiceState.IDLE
+
     async def subscribe(
         self,
         request: SubscribeRequest,
@@ -161,33 +176,18 @@ class EventServiceGrpc:
             self._client_queues[request.uri.path].remove(req_queue)
 
             # check that there are no more clients connected
-            client_count = 0
-            for _, queues in self._client_queues.items():
-                client_count += len(queues)
-
-            if client_count == 0:
-                self.logger.info(f"Setting {self._config.name} to idle state")
-                self.state = ServiceState.IDLE
+            self.update_state_idle()
 
         context.add_done_callback(delete_queue)
 
         while True:
             yield await req_queue[1].get()
 
-    def _send_raw(
-        self, uri: Uri, message: Message, timestamps: list[Timestamp]
-    ) -> None:
+    def _send_event_payload(self, event: Event, payload: bytes) -> None:
+        uri = event.uri
         self._uris[uri.path] = uri
-        count = self._counts.get(uri.path, 0)
-
-        payload = message.SerializeToString()
         reply = SubscribeReply(
-            event=Event(
-                uri=uri,
-                timestamps=timestamps,
-                payload_length=len(payload),
-                sequence=count,
-            ),
+            event=event,
             payload=payload,
         )
         client_queues = self._client_queues.get(uri.path, [])
@@ -196,7 +196,7 @@ class EventServiceGrpc:
         queues = [
             queue
             for request, queue in client_queues
-            if request.every_n == 0 or count % request.every_n == 0
+            if request.every_n == 0 or reply.event.sequence % request.every_n == 0
         ]
         self.logger.debug(
             f"Sending {uri.path}: {reply.event.sequence} to {len(queues)} clients"
@@ -207,7 +207,52 @@ class EventServiceGrpc:
             except asyncio.QueueFull:
                 pass
 
+    def _send_raw(
+        self, uri: Uri, message: Message, timestamps: list[Timestamp]
+    ) -> None:
+        self._uris[uri.path] = uri
+        count = self._counts.get(uri.path, 0)
         self._counts[uri.path] = count + 1
+
+        payload = message.SerializeToString()
+
+        event = Event(
+            uri=uri,
+            timestamps=timestamps,
+            payload_length=len(payload),
+            sequence=count,
+        )
+        self._send_event_payload(event, payload)
+
+    async def send(
+        self,
+        request: SendRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> SendReply:
+        request.event.timestamps.append(
+            get_monotonic_now(StampSemantics.CLIENT_RECEIVE)
+        )
+        # self._send_event_payload(request.event, request.payload)
+        try:
+            self._recv_queue.put_nowait(request)
+        except asyncio.QueueFull:
+            pass
+
+        return SendReply()
+
+    async def recv(self, decode=True):
+        while True:
+            request: SendRequest = await self._recv_queue.get()
+
+            if decode:
+                name, package = _parse_protobuf_descriptor(request.event.uri)
+                message_cls = getattr(importlib.import_module(package), name)
+
+                message: Message = message_cls()
+                message.ParseFromString(request.payload)
+                yield request.event, message
+            else:
+                yield request.event, request.payload
 
     def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
@@ -238,12 +283,20 @@ async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
         count += 1
 
 
+async def test_recv_smoke(event_service: EventServiceGrpc) -> None:
+    async for event, message in event_service.recv():
+        event_service.logger.info(
+            f"Received: {event.uri.path} {event.sequence} {message}".rstrip()
+        )
+
+
 # main function to run the service and all the async tasks
 async def test_main(event_service: EventServiceGrpc) -> None:
     # define the async tasks
     async_tasks: list[asyncio.Task] = []
 
     async_tasks.append(event_service.serve())
+    async_tasks.append(test_recv_smoke(event_service))
     async_tasks.append(test_send_smoke(event_service))
     async_tasks.append(test_send_smoke2(event_service))
 

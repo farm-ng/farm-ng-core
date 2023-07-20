@@ -2,12 +2,13 @@
 # This will connect to the test_service and print out the messages it receives
 python -m farm_ng.core.event_client --service-config config.json --service-name test_service
 """
+from __future__ import annotations
 
 import logging
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 import asyncio
-from farm_ng.core.stamp import get_monotonic_now, StampSemantics
+from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
 from farm_ng.core.uri_pb2 import Uri
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
@@ -17,8 +18,13 @@ from farm_ng.core.event_service_pb2 import (
     ListUrisRequest,
     GetServiceStateRequest,
     GetServiceStateReply,
+    SendReply,
+    SendRequest,
 )
+from farm_ng.core.event_pb2 import Event
+from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.events_file_reader import _parse_protobuf_descriptor
+from farm_ng.core.events_file_writer import make_proto_uri
 import importlib
 from google.protobuf.message import Message
 from farm_ng.core.event_service import load_service_config, add_service_parser
@@ -79,6 +85,7 @@ class EventClient:
         self.logger = logging.getLogger(self.config.name + "/client")
         self.channel = None
         self.stub = None
+        self._counts = dict()
 
     def try_connect(self):
         if self.stub is not None:
@@ -87,6 +94,7 @@ class EventClient:
             # create an async connection with the server
             self.channel = grpc.aio.insecure_channel(self.server_address)
             self.stub = event_service_pb2_grpc.EventServiceStub(self.channel)
+
         except Exception as exc:
             self.logger.warning("Could not connect to %s: %s", self.server_address, exc)
             return False
@@ -99,7 +107,7 @@ class EventClient:
         return f"{self.config.host}:{self.config.port}"
 
     async def get_state(self) -> ServiceState:
-        state: ServiceState
+        state: ServiceState = ServiceState()
         if not self.try_connect():
             return state
 
@@ -180,10 +188,34 @@ class EventClient:
             )
             return []
 
+    async def send(
+        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+    ) -> None:
+        count = self._counts.get(path, 0)
+        self._counts[path] = count + 1
+        if timestamps is None:
+            timestamps = []
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.CLIENT_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.CLIENT_SEND))
+        uri = make_proto_uri(path=path, message=message)
+        uri.query += f"&service_name={self.config.name}"
+        payload = message.SerializeToString()
+        request = SendRequest(
+            event=Event(
+                uri=uri,
+                timestamps=timestamps,
+                payload_length=len(payload),
+                sequence=count,
+            ),
+            payload=payload,
+        )
+        await self.stub.send(request)
+
 
 async def test_subscribe(client: EventClient, uri: Uri):
-    async for uri, message in client.subscribe(SubscribeRequest(uri=uri, every_n=2)):
-        print(uri, message)
+    async for event, message in client.subscribe(SubscribeRequest(uri=uri, every_n=2)):
+        print(event, message)
+        await client.send(event.uri.path + "/response", message)
 
 
 async def test_get_state():

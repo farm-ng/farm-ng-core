@@ -28,6 +28,7 @@ service EventService {
 
     // subscribe to single URI topic
     rpc subscribe(SubscribeRequest) returns (stream SubscribeReply) {}
+    rpc send(SendRequest) returns (SendReply) {}
 }
 
 
@@ -63,6 +64,15 @@ message SubscribeRequest {
 message SubscribeReply {
     Event event = 1;
     bytes payload = 2;
+}
+
+message SendRequest {
+    Event event = 1;
+    bytes payload = 2;
+}
+
+message SendReply {
+
 }
 
 message ListUrisRequest {

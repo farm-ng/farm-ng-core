@@ -56,7 +56,7 @@ class EventServiceRecorder:
 
     async def subscribe(self, client: EventClient, subscription: SubscribeRequest):
         async for event, payload in client.subscribe(subscription, decode=False):
-            self.record_queue.put_nowait((event, payload))
+            await self.record_queue.put((event, payload))
 
     async def subscribe_and_record(
         self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0

@@ -22,47 +22,14 @@ package farm_ng.core.proto;
 
 // EventService is a generic service for publishing and subscribing to events.
 service EventService {
-    // get the state of the service
-    rpc getServiceState(GetServiceStateRequest) returns (GetServiceStateReply) {}
-
     // return a list of all the URIs this service can publish
     rpc listUris(ListUrisRequest) returns (ListUrisReply) {}
 
     // subscribe to single URI topic
     rpc subscribe(SubscribeRequest) returns (stream SubscribeReply) {}
 
-    // send a single message to a URI topic
-    rpc send(SendRequest) returns (SendReply) {}
-}
-
-// ServiceState is the state of the service
-enum ServiceState {
-    // Service state is not known
-    UNKNOWN = 0;
-    // Running, and actively serving data
-    RUNNING = 1;
-    // Idle, waiting for clients
-    IDLE = 2;
-    // Service isn't running at all
-    UNAVAILABLE = 3;
-    // Service is in some error state
-    ERROR = 4;
-}
-
-// empty request to get the state of the service
-message GetServiceStateRequest {
-}
-
-// reply to get the state of the service
-message GetServiceStateReply {
-    // state of the service
-    ServiceState state = 1;
-    // the process id of the service
-    uint32 pid = 2;
-    // the time the service started (monotonic)
-    double uptime = 3;
-    // TODO: is this useful?
-    repeated Timestamp timestamps = 4;
+    // send a single message request/reply
+    rpc reqRep(ReqRepRequest) returns (ReqRepReply) {}
 }
 
 // request to subscribe to a URI
@@ -81,16 +48,19 @@ message SubscribeReply {
     bytes payload = 2;
 }
 
-// request to send a message to a URI
-message SendRequest {
+// request to send a single message
+message ReqRepRequest {
     // the event to send
     Event event = 1;
     // the data payload associated with the event
     bytes payload = 2;
 }
 
-// reply to send a message to a URI
-message SendReply {}
+// reply to send a single message
+message ReqRepReply {
+    Event event = 1;
+    bytes payload = 2;
+}
 
 // request to list all the URIs this service can publish
 message ListUrisRequest {

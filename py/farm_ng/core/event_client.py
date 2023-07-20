@@ -12,58 +12,23 @@ from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSem
 from farm_ng.core.uri_pb2 import Uri
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
-    ServiceState as ServiceStatePb,
     SubscribeReply,
     SubscribeRequest,
     ListUrisRequest,
-    GetServiceStateRequest,
-    GetServiceStateReply,
-    SendReply,
-    SendRequest,
+    ReqRepReply,
+    ReqRepRequest,
 )
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.timestamp_pb2 import Timestamp
-from farm_ng.core.events_file_reader import _parse_protobuf_descriptor
+from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.events_file_writer import make_proto_uri
 import importlib
 from google.protobuf.message import Message
 from farm_ng.core.event_service import load_service_config, add_service_parser
 import argparse
+from google.protobuf.empty_pb2 import Empty
 
 logging.basicConfig(level=logging.INFO)
-
-
-class ServiceState:
-    """Generic service state.
-
-    Possible state values:
-        - UNKNOWN: undefined state.
-        - RUNNING: the service is up AND streaming.
-        - IDLE: the service is up AND NOT streaming.
-        - UNAVAILABLE: the service is not available.
-        - ERROR: the service is an error state.
-
-    Args:
-        proto (ServiceState): protobuf message containing the service state.
-    """
-
-    def __init__(self, proto: ServiceStatePb = None) -> None:
-        self._proto = ServiceStatePb.UNKNOWN
-        if proto is not None:
-            self._proto = proto
-
-    @property
-    def value(self) -> int:
-        """Returns the state enum value."""
-        return self._proto
-
-    @property
-    def name(self) -> str:
-        """Return the state name."""
-        return ServiceStatePb.DESCRIPTOR.values[self.value].name
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}: ({self.value}, {self.name})"
 
 
 class EventClient:
@@ -87,16 +52,18 @@ class EventClient:
         self.stub = None
         self._counts = dict()
 
-    def try_connect(self):
-        if self.stub is not None:
+    async def _try_connect(self):
+        if self.stub is not None and await self.channel.channel_ready():
             return True
         try:
             # create an async connection with the server
             self.channel = grpc.aio.insecure_channel(self.server_address)
+            await self.channel.channel_ready()
             self.stub = event_service_pb2_grpc.EventServiceStub(self.channel)
 
         except Exception as exc:
             self.logger.warning("Could not connect to %s: %s", self.server_address, exc)
+            await asyncio.sleep(1)
             return False
 
         return True
@@ -106,47 +73,19 @@ class EventClient:
         """Returns the composed address and port."""
         return f"{self.config.host}:{self.config.port}"
 
-    async def get_state(self) -> ServiceState:
-        state: ServiceState = ServiceState()
-        if not self.try_connect():
-            return state
-
-        try:
-            response: GetServiceStateReply = await self.stub.getServiceState(
-                GetServiceStateRequest()
-            )
-            state = ServiceState(response.state)
-        except grpc.RpcError:
-            state = ServiceState()
-            self.stub = None
-            self.channel = None
-        self.logger.debug(
-            f" {self.config.name} on port: %s state is: %s",
-            self.config.port,
-            state.name,
-        )
-        return state
-
     async def subscribe(self, request: SubscribeRequest, decode=True):
         response_stream = None
-        message_cls = None
-
         while True:
-            # check the state of the service
-            state = await self.get_state()
-
-            if state.value not in [ServiceStatePb.IDLE, ServiceStatePb.RUNNING]:
+            if not await self._try_connect():
                 if response_stream is not None:
                     response_stream.cancel()
                     response_stream = None
-
                 self.logger.warning(
                     f"{self.config} is not streaming or ready to stream"
                 )
-                await asyncio.sleep(1)
                 continue
 
-            if response_stream is None and state.value != ServiceStatePb.UNAVAILABLE:
+            if response_stream is None:
                 # get the streaming object
                 response_stream = self.stub.subscribe(request)
 
@@ -158,26 +97,20 @@ class EventClient:
                 )
                 assert response and response != grpc.aio.EOF, "End of stream"
             except Exception as exc:
-                self.logger.warning("%s", exc)
+                self.logger.warning("here %s", exc)
                 response_stream.cancel()
                 response_stream = None
-                await asyncio.sleep(1)
                 continue
 
-            if decode and message_cls is None:
-                name, package = _parse_protobuf_descriptor(response.event.uri)
-                message_cls = getattr(importlib.import_module(package), name)
-
             if decode:
-                message: Message = message_cls()
-                message.ParseFromString(response.payload)
-
-                yield response.event, message
+                yield response.event, payload_to_protobuf(
+                    response.event, response.payload
+                )
             else:
                 yield response.event, response.payload
 
     async def listUris(self):
-        if not self.try_connect():
+        if not await self._try_connect():
             self.logger.warning("Could not list uris: %s", self.server_address)
             return []
         try:
@@ -188,9 +121,12 @@ class EventClient:
             )
             return []
 
-    async def send(
+    async def reqReq(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
-    ) -> None:
+    ) -> ReqRepReply:
+        if not await self._try_connect():
+            self.logger.warning("Could not send: %s", self.server_address)
+            return Event(), Empty()
         count = self._counts.get(path, 0)
         self._counts[path] = count + 1
         if timestamps is None:
@@ -200,7 +136,7 @@ class EventClient:
         uri = make_proto_uri(path=path, message=message)
         uri.query += f"&service_name={self.config.name}"
         payload = message.SerializeToString()
-        request = SendRequest(
+        request = ReqRepRequest(
             event=Event(
                 uri=uri,
                 timestamps=timestamps,
@@ -209,35 +145,34 @@ class EventClient:
             ),
             payload=payload,
         )
-        await self.stub.send(request)
+        reply: ReqRepReply = await self.stub.reqRep(request)
+        reply.event.timestamps.append(
+            get_monotonic_now(semantics=StampSemantics.CLIENT_SEND)
+        )
+        return reply
 
 
 async def test_subscribe(client: EventClient, uri: Uri):
-    async for event, message in client.subscribe(SubscribeRequest(uri=uri, every_n=2)):
-        print(event, message)
-        await client.send(event.uri.path + "/response", message)
+    async for event, message in client.subscribe(SubscribeRequest(uri=uri, every_n=1)):
+
+        reply = await client.reqReq(event.uri.path + "/response", message)
+        print(event.uri.path, event.sequence, message.value, reply.event.sequence)
 
 
-async def test_get_state():
+async def test_smoke():
     parser = argparse.ArgumentParser()
     add_service_parser(parser)
     args = parser.parse_args()
     config_list, service_config = load_service_config(args)
     client = EventClient(service_config)
-    while (await client.get_state()).value not in [
-        ServiceStatePb.IDLE,
-        ServiceStatePb.RUNNING,
-    ]:
-        await asyncio.sleep(1)
-        print("waiting for service to be ready")
-
     async_subscriptions: list[asyncio.Task] = []
 
     uris = []
     while True:
         uris = await client.listUris()
-        if len(uris) > 0:
+        if len(uris) > 1:
             break
+        await asyncio.sleep(1)
 
     for uri in uris:
         async_subscriptions.append(asyncio.create_task(test_subscribe(client, uri)))
@@ -246,4 +181,4 @@ async def test_get_state():
 
 if __name__ == "__main__":
 
-    asyncio.run(test_get_state())
+    asyncio.run(test_smoke())

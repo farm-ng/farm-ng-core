@@ -101,6 +101,17 @@ def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
     return type_name, package_name
 
 
+def payload_to_protobuf(event: Event, payload: bytes) -> Message:
+    name: str
+    package: str
+    name, package = _parse_protobuf_descriptor(event.uri)
+    message_cls: Type[Message] = getattr(importlib.import_module(package), name)
+
+    message: Message = message_cls()
+    message.ParseFromString(payload)
+    return message
+
+
 @dataclass
 class EventLogPosition:
     """EventLogPosition is a dataclass that stores the event, position and reader."""
@@ -283,17 +294,10 @@ class EventsFileReader:
         """
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(event_log.pos, 0)
-
-        name, package = _parse_protobuf_descriptor(event_log.event.uri)
-        message_cls = getattr(importlib.import_module(package), name)
-
         payload: bytes = file_stream.read(event_log.event.payload_length)
         if len(payload) != event_log.event.payload_length:
             raise EOFError()
-
-        message: Message = message_cls()
-        message.ParseFromString(payload)
-        return message
+        return payload_to_protobuf(event_log.event, payload)
 
     def read(self) -> tuple[Event, Message]:
         """Read the next event and message and return them.

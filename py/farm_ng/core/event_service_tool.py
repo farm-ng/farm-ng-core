@@ -1,3 +1,14 @@
+"""
+Usage:
+python -m farm_ng.core.event_service_tool uris config.json
+
+This will print a config file will all the uris currently being published by the config
+
+python -m farm_ng.core.event_service_tool config-gen config2.json
+
+This print a sample config file with a single service called test_service, and an example recorder service configuration (note with no port numbers so scripts no not to connect)
+"""
+
 import argparse
 import sys
 import asyncio
@@ -27,7 +38,16 @@ def config_gen_command(args):
                             uri=Uri(path="/test", query="service_name=bar"), every_n=1
                         )
                     ],
-                )
+                ),
+                EventServiceConfig(
+                    name="record_default",
+                    subscriptions=[
+                        SubscribeRequest(
+                            uri=Uri(path="*", query="service_name={args.name}"),
+                            every_n=1,
+                        )
+                    ],
+                ),
             ]
         ),
     )
@@ -47,14 +67,15 @@ def uris_command(args):
     async def job():
         configs_out = EventServiceConfigList()
         for config in configs.configs:
-            config = await list_uri(config)
+            if config.port != 0:
+                config = await list_uri(config)
+                configs_out.configs.append(config)
         if args.config_out:
-            proto_to_json_file(args.config_out, configs)
+            proto_to_json_file(args.config_out, configs_out)
         else:
-            print(MessageToJson(configs))
+            print(MessageToJson(configs_out))
 
-    for config in configs.configs:
-        asyncio.get_event_loop().run_until_complete(job())
+    asyncio.get_event_loop().run_until_complete(job())
 
 
 if __name__ == "__main__":

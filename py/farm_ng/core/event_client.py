@@ -66,6 +66,9 @@ class EventClient:
 
     def __init__(self, config: EventServiceConfig) -> None:
         self.config = config
+        assert (
+            self.config.port != 0
+        ), f"Invalid port: {self.config}, are you sure this is a client config?"
         self.logger = logging.getLogger(self.config.name + "/client")
         self.channel = None
         self.stub = None

@@ -12,7 +12,8 @@
           },
           "everyN": 1
         }
-      ]
+      ],
+      "python_module": "farm_ng.core.event_service"
     },
     {
       "name": "record_default",

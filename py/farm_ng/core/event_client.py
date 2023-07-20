@@ -1,3 +1,8 @@
+"""
+# This will connect to the test_service and print out the messages it receives
+python -m farm_ng.core.event_client --service-config config.json --service-name test_service
+"""
+
 import logging
 import grpc
 from farm_ng.core import event_service_pb2_grpc
@@ -16,6 +21,8 @@ from farm_ng.core.event_service_pb2 import (
 from farm_ng.core.events_file_reader import _parse_protobuf_descriptor
 import importlib
 from google.protobuf.message import Message
+from farm_ng.core.event_service import load_service_config, add_service_parser
+import argparse
 
 logging.basicConfig(level=logging.INFO)
 
@@ -180,8 +187,11 @@ async def test_subscribe(client: EventClient, uri: Uri):
 
 
 async def test_get_state():
-    config = EventServiceConfig(name="test_service", host="localhost", port=5001)
-    client = EventClient(config)
+    parser = argparse.ArgumentParser()
+    add_service_parser(parser)
+    args = parser.parse_args()
+    config_list, service_config = load_service_config(args)
+    client = EventClient(service_config)
     while (await client.get_state()).value not in [
         ServiceStatePb.IDLE,
         ServiceStatePb.RUNNING,

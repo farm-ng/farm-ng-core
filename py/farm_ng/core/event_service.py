@@ -1,5 +1,9 @@
+"""
+# Will run an test_service from the config.
+python -m farm_ng.core.event_service --service-config config.json --service-name test_service
+"""
 from __future__ import annotations
-
+import argparse
 import asyncio
 import logging
 import os
@@ -28,6 +32,8 @@ from farm_ng.core.uri import make_proto_uri
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
+from farm_ng.core.events_file_reader import proto_from_json_file
+from farm_ng.core.event_service_pb2 import EventServiceConfigList
 
 
 class EventServiceGrpc:
@@ -245,13 +251,28 @@ async def test_main(event_service: EventServiceGrpc) -> None:
     await asyncio.gather(*async_tasks)
 
 
-if __name__ == "__main__":
+def add_service_parser(parser):
+    parser.add_argument("--service-config", type=str, required=True)
+    parser.add_argument("--service-name", type=str, required=True)
 
-    service_config = EventServiceConfig(
-        name="test_service",
-        port=5001,
-        host="localhost",
-    )
+
+def load_service_config(args):
+    config_list = proto_from_json_file(args.service_config, EventServiceConfigList())
+    service_config = None
+    for config in config_list.configs:
+        if config.name == args.service_name:
+            service_config = config
+    assert (
+        service_config is not None
+    ), f"service {args.service_name} not found in config list {config_list}"
+    return config_list, service_config
+
+
+if __name__ == "__main__":
+    argparse = argparse.ArgumentParser()
+    add_service_parser(argparse)
+    args = argparse.parse_args()
+    config_list, service_config = load_service_config(args)
 
     # create the gRPC server and initialize the service
     server = grpc.aio.server()

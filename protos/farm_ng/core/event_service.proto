@@ -78,6 +78,8 @@ message EventServiceConfig {
     string host = 3;
     repeated SubscribeRequest subscriptions = 4;
     repeated Uri uris = 5;
+    string python_module = 6;
+    string args = 7;
 }
 
 message EventServiceConfigList {

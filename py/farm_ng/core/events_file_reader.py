@@ -232,6 +232,8 @@ class EventsFileReader:
         # read the event length, then the event
         event_len = struct.unpack("<I", buffer)[0]
         event_bytes: bytes = file_stream.read(event_len)
+        if len(event_bytes) != event_len:
+            raise EOFError()
         event = Event()
         event.ParseFromString(event_bytes)
 
@@ -286,6 +288,8 @@ class EventsFileReader:
         message_cls = getattr(importlib.import_module(package), name)
 
         payload: bytes = file_stream.read(event_log.event.payload_length)
+        if len(payload) != event_log.event.payload_length:
+            raise EOFError()
 
         message: Message = message_cls()
         message.ParseFromString(payload)

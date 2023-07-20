@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 from typing import cast
 from typing import IO
-from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now
+from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.message import Message
 
@@ -194,7 +194,7 @@ class EventsFileWriter:
         """
         if timestamps is None:
             timestamps = []
-        timestamps.append(get_monotonic_now(semantics="log/write"))
-        timestamps.append(get_system_clock_now(semantics="log/write"))
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.FILE_WRITE))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.FILE_WRITE))
         uri = make_proto_uri(path=path, message=message)
         self._write_raw(uri=uri, message=message, timestamps=timestamps)

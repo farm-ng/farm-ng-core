@@ -4,6 +4,9 @@ python -m farm_ng.core.event_service
 # run the event_recorder which subscribes to the test publisher and records the events to a file
 python -m farm_ng.core.event_service_recorder record config.json --config_name=record_all foo
 # note that the config file has an EventServiceConfig with name "record_all" which subscribes to the test publisher
+
+# then try playing back log file:
+python -m farm_ng.core.events_file_reader playback foo.0000.bin
 """
 from __future__ import annotations
 

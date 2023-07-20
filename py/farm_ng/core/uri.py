@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 import platform
 
@@ -48,3 +50,8 @@ def string_to_uri(string: str) -> uri_pb2.Uri:
     authority = authority_path[0]
     path = "/".join(authority_path[1:])
     return uri_pb2.Uri(scheme=scheme_name, authority=authority, path=path, query=query)
+
+
+def uri_query_to_dict(uri: uri_pb2.Uri) -> dict[str, str]:
+    query = dict([x.split("=") for x in uri.query.split("&")])
+    return query

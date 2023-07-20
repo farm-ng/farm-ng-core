@@ -53,7 +53,7 @@ message GetServiceStateReply {
     double uptime = 3;
     repeated Timestamp timestamps = 4;
 }
-  
+
 
 message SubscribeRequest {
     Uri uri = 1;

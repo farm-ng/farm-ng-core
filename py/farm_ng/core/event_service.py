@@ -1,40 +1,33 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import asyncio
-
-
-from typing import AsyncIterator
 import logging
+import os
+import time
+from typing import Any, AsyncIterator
+
 import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core.event_service_pb2 import (
-    EventServiceConfig,
-    SubscribeReply,
-    SubscribeRequest,
-    ListUrisReply,
-    ListUrisRequest,
-    ServiceState,
-    GetServiceStateReply,
-    GetServiceStateRequest,
-)
-import time
-import os
-
-import struct
-from typing import Any
-from typing import cast
-from typing import IO
-from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
-from farm_ng.core.uri import make_proto_uri
-from google.protobuf.message import Message
-from google.protobuf.wrappers_pb2 import Int32Value
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
 from farm_ng.core.event_pb2 import Event
-from farm_ng.core.uri_pb2 import Uri
+from farm_ng.core.event_service_pb2 import (
+    EventServiceConfig,
+    GetServiceStateReply,
+    GetServiceStateRequest,
+    ListUrisReply,
+    ListUrisRequest,
+    ServiceState,
+    SubscribeReply,
+    SubscribeRequest,
+)
+from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.timestamp_pb2 import Timestamp
+from farm_ng.core.uri import make_proto_uri
+from farm_ng.core.uri_pb2 import Uri
+from google.protobuf.message import Message
+from google.protobuf.wrappers_pb2 import Int32Value
 
 
 class EventServiceGrpc:
@@ -140,7 +133,6 @@ class EventServiceGrpc:
         """
         return ListUrisReply(uris=[uri for _, uri in self._uris.items()])
 
-
     async def subscribe(
         self,
         request: SubscribeRequest,
@@ -152,7 +144,7 @@ class EventServiceGrpc:
             self.state = ServiceState.RUNNING
 
         # create a queue for this client
-        req_queue = (request, asyncio.Queue(maxsize=2))
+        req_queue = (request, asyncio.Queue(maxsize=10))
         if request.uri.path not in self._client_queues.keys():
             self._client_queues[request.uri.path] = []
 
@@ -190,13 +182,24 @@ class EventServiceGrpc:
                 payload_length=len(payload),
                 sequence=count,
             ),
-            payload=payload
+            payload=payload,
         )
+        client_queues = self._client_queues.get(uri.path, [])
+        client_queues = self._client_queues.get("*", []) + client_queues
 
-        print(f"Sending {reply} to {len(self._client_queues)} clients")
-        for request, queue in self._client_queues.get(uri.path, []):
-            if request.every_n == 0 or count % request.every_n == 0:
+        queues = [
+            queue
+            for request, queue in client_queues
+            if request.every_n == 0 or count % request.every_n == 0
+        ]
+        self.logger.debug(
+            f"Sending {uri.path}: {reply.event.sequence} to {len(queues)} clients"
+        )
+        for queue in queues:
+            try:
                 queue.put_nowait(reply)
+            except asyncio.QueueFull:
+                pass
 
         self._counts[uri.path] = count + 1
 
@@ -209,7 +212,7 @@ class EventServiceGrpc:
         timestamps.append(get_monotonic_now(semantics=StampSemantics.DRIVER_SEND))
         timestamps.append(get_system_clock_now(semantics=StampSemantics.DRIVER_SEND))
         uri = make_proto_uri(path=path, message=message)
-        uri.query += f"&service_port={self.config.port}&service_name={self.config.name}"
+        uri.query += f"&service_name={self.config.name}"
         self._send_raw(uri=uri, message=message, timestamps=timestamps)
 
 
@@ -221,6 +224,14 @@ async def test_send_smoke(event_service: EventServiceGrpc) -> None:
         count += 1
 
 
+async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
+    count = 0
+    while True:
+        await asyncio.sleep(0.5)
+        event_service.publish("/test2", Int32Value(value=count))
+        count += 1
+
+
 # main function to run the service and all the async tasks
 async def test_main(event_service: EventServiceGrpc) -> None:
     # define the async tasks
@@ -228,6 +239,7 @@ async def test_main(event_service: EventServiceGrpc) -> None:
 
     async_tasks.append(event_service.serve())
     async_tasks.append(test_send_smoke(event_service))
+    async_tasks.append(test_send_smoke2(event_service))
 
     # run the tasks
     await asyncio.gather(*async_tasks)
@@ -244,6 +256,7 @@ if __name__ == "__main__":
     # create the gRPC server and initialize the service
     server = grpc.aio.server()
     event_service: EventServiceGrpc = EventServiceGrpc(server, service_config)
-
+    event_service.logger.setLevel(logging.DEBUG)
+    event_service.logger.addHandler(logging.StreamHandler())
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_main(event_service=event_service))

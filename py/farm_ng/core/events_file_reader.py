@@ -14,6 +14,7 @@ from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf import json_format
+import argparse
 
 # public symbols
 
@@ -87,13 +88,12 @@ def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
         if x.startswith("type="):
             type_split = x.split("=")[-1]
         elif x.startswith("pb="):
-            pb_split=x.split("=")[-1]
+            pb_split = x.split("=")[-1]
         # split by the key/value in the query
-    
 
     assert type_split is not None, uri
     assert pb_split is not None, uri
-    
+
     type_name = type_split.split(".")[-1]
     # parse the pb file location and convert to python module extension
     package_name = pb_split.replace(".proto", "_pb2").replace("/", ".")
@@ -314,3 +314,27 @@ class EventsFileReader:
                 yield event, message
         except EOFError:
             pass
+
+
+def playback_command(args):
+    with EventsFileReader(args.events_file) as reader:
+        for event, message in reader.read_messages():
+            print(event)
+            print(message)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    sub_parsers = parser.add_subparsers()
+    playback_parser = sub_parsers.add_parser("playback")
+    playback_parser.add_argument("events_file")
+
+    playback_parser.set_defaults(func=playback_command)
+
+    args = parser.parse_args()
+    if hasattr(args, "func"):
+
+        args.func(args)
+    else:
+        parser.print_help()
+        sys.exit(1)

@@ -6,14 +6,12 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-import os
 import time
-import importlib
-from typing import AsyncIterator, Type
+from typing import AsyncIterator
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core.events_file_reader import _parse_protobuf_descriptor
+from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -34,7 +32,6 @@ from farm_ng.core.uri import make_proto_uri
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
-from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
 
 
 class EventServiceGrpc:
@@ -68,15 +65,16 @@ class EventServiceGrpc:
         # the queues for the clients connected to the service
         self._client_queues: dict[
             str, list[tuple[SubscribeRequest, asyncio.Queue]]
-        ] = dict()
+        ] = {}
 
         # the URIs of the service
-        self._uris = dict()
+        self._uris: dict[str, str] = {}
 
         # the counts of the URIs
-        self._counts = dict()
+        self._counts: dict[str, int] = {}
 
-        self._reqRepHandler = None
+        # the request/reply handler
+        self._request_reply_handler: callable | None = None
 
         # add the service to the asyncio server
         event_service_pb2_grpc.add_EventServiceServicer_to_server(self, server)
@@ -96,8 +94,15 @@ class EventServiceGrpc:
         """Returns the service logger."""
         return self._logger
 
-    def setReqRepHandler(self, handler: callable):
-        self._reqRepHandler = handler
+    @property
+    def request_reply_handler(self) -> callable | None:
+        """Returns the request/reply handler."""
+        return self._request_reply_handler
+
+    @request_reply_handler.setter
+    def request_reply_handler(self, handler: callable) -> None:
+        """Sets the request/reply handler."""
+        self._request_reply_handler = handler
 
     async def serve(self) -> None:
         """Starts the service.
@@ -112,10 +117,11 @@ class EventServiceGrpc:
         self.logger.info("Server started")
         await self.server.wait_for_termination()
 
+    # pylint: disable=invalid-name
     async def listUris(
         self,
-        request: ListUrisRequest,
-        context: grpc.aio.ServicerContext,
+        request: ListUrisRequest,  # pylint: disable=unused-argument
+        context: grpc.aio.ServicerContext,  # pylint: disable=unused-argument
     ) -> ListUrisReply:
         """List the URIs of the service.
 
@@ -144,7 +150,7 @@ class EventServiceGrpc:
 
         # add the queue to the list of queues
         # TODO: use defaultdict from collections
-        if request.uri.path not in self._client_queues.keys():
+        if request.uri.path not in self._client_queues:
             self._client_queues[request.uri.path] = []
 
         self._client_queues[request.uri.path].append(request_queue)
@@ -212,7 +218,7 @@ class EventServiceGrpc:
         self._uris[uri.path] = uri
 
         # get the count of the URI, or 0 if it doesn't exist
-        count = self._counts.get(uri.path, 0)
+        count: int = self._counts.get(uri.path, 0)
 
         # increment the count of the URI
         self._counts[uri.path] = count + 1
@@ -231,17 +237,18 @@ class EventServiceGrpc:
     async def reqRep(
         self,
         request: ReqRepRequest,
-        context: grpc.aio.ServicerContext,
+        context: grpc.aio.ServicerContext,  # pylint: disable=unused-argument
     ) -> ReqRepReply:
         # adds the timestamps to the event as it passes through the service
         request.event.timestamps.append(
             get_monotonic_now(StampSemantics.CLIENT_RECEIVE)
         )
 
-        if self._reqRepHandler is not None:
-            return await self._reqRepHandler(self, request)
-        else:
-            return ReqRepReply()
+        # call the request/reply handler
+        if self._request_reply_handler is not None:
+            return await self._request_reply_handler(self, request)
+
+        return ReqRepReply()
 
     def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
@@ -313,16 +320,16 @@ def add_service_parser(parser):
     parser.add_argument("--service-name", type=str, required=True)
 
 
-def load_service_config(args):
-    config_list = proto_from_json_file(args.service_config, EventServiceConfigList())
-    service_config = None
-    for config in config_list.configs:
+def load_service_config(_args):
+    _config_list = proto_from_json_file(_args.service_config, EventServiceConfigList())
+    _service_config = None
+    for config in _config_list.configs:
         if config.name == args.service_name:
-            service_config = config
+            _service_config = config
     assert (
-        service_config is not None
-    ), f"service {args.service_name} not found in config list {config_list}"
-    return config_list, service_config
+        _service_config is not None
+    ), f"service {args.service_name} not found in config list {_config_list}"
+    return _config_list, _service_config
 
 
 if __name__ == "__main__":
@@ -332,9 +339,10 @@ if __name__ == "__main__":
     config_list, service_config = load_service_config(args)
 
     # create the gRPC server and initialize the service
-    server = grpc.aio.server()
-    event_service: EventServiceGrpc = EventServiceGrpc(server, service_config)
-    event_service.logger.setLevel(logging.DEBUG)
-    event_service.logger.addHandler(logging.StreamHandler())
+    _event_service: EventServiceGrpc = EventServiceGrpc(
+        grpc.aio.server(), service_config
+    )
+    _event_service.logger.setLevel(logging.DEBUG)
+    _event_service.logger.addHandler(logging.StreamHandler())
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(test_main(event_service=event_service))
+    loop.run_until_complete(test_main(event_service=_event_service))

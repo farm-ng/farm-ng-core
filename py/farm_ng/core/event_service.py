@@ -284,7 +284,7 @@ async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
 
 async def test_req_rep_handler_smoke(
     event_service: EventServiceGrpc, request: ReqRepRequest
-) -> RepRepReply:
+) -> ReqRepReply:
     message = payload_to_protobuf(request.event, request.payload)
     event_service.logger.info(
         f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()

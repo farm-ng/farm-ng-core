@@ -4,6 +4,7 @@ python -m farm_ng.core.event_client --service-config config.json --service-name 
 """
 from __future__ import annotations
 
+from typing import Type
 import logging
 import grpc
 from farm_ng.core import event_service_pb2_grpc
@@ -32,29 +33,68 @@ logging.basicConfig(level=logging.INFO)
 
 
 class EventClient:
-    """Generic client.
+    """Generic client class to connect with the Amiga brain services.
 
-    Generic client class to connect with the Amiga brain services.
-    Internally implements an `asyncio` gRPC channel.
-    Designed to be imported by service specific clients.
-
-    Args:
-        config (EventServiceConfig): the grpc configuration data structure.
+    Internally implements an `asyncio` gRPC channel that is designed to be imported by service specific clients.
     """
 
     def __init__(self, config: EventServiceConfig) -> None:
-        self.config = config
-        assert (
-            self.config.port != 0
-        ), f"Invalid port: {self.config}, are you sure this is a client config?"
-        self.logger = logging.getLogger(self.config.name + "/client")
-        self.channel = None
-        self.stub = None
-        self._counts = dict()
+        """Initializes the client.
 
-    async def _try_connect(self):
+        Args:
+            config (EventServiceConfig): the grpc configuration data structure.
+
+        Raises:
+            ValueError: if the port or host are invalid.
+        """
+        if config.port == 0:
+            raise ValueError(
+                f"Invalid port: {config}, are you sure this is a client config?"
+            )
+
+        if config.host == "":
+            raise ValueError(
+                f"Invalid host: {config}, are you sure this is a client config?"
+            )
+
+        # the configuration data structure
+        self._config: EventServiceConfig = config
+
+        # the client logger
+        self._logger: logging.Logger = logging.getLogger(f"{self.config.name}/client")
+
+        # the number of messages sent
+        self._counts: dict[str, int] = dict()
+
+        # the gRPC channel and stub
+        self.channel: grpc.aio.Channel | None = None
+        self.stub: event_service_pb2_grpc.EventServiceStub | None = None
+
+    @property
+    def config(self) -> EventServiceConfig:
+        """Returns the configuration data structure."""
+        return self._config
+
+    @property
+    def logger(self) -> logging.Logger:
+        """Returns the logger."""
+        return self._logger
+
+    @property
+    def server_address(self) -> str:
+        """Returns the composed address and port."""
+        return f"{self.config.host}:{self.config.port}"
+
+    async def _try_connect(self) -> bool:
+        """Tries to connect to the server.
+
+        Returns:
+            bool: True if the connection was successful, False otherwise.
+        """
         if self.stub is not None and await self.channel.channel_ready():
+            self.logger.debug("Already connected to %s", self.server_address)
             return True
+
         try:
             # create an async connection with the server
             self.channel = grpc.aio.insecure_channel(self.server_address)
@@ -102,19 +142,36 @@ class EventClient:
                 response_stream = None
                 continue
 
-            if decode:
-                yield response.event, payload_to_protobuf(
-                    response.event, response.payload
-                )
-            else:
-                yield response.event, response.payload
+            if decode and message_cls is None:
+                # get the message class from the uri
+                name: str
+                package: str
+                name, package = _parse_protobuf_descriptor(response.event.uri)
+                message_cls = getattr(importlib.import_module(package), name)
 
-    async def listUris(self):
-        if not await self._try_connect():
+            # decode the message from the payload
+            if decode:
+                message: Message = message_cls()
+                message.ParseFromString(response.payload)
+                yield response.event, message
+
+            # return only the event and the payload
+            yield response.event, response.payload
+
+    async def listUris(self) -> list[Uri]:
+        """Returns the list of uris.
+
+        Returns:
+            list[Uri]: the list of uris.
+        """
+        # try to connect to the server, if it fails return an empty list
+        if not self.try_connect():
             self.logger.warning("Could not list uris: %s", self.server_address)
             return []
+
         try:
-            return (await self.stub.listUris(ListUrisRequest())).uris
+            response: ListUrisReply = await self.stub.listUris(ListUrisRequest())
+            return response.uris
         except grpc.RpcError as err:
             self.logger.warning(
                 "Could not list uris: %s\n err=%s", self.server_address, err
@@ -129,11 +186,14 @@ class EventClient:
             return Event(), Empty()
         count = self._counts.get(path, 0)
         self._counts[path] = count + 1
-        if timestamps is None:
-            timestamps = []
+
+        # add the timestamps before sending the message
+        timestamps = timestamps or []
         timestamps.append(get_monotonic_now(semantics=StampSemantics.CLIENT_SEND))
         timestamps.append(get_system_clock_now(semantics=StampSemantics.CLIENT_SEND))
-        uri = make_proto_uri(path=path, message=message)
+
+        # create the request, serialize the message and send it
+        uri: Uri = make_proto_uri(path=path, message=message)
         uri.query += f"&service_name={self.config.name}"
         payload = message.SerializeToString()
         request = ReqRepRequest(

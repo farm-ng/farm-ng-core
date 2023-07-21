@@ -36,6 +36,9 @@ class EventLogWriterImpl {
       google::protobuf::Message const& message,
       google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
           timestamps) = 0;
+
+  /// Returns the number of bytes written to the file so far
+  virtual ssize_t getBytesWritten() = 0;
 };
 
 /// Class that serializes incoming protobuf events to a file in disk.
@@ -66,6 +69,9 @@ class EventLogWriter {
 
   /// Returns the path including the fileaname
   [[nodiscard]] std::filesystem::path getPath() const { return log_path_; }
+
+  /// Returns the number of bytes written to the file so far
+  [[nodiscard]] ssize_t getBytesWritten();
 
  private:
   // The log path including the filename

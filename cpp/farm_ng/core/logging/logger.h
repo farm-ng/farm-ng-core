@@ -20,6 +20,7 @@
 #include <farm_pp/preprocessor/comma.hpp>
 #include <farm_pp/preprocessor/empty.hpp>
 
+#include <atomic>
 #include <filesystem>
 #include <unordered_set>
 

@@ -24,6 +24,7 @@ from farm_ng.core.events_file_reader import proto_from_json_file
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.uri import uri_query_to_dict
 from farm_ng.core.stamp import get_monotonic_now, StampSemantics
+import logging
 
 
 class EventServiceRecorder:
@@ -31,6 +32,8 @@ class EventServiceRecorder:
         self.service_name = service_name
         self.config_list = config_list
         self.recorder_config = None
+        self.logger: logging.Logger = logging.getLogger(service_name)
+
         self.clients = dict()
         for config in self.config_list.configs:
             if self.service_name == config.name:
@@ -41,7 +44,7 @@ class EventServiceRecorder:
         assert (
             self.recorder_config is not None
         ), f"service {self.service_name} not found in config list {self.config_list}"
-        self.record_queue: asyncio.Queue = asyncio.Queue()
+        self.record_queue: asyncio.Queue = asyncio.Queue(maxsize=50)
 
     async def record(
         self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0
@@ -56,7 +59,11 @@ class EventServiceRecorder:
 
     async def subscribe(self, client: EventClient, subscription: SubscribeRequest):
         async for event, payload in client.subscribe(subscription, decode=False):
-            await self.record_queue.put((event, payload))
+            try:
+                self.record_queue.put_nowait((event, payload))
+            except asyncio.QueueFull:
+                self.logger.warn(f"Queue full, dropping event {event}")
+                continue
 
     async def subscribe_and_record(
         self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0

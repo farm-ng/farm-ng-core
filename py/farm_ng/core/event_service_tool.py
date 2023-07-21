@@ -118,7 +118,17 @@ def launch1_command(args):
             await asyncio.sleep(1)
             print(my_process.name, my_process.pid, my_process.state)
 
-    asyncio.get_event_loop().run_until_complete(job())
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(job())
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt error")
+    except asyncio.CancelledError:
+        print("asyncio.Cancelled error")
+    finally:
+        loop.close()
+
+    print("launch_all done")
 
 
 def launch_all_command(args):

@@ -324,11 +324,11 @@ def load_service_config(_args):
     _config_list = proto_from_json_file(_args.service_config, EventServiceConfigList())
     _service_config = None
     for config in _config_list.configs:
-        if config.name == args.service_name:
+        if config.name == _args.service_name:
             _service_config = config
     assert (
         _service_config is not None
-    ), f"service {args.service_name} not found in config list {_config_list}"
+    ), f"service {_args.service_name} not found in config list {_config_list}"
     return _config_list, _service_config
 
 

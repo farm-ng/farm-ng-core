@@ -4,11 +4,13 @@ python -m farm_ng.core.event_client --service-config config.json --service-name 
 """
 from __future__ import annotations
 
-from typing import Type
+from typing import AsyncIterator
+import argparse
+import asyncio
 import logging
 import grpc
+
 from farm_ng.core import event_service_pb2_grpc
-import asyncio
 from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
 from farm_ng.core.uri_pb2 import Uri
 from farm_ng.core.event_service_pb2 import (
@@ -16,18 +18,16 @@ from farm_ng.core.event_service_pb2 import (
     SubscribeReply,
     SubscribeRequest,
     ListUrisRequest,
+    ListUrisReply,
     ReqRepReply,
     ReqRepRequest,
 )
+from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.timestamp_pb2 import Timestamp
-from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.events_file_writer import make_proto_uri
-import importlib
-from google.protobuf.message import Message
 from farm_ng.core.event_service import load_service_config, add_service_parser
-import argparse
-from google.protobuf.empty_pb2 import Empty
+from google.protobuf.message import Message
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,7 +35,8 @@ logging.basicConfig(level=logging.INFO)
 class EventClient:
     """Generic client class to connect with the Amiga brain services.
 
-    Internally implements an `asyncio` gRPC channel that is designed to be imported by service specific clients.
+    Internally implements an `asyncio` gRPC channel that is designed to be imported
+    by service specific clients.
     """
 
     def __init__(self, config: EventServiceConfig) -> None:
@@ -64,7 +65,7 @@ class EventClient:
         self._logger: logging.Logger = logging.getLogger(f"{self.config.name}/client")
 
         # the number of messages sent
-        self._counts: dict[str, int] = dict()
+        self._counts: dict[str, int] = {}
 
         # the gRPC channel and stub
         self.channel: grpc.aio.Channel | None = None
@@ -101,27 +102,36 @@ class EventClient:
             await self.channel.channel_ready()
             self.stub = event_service_pb2_grpc.EventServiceStub(self.channel)
 
-        except Exception as exc:
+        except OSError as exc:
             self.logger.warning("Could not connect to %s: %s", self.server_address, exc)
             await asyncio.sleep(1)
             return False
 
         return True
 
-    @property
-    def server_address(self) -> str:
-        """Returns the composed address and port."""
-        return f"{self.config.host}:{self.config.port}"
+    async def subscribe(
+        self, request: SubscribeRequest, decode: bool = True
+    ) -> tuple[Event, Message | bytes]:
+        """Subscribes to the server.
 
-    async def subscribe(self, request: SubscribeRequest, decode=True):
-        response_stream = None
+        Args:
+            request (SubscribeRequest): the subscription request.
+            decode (bool, optional): if True, the payload will be decoded. Defaults to True.
+
+        Yields:
+            tuple[Event, Message | bytes]: the event and the payload.
+        """
+        # the streaming object
+        response_stream: AsyncIterator[SubscribeReply] | None = None
+
         while True:
+            # check if we are connected to the server
             if not await self._try_connect():
                 if response_stream is not None:
                     response_stream.cancel()
                     response_stream = None
                 self.logger.warning(
-                    f"{self.config} is not streaming or ready to stream"
+                    "%s is not streaming or ready to stream", self.config
                 )
                 continue
 
@@ -136,36 +146,32 @@ class EventClient:
                     get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
                 )
                 assert response and response != grpc.aio.EOF, "End of stream"
-            except Exception as exc:
+            except grpc.RpcError as exc:
                 self.logger.warning("here %s", exc)
                 response_stream.cancel()
                 response_stream = None
                 continue
+            except AssertionError as exc:
+                self.logger.warning("End of stream %s", exc)
+                response_stream.cancel()
+                response_stream = None
+                continue
 
-            if decode and message_cls is None:
-                # get the message class from the uri
-                name: str
-                package: str
-                name, package = _parse_protobuf_descriptor(response.event.uri)
-                message_cls = getattr(importlib.import_module(package), name)
-
-            # decode the message from the payload
+            # decode the payload if requested
             if decode:
-                message: Message = message_cls()
-                message.ParseFromString(response.payload)
-                yield response.event, message
-
-            # return only the event and the payload
+                yield response.event, payload_to_protobuf(
+                    response.event, response.payload
+                )
             yield response.event, response.payload
 
-    async def listUris(self) -> list[Uri]:
+    async def list_uris(self) -> list[Uri]:
         """Returns the list of uris.
 
         Returns:
             list[Uri]: the list of uris.
         """
         # try to connect to the server, if it fails return an empty list
-        if not self.try_connect():
+        if not self._try_connect():
             self.logger.warning("Could not list uris: %s", self.server_address)
             return []
 
@@ -178,13 +184,27 @@ class EventClient:
             )
             return []
 
-    async def reqReq(
+    # TODO: rename to `request_reply`
+    async def req_rep(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
     ) -> ReqRepReply:
+        """Sends a request and waits for a reply.
+
+        Args:
+            path (str): the path of the request.
+            message (Message): the message to send.
+            timestamps (list[Timestamp], optional): the timestamps to add to the event.
+
+        Returns:
+            ReqRepReply: the reply.
+        """
+        # try to connect to the server, if it fails return an emmpty response
         if not await self._try_connect():
             self.logger.warning("Could not send: %s", self.server_address)
-            return Event(), Empty()
-        count = self._counts.get(path, 0)
+            return ReqRepReply()
+
+        # get the current count and increment it
+        count: int = self._counts.get(path, 0)
         self._counts[path] = count + 1
 
         # add the timestamps before sending the message
@@ -195,6 +215,7 @@ class EventClient:
         # create the request, serialize the message and send it
         uri: Uri = make_proto_uri(path=path, message=message)
         uri.query += f"&service_name={self.config.name}"
+
         payload = message.SerializeToString()
         request = ReqRepRequest(
             event=Event(
@@ -205,6 +226,8 @@ class EventClient:
             ),
             payload=payload,
         )
+
+        # send the request and wait for the reply
         reply: ReqRepReply = await self.stub.reqRep(request)
         reply.event.timestamps.append(
             get_monotonic_now(semantics=StampSemantics.CLIENT_SEND)
@@ -229,7 +252,7 @@ async def test_smoke():
 
     uris = []
     while True:
-        uris = await client.listUris()
+        uris = await client.list_uris()
         if len(uris) > 1:
             break
         await asyncio.sleep(1)

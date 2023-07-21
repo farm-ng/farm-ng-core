@@ -89,7 +89,7 @@ message EventServiceConfig {
     // TODO: is it full path? or just the module name?
     string python_module = 6;
     // arguments to pass to the python module
-    string args = 7;
+    repeated string args = 7;
 }
 
 // list of event service configurations

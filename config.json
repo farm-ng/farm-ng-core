@@ -13,7 +13,30 @@
           "everyN": 1
         }
       ],
-      "python_module": "farm_ng.core.event_service"
+      "python_module": "farm_ng.core.event_service",
+      "args": [
+        "--my-arg=my-value",
+        "foo"
+      ]
+    },
+    {
+      "name": "test_service2",
+      "port": 5002,
+      "host": "localhost",
+      "subscriptions": [
+        {
+          "uri": {
+            "path": "/test",
+            "query": "service_name=bar"
+          },
+          "everyN": 1
+        }
+      ],
+      "python_module": "farm_ng.core.event_service",
+      "args": [
+        "--my-arg=my-value",
+        "bar"
+      ]
     },
     {
       "name": "record_default",

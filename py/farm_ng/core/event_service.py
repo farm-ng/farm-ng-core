@@ -304,7 +304,7 @@ async def test_main(event_service: EventServiceGrpc) -> None:
     # define the async tasks
     async_tasks: list[asyncio.Task] = []
 
-    event_service.setReqRepHandler(test_req_rep_handler_smoke)
+    event_service.request_reply_handler = test_req_rep_handler_smoke
 
     # add the service task
     async_tasks.append(event_service.serve())
@@ -335,6 +335,9 @@ def load_service_config(_args):
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser()
     add_service_parser(argparse)
+    argparse.add_argument("--my-arg", type=str, required=True)
+    argparse.add_argument("foo", type=str, nargs="?")
+
     args = argparse.parse_args()
     config_list, service_config = load_service_config(args)
 

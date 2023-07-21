@@ -14,7 +14,7 @@ Runs a single service from the config file
 python -m farm_ng.core.event_service_tool launch1 --service-config config.json --service-name test_service
 
 """
-
+import signal
 import argparse
 import sys
 import asyncio
@@ -50,6 +50,8 @@ def config_gen_command(args):
                             uri=Uri(path="/test", query="service_name=bar"), every_n=1
                         )
                     ],
+                    python_module="farm_ng.core.event_service",
+                    args=["--my-arg=my-value", "foo"],
                 ),
                 EventServiceConfig(
                     name="record_default",
@@ -90,20 +92,25 @@ def uris_command(args):
     asyncio.get_event_loop().run_until_complete(job())
 
 
+def create_subprocess_from_config(service_config: EventServiceConfig):
+    return Subprocess(
+        service_config.name,
+        [
+            "python",
+            "-m",
+            service_config.python_module,
+            "--service-config",
+            args.service_config,
+            "--service-name",
+            service_config.name,
+        ]
+        + [arg for arg in service_config.args],
+    )
+
+
 def launch1_command(args):
     config_list, service_config = load_service_config(args)
-    my_process = Subprocess(
-        service_config.name,
-        [
-            "python",
-            "-m",
-            service_config.python_module,
-            "--service-config",
-            args.service_config,
-            "--service-name",
-            args.service_name,
-        ],
-    )
+    my_process = create_subprocess_from_config(service_config=service_config)
 
     async def job():
         await my_process.start()
@@ -114,28 +121,34 @@ def launch1_command(args):
     asyncio.get_event_loop().run_until_complete(job())
 
 
-def launch_command(args):
-    config_list, service_config = load_service_config(args)
-    my_process = Subprocess(
-        service_config.name,
-        [
-            "python",
-            "-m",
-            service_config.python_module,
-            "--service-config",
-            args.service_config,
-            "--service-name",
-            args.service_name,
-        ],
-    )
+def launch_all_command(args):
+    # TODO kill all processes.
+    config_list = proto_from_json_file(args.service_config, EventServiceConfigList())
 
     async def job():
-        await my_process.start()
+        process_list = []
+        task_list = []
+        for config in config_list.configs:
+            if len(config.python_module):
+                process_list.append(create_subprocess_from_config(config))
+                task_list.append(asyncio.create_task(process_list[-1].start()))
+        await asyncio.gather(*task_list)
         while True:
             await asyncio.sleep(1)
-            print(my_process.name, my_process.pid, my_process.state)
+            for my_process in process_list:
+                print(my_process.name, my_process.pid, my_process.state)
 
-    asyncio.get_event_loop().run_until_complete(job())
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(job())
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt error")
+    except asyncio.CancelledError:
+        print("asyncio.Cancelled error")
+    finally:
+        loop.close()
+
+    print("launch_all done")
 
 
 if __name__ == "__main__":
@@ -159,9 +172,16 @@ if __name__ == "__main__":
     add_service_parser(launch_parser)
     launch_parser.set_defaults(func=launch1_command)
 
-    launch_parser = sub_parsers.add_parser("launch")
-    add_service_parser(launch_parser)
-    launch_parser.set_defaults(func=launch_command)
+    launch_parser = sub_parsers.add_parser("launch_all")
+    launch_parser.add_argument("--service-config", type=str, required=True)
+    launch_parser.set_defaults(func=launch_all_command)
+
+    def signal_handler() -> None:
+        """Handle SIGTERM."""
+        print("SIGTERM received. Exiting...")
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, lambda signum, frame: signal_handler())
 
     args = parser.parse_args()
     if hasattr(args, "func"):

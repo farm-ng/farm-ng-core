@@ -29,7 +29,7 @@ service EventService {
     rpc subscribe(SubscribeRequest) returns (stream SubscribeReply) {}
 
     // send a single message request/reply
-    rpc reqRep(ReqRepRequest) returns (ReqRepReply) {}
+    rpc requestReply(RequestReplyRequest) returns (RequestReplyReply) {}
 }
 
 // request to subscribe to a URI
@@ -49,7 +49,7 @@ message SubscribeReply {
 }
 
 // request to send a single message
-message ReqRepRequest {
+message RequestReplyRequest {
     // the event to send
     Event event = 1;
     // the data payload associated with the event
@@ -57,7 +57,7 @@ message ReqRepRequest {
 }
 
 // reply to send a single message
-message ReqRepReply {
+message RequestReplyReply {
     Event event = 1;
     bytes payload = 2;
 }
@@ -71,6 +71,8 @@ message ListUrisReply {
     // list of URIs
     repeated Uri uris = 1;
 }
+
+
 
 // configuration for an event service
 message EventServiceConfig {
@@ -90,6 +92,19 @@ message EventServiceConfig {
     string python_module = 6;
     // arguments to pass to the python module
     repeated string args = 7;
+    // Use naming and number convention from python logging library.
+    enum LogLevel {
+        NOTSET = 0;
+        option allow_alias = true;
+        CRITICAL = 50;
+        FATAL = 50;
+        ERROR = 40;
+        WARNING = 30;
+        WARN = 30;
+        INFO = 20;
+        DEBUG = 10;
+    }
+    LogLevel log_level = 8;
 }
 
 // list of event service configurations

@@ -10,14 +10,15 @@
             "path": "/test",
             "query": "service_name=bar"
           },
-          "everyN": 1
+          "every_n": 1
         }
       ],
       "python_module": "farm_ng.core.event_service",
       "args": [
         "--my-arg=my-value",
         "foo"
-      ]
+      ],
+      "log_level": "DEBUG"
     },
     {
       "name": "test_service2",
@@ -29,14 +30,15 @@
             "path": "/test",
             "query": "service_name=bar"
           },
-          "everyN": 1
+          "every_n": 1
         }
       ],
       "python_module": "farm_ng.core.event_service",
       "args": [
         "--my-arg=my-value",
         "bar"
-      ]
+      ],
+      "log_level": "DEBUG"
     },
     {
       "name": "record_default",
@@ -46,14 +48,14 @@
             "path": "/test",
             "query": "service_name=test_service"
           },
-          "everyN": 1
+          "every_n": 1
         },
         {
           "uri": {
             "path": "/test2",
             "query": "service_name=test_service"
           },
-          "everyN": 1
+          "every_n": 1
         }
 
       ]

@@ -19,8 +19,8 @@ from farm_ng.core.event_service_pb2 import (
     SubscribeRequest,
     ListUrisRequest,
     ListUrisReply,
-    ReqRepReply,
-    ReqRepRequest,
+    RequestReplyReply,
+    RequestReplyRequest,
 )
 from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.event_pb2 import Event
@@ -162,7 +162,8 @@ class EventClient:
                 yield response.event, payload_to_protobuf(
                     response.event, response.payload
                 )
-            yield response.event, response.payload
+            else:
+                yield response.event, response.payload
 
     async def list_uris(self) -> list[Uri]:
         """Returns the list of uris.
@@ -171,7 +172,7 @@ class EventClient:
             list[Uri]: the list of uris.
         """
         # try to connect to the server, if it fails return an empty list
-        if not self._try_connect():
+        if not await self._try_connect():
             self.logger.warning("Could not list uris: %s", self.server_address)
             return []
 
@@ -185,9 +186,9 @@ class EventClient:
             return []
 
     # TODO: rename to `request_reply`
-    async def req_rep(
+    async def request_reply(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
-    ) -> ReqRepReply:
+    ) -> RequestReplyReply:
         """Sends a request and waits for a reply.
 
         Args:
@@ -201,7 +202,7 @@ class EventClient:
         # try to connect to the server, if it fails return an emmpty response
         if not await self._try_connect():
             self.logger.warning("Could not send: %s", self.server_address)
-            return ReqRepReply()
+            return RequestReplyReply()
 
         # get the current count and increment it
         count: int = self._counts.get(path, 0)
@@ -217,7 +218,7 @@ class EventClient:
         uri.query += f"&service_name={self.config.name}"
 
         payload = message.SerializeToString()
-        request = ReqRepRequest(
+        request = RequestReplyRequest(
             event=Event(
                 uri=uri,
                 timestamps=timestamps,
@@ -228,7 +229,7 @@ class EventClient:
         )
 
         # send the request and wait for the reply
-        reply: ReqRepReply = await self.stub.reqRep(request)
+        reply: RequestReplyReply = await self.stub.requestReply(request)
         reply.event.timestamps.append(
             get_monotonic_now(semantics=StampSemantics.CLIENT_SEND)
         )
@@ -238,7 +239,7 @@ class EventClient:
 async def test_subscribe(client: EventClient, uri: Uri):
     async for event, message in client.subscribe(SubscribeRequest(uri=uri, every_n=1)):
 
-        reply = await client.reqReq(event.uri.path + "/response", message)
+        reply = await client.request_reply(event.uri.path + "/response", message)
         print(event.uri.path, event.sequence, message.value, reply.event.sequence)
 
 

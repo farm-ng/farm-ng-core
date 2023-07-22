@@ -23,8 +23,8 @@ from farm_ng.core.event_service_pb2 import (
     ListUrisRequest,
     SubscribeReply,
     SubscribeRequest,
-    ReqRepRequest,
-    ReqRepReply,
+    RequestReplyRequest,
+    RequestReplyReply,
 )
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.timestamp_pb2 import Timestamp
@@ -57,7 +57,11 @@ class EventServiceGrpc:
         self._config = config
 
         # create a logger for the service
+
         self._logger: logging.Logger = logger or logging.getLogger(config.name)
+
+        self._logger.setLevel(config.log_level)
+        self._logger.addHandler(logging.StreamHandler())
 
         # the time when the service was started
         self.time_started: float = time.monotonic()
@@ -234,11 +238,11 @@ class EventServiceGrpc:
         )
         self._publish_event_payload(event, payload)
 
-    async def reqRep(
+    async def requestReply(
         self,
-        request: ReqRepRequest,
+        request: RequestReplyRequest,
         context: grpc.aio.ServicerContext,  # pylint: disable=unused-argument
-    ) -> ReqRepReply:
+    ) -> RequestReplyReply:
         # adds the timestamps to the event as it passes through the service
         request.event.timestamps.append(
             get_monotonic_now(StampSemantics.CLIENT_RECEIVE)
@@ -248,7 +252,7 @@ class EventServiceGrpc:
         if self._request_reply_handler is not None:
             return await self._request_reply_handler(self, request)
 
-        return ReqRepReply()
+        return RequestReplyReply()
 
     def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
@@ -273,48 +277,6 @@ class EventServiceGrpc:
         self._send_raw(uri=uri, message=message, timestamps=timestamps)
 
 
-async def test_send_smoke(event_service: EventServiceGrpc) -> None:
-    count = 0
-    while True:
-        await asyncio.sleep(1)
-        event_service.publish("/test", Int32Value(value=count))
-        count += 1
-
-
-async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
-    count = 0
-    while True:
-        await asyncio.sleep(0.5)
-        event_service.publish("/test2", Int32Value(value=count))
-        count += 1
-
-
-async def test_req_rep_handler_smoke(
-    event_service: EventServiceGrpc, request: ReqRepRequest
-) -> ReqRepReply:
-    message = payload_to_protobuf(request.event, request.payload)
-    event_service.logger.info(
-        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()
-    )
-    return ReqRepReply(event=request.event, payload=request.payload)
-
-
-# main function to run the service and all the async tasks
-async def test_main(event_service: EventServiceGrpc) -> None:
-    # define the async tasks
-    async_tasks: list[asyncio.Task] = []
-
-    event_service.request_reply_handler = test_req_rep_handler_smoke
-
-    # add the service task
-    async_tasks.append(event_service.serve())
-    async_tasks.append(test_send_smoke(event_service))
-    async_tasks.append(test_send_smoke2(event_service))
-
-    # run the tasks
-    await asyncio.gather(*async_tasks)
-
-
 def add_service_parser(parser):
     parser.add_argument("--service-config", type=str, required=True)
     parser.add_argument("--service-name", type=str, required=True)
@@ -332,20 +294,66 @@ def load_service_config(_args):
     return _config_list, _service_config
 
 
-if __name__ == "__main__":
-    argparse = argparse.ArgumentParser()
-    add_service_parser(argparse)
-    argparse.add_argument("--my-arg", type=str, required=True)
-    argparse.add_argument("foo", type=str, nargs="?")
+def event_service_main_args():
+    parser = argparse.ArgumentParser()
+    add_service_parser(parser)
+    args = parser.parse_args()
+    return load_service_config(args)
 
-    args = argparse.parse_args()
-    config_list, service_config = load_service_config(args)
+
+async def test_send_smoke(event_service: EventServiceGrpc) -> None:
+    count = 0
+    while True:
+        await asyncio.sleep(1)
+        event_service.publish("/test", Int32Value(value=count))
+        count += 1
+
+
+async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
+    count = 0
+    while True:
+        await asyncio.sleep(0.5)
+        event_service.publish("/test2", Int32Value(value=count))
+        count += 1
+
+
+async def test_req_rep_handler_smoke(
+    event_service: EventServiceGrpc, request: RequestReplyRequest
+) -> RequestReplyReply:
+    message = payload_to_protobuf(request.event, request.payload)
+    event_service.logger.info(
+        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()
+    )
+    return RequestReplyReply(event=request.event, payload=request.payload)
+
+
+# main function to run the service and all the async tasks
+async def test_main(
+    config_list: EventServiceConfigList, service_config: EventServiceConfig
+) -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--my-arg", type=str, required=True)
+    parser.add_argument("foo", type=str, nargs="?")
+    args = parser.parse_args(service_config.args)
 
     # create the gRPC server and initialize the service
-    _event_service: EventServiceGrpc = EventServiceGrpc(
+    event_service: EventServiceGrpc = EventServiceGrpc(
         grpc.aio.server(), service_config
     )
-    _event_service.logger.setLevel(logging.DEBUG)
-    _event_service.logger.addHandler(logging.StreamHandler())
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(test_main(event_service=_event_service))
+
+    # define the async tasks
+    async_tasks: list[asyncio.Task] = []
+
+    event_service.request_reply_handler = test_req_rep_handler_smoke
+
+    # add the service task
+    async_tasks.append(event_service.serve())
+    async_tasks.append(test_send_smoke(event_service))
+    async_tasks.append(test_send_smoke2(event_service))
+
+    # run the tasks
+    await asyncio.gather(*async_tasks)
+
+
+if __name__ == "__main__":
+    asyncio.run(test_main(*event_service_main_args()))

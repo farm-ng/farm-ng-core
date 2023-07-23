@@ -237,10 +237,16 @@ class EventClient:
 
 
 async def test_subscribe(client: EventClient, uri: Uri):
+    print(uri)
+    # return
     async for event, message in client.subscribe(SubscribeRequest(uri=uri, every_n=1)):
 
-        reply = await client.request_reply(event.uri.path + "/response", message)
-        print(event.uri.path, event.sequence, message.value, reply.event.sequence)
+        if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
+            reply = await client.request_reply(event.uri.path, message)
+            print("reply:", reply)
+            # print(event.uri.path, event.sequence, message, reply.event.sequence)
+        else:
+            print(event.uri.path, event.sequence)
 
 
 async def test_smoke():
@@ -259,7 +265,9 @@ async def test_smoke():
         await asyncio.sleep(1)
 
     for uri in uris:
+        print(uri.path)
         async_subscriptions.append(asyncio.create_task(test_subscribe(client, uri)))
+
     await asyncio.gather(*async_subscriptions)
 
 

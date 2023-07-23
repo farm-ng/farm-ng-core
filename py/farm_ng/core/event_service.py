@@ -7,11 +7,13 @@ import argparse
 import asyncio
 import logging
 import time
+import os
 from typing import AsyncIterator
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
+from google.protobuf.struct_pb2 import Struct
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -25,6 +27,7 @@ from farm_ng.core.event_service_pb2 import (
     SubscribeRequest,
     RequestReplyRequest,
     RequestReplyReply,
+    RequestReply,
 )
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.timestamp_pb2 import Timestamp
@@ -32,6 +35,7 @@ from farm_ng.core.uri import make_proto_uri
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
+from google.protobuf.empty_pb2 import Empty
 
 
 class EventServiceGrpc:
@@ -244,15 +248,39 @@ class EventServiceGrpc:
         context: grpc.aio.ServicerContext,  # pylint: disable=unused-argument
     ) -> RequestReplyReply:
         # adds the timestamps to the event as it passes through the service
-        request.event.timestamps.append(
-            get_monotonic_now(StampSemantics.CLIENT_RECEIVE)
-        )
+        recv_stamp = get_monotonic_now(StampSemantics.SERVICE_RECEIVE)
+        request.event.timestamps.append(recv_stamp)
+        event = Event()
+        event.CopyFrom(request.event)
+        event.uri.path = "/request" + event.uri.path
+        # self._publish_event_payload(event, request.payload)
 
-        # call the request/reply handler
+        reply_message: Message
         if self._request_reply_handler is not None:
-            return await self._request_reply_handler(self, request)
+            reply_message = await self._request_reply_handler(self, request)
+        else:
+            reply_message = Empty()
 
-        return RequestReplyReply()
+        reply_uri: Uri = make_proto_uri(
+            path="/reply" + event.uri.path, message=reply_message
+        )
+        reply_uri.query += f"&service_name={self.config.name}"
+        # create the event and send
+        reply_payload: bytes = reply_message.SerializeToString()
+
+        timestamps = []
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
+
+        event = Event(
+            uri=reply_uri,
+            timestamps=timestamps,
+            payload_length=len(reply_payload),
+            sequence=event.sequence,
+        )
+        reply = RequestReplyReply(event=event, payload=reply_payload)
+        # self._publish_event_payload(reply.event, reply.payload)
+        return reply
 
     def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
@@ -319,28 +347,16 @@ async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
 
 async def test_req_rep_handler_smoke(
     event_service: EventServiceGrpc, request: RequestReplyRequest
-) -> RequestReplyReply:
+) -> Message:
     message = payload_to_protobuf(request.event, request.payload)
     event_service.logger.info(
         f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()
     )
-    return RequestReplyReply(event=request.event, payload=request.payload)
+    return message  # echo message back
 
 
 # main function to run the service and all the async tasks
-async def test_main(
-    config_list: EventServiceConfigList, service_config: EventServiceConfig
-) -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--my-arg", type=str, required=True)
-    parser.add_argument("foo", type=str, nargs="?")
-    args = parser.parse_args(service_config.args)
-
-    # create the gRPC server and initialize the service
-    event_service: EventServiceGrpc = EventServiceGrpc(
-        grpc.aio.server(), service_config
-    )
-
+async def test_main(args, event_service: EventServiceGrpc) -> None:
     # define the async tasks
     async_tasks: list[asyncio.Task] = []
 
@@ -356,4 +372,17 @@ async def test_main(
 
 
 if __name__ == "__main__":
-    asyncio.run(test_main(*event_service_main_args()))
+    config_list: EventServiceConfigList
+    service_config: EventServiceConfig
+    config_list, service_config = event_service_main_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--my-arg", type=str, required=True)
+    parser.add_argument("foo", type=str, nargs="?")
+    args = parser.parse_args(service_config.args)
+
+    # create the gRPC server and initialize the service
+    event_service: EventServiceGrpc = EventServiceGrpc(
+        grpc.aio.server(), service_config
+    )
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_main(args, event_service))

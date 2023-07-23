@@ -2,7 +2,7 @@
 # run the event_service which starts a simple test publisher
 python -m farm_ng.core.event_service
 # run the event_recorder which subscribes to the test publisher and records the events to a file
-python -m farm_ng.core.event_service_recorder record config.json --config_name=record_all foo
+python -m farm_ng.core.event_service_recorder record --service-config=config.json --config_name=record_all foo
 # note that the config file has an EventServiceConfig with name "record_all" which subscribes to the test publisher
 
 # then try playing back log file:
@@ -146,7 +146,7 @@ class EventServiceRecorder:
 
 def record_command(_args):
     async def job():
-        configs = proto_from_json_file(_args.config, EventServiceConfigList())
+        configs = proto_from_json_file(_args.service_config, EventServiceConfigList())
         recorder = EventServiceRecorder(_args.config_name, config_list=configs)
         await recorder.subscribe_and_record(
             _args.output, _args.extension, _args.max_file_mb
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     sub_parsers = parser.add_subparsers()
     record_parser = sub_parsers.add_parser("record")
-    record_parser.add_argument("config")
+    record_parser.add_argument("--service-config", required=True, type=str)
     record_parser.add_argument("output")
     record_parser.add_argument("--extension", default=".bin")
     record_parser.add_argument("--max_file_mb", default=0, type=int)

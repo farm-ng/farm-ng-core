@@ -62,6 +62,11 @@ message RequestReplyReply {
     bytes payload = 2;
 }
 
+message RequestReply {
+    RequestReplyRequest request = 1;
+    RequestReplyReply reply = 2;
+}
+
 // request to list all the URIs this service can publish
 message ListUrisRequest {
 }

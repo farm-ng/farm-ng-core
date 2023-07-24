@@ -45,7 +45,6 @@ async def config_gen_command(args):
                             uri=Uri(path="/test", query="service_name=bar"), every_n=1
                         )
                     ],
-                    python_module="farm_ng.core.event_service",
                     args=["--my-arg=my-value", "foo"],
                     log_level=EventServiceConfig.LogLevel.INFO,
                 ),

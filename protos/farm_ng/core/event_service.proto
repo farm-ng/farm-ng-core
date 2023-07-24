@@ -90,11 +90,8 @@ message EventServiceConfig {
     // list of URIs to publish to
     // NOTE: the uris are already in the subscriptions, but we need to
     repeated Uri uris = 5;
-    // python module describing the service
-    // TODO: is it full path? or just the module name?
-    string python_module = 6;
-    // arguments to pass to the python module
-    repeated string args = 7;
+    // arguments that are service specific
+    repeated string args = 6;
     // Use naming and number convention from python logging library.
     enum LogLevel {
         NOTSET = 0;
@@ -107,7 +104,7 @@ message EventServiceConfig {
         INFO = 20;
         DEBUG = 10;
     }
-    LogLevel log_level = 8;
+    LogLevel log_level = 7;
 }
 
 // list of event service configurations

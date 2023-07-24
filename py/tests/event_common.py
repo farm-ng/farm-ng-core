@@ -14,7 +14,6 @@ def event_service_config() -> EventServiceConfig:
                 every_n=1,
             ),
         ],
-        python_module="farm_ng.core.event_service",
         args=["--my-arg=my-value", "foo"],
         log_level=EventServiceConfig.LogLevel.DEBUG,
     )

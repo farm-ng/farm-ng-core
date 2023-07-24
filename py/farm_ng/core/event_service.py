@@ -7,13 +7,11 @@ import argparse
 import asyncio
 import logging
 import time
-import os
 from typing import AsyncIterator
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
-from google.protobuf.struct_pb2 import Struct
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -27,7 +25,6 @@ from farm_ng.core.event_service_pb2 import (
     SubscribeRequest,
     RequestReplyRequest,
     RequestReplyReply,
-    RequestReply,
 )
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.timestamp_pb2 import Timestamp

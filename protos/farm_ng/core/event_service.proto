@@ -77,8 +77,6 @@ message ListUrisReply {
     repeated Uri uris = 1;
 }
 
-
-
 // configuration for an event service
 message EventServiceConfig {
     // name of the service

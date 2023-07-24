@@ -7,6 +7,15 @@ python -m farm_ng.core.event_service_recorder record --service-config=config.jso
 
 # then try playing back log file:
 python -m farm_ng.core.events_file_reader playback foo.0000.bin
+
+# or try running the event_service_recorder in service mode:
+# start the service
+python -m farm_ng.core.event_service_recorder service --service-config config.json --service-name recorder
+
+# in a separate terminal, start recording
+python -m farm_ng.core.event_service_recorder start --service-config config.json  --service-name recorder
+# then stop recording
+python -m farm_ng.core.event_service_recorder stop --service-config config.json  --service-name recorder
 """
 from __future__ import annotations
 
@@ -14,20 +23,28 @@ import argparse
 import asyncio
 import logging
 from pathlib import Path
+import grpc
 import sys
 
 from farm_ng.core import event_pb2
+from farm_ng.core.event_service import (
+    EventServiceGrpc,
+    add_service_parser,
+    load_service_config,
+)
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
     EventServiceConfigList,
     SubscribeRequest,
+    RequestReplyRequest,
 )
-from farm_ng.core.events_file_reader import proto_from_json_file
+from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.uri import uri_query_to_dict
 from farm_ng.core.stamp import get_monotonic_now, StampSemantics
 from google.protobuf.message import Message
+from google.protobuf.empty_pb2 import Empty
 
 
 class EventServiceRecorder:
@@ -141,7 +158,94 @@ class EventServiceRecorder:
             async_tasks.append(
                 asyncio.create_task(self.subscribe(client, subscription))
             )
+        try:
+            await asyncio.gather(*async_tasks)
+        finally:
+            print("done recording")
+
+
+# An EventServiceGrpc which will record events to a file.
+#   when it receives a request to start will start
+#   when it receives a request to stop will stop
+#   it will publish the progress of recording
+#   it will only record one recording at a time
+class RecorderService:
+    def __init__(self, event_service: EventServiceGrpc) -> None:
+        self._event_service = event_service
+        self._event_service.request_reply_handler = self._request_reply_handler
+        self._recorder: EventServiceRecorder | None = None
+        self._recorder_task: asyncio.Task | None = None
+        self._count = 0
+
+    async def start_recording(self, config_list):
+        if self._recorder is not None:
+            await self.stop_recording()
+        # start recording
+        self._recorder = EventServiceRecorder("record_default", config_list)
+        self._recorder_task = asyncio.create_task(
+            self._recorder.subscribe_and_record("log_%05d" % self._count)
+        )
+        self._count += 1
+
+    async def stop_recording(self):
+        if self._recorder is None:
+            return
+        self._recorder_task.cancel()
+        self._recorder = None
+        self._recorder_task = None
+        print("stopped recording")
+
+    async def _request_reply_handler(
+        self, event_service: EventServiceGrpc, request: RequestReplyRequest
+    ) -> Message:
+        if request.event.uri.path not in ("start", "stop"):
+            return Empty()
+
+        print("Got request:", request)
+
+        if request.event.uri.path == "start":
+            config_list: EventServiceConfigList = payload_to_protobuf(
+                request.event, request.payload
+            )
+            await self.start_recording(config_list)
+            return config_list
+        elif request.event.uri.path == "stop":
+            await self.stop_recording()
+        return Empty()
+
+
+def service_command(_args):
+    config_list, service_config = load_service_config(args)
+    event_service: EventServiceGrpc = EventServiceGrpc(
+        grpc.aio.server(), service_config
+    )
+    recorder_service = RecorderService(event_service)
+
+    async def job():
+        # define the async tasks
+        async_tasks: list[asyncio.Task] = []
+
+        # add the service task
+        async_tasks.append(event_service.serve())
+
+        # run the tasks
         await asyncio.gather(*async_tasks)
+
+    asyncio.get_event_loop().run_until_complete(job())
+
+
+def client_start_command(_args):
+    config_list, service_config = load_service_config(args)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(
+        EventClient(service_config).request_reply("start", config_list)
+    )
+
+
+def client_stop_command(_args):
+    config_list, service_config = load_service_config(args)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(EventClient(service_config).request_reply("stop", Empty()))
 
 
 def record_command(_args):
@@ -158,6 +262,19 @@ def record_command(_args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     sub_parsers = parser.add_subparsers()
+    service_parser = sub_parsers.add_parser("service")
+    add_service_parser(service_parser)
+    service_parser.add_argument("--out-dir", default="/tmp/")
+    service_parser.set_defaults(func=service_command)
+
+    client_parser = sub_parsers.add_parser("start")
+    add_service_parser(client_parser)
+    client_parser.set_defaults(func=client_start_command)
+
+    client_parser = sub_parsers.add_parser("stop")
+    add_service_parser(client_parser)
+    client_parser.set_defaults(func=client_stop_command)
+
     record_parser = sub_parsers.add_parser("record")
     record_parser.add_argument("--service-config", required=True, type=str)
     record_parser.add_argument("output")

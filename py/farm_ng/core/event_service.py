@@ -170,7 +170,7 @@ class EventServiceGrpc:
         while True:
             yield await request_queue[1].get()
 
-    def _publish_event_payload(self, event: Event, payload: bytes) -> None:
+    async def _publish_event_payload(self, event: Event, payload: bytes) -> None:
         """Send an event and payload to the clients.
 
         Args:
@@ -207,9 +207,15 @@ class EventServiceGrpc:
                 queue.put_nowait(reply)
             except asyncio.QueueFull:
                 # NOTE: don't we want to drop the oldest message?
+                # TODO: keep tracked of dropped messages in a data structure
+                # to be able to report them to the user later
                 pass
 
-    def _send_raw(
+        await asyncio.sleep(0)
+
+        # TODO: return the sequence number of the message and the number of clients it was sent to
+
+    async def _send_raw(
         self, uri: Uri, message: Message, timestamps: list[Timestamp]
     ) -> None:
         """Send a message to the service.
@@ -226,6 +232,9 @@ class EventServiceGrpc:
         count: int = self._counts.get(uri.path, 0)
 
         # increment the count of the URI
+        # NOTE: even if the message is not sent, the count is incremented
+        # so that the client can know that the message was not sent by checking
+        # the count of the URI.
         self._counts[uri.path] = count + 1
 
         # create the event and send
@@ -237,7 +246,7 @@ class EventServiceGrpc:
             payload_length=len(payload),
             sequence=count,
         )
-        self._publish_event_payload(event, payload)
+        await self._publish_event_payload(event, payload)
 
     async def requestReply(
         self,
@@ -279,7 +288,7 @@ class EventServiceGrpc:
         # self._publish_event_payload(reply.event, reply.payload)
         return reply
 
-    def publish(
+    async def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
     ) -> None:
         """Publish a message to the service.
@@ -299,7 +308,7 @@ class EventServiceGrpc:
         uri.query += f"&service_name={self.config.name}"
 
         # send the message to the service
-        self._send_raw(uri=uri, message=message, timestamps=timestamps)
+        await self._send_raw(uri=uri, message=message, timestamps=timestamps)
 
 
 def add_service_parser(parser):

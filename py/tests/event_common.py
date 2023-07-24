@@ -3,7 +3,6 @@ from farm_ng.core.event_service import EventServiceConfig, SubscribeRequest
 from farm_ng.core.uri_pb2 import Uri
 
 
-@pytest.fixture(scope="module", name="config")
 def event_service_config() -> EventServiceConfig:
     return EventServiceConfig(
         name="test_service",

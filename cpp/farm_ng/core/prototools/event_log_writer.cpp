@@ -64,13 +64,16 @@ auto makeWriteStamp() -> core::proto::Timestamp {
 class EventLogWriterBinaryImpl : public EventLogWriterImpl {
  public:
   EventLogWriterBinaryImpl(std::filesystem::path const& log_path)
-      : log_path(log_path), out(log_path.string(), std::ofstream::binary) {}
+      : log_path(log_path) {}
 
   void write(
       std::string path,
       google::protobuf::Message const& message,
       google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
           timestamps) override {
+    if (!out.is_open()) {
+      out.open(log_path.string(), std::ofstream::binary);
+    }
     std::string payload;
     message.SerializeToString(&payload);
     core::proto::Event event;
@@ -96,6 +99,8 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
     out << payload;
     out.flush();
   }
+
+  ssize_t getBytesWritten() override { return out.tellp(); }
 
   std::filesystem::path log_path;
   std::ofstream out;
@@ -136,5 +141,7 @@ void EventLogWriter::write(
         timestamps) {
   impl_->write(path, message, timestamps);
 }
+
+ssize_t EventLogWriter::getBytesWritten() { return impl_->getBytesWritten(); }
 
 }  // namespace farm_ng

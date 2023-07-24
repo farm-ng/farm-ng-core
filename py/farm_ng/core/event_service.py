@@ -339,7 +339,7 @@ async def test_send_smoke(event_service: EventServiceGrpc) -> None:
     count = 0
     while True:
         await asyncio.sleep(1)
-        event_service.publish("/test", Int32Value(value=count))
+        await event_service.publish("/test", Int32Value(value=count))
         count += 1
 
 
@@ -347,7 +347,7 @@ async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
     count = 0
     while True:
         await asyncio.sleep(0.5)
-        event_service.publish("/test2", Int32Value(value=count))
+        await event_service.publish("/test2", Int32Value(value=count))
         count += 1
 
 

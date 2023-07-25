@@ -5,13 +5,14 @@ from farm_ng.core.event_service import EventServiceConfig
 from .event_common import event_service_config
 
 
-@pytest.fixture(name="client")
-def event_client(config: EventServiceConfig) -> EventClient:
+def event_client() -> EventClient:
+    config: EventServiceConfig = event_service_config()
     return EventClient(config)
 
 
 class TestEventClient:
-    def test_smoke(self, client: EventClient) -> None:
+    def test_smoke(self) -> None:
+        client: EventClient = event_client()
         assert client is not None
         assert client.config is not None
         assert client.logger.name == "test_service/client"

@@ -109,6 +109,16 @@ class EventServiceGrpc:
         """Sets the request/reply handler."""
         self._request_reply_handler = handler
 
+    @property
+    def counts(self) -> dict[str, int]:
+        """Returns the counts of the URIs."""
+        return self._counts
+
+    @property
+    def uris(self) -> dict[str, str]:
+        """Returns the URIs of the service."""
+        return self._uris
+
     async def serve(self) -> None:
         """Starts the service.
 

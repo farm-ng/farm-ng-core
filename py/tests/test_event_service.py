@@ -47,30 +47,30 @@ class TestEventServiceGrpc:
         # start the server
         asyncio.create_task(event_service.serve())
 
-        assert event_service._counts == {}
-        assert event_service._uris == {}
+        assert not event_service.counts
+        assert not event_service.uris
 
         # publish a message
         await event_service.publish(path="/test", message=Int32Value(value=0))
-        assert event_service._counts["/test"] == 1
-        assert "Int32Value" in event_service._uris["/test"].query
+        assert event_service.counts["/test"] == 1
+        assert "Int32Value" in event_service.uris["/test"].query
 
         # store the uri for later
-        message_uri = event_service._uris["/test"]
+        message_uri = event_service.uris["/test"]
 
         # add more messages
         await event_service.publish(path="/test", message=Int32Value(value=-3))
         await event_service.publish(path="/test", message=Int32Value(value=4))
-        assert event_service._counts["/test"] == 3
-        assert event_service._uris["/test"] == message_uri
+        assert event_service.counts["/test"] == 3
+        assert event_service.uris["/test"] == message_uri
 
         # add to another path
         await event_service.publish(path="/test2", message=Int32Value(value=1))
-        assert event_service._counts["/test2"] == 1
-        assert event_service._uris["/test"] == message_uri
+        assert event_service.counts["/test2"] == 1
+        assert event_service.uris["/test"] == message_uri
 
         # add to initial path another type of message
         # TODO: this test should fail because the message type is different
         await event_service.publish(path="/test", message=StringValue(value="foo"))
-        assert event_service._counts["/test"] == 4
-        assert event_service._uris["/test"] != message_uri
+        assert event_service.counts["/test"] == 4
+        assert event_service.uris["/test"] != message_uri

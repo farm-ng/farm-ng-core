@@ -54,7 +54,7 @@ class TestEventServiceGrpc:
         res = await event_service.publish(path="/foo", message=Int32Value(value=0))
         assert event_service.counts["/foo"] == 1
         assert res.sequence_number == 0
-        assert res.num_clients == 0
+        assert res.number_clients == 0
 
         # check that the class name is in the uri and store the uri for later
         assert "Int32Value" in event_service.uris["/foo"].query
@@ -64,16 +64,16 @@ class TestEventServiceGrpc:
         await event_service.publish(path="/foo", message=Int32Value(value=-3))
         res = await event_service.publish(path="/foo", message=Int32Value(value=4))
         assert res.sequence_number == 2
-        assert res.num_clients == 0
+        assert res.number_clients == 0
         assert event_service.counts["/foo"] == 3
         assert event_service.uris["/foo"] == message_uri
 
         # add to another path
         res = await event_service.publish(path="/bar", message=Int32Value(value=1))
         assert res.sequence_number == 0
-        assert res.num_clients == 0
+        assert res.number_clients == 0
         assert event_service.counts["/bar"] == 1
-        assert event_service.uris["/bar"] == message_uri
+        assert event_service.uris["/bar"].query == message_uri.query
 
     @pytest.mark.asyncio
     async def test_publish_error(self) -> None:

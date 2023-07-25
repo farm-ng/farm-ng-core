@@ -5,7 +5,8 @@ python -m farm_ng.core.event_service --service-config config.json --service-name
 from __future__ import annotations
 import argparse
 import asyncio
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, field
 import logging
 import time
 from typing import AsyncIterator
@@ -41,9 +42,24 @@ class PublishResult:
     """The result of publishing a message to the service."""
 
     # the number of clients the message was sent to
-    num_clients: int
+    number_clients: int
     # the sequence number of the message
     sequence_number: int
+
+
+# TODO: iterate this data structure to report dropped messages and other stats
+@dataclass(frozen=True)
+class UriStats:
+    """The stats of a URI."""
+
+    # the actual URI
+    uri: Uri
+    # the sequence number of the last message sent
+    sequence_number: int
+    # the number of messages dropped
+    dropped: list[Event] = field(default_factory=list)
+    # the not sent messages
+    not_sent: list[Event] = field(default_factory=list)
 
 
 class EventServiceGrpc:
@@ -83,11 +99,15 @@ class EventServiceGrpc:
             str, list[tuple[SubscribeRequest, asyncio.Queue]]
         ] = {}
 
+        # TODO: merge into a single dict containing a data structure with the uri, the counts
         # the URIs of the service
-        self._uris: dict[str, str] = {}
+        self._uris: dict[str, Uri] = {}
 
         # the counts of the URIs
         self._counts: dict[str, int] = {}
+
+        # the stats of the URIs, to keep track of dropped messages and other stats
+        self._uris_stats: dict[str, UriStats] = defaultdict(UriStats)
 
         # the request/reply handler
         self._request_reply_handler: callable | None = None
@@ -230,10 +250,9 @@ class EventServiceGrpc:
             try:
                 queue.put_nowait(reply)
             except asyncio.QueueFull:
-                # NOTE: don't we want to drop the oldest message?
-                # TODO: keep tracked of dropped messages in a data structure
+                # keep tracked of dropped messages in a data structure
                 # to be able to report them to the user later
-                pass
+                self._uris_stats[uri.path].dropped.append(event)
 
         # wait for the queues to be emptied
         await asyncio.sleep(0)
@@ -261,9 +280,9 @@ class EventServiceGrpc:
 
             # check that the message type is the same
             if previous_uri.query != uri.query:
-                raise TypeError(
-                    f"Message type mismatch: {previous_uri.query.split('&')[0].split('.')[-1]} != {uri.query.split('&')[0].split('.')[-1]}"
-                )
+                type1: str = previous_uri.query.split("&")[0].split(".")[-1]
+                type2: str = uri.query.split("&")[0].split(".")[-1]
+                raise TypeError(f"Message type mismatch: {type1} != {type2}")
 
         # register the URI of the message
         self._uris[uri.path] = uri
@@ -289,7 +308,7 @@ class EventServiceGrpc:
 
         return {
             "sequence_number": count,
-            "num_clients": await self._publish_event_payload(event, payload),
+            "number_clients": await self._publish_event_payload(event, payload),
         }
 
     async def requestReply(

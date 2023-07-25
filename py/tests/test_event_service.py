@@ -15,21 +15,12 @@ from farm_ng.core.event_service import EventServiceGrpc, EventServiceConfig
 from .event_common import event_service_config
 
 
-async def request_reply_handler(
-    event_service: EventServiceGrpc, request: RequestReplyRequest
-) -> Message:
-    message = payload_to_protobuf(request.event, request.payload)
-    event_service.logger.info(
-        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()
-    )
-    return message  # echo message back
-
-
 class TestEventServiceGrpc:
     def test_smoke(self) -> None:
         config: EventServiceConfig = event_service_config()
         servicer: EventServiceGrpc = EventServiceGrpc(grpc.aio.server(), config)
         assert servicer is not None
+        assert servicer.QUEUE_MAX_SIZE == 10
         assert servicer.server is not None
         assert servicer.config == config
         assert servicer.logger is not None
@@ -113,14 +104,11 @@ class TestEventServiceGrpc:
         async_tasks: list[asyncio.Task] = []
         async_tasks.append(_publish_message(event_service, "/foo", 2, 0.2))
         async_tasks.append(_publish_message(event_service, "/bar", 3, 0.1))
+
         res = await asyncio.gather(*async_tasks)
         assert res == [True, True]
         assert event_service.counts["/foo"] == 2
         assert event_service.counts["/bar"] == 3
-
-    @pytest.mark.skip(reason="TODO: implement me")
-    def test_subscribe(self) -> None:
-        pass
 
     @pytest.mark.skip(reason="TODO: implement me")
     def test_list_uris(self) -> None:

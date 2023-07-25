@@ -73,11 +73,15 @@ class EventServiceRecorder:
         self._clients: dict[str, EventClient] = {}
 
         # find the recorder config and create the clients
+        # TODO: why do not pass directly the config instead of the config list?
         config: EventServiceConfig
         for config in self.config_list.configs:
             if self.service_name == config.name:
                 self.recorder_config = config
-            if config.port != 0:
+                if config.host == "" or config.port == 0:
+                    raise ValueError(
+                        f"Invalid config: {config}, are you sure this is a client config?"
+                    )
                 self._clients[config.name] = EventClient(config)
 
         assert (
@@ -161,14 +165,21 @@ class EventServiceRecorder:
         subscription: SubscribeRequest
         for subscription in self.recorder_config.subscriptions:
             query: dict[str, str] = uri_query_to_dict(uri=subscription.uri)
-            client: EventClient = self.clients[query["service_name"]]
+            query_service_name: str = query["service_name"]
+            if query_service_name not in self.clients:
+                raise ValueError(
+                    f"Invalid subscription: {subscription}, are you sure this is a client config?"
+                )
+            client: EventClient = self.clients[query_service_name]
             async_tasks.append(
                 asyncio.create_task(self.subscribe(client, subscription))
             )
         try:
             await asyncio.gather(*async_tasks)
+        except asyncio.CancelledError:
+            self.logger.debug("cancelled recording")
         finally:
-            print("done recording")
+            self.logger.info("done recording")
 
 
 class RecorderService:

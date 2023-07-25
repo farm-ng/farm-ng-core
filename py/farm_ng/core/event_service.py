@@ -36,6 +36,13 @@ from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
 from google.protobuf.empty_pb2 import Empty
 
+# public members
+
+__all__ = [
+    "EventServiceGrpc",
+    "PublishResult",
+]
+
 
 @dataclass(frozen=True)
 class PublishResult:
@@ -49,7 +56,7 @@ class PublishResult:
 
 # TODO: iterate this data structure to report dropped messages and other stats
 @dataclass(frozen=True)
-class UriStats:
+class _UriStats:
     """The stats of a URI."""
 
     # the actual URI
@@ -107,7 +114,7 @@ class EventServiceGrpc:
         self._counts: dict[str, int] = {}
 
         # the stats of the URIs, to keep track of dropped messages and other stats
-        self._uris_stats: dict[str, UriStats] = defaultdict(UriStats)
+        self._uris_stats: dict[str, _UriStats] = defaultdict(_UriStats)
 
         # the request/reply handler
         self._request_reply_handler: callable | None = None
@@ -150,6 +157,8 @@ class EventServiceGrpc:
         """Returns the URIs of the service."""
         return self._uris
 
+    # public methods
+
     async def serve(self) -> None:
         """Starts the service.
 
@@ -162,6 +171,32 @@ class EventServiceGrpc:
 
         self.logger.info("Server started")
         await self.server.wait_for_termination()
+
+    async def publish(
+        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+    ) -> PublishResult:
+        """Publish a message to the service.
+
+        Args:
+            path (str): The path of the message.
+            message (Message): The message.
+            timestamps (list[Timestamp], optional): The timestamps. Defaults to None.
+        """
+        # add the timestamps to the event as it passes through the service
+        timestamps = timestamps or []
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.DRIVER_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.DRIVER_SEND))
+
+        # create the URI of the message
+        uri: Uri = make_proto_uri(path=path, message=message)
+        uri.query += f"&service_name={self.config.name}"
+
+        # send the message to the service
+        result = await self._send_raw(uri=uri, message=message, timestamps=timestamps)
+
+        return PublishResult(**result)
+
+    # public gRPC methods
 
     # pylint: disable=invalid-name
     async def listUris(
@@ -210,6 +245,49 @@ class EventServiceGrpc:
 
         while True:
             yield await request_queue[1].get()
+
+    async def requestReply(
+        self,
+        request: RequestReplyRequest,
+        context: grpc.aio.ServicerContext,  # pylint: disable=unused-argument
+    ) -> RequestReplyReply:
+        # adds the timestamps to the event as it passes through the service
+        recv_stamp = get_monotonic_now(StampSemantics.SERVICE_RECEIVE)
+        request.event.timestamps.append(recv_stamp)
+        event = Event()
+        event.CopyFrom(request.event)
+        event.uri.path = "/request" + event.uri.path
+        # self._publish_event_payload(event, request.payload)
+
+        reply_message: Message
+        if self._request_reply_handler is not None:
+            reply_message = await self._request_reply_handler(self, request)
+        else:
+            reply_message = Empty()
+
+        reply_uri: Uri = make_proto_uri(
+            path="/reply" + event.uri.path, message=reply_message
+        )
+        reply_uri.query += f"&service_name={self.config.name}"
+
+        # create the event and send
+        reply_payload: bytes = reply_message.SerializeToString()
+
+        timestamps = []
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
+
+        event = Event(
+            uri=reply_uri,
+            timestamps=timestamps,
+            payload_length=len(reply_payload),
+            sequence=event.sequence,
+        )
+        reply = RequestReplyReply(event=event, payload=reply_payload)
+        # self._publish_event_payload(reply.event, reply.payload)
+        return reply
+
+    # private methods
 
     async def _publish_event_payload(self, event: Event, payload: bytes) -> int:
         """Send an event and payload to the clients.
@@ -271,7 +349,7 @@ class EventServiceGrpc:
             timestamps (list[Timestamp]): The timestamps.
 
         Returns:
-            tuple[int, int]: The sequence number of the message and the number of clients it was sent to.
+            dict[str, int]: The sequence number of the message and the number of clients it was sent to.
         """
         # check that the message type is the same as the previous messages
         if uri.path in self._uris:
@@ -310,71 +388,6 @@ class EventServiceGrpc:
             "sequence_number": count,
             "number_clients": await self._publish_event_payload(event, payload),
         }
-
-    async def requestReply(
-        self,
-        request: RequestReplyRequest,
-        context: grpc.aio.ServicerContext,  # pylint: disable=unused-argument
-    ) -> RequestReplyReply:
-        # adds the timestamps to the event as it passes through the service
-        recv_stamp = get_monotonic_now(StampSemantics.SERVICE_RECEIVE)
-        request.event.timestamps.append(recv_stamp)
-        event = Event()
-        event.CopyFrom(request.event)
-        event.uri.path = "/request" + event.uri.path
-        # self._publish_event_payload(event, request.payload)
-
-        reply_message: Message
-        if self._request_reply_handler is not None:
-            reply_message = await self._request_reply_handler(self, request)
-        else:
-            reply_message = Empty()
-
-        reply_uri: Uri = make_proto_uri(
-            path="/reply" + event.uri.path, message=reply_message
-        )
-        reply_uri.query += f"&service_name={self.config.name}"
-
-        # create the event and send
-        reply_payload: bytes = reply_message.SerializeToString()
-
-        timestamps = []
-        timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
-        timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
-
-        event = Event(
-            uri=reply_uri,
-            timestamps=timestamps,
-            payload_length=len(reply_payload),
-            sequence=event.sequence,
-        )
-        reply = RequestReplyReply(event=event, payload=reply_payload)
-        # self._publish_event_payload(reply.event, reply.payload)
-        return reply
-
-    async def publish(
-        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
-    ) -> PublishResult:
-        """Publish a message to the service.
-
-        Args:
-            path (str): The path of the message.
-            message (Message): The message.
-            timestamps (list[Timestamp], optional): The timestamps. Defaults to None.
-        """
-        # add the timestamps to the event as it passes through the service
-        timestamps = timestamps or []
-        timestamps.append(get_monotonic_now(semantics=StampSemantics.DRIVER_SEND))
-        timestamps.append(get_system_clock_now(semantics=StampSemantics.DRIVER_SEND))
-
-        # create the URI of the message
-        uri: Uri = make_proto_uri(path=path, message=message)
-        uri.query += f"&service_name={self.config.name}"
-
-        # send the message to the service
-        result = await self._send_raw(uri=uri, message=message, timestamps=timestamps)
-
-        return PublishResult(**result)
 
 
 def add_service_parser(parser):

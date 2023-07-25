@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pytest
 import asyncio
 import grpc
@@ -34,10 +35,9 @@ class TestEventServiceGrpc:
         assert servicer.logger is not None
         assert servicer.logger.name == "test_service"
         assert servicer.time_started > 0.0
-        assert servicer._client_queues == {}
-        assert servicer._uris == {}
-        assert servicer._counts == {}
-        assert servicer._request_reply_handler is None
+        assert not servicer.uris
+        assert not servicer.counts
+        assert servicer.request_reply_handler is None
 
     @pytest.mark.asyncio
     async def test_publish(self) -> None:
@@ -91,3 +91,37 @@ class TestEventServiceGrpc:
             TypeError, match="Message type mismatch: StringValue != Int32Value"
         ):
             await event_service.publish(path="/foo", message=Int32Value(value=0))
+
+    @pytest.mark.asyncio
+    async def test_multiple_publishers(self) -> None:
+        async def _publish_message(
+            event_service: EventServiceGrpc, path: str, num_messages: int, delay: int
+        ) -> bool:
+            """Publishes a message to the event service."""
+            for i in range(num_messages):
+                await event_service.publish(path=path, message=Int32Value(value=i))
+                await asyncio.sleep(delay)
+            return True
+
+        # create a service
+        event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
+
+        # start the server
+        asyncio.create_task(event_service.serve())
+
+        # create multiple publishers
+        async_tasks: list[asyncio.Task] = []
+        async_tasks.append(_publish_message(event_service, "/foo", 2, 0.2))
+        async_tasks.append(_publish_message(event_service, "/bar", 3, 0.1))
+        res = await asyncio.gather(*async_tasks)
+        assert res == [True, True]
+        assert event_service.counts["/foo"] == 2
+        assert event_service.counts["/bar"] == 3
+
+    @pytest.mark.skip(reason="TODO: implement me")
+    def test_subscribe(self) -> None:
+        pass
+
+    @pytest.mark.skip(reason="TODO: implement me")
+    def test_list_uris(self) -> None:
+        pass

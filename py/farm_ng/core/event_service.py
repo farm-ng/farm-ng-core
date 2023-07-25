@@ -5,6 +5,7 @@ python -m farm_ng.core.event_service --service-config config.json --service-name
 from __future__ import annotations
 import argparse
 import asyncio
+from dataclasses import dataclass
 import logging
 import time
 from typing import AsyncIterator
@@ -33,6 +34,16 @@ from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
 from google.protobuf.empty_pb2 import Empty
+
+
+@dataclass(frozen=True)
+class PublishResult:
+    """The result of publishing a message to the service."""
+
+    # the number of clients the message was sent to
+    num_clients: int
+    # the sequence number of the message
+    sequence_number: int
 
 
 class EventServiceGrpc:
@@ -154,7 +165,7 @@ class EventServiceGrpc:
         request: SubscribeRequest,
         context: grpc.aio.ServicerContext,
     ) -> AsyncIterator[SubscribeReply]:
-        """Impleemntation of grpc rpc subscribe"""
+        """Implementation of grpc rpc subscribe"""
 
         # create a queue for this client
         # TODO: make a small `RequestQueue` class with `request` and `queue for better readability
@@ -180,12 +191,15 @@ class EventServiceGrpc:
         while True:
             yield await request_queue[1].get()
 
-    async def _publish_event_payload(self, event: Event, payload: bytes) -> None:
+    async def _publish_event_payload(self, event: Event, payload: bytes) -> int:
         """Send an event and payload to the clients.
 
         Args:
             event (Event): The event.
             payload (bytes): The payload.
+
+        Returns:
+            int: The number of clients the message was sent to.
         """
         uri: Uri = event.uri
 
@@ -221,20 +235,36 @@ class EventServiceGrpc:
                 # to be able to report them to the user later
                 pass
 
+        # wait for the queues to be emptied
         await asyncio.sleep(0)
 
-        # TODO: return the sequence number of the message and the number of clients it was sent to
+        # return the number of clients the message was sent to
+        return len(queues)
 
     async def _send_raw(
         self, uri: Uri, message: Message, timestamps: list[Timestamp]
-    ) -> None:
+    ) -> dict[str, int]:
         """Send a message to the service.
 
         Args:
             uri (Uri): The URI of the message.
             message (Message): The message.
             timestamps (list[Timestamp]): The timestamps.
+
+        Returns:
+            tuple[int, int]: The sequence number of the message and the number of clients it was sent to.
         """
+        # check that the message type is the same as the previous messages
+        if uri.path in self._uris:
+            # get the URI of the previous message
+            previous_uri: Uri = self._uris[uri.path]
+
+            # check that the message type is the same
+            if previous_uri.query != uri.query:
+                raise TypeError(
+                    f"Message type mismatch: {previous_uri.query.split('&')[0].split('.')[-1]} != {uri.query.split('&')[0].split('.')[-1]}"
+                )
+
         # register the URI of the message
         self._uris[uri.path] = uri
 
@@ -256,7 +286,11 @@ class EventServiceGrpc:
             payload_length=len(payload),
             sequence=count,
         )
-        await self._publish_event_payload(event, payload)
+
+        return {
+            "sequence_number": count,
+            "num_clients": await self._publish_event_payload(event, payload),
+        }
 
     async def requestReply(
         self,
@@ -281,6 +315,7 @@ class EventServiceGrpc:
             path="/reply" + event.uri.path, message=reply_message
         )
         reply_uri.query += f"&service_name={self.config.name}"
+
         # create the event and send
         reply_payload: bytes = reply_message.SerializeToString()
 
@@ -300,7 +335,7 @@ class EventServiceGrpc:
 
     async def publish(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
-    ) -> None:
+    ) -> PublishResult:
         """Publish a message to the service.
 
         Args:
@@ -318,7 +353,9 @@ class EventServiceGrpc:
         uri.query += f"&service_name={self.config.name}"
 
         # send the message to the service
-        await self._send_raw(uri=uri, message=message, timestamps=timestamps)
+        result = await self._send_raw(uri=uri, message=message, timestamps=timestamps)
+
+        return PublishResult(**result)
 
 
 def add_service_parser(parser):

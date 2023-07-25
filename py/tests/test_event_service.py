@@ -51,26 +51,43 @@ class TestEventServiceGrpc:
         assert not event_service.uris
 
         # publish a message
-        await event_service.publish(path="/test", message=Int32Value(value=0))
-        assert event_service.counts["/test"] == 1
-        assert "Int32Value" in event_service.uris["/test"].query
+        res = await event_service.publish(path="/foo", message=Int32Value(value=0))
+        assert event_service.counts["/foo"] == 1
+        assert res.sequence_number == 0
+        assert res.num_clients == 0
 
-        # store the uri for later
-        message_uri = event_service.uris["/test"]
+        # check that the class name is in the uri and store the uri for later
+        assert "Int32Value" in event_service.uris["/foo"].query
+        message_uri = event_service.uris["/foo"]
 
         # add more messages
-        await event_service.publish(path="/test", message=Int32Value(value=-3))
-        await event_service.publish(path="/test", message=Int32Value(value=4))
-        assert event_service.counts["/test"] == 3
-        assert event_service.uris["/test"] == message_uri
+        await event_service.publish(path="/foo", message=Int32Value(value=-3))
+        res = await event_service.publish(path="/foo", message=Int32Value(value=4))
+        assert res.sequence_number == 2
+        assert res.num_clients == 0
+        assert event_service.counts["/foo"] == 3
+        assert event_service.uris["/foo"] == message_uri
 
         # add to another path
-        await event_service.publish(path="/test2", message=Int32Value(value=1))
-        assert event_service.counts["/test2"] == 1
-        assert event_service.uris["/test"] == message_uri
+        res = await event_service.publish(path="/bar", message=Int32Value(value=1))
+        assert res.sequence_number == 0
+        assert res.num_clients == 0
+        assert event_service.counts["/bar"] == 1
+        assert event_service.uris["/bar"] == message_uri
 
-        # add to initial path another type of message
-        # TODO: this test should fail because the message type is different
-        await event_service.publish(path="/test", message=StringValue(value="foo"))
-        assert event_service.counts["/test"] == 4
-        assert event_service.uris["/test"] != message_uri
+    @pytest.mark.asyncio
+    async def test_publish_error(self) -> None:
+        # create a service
+        event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
+
+        # start the server
+        asyncio.create_task(event_service.serve())
+
+        # publish a message
+        await event_service.publish(path="/foo", message=StringValue(value="foo"))
+
+        # publish a message with a different type
+        with pytest.raises(
+            TypeError, match="Message type mismatch: StringValue != Int32Value"
+        ):
+            await event_service.publish(path="/foo", message=Int32Value(value=0))

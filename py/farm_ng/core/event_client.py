@@ -32,6 +32,9 @@ from google.protobuf.message import Message
 logging.basicConfig(level=logging.INFO)
 
 
+__all__ = ["EventClient"]
+
+
 class EventClient:
     """Generic client class to connect with the Amiga brain services.
 

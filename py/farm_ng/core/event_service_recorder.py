@@ -1,6 +1,6 @@
 """
 # run the event_service which starts a simple test publisher
-python -m farm_ng.core.event_service --service-config=config.json --config_name=test_service
+python -m farm_ng.core.event_service
 # run the event_recorder which subscribes to the test publisher and records the events to a file
 python -m farm_ng.core.event_service_recorder record --service-config=config.json --config_name=record_all foo
 # note that the config file has an EventServiceConfig with name "record_all" which subscribes to the test publisher
@@ -48,6 +48,8 @@ from google.protobuf.message import Message
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
+__all__ = ["EventServiceRecorder", "RecorderService"]
+
 
 class EventServiceRecorder:
     """Service that subscribes to a list of services and records the events to a file."""
@@ -70,22 +72,26 @@ class EventServiceRecorder:
         self._logger: logging.Logger = logging.getLogger(service_name)
 
         # map of service name to EventClient
-        self.clients: dict[str, EventClient] = {}
+        self._clients: dict[str, EventClient] = {}
 
         # find the recorder config and create the clients
+        # TODO: why do not pass directly the config instead of the config list?
         config: EventServiceConfig
         for config in self.config_list.configs:
             if self.service_name == config.name:
                 self.recorder_config = config
-            if config.port != 0:
-                self.clients[config.name] = EventClient(config)
+                if config.host == "" or config.port == 0:
+                    raise ValueError(
+                        f"Invalid config: {config}, are you sure this is a client config?"
+                    )
+                self._clients[config.name] = EventClient(config)
 
         assert (
             self.recorder_config is not None
         ), f"service {self.service_name} not found in config list {self.config_list}"
 
         # the queue to store the events
-        self.record_queue: asyncio.Queue[event_pb2.Event, Message] = asyncio.Queue(
+        self.record_queue: asyncio.Queue[tuple[event_pb2.Event, bytes]] = asyncio.Queue(
             maxsize=self.QUEUE_MAX_SIZE
         )
 
@@ -93,6 +99,11 @@ class EventServiceRecorder:
     def logger(self) -> logging.Logger:
         """Returns the service logger."""
         return self._logger
+
+    @property
+    def clients(self) -> dict[str, EventClient]:
+        """Returns the map of service name to EventClient."""
+        return self._clients
 
     async def record(
         self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0
@@ -105,10 +116,10 @@ class EventServiceRecorder:
             max_file_mb (int, optional): the maximum size of the file in MB. Defaults to 0.
         """
         with EventsFileWriter(file_base, extension, max_file_mb) as writer:
+            event: event_pb2.Event
+            payload: bytes
             while True:
                 # await a new event and payload, and write it to the file
-                event: event_pb2.Event
-                payload: bytes
                 event, payload = await self.record_queue.get()
                 event.timestamps.append(
                     get_monotonic_now(semantics=StampSemantics.FILE_WRITE)
@@ -156,14 +167,21 @@ class EventServiceRecorder:
         subscription: SubscribeRequest
         for subscription in self.recorder_config.subscriptions:
             query: dict[str, str] = uri_query_to_dict(uri=subscription.uri)
-            client: EventClient = self.clients[query["service_name"]]
+            query_service_name: str = query["service_name"]
+            if query_service_name not in self.clients:
+                raise ValueError(
+                    f"Invalid subscription: {subscription}, are you sure this is a client config?"
+                )
+            client: EventClient = self.clients[query_service_name]
             async_tasks.append(
                 asyncio.create_task(self.subscribe(client, subscription))
             )
         try:
             await asyncio.gather(*async_tasks)
+        except asyncio.CancelledError:
+            self.logger.debug("cancelled recording")
         finally:
-            print("done recording")
+            self.logger.info("done recording")
 
 
 DATETIME_FORMAT: str = "%Y_%m_%d_%H_%M_%S_%f"
@@ -173,28 +191,46 @@ def get_file_name_base() -> str:
     return datetime.now().strftime(DATETIME_FORMAT) + "_" + get_host_name()
 
 
-# An EventServiceGrpc which will record events to a file.
-#   when it receives a request to start will start
-#   when it receives a request to stop will stop
-#   it will publish the progress of recording
-#   it will only record one recording at a time
 class RecorderService:
+    """Service that subscribes to a list of services and records the events to a file.
+
+    This service will record events to a file when it receives a request to start.
+    It will stop recording when it receives a request to stop.
+    It will publish the progress of recording.
+    It will only record one recording at a time.
+    """
+
     def __init__(self, event_service: EventServiceGrpc) -> None:
+        """Initializes the service.
+
+        Args:
+            event_service (EventServiceGrpc): the event service.
+        """
         parser = argparse.ArgumentParser()
         parser.add_argument("--data-dir", required=True)
         args = parser.parse_args(event_service.config.args)
         self._data_dir: Path = Path(args.data_dir)
         self._data_dir.mkdir(parents=True, exist_ok=True)
         assert self._data_dir.exists(), f"{self._data_dir} does not exist"
-
+        # set the request reply handler
         self._event_service = event_service
         self._event_service.request_reply_handler = self._request_reply_handler
+
+        # the recorder event service
         self._recorder: EventServiceRecorder | None = None
+
+        # the recorder task
         self._recorder_task: asyncio.Task | None = None
 
-    async def start_recording(
-        self, file_base: Path, config_list: EventServiceConfigList
-    ):
+    # public methods
+
+    async def start_recording(self, config_list: EventServiceConfigList) -> None:
+        """Starts recording the events to a file.
+
+        Args:
+            config_list (EventServiceConfigList): the configuration data structure.
+        """
+        # stop recording if it is already running
         if self._recorder is not None:
             await self.stop_recording()
         # start recording
@@ -203,17 +239,35 @@ class RecorderService:
             self._recorder.subscribe_and_record(file_base=file_base)
         )
 
-    async def stop_recording(self):
+    async def stop_recording(self) -> None:
+        """Stops recording the events to a file."""
+        # do nothing if not recording
         if self._recorder is None:
             return
+
+        self._recorder.logger.info("stopping recording")
+
+        # cancel the task and set the recorder to None
         self._recorder_task.cancel()
         self._recorder = None
         self._recorder_task = None
-        print("stopped recording")
+
+    # private methods
 
     async def _request_reply_handler(
         self, event_service: EventServiceGrpc, request: RequestReplyRequest
     ) -> Message:
+        """Handles the request reply.
+
+        Args:
+            event_service (EventServiceGrpc): the event service.
+            request (RequestReplyRequest): the request.
+
+        Returns:
+            Message: the response message.
+        """
+        event_service.logger.info("Got request: %s", request)
+
         if request.event.uri.path == "start":
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event, request.payload

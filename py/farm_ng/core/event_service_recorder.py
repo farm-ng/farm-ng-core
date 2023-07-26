@@ -75,15 +75,13 @@ class EventServiceRecorder:
         self._clients: dict[str, EventClient] = {}
 
         # find the recorder config and create the clients
-        # TODO: why do not pass directly the config instead of the config list?
+        # Here we reuse a config for the subscriptions, from the recorder_config
+        # and create the clients for the other services (with port names)
         config: EventServiceConfig
         for config in self.config_list.configs:
             if self.service_name == config.name:
                 self.recorder_config = config
-                if config.host == "" or config.port == 0:
-                    raise ValueError(
-                        f"Invalid config: {config}, are you sure this is a client config?"
-                    )
+            elif config.port != 0:
                 self._clients[config.name] = EventClient(config)
 
         assert (
@@ -224,7 +222,9 @@ class RecorderService:
 
     # public methods
 
-    async def start_recording(self, config_list: EventServiceConfigList) -> None:
+    async def start_recording(
+        self, file_base: Path, config_list: EventServiceConfigList
+    ) -> None:
         """Starts recording the events to a file.
 
         Args:
@@ -266,12 +266,12 @@ class RecorderService:
         Returns:
             Message: the response message.
         """
-        event_service.logger.info("Got request: %s", request)
 
         if request.event.uri.path == "start":
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event, request.payload
             )
+            event_service.logger.info("start: %s", config_list)
             file_base = self._data_dir.joinpath(get_file_name_base())
             await self.start_recording(file_base, config_list)
             return StringValue(value=str(file_base))

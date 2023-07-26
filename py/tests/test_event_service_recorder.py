@@ -28,15 +28,15 @@ class TestEventServiceRecorder:
     def test_smoke(self) -> None:
         config_list: EventServiceConfigList = event_service_config_list()
         recorder_service = EventServiceRecorder(
-            service_name="recorder_default", config_list=config_list
+            service_name="record_default", config_list=config_list
         )
 
         assert recorder_service is not None
         assert recorder_service.QUEUE_MAX_SIZE == 50
-        assert recorder_service.service_name == "recorder_default"
+        assert recorder_service.service_name == "record_default"
         assert recorder_service.config_list == config_list
-        assert recorder_service.recorder_config == config_list.configs[0]
-        assert recorder_service.logger.name == "recorder_default"
+        assert recorder_service.recorder_config == config_list.configs[1]
+        assert recorder_service.logger.name == "record_default"
         assert recorder_service.record_queue.qsize() == 0
 
     @pytest.mark.asyncio

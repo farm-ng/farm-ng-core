@@ -182,10 +182,23 @@ class EventServiceRecorder:
             self.logger.info("done recording")
 
 
+# the format of the file name
+# Example: 2021_08_31_15_54_00_000000
 DATETIME_FORMAT: str = "%Y_%m_%d_%H_%M_%S_%f"
 
 
 def get_file_name_base() -> str:
+    """Returns the base name of the file.
+
+    The base name is the current date and time, and the host name.
+
+    Returns:
+        str: the base name of the file.
+
+    Example:
+        >>> get_file_name_base()
+        '2021_08_31_15_54_00_000000_ubuntu'
+    """
     return datetime.now().strftime(DATETIME_FORMAT) + "_" + get_host_name()
 
 

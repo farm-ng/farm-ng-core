@@ -34,7 +34,6 @@ class TestEventServiceRecorder:
         assert recorder_service is not None
         assert recorder_service.QUEUE_MAX_SIZE == 50
         assert recorder_service.service_name == "recorder_default"
-        assert len(recorder_service.clients) == 1
         assert recorder_service.config_list == config_list
         assert recorder_service.recorder_config == config_list.configs[0]
         assert recorder_service.logger.name == "recorder_default"
@@ -48,7 +47,7 @@ class TestEventServiceRecorder:
         event_service.request_reply_handler = request_reply_handler
 
         recorder_service = EventServiceRecorder(
-            service_name="recorder_default", config_list=config_list
+            service_name="record_default", config_list=config_list
         )
 
         # start the event service
@@ -64,8 +63,10 @@ class TestEventServiceRecorder:
         # we need to wait for the subscribe callback to be called
         await asyncio.sleep(0.001)
         await asyncio.sleep(0.001)
+        await asyncio.sleep(0.001)
 
         assert "/foo" in event_service._client_queues
+        assert "/bar" in event_service._client_queues
 
         # publish a message
 

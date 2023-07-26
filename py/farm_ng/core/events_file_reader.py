@@ -23,6 +23,8 @@ __all__ = [
     "EventsFileReader",
     "EventLogPosition",
     "proto_from_json_file",
+    "payload_to_protobuf",
+    "event_to_protobuf_type",
 ]
 
 
@@ -101,11 +103,38 @@ def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
     return type_name, package_name
 
 
-def payload_to_protobuf(event: Event, payload: bytes) -> Message:
+def event_to_protobuf_type(event: Event) -> Type[Message]:
+    """Return the protobuf type from an event.
+
+    Args:
+        event: event_pb2.Event
+
+    Returns:
+        Type[Message]: the protobuf type
+
+    Example:
+        >>> event = Event()
+        >>> event.uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
+        >>> event_to_protobuf_type(event)
+        <class 'farm_ng.core.timestamp_pb2.Timestamp'>
+    """
     name: str
     package: str
     name, package = _parse_protobuf_descriptor(event.uri)
-    message_cls: Type[Message] = getattr(importlib.import_module(package), name)
+    return getattr(importlib.import_module(package), name)
+
+
+def payload_to_protobuf(event: Event, payload: bytes) -> Message:
+    """Return the protobuf message from an event and payload.
+
+    Args:
+        event: event_pb2.Event
+        payload: bytes
+
+    Returns:
+        Message: the protobuf message
+    """
+    message_cls: Type[Message] = event_to_protobuf_type(event)
 
     message: Message = message_cls()
     message.ParseFromString(payload)

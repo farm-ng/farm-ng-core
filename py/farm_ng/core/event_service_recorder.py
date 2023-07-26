@@ -1,6 +1,6 @@
 """
 # run the event_service which starts a simple test publisher
-python -m farm_ng.core.event_service
+python -m farm_ng.core.event_service --service-config=config.json --config_name=test_service
 # run the event_recorder which subscribes to the test publisher and records the events to a file
 python -m farm_ng.core.event_service_recorder record --service-config=config.json --config_name=record_all foo
 # note that the config file has an EventServiceConfig with name "record_all" which subscribes to the test publisher
@@ -25,6 +25,7 @@ import logging
 from pathlib import Path
 import grpc
 import sys
+from datetime import datetime
 
 from farm_ng.core import event_pb2
 from farm_ng.core.event_service import (
@@ -41,10 +42,11 @@ from farm_ng.core.event_service_pb2 import (
 )
 from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
 from farm_ng.core.events_file_writer import EventsFileWriter
-from farm_ng.core.uri import uri_query_to_dict
+from farm_ng.core.uri import uri_query_to_dict, get_host_name
 from farm_ng.core.stamp import get_monotonic_now, StampSemantics
 from google.protobuf.message import Message
 from google.protobuf.empty_pb2 import Empty
+from google.protobuf.wrappers_pb2 import StringValue
 
 
 class EventServiceRecorder:
@@ -164,6 +166,13 @@ class EventServiceRecorder:
             print("done recording")
 
 
+DATETIME_FORMAT: str = "%Y_%m_%d_%H_%M_%S_%f"
+
+
+def get_file_name_base() -> str:
+    return datetime.now().strftime(DATETIME_FORMAT) + "_" + get_host_name()
+
+
 # An EventServiceGrpc which will record events to a file.
 #   when it receives a request to start will start
 #   when it receives a request to stop will stop
@@ -171,21 +180,28 @@ class EventServiceRecorder:
 #   it will only record one recording at a time
 class RecorderService:
     def __init__(self, event_service: EventServiceGrpc) -> None:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--data-dir", required=True)
+        args = parser.parse_args(event_service.config.args)
+        self._data_dir: Path = Path(args.data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
+        assert self._data_dir.exists(), f"{self._data_dir} does not exist"
+
         self._event_service = event_service
         self._event_service.request_reply_handler = self._request_reply_handler
         self._recorder: EventServiceRecorder | None = None
         self._recorder_task: asyncio.Task | None = None
-        self._count = 0
 
-    async def start_recording(self, config_list):
+    async def start_recording(
+        self, file_base: Path, config_list: EventServiceConfigList
+    ):
         if self._recorder is not None:
             await self.stop_recording()
         # start recording
         self._recorder = EventServiceRecorder("record_default", config_list)
         self._recorder_task = asyncio.create_task(
-            self._recorder.subscribe_and_record("log_%05d" % self._count)
+            self._recorder.subscribe_and_record(file_base=file_base)
         )
-        self._count += 1
 
     async def stop_recording(self):
         if self._recorder is None:
@@ -198,17 +214,13 @@ class RecorderService:
     async def _request_reply_handler(
         self, event_service: EventServiceGrpc, request: RequestReplyRequest
     ) -> Message:
-        if request.event.uri.path not in ("start", "stop"):
-            return Empty()
-
-        print("Got request:", request)
-
         if request.event.uri.path == "start":
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event, request.payload
             )
-            await self.start_recording(config_list)
-            return config_list
+            file_base = self._data_dir.joinpath(get_file_name_base())
+            await self.start_recording(file_base, config_list)
+            return StringValue(value=str(file_base))
         elif request.event.uri.path == "stop":
             await self.stop_recording()
         return Empty()
@@ -237,9 +249,12 @@ def service_command(_args):
 def client_start_command(_args):
     config_list, service_config = load_service_config(args)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        EventClient(service_config).request_reply("start", config_list)
-    )
+
+    async def job():
+        reply = await EventClient(service_config).request_reply("start", config_list)
+        print(payload_to_protobuf(reply.event, reply.payload))
+
+    loop.run_until_complete(job())
 
 
 def client_stop_command(_args):

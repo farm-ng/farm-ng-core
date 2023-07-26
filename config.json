@@ -4,14 +4,8 @@
       "name": "recorder",
       "port": 5000,
       "host": "localhost",
-      "subscriptions": [
-        {
-          "uri": {
-            "path": "/test",
-            "query": "service_name=bar"
-          },
-          "every_n": 1
-        }
+      "args": [
+        "--data-dir", "/tmp/farmng"
       ],
       "log_level": "DEBUG"
     },

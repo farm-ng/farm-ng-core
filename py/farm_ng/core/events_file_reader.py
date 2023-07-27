@@ -10,6 +10,7 @@ from typing import Type
 import struct
 import json
 
+from farm_ng.core.uri import uri_query_to_dict
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
@@ -356,8 +357,10 @@ class EventsFileReader:
 def playback_command(args):
     with EventsFileReader(args.events_file) as reader:
         for event, message in reader.read_messages():
-            print(event)
-            print(message)
+            # Note you can find the originating service from uri query string
+            query = uri_query_to_dict(event.uri)
+            service_name= query.get('service_name', '')
+            print(service_name + event.uri.path, event.uri.query, event.payload_length)
 
 
 if __name__ == "__main__":

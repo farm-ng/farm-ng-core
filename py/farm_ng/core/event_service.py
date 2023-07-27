@@ -55,18 +55,14 @@ class PublishResult:
 
 
 # TODO: iterate this data structure to report dropped messages and other stats
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class _UriStats:
     """The stats of a URI."""
 
-    # the actual URI
-    uri: Uri
-    # the sequence number of the last message sent
-    sequence_number: int
     # the number of messages dropped
-    dropped: list[Event] = field(default_factory=list)
+    dropped: int = 0
     # the not sent messages
-    not_sent: list[Event] = field(default_factory=list)
+    not_sent: int = 0
 
 
 class EventServiceGrpc:
@@ -330,7 +326,9 @@ class EventServiceGrpc:
             except asyncio.QueueFull:
                 # keep tracked of dropped messages in a data structure
                 # to be able to report them to the user later
-                self._uris_stats[uri.path].dropped.append(event)
+                stats = self._uris_stats[uri.path]
+                stats.dropped += 1
+                self.logger.warning("dropped %d sequence %d path: %s", stats.dropped, reply.event.sequence, uri.path)
 
         # wait for the queues to be emptied
         await asyncio.sleep(0)

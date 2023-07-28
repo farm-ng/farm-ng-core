@@ -86,13 +86,9 @@ def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
         Tuple[str, str]: message name and package
     """
     assert uri.scheme == "protobuf"
-    type_split, pb_split = None, None
-    for x in uri.query.split("&"):
-        if x.startswith("type="):
-            type_split = x.split("=")[-1]
-        elif x.startswith("pb="):
-            pb_split = x.split("=")[-1]
-        # split by the key/value in the query
+    query = uri_query_to_dict(uri)
+    type_split = query.get("type", None)
+    pb_split = query.get("pb", None)
 
     assert type_split is not None, uri
     assert pb_split is not None, uri
@@ -277,7 +273,8 @@ class EventsFileReader:
             raise EOFError()
         event = Event()
         event.ParseFromString(event_bytes)
-
+        query = uri_query_to_dict(event.uri)
+        event.uri.path = query.get("service_name", "") + event.uri.path
         return EventLogPosition(event, file_stream.tell(), self)
 
     def _skip_next_message(self, event: Event) -> None:

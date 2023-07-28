@@ -76,7 +76,7 @@ class StreamLogger {
             "log "
             "level: {})",
             file,
-            log_level_));
+            int(log_level_)));
         flush();
       }
     }

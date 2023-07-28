@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 import logging
 import time
 from typing import AsyncIterator
-
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
@@ -258,6 +257,8 @@ class EventServiceGrpc:
         reply_message: Message
         if self._request_reply_handler is not None:
             reply_message = await self._request_reply_handler(self, request)
+            if reply_message is None:
+                self.logger.error("Request invalid, please check your request channel and packet ", request)
         else:
             reply_message = Empty()
 

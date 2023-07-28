@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 import logging
 import time
 from typing import AsyncIterator
-import sys
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf

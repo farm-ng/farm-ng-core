@@ -76,7 +76,7 @@ class StreamLogger {
             "log "
             "level: {})",
             file,
-            log_level_));
+            int(log_level_)));
         flush();
       }
     }
@@ -199,7 +199,7 @@ inline StreamLogger& defaultLogger() {
               rhs),                                                          \
           __FILE__,                                                          \
           __LINE__,                                                          \
-          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));              \
+          __func__); \
       FARM_IMPL_ABORT();                                                     \
     }                                                                        \
   } while (false)
@@ -217,7 +217,7 @@ inline StreamLogger& defaultLogger() {
       "PANIC!",                                             \
       __FILE__,                                             \
       __LINE__,                                             \
-      __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__)); \
+      __func__); \
   FARM_IMPL_ABORT()
 
 /// Print formatted error message and then panic.
@@ -227,7 +227,7 @@ inline StreamLogger& defaultLogger() {
       "PANIC: NOT IMPLEMENTED YET",                         \
       __FILE__,                                             \
       __LINE__,                                             \
-      __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__)); \
+      __func__ ); \
   FARM_IMPL_ABORT()
 
 // Deprecate
@@ -260,7 +260,7 @@ inline StreamLogger& defaultLogger() {
           FARM_FORMAT("PANIC: ASSERT failed\nbool({}) not true.", #condition), \
           __FILE__,                                                            \
           __LINE__,                                                            \
-          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__));                \
+          __func__); \
       FARM_IMPL_ABORT();                                                       \
     }                                                                          \
   } while (false)

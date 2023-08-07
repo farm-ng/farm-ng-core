@@ -1,0 +1,63 @@
+
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+// Copyright (c) 2011, Hauke Strasdat
+// Copyright (c) 2012, Steven Lovegrove
+// Copyright (c) 2021, farm-ng, inc.
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+// Copyright (c) farm-ng, inc.
+//
+// Licensed under the Amiga Development Kit License (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://github.com/farm-ng/amiga-dev-kit/blob/main/LICENSE
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package farm_ng.core.proto;
+
+message ImageSize {
+  // Image width in pixels.
+  int32 width = 1;
+  // Image height in pixels.
+  int32 height = 2;
+}
+
+message ImageLayout {
+  ImageSize size = 1;
+  uint32 pitch_bytes = 2;
+}
+
+message PixelFormat {
+  string number_type = 1;
+  int32 num_components = 2;
+  int32 num_bytes_per_component = 3;
+}
+
+message DynImage {
+  ImageLayout layout = 1;
+  PixelFormat pixel_format = 2;
+  bytes data = 3;
+}

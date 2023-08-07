@@ -14,16 +14,22 @@
 
 syntax = "proto3";
 
-package farm_ng.core.proto;
+import "farm_ng/core/linalg.proto";
+import public "farm_ng/core/timestamp.proto";
 
-// A vector in 3D space that represents a direction only
-message Vector3 {
-  // x coordinate length
+package farm_ng.geometry.proto;
+
+// A position and orientation for an object or reference frame in 3D space
+message Pose3 {
+  farm_ng.core.proto.Timestamp timestamp = 1;
+  farm_ng.core.proto.Vec3F32 translation = 2;
+  Quaternion rotation = 3;
+  string frame_id = 4;
+}
+
+message Quaternion {
   double x = 1;
-
-  // y coordinate length
   double y = 2;
-
-  // z coordinate length
   double z = 3;
+  double w = 4;
 }

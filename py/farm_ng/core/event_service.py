@@ -258,7 +258,10 @@ class EventServiceGrpc:
         if self._request_reply_handler is not None:
             reply_message = await self._request_reply_handler(self, request)
             if reply_message is None:
-                self.logger.error("Request invalid, please check your request channel and packet ", request)
+                self.logger.error(
+                    "Request invalid, please check your request channel and packet ",
+                    request,
+                )
         else:
             reply_message = Empty()
 
@@ -329,7 +332,12 @@ class EventServiceGrpc:
                 # to be able to report them to the user later
                 stats = self._uris_stats[uri.path]
                 stats.dropped += 1
-                self.logger.warning("dropped %d sequence %d path: %s", stats.dropped, reply.event.sequence, uri.path)
+                self.logger.warning(
+                    "dropped %d sequence %d path: %s",
+                    stats.dropped,
+                    reply.event.sequence,
+                    uri.path,
+                )
 
         # wait for the queues to be emptied
         await asyncio.sleep(0)

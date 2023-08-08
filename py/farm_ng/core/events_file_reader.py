@@ -356,7 +356,7 @@ def playback_command(args):
         for event, message in reader.read_messages():
             # Note you can find the originating service from uri query string
             query = uri_query_to_dict(event.uri)
-            service_name= query.get('service_name', '')
+            service_name = query.get("service_name", "")
             print(service_name + event.uri.path, event.uri.query, event.payload_length)
 
 

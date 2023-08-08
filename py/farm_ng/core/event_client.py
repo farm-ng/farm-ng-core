@@ -242,14 +242,15 @@ class EventClient:
 async def test_subscribe(client: EventClient, uri: Uri):
     # print(uri)
     # return
-    async for event, payload in client.subscribe(SubscribeRequest(uri=uri, every_n=1), decode=False):
+    async for event, payload in client.subscribe(
+        SubscribeRequest(uri=uri, every_n=1), decode=False
+    ):
         print(client.config.name + event.uri.path, event.sequence, len(payload))
-        #if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
-            #reply = await client.request_reply(event.uri.path, message)
-            #print("reply:", reply)
-            # print(event.uri.path, event.sequence, message, reply.event.sequence)
-        #else:
-            
+        # if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
+        # reply = await client.request_reply(event.uri.path, message)
+        # print("reply:", reply)
+        # print(event.uri.path, event.sequence, message, reply.event.sequence)
+        # else:
 
 
 async def test_smoke():

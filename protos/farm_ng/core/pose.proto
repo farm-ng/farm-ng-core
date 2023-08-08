@@ -31,5 +31,5 @@ message Pose {
 
 // A sequence of poses
 message PoseTree {
-  repeated Pose pose = 1;
+  repeated Pose poses = 1;
 }

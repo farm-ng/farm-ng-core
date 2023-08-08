@@ -14,11 +14,35 @@
 
 syntax = "proto3";
 
+import "farm_ng/core/linalg.proto";
+
 package farm_ng.core.proto;
 
-message Uri {
-  string scheme = 1;
-  string authority = 2;
-  string path = 3;
-  string query = 4;
+message QuaternionF64 {
+  Vec3F64 imag = 1;
+  double real = 2;
+}
+
+message Rotation2F64 {
+  double theta = 1;
+}
+
+message Isometry2F64 {
+  Rotation2F64 rotation = 1;
+  Vec2F64 translation = 2;
+}
+
+message Rotation3F64 {
+  // Quaternion which is required to be unit lenght.
+  QuaternionF64 unit_quaternion = 1;
+}
+
+message Isometry3F64 {
+  Rotation3F64 rotation = 1;
+  Vec3F64 translation = 2;
+}
+
+message Isometry3F64Tangent {
+  Vec3F64 linear_velocity = 1;
+  Vec3F64 angular_velocity = 2;
 }

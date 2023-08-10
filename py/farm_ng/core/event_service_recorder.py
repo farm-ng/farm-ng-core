@@ -295,7 +295,9 @@ class RecorderService:
                 event_service.logger.info("send_metadata: %s", request.payload)
                 await self._recorder.record_queue.put((request.event, request.payload))
             else:
-                event_service.logger.warning("requested to send metadata but not recording")
+                event_service.logger.warning(
+                    "requested to send metadata but not recording"
+                )
         return Empty()
 
 

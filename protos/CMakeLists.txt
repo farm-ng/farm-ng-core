@@ -6,5 +6,5 @@ PROTO_FILES
 ./farm_ng/core/uri.proto
 ./farm_ng/core/linalg.proto
 ./farm_ng/core/lie.proto
-./farm_ng/pose.proto
-./farm_ng/image.proto)
+./farm_ng/core/pose.proto
+./farm_ng/core/image.proto)

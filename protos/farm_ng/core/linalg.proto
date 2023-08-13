@@ -16,9 +16,57 @@ syntax = "proto3";
 
 package farm_ng.core.proto;
 
-message Uri {
-  string scheme = 1;
-  string authority = 2;
-  string path = 3;
-  string query = 4;
+message Vec2I64 {
+  int64 x = 1;
+  int64 y = 2;
+}
+
+message Vec2F32 {
+  float x = 1;
+  float y = 2;
+}
+
+message Vec2F64 {
+  double x = 1;
+  double y = 2;
+}
+
+message Vec3I64 {
+  int64 x = 1;
+  int64 y = 2;
+  int64 z = 3;
+}
+
+message Vec3F32 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message Vec3F64 {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+message Mat2F32 {
+  Vec2F32 col_0 = 1;
+  Vec2F32 col_1 = 2;
+}
+
+message Mat2F64 {
+  Vec2F64 col_0 = 1;
+  Vec2F64 col_1 = 2;
+}
+
+message Mat3F32 {
+  Vec3F32 col_0 = 1;
+  Vec3F32 col_1 = 2;
+  Vec3F32 col_2 = 3;
+}
+
+message Mat3F64 {
+  Vec3F64 col_0 = 1;
+  Vec3F64 col_1 = 2;
+  Vec3F64 col_2 = 3;
 }

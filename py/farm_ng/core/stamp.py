@@ -17,6 +17,8 @@ class StampSemantics:
     CLIENT_RECEIVE = "client/receive"
     # When a gRPC client sends a message to a gRPC server.
     CLIENT_SEND = "client/send"
+    SERVICE_RECEIVE = "service/receive"
+    SERVICE_SEND = "service/send"
     # When a device (e.g., camera) takes a measurement.
     DEVICE_SAMPLE = "device/sample"
     # When a device driver (gRPC service) receives a measurement/message from a device.

@@ -10,10 +10,12 @@ from typing import Type
 import struct
 import json
 
+from farm_ng.core.uri import uri_query_to_dict
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf import json_format
+import argparse
 
 # public symbols
 
@@ -22,6 +24,8 @@ __all__ = [
     "EventsFileReader",
     "EventLogPosition",
     "proto_from_json_file",
+    "payload_to_protobuf",
+    "event_to_protobuf_type",
 ]
 
 
@@ -82,18 +86,56 @@ def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
         Tuple[str, str]: message name and package
     """
     assert uri.scheme == "protobuf"
-    # split by the key/value in the query
-    type_split, pb_split = uri.query.split("&")
+    query = uri_query_to_dict(uri)
+    type_split = query.get("type", None)
+    pb_split = query.get("pb", None)
 
-    # parse the type and keep the class name
-    assert "type=" in type_split, type_split
-    type_name = type_split.split("type=")[-1].split(".")[-1]
+    assert type_split is not None, uri
+    assert pb_split is not None, uri
 
+    type_name = type_split.split(".")[-1]
     # parse the pb file location and convert to python module extension
-    assert "pb=" in pb_split, pb_split
-    package_name = pb_split.split("pb=")[-1].replace(".proto", "_pb2").replace("/", ".")
+    package_name = pb_split.replace(".proto", "_pb2").replace("/", ".")
 
     return type_name, package_name
+
+
+def event_to_protobuf_type(event: Event) -> Type[Message]:
+    """Return the protobuf type from an event.
+
+    Args:
+        event: event_pb2.Event
+
+    Returns:
+        Type[Message]: the protobuf type
+
+    Example:
+        >>> event = Event()
+        >>> event.uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
+        >>> event_to_protobuf_type(event)
+        <class 'farm_ng.core.timestamp_pb2.Timestamp'>
+    """
+    name: str
+    package: str
+    name, package = _parse_protobuf_descriptor(event.uri)
+    return getattr(importlib.import_module(package), name)
+
+
+def payload_to_protobuf(event: Event, payload: bytes) -> Message:
+    """Return the protobuf message from an event and payload.
+
+    Args:
+        event: event_pb2.Event
+        payload: bytes
+
+    Returns:
+        Message: the protobuf message
+    """
+    message_cls: Type[Message] = event_to_protobuf_type(event)
+
+    message: Message = message_cls()
+    message.ParseFromString(payload)
+    return message
 
 
 @dataclass
@@ -227,9 +269,12 @@ class EventsFileReader:
         # read the event length, then the event
         event_len = struct.unpack("<I", buffer)[0]
         event_bytes: bytes = file_stream.read(event_len)
+        if len(event_bytes) != event_len:
+            raise EOFError()
         event = Event()
         event.ParseFromString(event_bytes)
-
+        query = uri_query_to_dict(event.uri)
+        event.uri.path = query.get("service_name", "") + event.uri.path
         return EventLogPosition(event, file_stream.tell(), self)
 
     def _skip_next_message(self, event: Event) -> None:
@@ -276,15 +321,10 @@ class EventsFileReader:
         """
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(event_log.pos, 0)
-
-        name, package = _parse_protobuf_descriptor(event_log.event.uri)
-        message_cls = getattr(importlib.import_module(package), name)
-
         payload: bytes = file_stream.read(event_log.event.payload_length)
-
-        message: Message = message_cls()
-        message.ParseFromString(payload)
-        return message
+        if len(payload) != event_log.event.payload_length:
+            raise EOFError()
+        return payload_to_protobuf(event_log.event, payload)
 
     def read(self) -> tuple[Event, Message]:
         """Read the next event and message and return them.
@@ -309,3 +349,29 @@ class EventsFileReader:
                 yield event, message
         except EOFError:
             pass
+
+
+def playback_command(args):
+    with EventsFileReader(args.events_file) as reader:
+        for event, message in reader.read_messages():
+            # Note you can find the originating service from uri query string
+            query = uri_query_to_dict(event.uri)
+            service_name = query.get("service_name", "")
+            print(service_name + event.uri.path, event.uri.query, event.payload_length)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    sub_parsers = parser.add_subparsers()
+    playback_parser = sub_parsers.add_parser("playback")
+    playback_parser.add_argument("events_file")
+
+    playback_parser.set_defaults(func=playback_command)
+
+    args = parser.parse_args()
+    if hasattr(args, "func"):
+
+        args.func(args)
+    else:
+        parser.print_help()
+        sys.exit(1)

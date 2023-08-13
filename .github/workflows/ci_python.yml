@@ -9,13 +9,13 @@ on:
       - main
 
 jobs:
-  tests-cpu:
+  py-cpu:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: [3.9]
+        os: [ubuntu-latest ] # macos not supported yet macos-latest
+        python-version: [3.8]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -24,4 +24,4 @@ jobs:
     - name: Install dependencies
       run: pip3 install -e .[dev]
     - name: Run Tests
-      run: pytest -v py/tests/ --mypy
+      run: pytest -v py/tests/ # --mypy

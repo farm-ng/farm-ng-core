@@ -1,0 +1,114 @@
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+syntax = "proto3";
+
+import "farm_ng/core/uri.proto";
+import "farm_ng/core/timestamp.proto";
+import "farm_ng/core/event.proto";
+
+package farm_ng.core.proto;
+
+// EventService is a generic service for publishing and subscribing to events.
+service EventService {
+    // return a list of all the URIs this service can publish
+    rpc listUris(ListUrisRequest) returns (ListUrisReply) {}
+
+    // subscribe to single URI topic
+    rpc subscribe(SubscribeRequest) returns (stream SubscribeReply) {}
+
+    // send a single message request/reply
+    rpc requestReply(RequestReplyRequest) returns (RequestReplyReply) {}
+}
+
+// request to subscribe to a URI
+message SubscribeRequest {
+    // the URI to subscribe to
+    Uri uri = 1;
+    // frequency to receive messages
+    uint32 every_n = 2;
+}
+
+// reply to subscribe to a URI
+message SubscribeReply {
+    // the event received
+    Event event = 1;
+    // the data payload associated with the event
+    bytes payload = 2;
+}
+
+// request to send a single message
+message RequestReplyRequest {
+    // the event to send
+    Event event = 1;
+    // the data payload associated with the event
+    bytes payload = 2;
+}
+
+// reply to send a single message
+message RequestReplyReply {
+    Event event = 1;
+    bytes payload = 2;
+}
+
+message RequestReply {
+    RequestReplyRequest request = 1;
+    RequestReplyReply reply = 2;
+}
+
+// request to list all the URIs this service can publish
+message ListUrisRequest {
+}
+
+// reply to list all the URIs this service can publish
+message ListUrisReply {
+    // list of URIs
+    repeated Uri uris = 1;
+}
+
+// configuration for an event service
+message EventServiceConfig {
+    // name of the service
+    string name = 1;
+    // port to listen on
+    int32 port = 2;
+    // host to listen on
+    string host = 3;
+    // list of URIs to subscribe to
+    repeated SubscribeRequest subscriptions = 4;
+    // list of URIs to publish to
+    // NOTE: the uris are already in the subscriptions, but we need to
+    repeated Uri uris = 5;
+    // arguments that are service specific
+    repeated string args = 6;
+    // Use naming and number convention from python logging library.
+    enum LogLevel {
+        NOTSET = 0;
+        option allow_alias = true;
+        CRITICAL = 50;
+        FATAL = 50;
+        ERROR = 40;
+        WARNING = 30;
+        WARN = 30;
+        INFO = 20;
+        DEBUG = 10;
+    }
+    LogLevel log_level = 7;
+}
+
+// list of event service configurations
+message EventServiceConfigList {
+    // the list of configurations
+    repeated EventServiceConfig configs = 1;
+}

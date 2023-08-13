@@ -1,3 +1,4 @@
+
 //    Copyright 2022, farm-ng inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +17,26 @@ syntax = "proto3";
 
 package farm_ng.core.proto;
 
-message Uri {
-  string scheme = 1;
-  string authority = 2;
-  string path = 3;
-  string query = 4;
+message ImageSize {
+  // Image width in pixels.
+  int32 width = 1;
+  // Image height in pixels.
+  int32 height = 2;
+}
+
+message ImageLayout {
+  ImageSize size = 1;
+  uint32 pitch_bytes = 2;
+}
+
+message PixelFormat {
+  string number_type = 1;
+  int32 num_components = 2;
+  int32 num_bytes_per_component = 3;
+}
+
+message DynImage {
+  ImageLayout layout = 1;
+  PixelFormat pixel_format = 2;
+  bytes data = 3;
 }

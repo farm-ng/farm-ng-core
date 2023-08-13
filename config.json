@@ -1,0 +1,84 @@
+{
+  "configs": [
+    {
+      "name": "recorder",
+      "port": 5000,
+      "host": "localhost",
+      "args": [
+        "--data-dir", "/tmp/farmng"
+      ],
+      "log_level": "DEBUG"
+    },
+    {
+      "name": "test_service",
+      "port": 5001,
+      "host": "localhost",
+      "subscriptions": [
+        {
+          "uri": {
+            "path": "/test",
+            "query": "service_name=bar"
+          },
+          "every_n": 1
+        }
+      ],
+      "args": [
+        "--my-arg=my-value",
+        "foo"
+      ],
+      "log_level": "DEBUG"
+    },
+    {
+      "name": "test_service2",
+      "port": 5002,
+      "host": "localhost",
+      "subscriptions": [
+        {
+          "uri": {
+            "path": "/test",
+            "query": "service_name=bar"
+          },
+          "every_n": 1
+        }
+      ],
+      "args": [
+        "--my-arg=my-value",
+        "bar"
+      ],
+      "log_level": "DEBUG"
+    },
+    {
+      "name": "record_default",
+      "subscriptions": [
+        {
+          "uri": {
+            "path": "/test",
+            "query": "service_name=test_service"
+          },
+          "every_n": 1
+        },
+        {
+          "uri": {
+            "path": "/test2",
+            "query": "service_name=test_service"
+          },
+          "every_n": 1
+        }
+
+      ]
+    },
+    {
+      "name": "record_all",
+      "subscriptions": [
+        {
+          "uri": {
+            "path": "*",
+            "query": "service_name=test_service"
+          },
+          "everyN": 1
+        }
+      ]
+
+    }
+  ]
+}

@@ -14,11 +14,22 @@
 
 syntax = "proto3";
 
+import "farm_ng/core/linalg.proto";
+import "farm_ng/core/lie.proto";
+
 package farm_ng.core.proto;
 
-message Uri {
-  string scheme = 1;
-  string authority = 2;
-  string path = 3;
-  string query = 4;
+// A position and orientation for an object or reference frame in 3D space
+message Pose {
+  // Point_B = B_from_A * Point_A
+  Isometry3F64 B_from_A = 1;
+  string frame_A = 2;
+  string frame_B = 3;
+  // TODO: Velocity_B = B_from_A * Velocity_A
+  Isometry3F64Tangent velocity_in_A = 4;
+}
+
+// A sequence of poses
+message PoseTree {
+  repeated Pose poses = 1;
 }

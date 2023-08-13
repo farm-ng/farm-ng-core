@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 from typing import cast
 from typing import IO
-from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now
+from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.message import Message
 
@@ -141,27 +141,17 @@ class EventsFileWriter:
         self._file_stream = None
         return self.is_closed()
 
-    def _write_raw(
-        self, uri: Uri, message: Message, timestamps: list[Timestamp]
-    ) -> None:
-        """Write a message to the file.
-
-        Args:
-            uri: URI of the message.
-            message: Message to write.
-            timestamps: List of timestamps to write.
-        """
+    def write_event_payload(self, event: Event, payload: bytes) -> None:
         if not self.is_closed:
             raise RuntimeError(f"Event log is not open: {self.file_name}")
+        assert event.payload_length == len(
+            payload
+        ), f"Payload length mismatch {event.payload_length} != {len(payload)}"
 
         file_stream = cast(IO, self._file_stream)
-        payload = message.SerializeToString()
-        event = Event(
-            uri=uri,
-            timestamps=timestamps,
-            payload_length=len(payload),
-        ).SerializeToString()
+
         # note that < (little endian), I (4 bytes unsigned integer)
+        event = event.SerializeToString()
         event_len: bytes = struct.pack("<I", len(event))
         self._file_length += file_stream.write(event_len)
         self._file_length += file_stream.write(event)
@@ -172,6 +162,25 @@ class EventsFileWriter:
             assert self.close()
             self._increment_file_idx()
             assert self.open()
+
+    def _write_raw(
+        self, uri: Uri, message: Message, timestamps: list[Timestamp]
+    ) -> None:
+        """Write a message to the file.
+
+        Args:
+            uri: URI of the message.
+            message: Message to write.
+            timestamps: List of timestamps to write.
+        """
+
+        payload = message.SerializeToString()
+        event = Event(
+            uri=uri,
+            timestamps=timestamps,
+            payload_length=len(payload),
+        )
+        self.write_event_payload(event, payload=payload)
 
     def write(
         self, path: str, message: Message, timestamps: list[Timestamp] | None = None
@@ -185,7 +194,7 @@ class EventsFileWriter:
         """
         if timestamps is None:
             timestamps = []
-        timestamps.append(get_monotonic_now(semantics="log/write"))
-        timestamps.append(get_system_clock_now(semantics="log/write"))
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.FILE_WRITE))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.FILE_WRITE))
         uri = make_proto_uri(path=path, message=message)
         self._write_raw(uri=uri, message=message, timestamps=timestamps)

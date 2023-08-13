@@ -12,8 +12,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-
-
 syntax = "proto3";
 
 import "farm_ng/core/uri.proto";
@@ -21,8 +19,14 @@ import "farm_ng/core/timestamp.proto";
 
 package farm_ng.core.proto;
 
+// A message that represents a single event in the system.
 message Event {
+  // The URI of the event.
   Uri uri = 1;
+  // The timestamp of the event.
   repeated Timestamp timestamps = 2;
+  // The length of the payload in bytes.
   int64 payload_length = 3;
+  // The sequence number of the event.
+  int64 sequence = 4;
 }

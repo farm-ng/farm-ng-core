@@ -3,6 +3,18 @@ repos:
     rev: 22.3.0
     hooks:
     - id: black
+  - repo: local
+    hooks:
+    - id: pylint
+      name: pylint
+      entry: bash -c 'pylint "$@" || true' --
+      verbose: true
+      language: system
+      exclude: rst-dir
+      types: [python]
+      args: ["--good-names-rgxs=^[_a-z][_a-z0-9]?$",
+             "--max-args=10",
+             "--min-similarity-lines=30"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
@@ -11,25 +23,12 @@ repos:
         exclude: thirdparty/.*$
       - id: check-yaml
       - id: check-json
-        exclude: docs/.*$
-
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.13
-    hooks:
-      - id: insert-license
-        files: cpp/sophus2/.*\.(h|hpp|cpp|proto)$
-        exclude: (py|thirdparty|py/sympy/cpp_gencode)/.*$
-        args:
-          - --comment-style
-          - //
-          - --license-filepath
-          - sophus2_license_header.txt
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.1.13
     hooks:
       - id: insert-license
         files: \.(h|cpp|proto)$
-        exclude: (thirdparty|cpp/sophus2)/.*$
+        exclude: thirdparty/.*$
         args:
           - --comment-style
           - //
@@ -40,7 +39,7 @@ repos:
     hooks:
       - id: clang-format
         files: \.(h|cpp)
-        exclude: (cpp/sophus2/py|thirdparty)/.*$
+        exclude: (thirdparty)/.*$
   - repo: local
     hooks:
       - id: pragma-once
@@ -61,9 +60,3 @@ repos:
           ).h>
         language: pygrep
         files: \.(h|cpp)$
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v2.1.1
-    hooks:
-      - id: conventional-pre-commit
-        stages: [commit-msg]
-        args: [feat, fix, docs, style, refactor, perf, test, ci, build, chore, revert]

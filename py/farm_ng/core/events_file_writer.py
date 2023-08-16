@@ -142,7 +142,7 @@ class EventsFileWriter:
         return self.is_closed()
 
     def write_event_payload(self, event: Event, payload: bytes) -> None:
-        if not self.is_closed():
+        if self.is_closed():
             raise RuntimeError(f"Event log is not open: {self.file_name}")
 
         assert event.payload_length == len(

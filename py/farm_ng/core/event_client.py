@@ -95,7 +95,11 @@ class EventClient:
         Returns:
             bool: True if the connection was successful, False otherwise.
         """
-        if self.stub is not None and self.channel is not None and await self.channel.channel_ready():
+        if (
+            self.stub is not None
+            and self.channel is not None
+            and await self.channel.channel_ready()
+        ):
             self.logger.debug("Already connected to %s", self.server_address)
             return True
 
@@ -178,7 +182,7 @@ class EventClient:
         if not await self._try_connect():
             self.logger.warning("Could not list uris: %s", self.server_address)
             return []
-        
+
         if self.stub is None:
             return []
 

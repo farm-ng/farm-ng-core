@@ -1,4 +1,5 @@
 from __future__ import annotations
+import argparse
 import importlib
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,13 +10,13 @@ from typing import Generator
 from typing import Type
 import struct
 import json
+import sys
 
 from farm_ng.core.uri import uri_query_to_dict
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 from google.protobuf import json_format
-import argparse
 
 # public symbols
 
@@ -342,6 +343,9 @@ class EventsFileReader:
         Yields:
             Generator[tuple[Event, Message], None, None]: the event and message
         """
+        if self._file_stream is None:
+            raise IOError("Reader not open. Please, use reader.open()")
+
         self._file_stream.seek(0)
         try:
             while True:

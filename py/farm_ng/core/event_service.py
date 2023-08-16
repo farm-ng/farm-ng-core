@@ -6,10 +6,10 @@ from __future__ import annotations
 import argparse
 import asyncio
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import logging
 import time
-from typing import AsyncIterator
+from typing import AsyncIterator, Callable
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
@@ -112,7 +112,7 @@ class EventServiceGrpc:
         self._uris_stats: dict[str, _UriStats] = defaultdict(_UriStats)
 
         # the request/reply handler
-        self._request_reply_handler: callable | None = None
+        self._request_reply_handler: Callable | None = None
 
         # add the service to the asyncio server
         event_service_pb2_grpc.add_EventServiceServicer_to_server(self, server)
@@ -133,12 +133,12 @@ class EventServiceGrpc:
         return self._logger
 
     @property
-    def request_reply_handler(self) -> callable | None:
+    def request_reply_handler(self) -> Callable | None:
         """Returns the request/reply handler."""
         return self._request_reply_handler
 
     @request_reply_handler.setter
-    def request_reply_handler(self, handler: callable) -> None:
+    def request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""
         self._request_reply_handler = handler
 
@@ -450,7 +450,7 @@ async def test_req_rep_handler_smoke(
 # main function to run the service and all the async tasks
 async def test_main(args, event_service: EventServiceGrpc) -> None:
     # define the async tasks
-    async_tasks: list[asyncio.Task] = []
+    async_tasks = []
 
     event_service.request_reply_handler = test_req_rep_handler_smoke
 

@@ -40,7 +40,7 @@ class TestEventClient:
         client: EventClient = event_client()
 
         # create a queue to collect messages
-        queue = asyncio.Queue()
+        queue: asyncio.Queue[int] = asyncio.Queue()
 
         asyncio.create_task(subscribe_callback(client, queue))
         await asyncio.sleep(0.001)

@@ -86,7 +86,7 @@ class TestEventServiceGrpc:
     @pytest.mark.asyncio
     async def test_multiple_publishers(self) -> None:
         async def _publish_message(
-            event_service: EventServiceGrpc, path: str, num_messages: int, delay: int
+            event_service: EventServiceGrpc, path: str, num_messages: int, delay: float
         ) -> bool:
             """Publishes a message to the event service."""
             for i in range(num_messages):
@@ -101,7 +101,7 @@ class TestEventServiceGrpc:
         asyncio.create_task(event_service.serve())
 
         # create multiple publishers
-        async_tasks: list[asyncio.Task] = []
+        async_tasks = []
         async_tasks.append(_publish_message(event_service, "/foo", 2, 0.2))
         async_tasks.append(_publish_message(event_service, "/bar", 3, 0.1))
 

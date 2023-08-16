@@ -4,7 +4,7 @@ python -m farm_ng.core.event_client --service-config config.json --service-name 
 """
 from __future__ import annotations
 
-from typing import AsyncIterator
+from typing import AsyncGenerator, AsyncIterator
 import argparse
 import asyncio
 import logging
@@ -95,7 +95,7 @@ class EventClient:
         Returns:
             bool: True if the connection was successful, False otherwise.
         """
-        if self.stub is not None and await self.channel.channel_ready():
+        if self.stub is not None and self.channel is not None and await self.channel.channel_ready():
             self.logger.debug("Already connected to %s", self.server_address)
             return True
 
@@ -114,7 +114,7 @@ class EventClient:
 
     async def subscribe(
         self, request: SubscribeRequest, decode: bool = True
-    ) -> tuple[Event, Message | bytes]:
+    ) -> AsyncIterator[tuple[Event, Message | bytes]]:
         """Subscribes to the server.
 
         Args:
@@ -125,7 +125,7 @@ class EventClient:
             tuple[Event, Message | bytes]: the event and the payload.
         """
         # the streaming object
-        response_stream: AsyncIterator[SubscribeReply] | None = None
+        response_stream: AsyncGenerator[SubscribeRequest, SubscribeReply] | None = None
 
         while True:
             # check if we are connected to the server
@@ -138,7 +138,7 @@ class EventClient:
                 )
                 continue
 
-            if response_stream is None:
+            if response_stream is None and self.stub is not None:
                 # get the streaming object
                 response_stream = self.stub.subscribe(request)
 
@@ -177,6 +177,9 @@ class EventClient:
         # try to connect to the server, if it fails return an empty list
         if not await self._try_connect():
             self.logger.warning("Could not list uris: %s", self.server_address)
+            return []
+        
+        if self.stub is None:
             return []
 
         try:
@@ -230,6 +233,9 @@ class EventClient:
             ),
             payload=payload,
         )
+
+        if self.stub is None:
+            return RequestReplyReply()
 
         # send the request and wait for the reply
         reply: RequestReplyReply = await self.stub.requestReply(request)

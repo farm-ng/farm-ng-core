@@ -152,6 +152,9 @@ class EventServiceRecorder:
             extension (str, optional): the extension of the file. Defaults to ".bin".
             max_file_mb (int, optional): the maximum size of the file in MB. Defaults to 0.
         """
+        if self.recorder_config is None:
+            raise ValueError("recorder_config is None")
+
         # create the tasks list. the first task is the record task
         async_tasks: list[asyncio.Task] = [
             asyncio.create_task(
@@ -255,7 +258,7 @@ class RecorderService:
     async def stop_recording(self) -> None:
         """Stops recording the events to a file."""
         # do nothing if not recording
-        if self._recorder is None:
+        if self._recorder is None or self._recorder_task is None:
             return
 
         self._recorder.logger.info("stopping recording")

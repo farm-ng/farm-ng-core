@@ -1,3 +1,12 @@
 [submodule "infra/submodules/farm-ng-cmake"]
 	path = infra/ci-submodules/farm-ng-cmake
 	url = https://github.com/farm-ng/farm-ng-cmake.git
+[submodule "third_party/expected"]
+	path = cpp/thirdparty/expected
+	url = https://github.com/TartanLlama/expected.git
+[submodule "third_party/fmt"]
+	path = cpp/thirdparty/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "third_party/eigen"]
+	path = cpp/thirdparty/eigen
+	url = https://github.com/eigen-mirror/eigen.git

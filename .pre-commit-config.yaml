@@ -8,7 +8,7 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-        exclude: thirdparty/.*$
+        exclude: (thirdparty|cpp/sophus2)/.*$
       - id: check-yaml
       - id: check-json
         exclude: docs/.*$
@@ -71,6 +71,7 @@ repos:
     rev: v2.1.0
     hooks:
       - id: codespell
+        exclude: (thirdparty|cpp/sophus2)/.*$
         args:
           - --ignore-words-list
           - "te"
@@ -80,3 +81,4 @@ repos:
     rev: v0.0.284
     hooks:
       - id: ruff
+        exclude: (thirdparty|cpp/sophus2)/.*$

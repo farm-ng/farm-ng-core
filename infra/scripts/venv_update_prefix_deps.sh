@@ -18,6 +18,8 @@ if ! grep -q $RELEASE_SHA "$ROOT_DIR/venv/prefix/release_version.txt"; then
   mkdir -p "$ROOT_DIR/venv"
   $ROOT_DIR/../farm-ng-cmake/scripts/download_release.sh
   rm -rf $ROOT_DIR/venv/prefix
+
+  ls $ROOT_DIR/../farm-ng-cmake/scripts/venv.tar.gz
   tar -xzf $ROOT_DIR/../farm-ng-cmake/scripts/venv.tar.gz --strip-components=1 -C $ROOT_DIR/venv
 
   if [[ "$OSTYPE" == "darwin"* ]]; then

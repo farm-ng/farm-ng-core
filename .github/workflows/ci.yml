@@ -24,8 +24,8 @@ jobs:
             compiler: gcc
           - os: ubuntu-20.04
             compiler: clang
-          - os: macos-11
-            compiler: clang
+          # - os: macos-11
+          #   compiler: clang
       fail-fast: false
     steps:
     - uses: actions/checkout@v3

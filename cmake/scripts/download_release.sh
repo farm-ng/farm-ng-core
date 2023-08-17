@@ -1,14 +1,11 @@
 #!/bin/bash -ex
 
-# This script downloads the matching farm_ng_cmake Github release based on the
-# current git SHA and inferred platform version. The release and platform can be
-# overridden through the RELEASE_SHA and RELEASE_PLATFORM env variables.
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $DIR
 
 # Choose release SHA based on git repo SHA
-RELEASE_SHA="${RELEASE_SHA:-$(git rev-parse --short HEAD)}"
+RELEASE_SHA= b6feaaf2ab71bf8b695d0e405d39a8a6dde2f883
 
 # Guess platform based on current platform
 if [[ -z "${RELEASE_PLATFORM}" ]]; then

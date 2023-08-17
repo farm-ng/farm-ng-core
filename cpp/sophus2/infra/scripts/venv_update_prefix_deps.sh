@@ -3,22 +3,22 @@ set -ex
 
 
 # This will download the prebuilt dependencies for Sophus. It will first
-# check if the binaries are already up-to-date based on the farm-ng-cmake git
+# check if the binaries are already up-to-date based on the cmake git
 # SHA. The binaries are placed in ../venv/prefix for the Sophus build,
 # though you must set CMAKE_PREFIX_PATH to that directory for cmake to find them
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." >/dev/null 2>&1 && pwd)"
 
-# Choose release SHA based on farm-ng-cmake git repo SHA
+# Choose release SHA based on cmake git repo SHA
 # Override by setting RELEASE_SHA env var
-RELEASE_SHA="${RELEASE_SHA:-$(git submodule status ../farm-ng-cmake | cut -c2-8)}"
+RELEASE_SHA="${RELEASE_SHA:-$(git submodule status ../cmake | cut -c2-8)}"
 
 # If the needed RELEASE_SHA doesn't match what we have, download
 if ! grep -q $RELEASE_SHA "$ROOT_DIR/venv/prefix/release_version.txt"; then
   mkdir -p "$ROOT_DIR/venv"
-  $ROOT_DIR/../farm-ng-cmake/scripts/download_release.sh
+  $ROOT_DIR/../cmake/scripts/download_release.sh
   rm -rf $ROOT_DIR/venv/prefix
-  tar -xzf $ROOT_DIR/../farm-ng-cmake/scripts/venv.tar.gz --strip-components=1 -C $ROOT_DIR/venv
+  tar -xzf $ROOT_DIR/../cmake/scripts/venv.tar.gz --strip-components=1 -C $ROOT_DIR/venv
 
   if [[ "$OSTYPE" == "darwin"* ]]; then
     # MacOS RPath works a bit differently. We need to define the RPaths that

@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [main,release-test]
+    branches: [main,release-test,merge]
   workflow_dispatch:
 
 concurrency:
@@ -39,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11, macos-arm64] # TODO: ubuntu18.04-arm
+        os: [ubuntu-20.04] 
       fail-fast: false
 
     steps:
@@ -48,15 +48,11 @@ jobs:
       - uses: hendrikmuhs/ccache-action@v1
 
       - name: Install system dependencies (Ubuntu)
-        run: ./scripts/install_deps_ubuntu.sh
+        run: ./scripts/cmake/install_deps_ubuntu.sh
         if: matrix.os == 'ubuntu-20.04'
 
-      - name: Install system dependencies (Mac)
-        run: ./scripts/install_deps_mac.sh
-        if: matrix.os == 'macos-11' || matrix.os == 'macos-arm64'
-
       - name: Install venv dependencies
-        run: ./bootstrap_venv.sh
+        run: ./cmake/bootstrap_venv.sh
 
       - name: Create Archive For Release
         run: |

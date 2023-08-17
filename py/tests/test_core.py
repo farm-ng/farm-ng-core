@@ -185,6 +185,7 @@ class TestEventsReader:
             assert reader.is_open()
             count = 0
             for event, message in reader.read_messages():
+                assert isinstance(message, timestamp_pb2.Timestamp)
                 if event.uri.path == "hello":
                     assert message.stamp == count
                 elif event.uri.path == "world":
@@ -206,9 +207,10 @@ class TestEventsReader:
 
             for path, _ in events.items():
                 for i, event_log in enumerate(events[path]):
-                    message = reader.read_message(event_log)
-                    assert message == event_log.read_message()
-                    assert message.stamp == i
+                    _message = reader.read_message(event_log)
+                    assert isinstance(_message, timestamp_pb2.Timestamp)
+                    assert _message == event_log.read_message()
+                    assert _message.stamp == i
 
         assert reader.close()
 

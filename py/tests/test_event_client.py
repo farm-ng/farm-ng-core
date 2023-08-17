@@ -29,6 +29,7 @@ class TestEventClient:
             async for _, message in client.subscribe(
                 request=client.config.subscriptions[0], decode=True
             ):
+                assert isinstance(message, Int32Value)
                 await queue.put(message.value + 1)
 
         # create a service

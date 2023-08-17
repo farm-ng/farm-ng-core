@@ -148,7 +148,7 @@ class EventServiceGrpc:
         return self._counts
 
     @property
-    def uris(self) -> dict[str, str]:
+    def uris(self) -> dict[str, Uri]:
         """Returns the URIs of the service."""
         return self._uris
 

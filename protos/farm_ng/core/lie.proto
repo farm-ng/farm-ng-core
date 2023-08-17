@@ -33,7 +33,7 @@ message Isometry2F64 {
 }
 
 message Rotation3F64 {
-  // Quaternion which is required to be unit lenght.
+  // Quaternion which is required to be unit length.
   QuaternionF64 unit_quaternion = 1;
 }
 

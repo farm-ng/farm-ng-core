@@ -309,7 +309,7 @@ Example:
 ```
 
 Note:
- - Marcos provided by farm-ng-core in generally provide functionallity not
+ - Marcos provided by farm-ng-core in generally provide functionality not
    supported otherwise, such as line number log output for ASSERT macros,
    to/from string conversions for enums etc.
 

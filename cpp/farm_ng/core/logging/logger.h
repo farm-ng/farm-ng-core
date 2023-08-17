@@ -474,8 +474,8 @@ auto insertKeyValueInMap(
     farm_ng::defaultLogger().log(
         farm_ng::LogLevel::critical,
         FARM_FORMAT(
-            "FARM_INSERT key `{}` (={}) is already in map `{}` of size `{}`. "
-            "\nWe cannot insert value `{}`.",
+            "FARM_INSERT key `{}` (={}) is already in map `{}` of size `{}`.\n"
+            "We cannot insert value `{}`.",
             key_cstr,
             key,
             container_cstr,

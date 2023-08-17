@@ -1,6 +1,5 @@
-from farm_ng.core import uri_pb2
-from farm_ng.core import timestamp_pb2
-from farm_ng.core.uri import make_proto_uri, uri_to_string, string_to_uri
+from farm_ng.core import timestamp_pb2, uri_pb2
+from farm_ng.core.uri import make_proto_uri, string_to_uri, uri_to_string
 
 
 def test_make_proto():

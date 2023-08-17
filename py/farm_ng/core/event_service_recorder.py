@@ -22,30 +22,30 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-from pathlib import Path
-import grpc
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 
+import grpc
 from farm_ng.core import event_pb2
+from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service import (
     EventServiceGrpc,
     add_service_parser,
     load_service_config,
 )
-from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
     EventServiceConfigList,
-    SubscribeRequest,
     RequestReplyRequest,
+    SubscribeRequest,
 )
-from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
+from farm_ng.core.events_file_reader import payload_to_protobuf, proto_from_json_file
 from farm_ng.core.events_file_writer import EventsFileWriter
-from farm_ng.core.uri import uri_query_to_dict, get_host_name
-from farm_ng.core.stamp import get_monotonic_now, StampSemantics
-from google.protobuf.message import Message
+from farm_ng.core.stamp import StampSemantics, get_monotonic_now
+from farm_ng.core.uri import get_host_name, uri_query_to_dict
 from google.protobuf.empty_pb2 import Empty
+from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import StringValue
 
 __all__ = ["EventServiceRecorder", "RecorderService"]
@@ -84,9 +84,8 @@ class EventServiceRecorder:
             elif config.port != 0:
                 self._clients[config.name] = EventClient(config)
 
-        assert (
-            self.recorder_config is not None
-        ), f"service {self.service_name} not found in config list {self.config_list}"
+        if self.recorder_config is None:
+            raise ValueError(f"service {self.service_name} not found in config list")
 
         # the queue to store the events
         self.record_queue: asyncio.Queue[tuple[event_pb2.Event, bytes]] = asyncio.Queue(
@@ -189,6 +188,9 @@ class EventServiceRecorder:
 # Example: 2021_08_31_15_54_00_000000
 DATETIME_FORMAT: str = "%Y_%m_%d_%H_%M_%S_%f"
 
+# the default timezone
+DEFAULT_TIMEZONE: str = timezone.utc
+
 
 def get_file_name_base() -> str:
     """Returns the base name of the file.
@@ -202,7 +204,9 @@ def get_file_name_base() -> str:
         >>> get_file_name_base()
         '2021_08_31_15_54_00_000000_ubuntu'
     """
-    return datetime.now().strftime(DATETIME_FORMAT) + "_" + get_host_name()
+    return (
+        datetime.now(DATETIME_FORMAT).strftime(DATETIME_FORMAT) + "_" + get_host_name()
+    )
 
 
 class RecorderService:
@@ -223,9 +227,12 @@ class RecorderService:
         parser = argparse.ArgumentParser()
         parser.add_argument("--data-dir", required=True)
         args = parser.parse_args(event_service.config.args)
+
         self._data_dir: Path = Path(args.data_dir)
         self._data_dir.mkdir(parents=True, exist_ok=True)
-        assert self._data_dir.exists(), f"{self._data_dir} does not exist"
+        if not self._data_dir.exists():
+            raise OSError(f"{self._data_dir} does not exist")
+
         # set the request reply handler
         self._event_service = event_service
         self._event_service.request_reply_handler = self._request_reply_handler
@@ -309,7 +316,7 @@ def service_command(_args):
     event_service: EventServiceGrpc = EventServiceGrpc(
         grpc.aio.server(), service_config
     )
-    recorder_service = RecorderService(event_service)
+    RecorderService(event_service)
 
     async def job():
         # define the async tasks
@@ -357,7 +364,7 @@ if __name__ == "__main__":
     sub_parsers = parser.add_subparsers()
     service_parser = sub_parsers.add_parser("service")
     add_service_parser(service_parser)
-    service_parser.add_argument("--out-dir", default="/tmp/")
+    service_parser.add_argument("--out-dir", default="/tmp/")  # noqa: S108
     service_parser.set_defaults(func=service_command)
 
     client_parser = sub_parsers.add_parser("start")

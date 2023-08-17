@@ -6,28 +6,27 @@ This will print a config file will all the uris currently being published by the
 
 python -m farm_ng.core.event_service_tool config-gen config2.json
 
-This print a sample config file with a single service called test_service, and an example recorder service configuration (note with no port numbers so scripts no not to connect)
-
+This print a sample config file with a single service called test_service, and an example
+recorder service configuration (note with no port numbers so scripts no not to connect)
 
 Runs a single service from the config file
 
 python -m farm_ng.core.event_service_tool launch1 --service-config config.json --service-name test_service
 
 """
-import signal
 import argparse
-import sys
 import asyncio
+import sys
+
+from farm_ng.core.event_client import EventClient
+from farm_ng.core.event_service import add_service_parser, load_service_config
 from farm_ng.core.event_service_pb2 import (
-    EventServiceConfigList,
     EventServiceConfig,
+    EventServiceConfigList,
     SubscribeRequest,
 )
-from farm_ng.core.uri_pb2 import Uri
 from farm_ng.core.events_file_writer import proto_to_json_file
-from farm_ng.core.events_file_reader import proto_from_json_file
-from farm_ng.core.event_client import EventClient
-from farm_ng.core.event_service import load_service_config, add_service_parser
+from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.json_format import MessageToJson
 
 

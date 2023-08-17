@@ -1,11 +1,10 @@
-import pytest
 import asyncio
-import grpc
-from google.protobuf.wrappers_pb2 import Int32Value
 
+import grpc
+import pytest
 from farm_ng.core.event_client import EventClient
-from farm_ng.core.event_service import EventServiceConfig
-from farm_ng.core.event_service import EventServiceGrpc, EventServiceConfig
+from farm_ng.core.event_service import EventServiceConfig, EventServiceGrpc
+from google.protobuf.wrappers_pb2 import Int32Value
 
 from .event_common import event_service_config
 

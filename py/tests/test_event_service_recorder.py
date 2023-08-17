@@ -1,16 +1,17 @@
-import pytest
 import asyncio
 from pathlib import Path
-import grpc
-from google.protobuf.wrappers_pb2 import Int32Value
-from google.protobuf.message import Message
 
-from farm_ng.core.events_file_reader import EventsFileReader, payload_to_protobuf
+import grpc
+import pytest
 from farm_ng.core.event_service import EventServiceConfigList, EventServiceGrpc
-from farm_ng.core.event_service_recorder import EventServiceRecorder
 from farm_ng.core.event_service_pb2 import (
     RequestReplyRequest,
 )
+from farm_ng.core.event_service_recorder import EventServiceRecorder
+from farm_ng.core.events_file_reader import EventsFileReader, payload_to_protobuf
+from google.protobuf.message import Message
+from google.protobuf.wrappers_pb2 import Int32Value
+
 from .event_common import event_service_config_list
 
 

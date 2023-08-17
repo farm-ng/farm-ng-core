@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import platform
+from dataclasses import dataclass, field
 
 from farm_ng.core import uri_pb2
 from google.protobuf.message import Message
 
 
+def _get_platform_node() -> str:
+    return platform.node()
+
+
 @dataclass
 class PlatformConfig:
-    host_name: str = platform.node()
+    host_name: str = field(default_factory=_get_platform_node)
 
 
 # https://vald-phoenix.github.io/pylint-errors/plerr/errors/variables/W0603.html

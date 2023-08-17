@@ -1,17 +1,12 @@
 from __future__ import annotations
-import pytest
+
 import asyncio
+
 import grpc
-
+import pytest
+from farm_ng.core.event_service import EventServiceConfig, EventServiceGrpc
 from google.protobuf.wrappers_pb2 import Int32Value, StringValue
-from google.protobuf.message import Message
 
-from farm_ng.core.events_file_reader import payload_to_protobuf
-from farm_ng.core.event_service_pb2 import (
-    EventServiceConfig,
-    RequestReplyRequest,
-)
-from farm_ng.core.event_service import EventServiceGrpc, EventServiceConfig
 from .event_common import event_service_config
 
 

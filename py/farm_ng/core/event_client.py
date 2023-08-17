@@ -4,29 +4,29 @@ python -m farm_ng.core.event_client --service-config config.json --service-name 
 """
 from __future__ import annotations
 
-from typing import AsyncIterator, Protocol
 import argparse
 import asyncio
 import logging
-import grpc
+from typing import AsyncIterator, Protocol
 
+import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
-from farm_ng.core.uri_pb2 import Uri
+from farm_ng.core.event_pb2 import Event
+from farm_ng.core.event_service import add_service_parser, load_service_config
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
-    SubscribeReply,
-    SubscribeRequest,
-    ListUrisRequest,
     ListUrisReply,
+    ListUrisRequest,
     RequestReplyReply,
     RequestReplyRequest,
+    SubscribeReply,
+    SubscribeRequest,
 )
 from farm_ng.core.events_file_reader import payload_to_protobuf
-from farm_ng.core.event_pb2 import Event
-from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.events_file_writer import make_proto_uri
-from farm_ng.core.event_service import load_service_config, add_service_parser
+from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
+from farm_ng.core.timestamp_pb2 import Timestamp
+from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.message import Message
 
 logging.basicConfig(level=logging.INFO)
@@ -168,7 +168,8 @@ class EventClient:
                 response.event.timestamps.append(
                     get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
                 )
-                assert response and response != grpc.aio.EOF, "End of stream"
+                if not response or response == grpc.aio.EOF:
+                    raise grpc.RpcError("End of stream")
             except grpc.RpcError as exc:
                 self.logger.warning("here %s", exc)
                 response_stream.cancel()
@@ -270,7 +271,8 @@ async def test_subscribe(client: EventClient, uri: Uri):
     async for event, payload in client.subscribe(
         SubscribeRequest(uri=uri, every_n=1), decode=False
     ):
-        assert isinstance(payload, bytes)
+        if not isinstance(payload, bytes):
+            raise TypeError("payload is not bytes")
         print(client.config.name + event.uri.path, event.sequence, len(payload))
         # if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
         # reply = await client.request_reply(event.uri.path, message)

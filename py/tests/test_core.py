@@ -1,17 +1,17 @@
-from typing import List
 from pathlib import Path
+from typing import List
 
 import pytest
+from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 from farm_ng.core.events_file_reader import (
-    EventsFileReader,
     EventLogPosition,
-    event_has_message,
+    EventsFileReader,
     _parse_protobuf_descriptor,
+    event_has_message,
     proto_from_json_file,
 )
 from farm_ng.core.events_file_writer import EventsFileWriter, proto_to_json_file
 from farm_ng.core.stamp import get_monotonic_now
-from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 
 
 @pytest.fixture(name="log_base")
@@ -201,7 +201,7 @@ class TestEventsReader:
 
             for event_log in all_events:
                 path: str = event_log.event.uri.path
-                if not path in events:
+                if path not in events:
                     events[path] = []
                 events[path].append(event_log)
 

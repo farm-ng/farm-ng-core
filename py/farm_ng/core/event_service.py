@@ -3,16 +3,17 @@
 python -m farm_ng.core.event_service --service-config config.json --service-name test_service
 """
 from __future__ import annotations
+
 import argparse
 import asyncio
-from collections import defaultdict
-from dataclasses import dataclass
 import logging
 import time
+from collections import defaultdict
+from dataclasses import dataclass
 from typing import AsyncIterator, Callable
+
 import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -22,18 +23,19 @@ from farm_ng.core.event_service_pb2 import (
     EventServiceConfigList,
     ListUrisReply,
     ListUrisRequest,
+    RequestReplyReply,
+    RequestReplyRequest,
     SubscribeReply,
     SubscribeRequest,
-    RequestReplyRequest,
-    RequestReplyReply,
 )
+from farm_ng.core.events_file_reader import payload_to_protobuf, proto_from_json_file
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.uri import make_proto_uri
 from farm_ng.core.uri_pb2 import Uri
+from google.protobuf.empty_pb2 import Empty
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
-from google.protobuf.empty_pb2 import Empty
 
 # public members
 
@@ -259,7 +261,7 @@ class EventServiceGrpc:
             reply_message = await self._request_reply_handler(self, request)
             if reply_message is None:
                 self.logger.error(
-                    "Request invalid, please check your request channel and packet ",
+                    "Request invalid, please check your request channel and packet %s",
                     request,
                 )
         else:
@@ -408,9 +410,10 @@ def load_service_config(_args):
     for config in _config_list.configs:
         if config.name == _args.service_name:
             _service_config = config
-    assert (
-        _service_config is not None
-    ), f"service {_args.service_name} not found in config list {_config_list}"
+    if _service_config is None:
+        raise ValueError(
+            f"service {_args.service_name} not found in config list {_config_list}"
+        )
     return _config_list, _service_config
 
 

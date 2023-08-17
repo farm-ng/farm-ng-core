@@ -4,35 +4,56 @@ python -m farm_ng.core.event_client --service-config config.json --service-name 
 """
 from __future__ import annotations
 
-from typing import AsyncIterator
 import argparse
 import asyncio
 import logging
-import grpc
+from typing import TYPE_CHECKING, AsyncIterator, Protocol
 
+import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core.stamp import get_monotonic_now, get_system_clock_now, StampSemantics
-from farm_ng.core.uri_pb2 import Uri
+from farm_ng.core.event_pb2 import Event
+from farm_ng.core.event_service import add_service_parser, load_service_config
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
-    SubscribeReply,
-    SubscribeRequest,
-    ListUrisRequest,
     ListUrisReply,
+    ListUrisRequest,
     RequestReplyReply,
     RequestReplyRequest,
+    SubscribeReply,
+    SubscribeRequest,
 )
 from farm_ng.core.events_file_reader import payload_to_protobuf
-from farm_ng.core.event_pb2 import Event
-from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.events_file_writer import make_proto_uri
-from farm_ng.core.event_service import load_service_config, add_service_parser
-from google.protobuf.message import Message
+from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
+
+if TYPE_CHECKING:
+    from farm_ng.core.timestamp_pb2 import Timestamp
+    from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 logging.basicConfig(level=logging.INFO)
 
 
 __all__ = ["EventClient"]
+
+
+class EventClientProtocol(Protocol):
+    """Protocol for the gRPC streaming object.
+
+    This is used to make the code more testable.
+    """
+
+    async def read(self) -> SubscribeReply:
+        ...
+
+    def cancel(self) -> None:
+        ...
+
+
+def _check_valid_response(response: SubscribeReply | None) -> None:
+    if not response or response == grpc.aio.EOF:
+        msg = "End of stream"
+        raise grpc.RpcError(msg)
 
 
 class EventClient:
@@ -52,13 +73,15 @@ class EventClient:
             ValueError: if the port or host are invalid.
         """
         if config.port == 0:
+            msg = f"Invalid port: {config}, are you sure this is a client config?"
             raise ValueError(
-                f"Invalid port: {config}, are you sure this is a client config?"
+                msg,
             )
 
         if config.host == "":
+            msg = f"Invalid host: {config}, are you sure this is a client config?"
             raise ValueError(
-                f"Invalid host: {config}, are you sure this is a client config?"
+                msg,
             )
 
         # the configuration data structure
@@ -95,7 +118,11 @@ class EventClient:
         Returns:
             bool: True if the connection was successful, False otherwise.
         """
-        if self.stub is not None and await self.channel.channel_ready():
+        if (
+            self.stub is not None
+            and self.channel is not None
+            and await self.channel.channel_ready()
+        ):
             self.logger.debug("Already connected to %s", self.server_address)
             return True
 
@@ -113,8 +140,10 @@ class EventClient:
         return True
 
     async def subscribe(
-        self, request: SubscribeRequest, decode: bool = True
-    ) -> tuple[Event, Message | bytes]:
+        self,
+        request: SubscribeRequest,
+        decode: bool = True,
+    ) -> AsyncIterator[tuple[Event, Message | bytes]]:
         """Subscribes to the server.
 
         Args:
@@ -125,7 +154,7 @@ class EventClient:
             tuple[Event, Message | bytes]: the event and the payload.
         """
         # the streaming object
-        response_stream: AsyncIterator[SubscribeReply] | None = None
+        response_stream: EventClientProtocol | None = None
 
         while True:
             # check if we are connected to the server
@@ -134,21 +163,25 @@ class EventClient:
                     response_stream.cancel()
                     response_stream = None
                 self.logger.warning(
-                    "%s is not streaming or ready to stream", self.config
+                    "%s is not streaming or ready to stream",
+                    self.config,
                 )
                 continue
 
-            if response_stream is None:
+            if response_stream is None and self.stub is not None:
                 # get the streaming object
                 response_stream = self.stub.subscribe(request)
+
+            if response_stream is None:
+                continue
 
             try:
                 # try/except so app doesn't crash on killed service
                 response: SubscribeReply = await response_stream.read()
                 response.event.timestamps.append(
-                    get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
+                    get_monotonic_now(StampSemantics.DRIVER_RECEIVE),
                 )
-                assert response and response != grpc.aio.EOF, "End of stream"
+                _check_valid_response(response)
             except grpc.RpcError as exc:
                 self.logger.warning("here %s", exc)
                 response_stream.cancel()
@@ -163,10 +196,10 @@ class EventClient:
             # decode the payload if requested
             if decode:
                 yield response.event, payload_to_protobuf(
-                    response.event, response.payload
+                    response.event,
+                    response.payload,
                 )
-            else:
-                yield response.event, response.payload
+            yield response.event, response.payload
 
     async def list_uris(self) -> list[Uri]:
         """Returns the list of uris.
@@ -179,18 +212,26 @@ class EventClient:
             self.logger.warning("Could not list uris: %s", self.server_address)
             return []
 
-        try:
-            response: ListUrisReply = await self.stub.listUris(ListUrisRequest())
-            return response.uris
-        except grpc.RpcError as err:
-            self.logger.warning(
-                "Could not list uris: %s\n err=%s", self.server_address, err
-            )
+        if self.stub is None:
             return []
 
-    # TODO: rename to `request_reply`
+        try:
+            response: ListUrisReply = await self.stub.listUris(ListUrisRequest())
+        except grpc.RpcError as err:
+            self.logger.warning(
+                "Could not list uris: %s\n err=%s",
+                self.server_address,
+                err,
+            )
+        else:
+            return response.uris
+        return []
+
     async def request_reply(
-        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+        self,
+        path: str,
+        message: Message,
+        timestamps: list[Timestamp] | None = None,
     ) -> RequestReplyReply:
         """Sends a request and waits for a reply.
 
@@ -231,26 +272,26 @@ class EventClient:
             payload=payload,
         )
 
+        if self.stub is None:
+            return RequestReplyReply()
+
         # send the request and wait for the reply
         reply: RequestReplyReply = await self.stub.requestReply(request)
         reply.event.timestamps.append(
-            get_monotonic_now(semantics=StampSemantics.CLIENT_SEND)
+            get_monotonic_now(semantics=StampSemantics.CLIENT_SEND),
         )
         return reply
 
 
 async def test_subscribe(client: EventClient, uri: Uri):
-    # print(uri)
-    # return
     async for event, payload in client.subscribe(
-        SubscribeRequest(uri=uri, every_n=1), decode=False
+        SubscribeRequest(uri=uri, every_n=1),
+        decode=False,
     ):
+        if not isinstance(payload, bytes):
+            msg = "payload is not bytes"
+            raise TypeError(msg)
         print(client.config.name + event.uri.path, event.sequence, len(payload))
-        # if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
-        # reply = await client.request_reply(event.uri.path, message)
-        # print("reply:", reply)
-        # print(event.uri.path, event.sequence, message, reply.event.sequence)
-        # else:
 
 
 async def test_smoke():

@@ -51,5 +51,5 @@ def event_service_config_list() -> EventServiceConfigList:
                     ),
                 ],
             ),
-        ]
+        ],
     )

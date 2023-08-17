@@ -1,11 +1,10 @@
-import pytest
 import asyncio
-import grpc
-from google.protobuf.wrappers_pb2 import Int32Value
 
+import grpc
+import pytest
 from farm_ng.core.event_client import EventClient
-from farm_ng.core.event_service import EventServiceConfig
-from farm_ng.core.event_service import EventServiceGrpc, EventServiceConfig
+from farm_ng.core.event_service import EventServiceConfig, EventServiceGrpc
+from google.protobuf.wrappers_pb2 import Int32Value
 
 from .event_common import event_service_config
 
@@ -23,12 +22,14 @@ class TestEventClient:
         assert client.logger.name == "test_service/client"
         assert client.server_address == "localhost:50051"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publish_subscribe(self) -> None:
         async def subscribe_callback(client: EventClient, queue: asyncio.Queue):
             async for _, message in client.subscribe(
-                request=client.config.subscriptions[0], decode=True
+                request=client.config.subscriptions[0],
+                decode=True,
             ):
+                assert isinstance(message, Int32Value)
                 await queue.put(message.value + 1)
 
         # create a service
@@ -40,7 +41,7 @@ class TestEventClient:
         client: EventClient = event_client()
 
         # create a queue to collect messages
-        queue = asyncio.Queue()
+        queue: asyncio.Queue[int] = asyncio.Queue()
 
         asyncio.create_task(subscribe_callback(client, queue))
         await asyncio.sleep(0.001)

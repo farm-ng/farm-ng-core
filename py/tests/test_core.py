@@ -1,17 +1,18 @@
-from typing import List
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
+from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 from farm_ng.core.events_file_reader import (
-    EventsFileReader,
     EventLogPosition,
-    event_has_message,
+    EventsFileReader,
     _parse_protobuf_descriptor,
+    event_has_message,
     proto_from_json_file,
 )
 from farm_ng.core.events_file_writer import EventsFileWriter, proto_to_json_file
 from farm_ng.core.stamp import get_monotonic_now
-from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 
 
 @pytest.fixture(name="log_base")
@@ -42,7 +43,7 @@ def test_event_has_message() -> None:
                 stamp=0.0,
                 clock_name="test/monotonic",
                 semantics="test/monotonic",
-            )
+            ),
         ],
         payload_length=11,
     )
@@ -185,6 +186,7 @@ class TestEventsReader:
             assert reader.is_open()
             count = 0
             for event, message in reader.read_messages():
+                assert isinstance(message, timestamp_pb2.Timestamp)
                 if event.uri.path == "hello":
                     assert message.stamp == count
                 elif event.uri.path == "world":
@@ -193,22 +195,23 @@ class TestEventsReader:
 
             # test get/has uris
             assert len(reader.events_index) == 0
-            all_events: List[EventLogPosition] = reader.get_index()
+            all_events: list[EventLogPosition] = reader.get_index()
             assert len(reader.events_index) > 0
 
             events: dict = {}
 
             for event_log in all_events:
                 path: str = event_log.event.uri.path
-                if not path in events:
+                if path not in events:
                     events[path] = []
                 events[path].append(event_log)
 
             for path, _ in events.items():
                 for i, event_log in enumerate(events[path]):
-                    message = reader.read_message(event_log)
-                    assert message == event_log.read_message()
-                    assert message.stamp == i
+                    _message = reader.read_message(event_log)
+                    assert isinstance(_message, timestamp_pb2.Timestamp)
+                    assert _message == event_log.read_message()
+                    assert _message.stamp == i
 
         assert reader.close()
 
@@ -216,34 +219,42 @@ class TestEventsReader:
 class TestEventsJson:
     def test_json_write_read_path(self, tmp_path: Path) -> None:
         stamp = timestamp_pb2.Timestamp(
-            stamp=1.2, clock_name="clock0", semantics="test/proto"
+            stamp=1.2,
+            clock_name="clock0",
+            semantics="test/proto",
         )
 
         # Test write w/ str, read w/ Path
         assert proto_to_json_file(tmp_path / "test.json", stamp)
         assert stamp == proto_from_json_file(
-            tmp_path / "test.json", timestamp_pb2.Timestamp()
+            tmp_path / "test.json",
+            timestamp_pb2.Timestamp(),
         )
 
         # Test overwrite
         assert proto_to_json_file(tmp_path / "test.json", stamp)
         assert stamp == proto_from_json_file(
-            tmp_path / "test.json", timestamp_pb2.Timestamp()
+            tmp_path / "test.json",
+            timestamp_pb2.Timestamp(),
         )
 
     def test_json_write_read_str(self, tmp_path: Path) -> None:
         stamp = timestamp_pb2.Timestamp(
-            stamp=9.67832, clock_name="clock1", semantics="test/proto_again"
+            stamp=9.67832,
+            clock_name="clock1",
+            semantics="test/proto_again",
         )
 
         # Test write w/ Path, read w/ str
         assert proto_to_json_file(tmp_path / "test_1.json", stamp)
         assert stamp == proto_from_json_file(
-            f"{tmp_path}/test_1.json", timestamp_pb2.Timestamp()
+            f"{tmp_path}/test_1.json",
+            timestamp_pb2.Timestamp(),
         )
 
         # Test overwrite
         assert proto_to_json_file(tmp_path / "test_1.json", stamp)
         assert stamp == proto_from_json_file(
-            f"{tmp_path}/test_1.json", timestamp_pb2.Timestamp()
+            f"{tmp_path}/test_1.json",
+            timestamp_pb2.Timestamp(),
         )

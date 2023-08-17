@@ -116,7 +116,7 @@
       return "MyFlags";
     }
 
-   // Note: When adding new flags to an exisiting enum, we want to add such flag
+   // Note: When adding new flags to an existing enum, we want to add such flag
    // at the end.
 
     FARM_ENUMFLAGS_WITHOUT_OSTREAM(MyFlags, uint32_t, (foo, bar));

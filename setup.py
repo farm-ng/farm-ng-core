@@ -1,11 +1,10 @@
-from setuptools import setup
-
 from farm_ng.package.commands import (
-    CleanFilesCommand,
-    BuildProtosInstall,
     BuildProtosDevelop,
     BuildProtosEggInfo,
+    BuildProtosInstall,
+    CleanFilesCommand,
 )
+from setuptools import setup
 
 PROTO_ROOT: str = "protos"
 PACKAGE_ROOT: str = "py"
@@ -27,5 +26,5 @@ setup(
         "develop": BuildProtosDevelop,
         "egg_info": BuildProtosEggInfo,
         "clean": CleanFilesCommand,
-    }
+    },
 )

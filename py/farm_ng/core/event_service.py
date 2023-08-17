@@ -3,16 +3,17 @@
 python -m farm_ng.core.event_service --service-config config.json --service-name test_service
 """
 from __future__ import annotations
+
 import argparse
 import asyncio
-from collections import defaultdict
-from dataclasses import dataclass, field
 import logging
 import time
-from typing import AsyncIterator
+from collections import defaultdict
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, AsyncIterator, Callable
+
 import grpc
 from farm_ng.core import event_service_pb2_grpc
-from farm_ng.core.events_file_reader import proto_from_json_file, payload_to_protobuf
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -22,18 +23,21 @@ from farm_ng.core.event_service_pb2 import (
     EventServiceConfigList,
     ListUrisReply,
     ListUrisRequest,
+    RequestReplyReply,
+    RequestReplyRequest,
     SubscribeReply,
     SubscribeRequest,
-    RequestReplyRequest,
-    RequestReplyReply,
 )
+from farm_ng.core.events_file_reader import payload_to_protobuf, proto_from_json_file
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
-from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.uri import make_proto_uri
-from farm_ng.core.uri_pb2 import Uri
-from google.protobuf.message import Message
-from google.protobuf.wrappers_pb2 import Int32Value
 from google.protobuf.empty_pb2 import Empty
+from google.protobuf.wrappers_pb2 import Int32Value
+
+if TYPE_CHECKING:
+    from farm_ng.core.timestamp_pb2 import Timestamp
+    from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 # public members
 
@@ -53,7 +57,6 @@ class PublishResult:
     sequence_number: int
 
 
-# TODO: iterate this data structure to report dropped messages and other stats
 @dataclass(frozen=False)
 class _UriStats:
     """The stats of a URI."""
@@ -98,10 +101,10 @@ class EventServiceGrpc:
 
         # the queues for the clients connected to the service
         self._client_queues: dict[
-            str, list[tuple[SubscribeRequest, asyncio.Queue]]
+            str,
+            list[tuple[SubscribeRequest, asyncio.Queue]],
         ] = {}
 
-        # TODO: merge into a single dict containing a data structure with the uri, the counts
         # the URIs of the service
         self._uris: dict[str, Uri] = {}
 
@@ -112,7 +115,7 @@ class EventServiceGrpc:
         self._uris_stats: dict[str, _UriStats] = defaultdict(_UriStats)
 
         # the request/reply handler
-        self._request_reply_handler: callable | None = None
+        self._request_reply_handler: Callable | None = None
 
         # add the service to the asyncio server
         event_service_pb2_grpc.add_EventServiceServicer_to_server(self, server)
@@ -133,12 +136,12 @@ class EventServiceGrpc:
         return self._logger
 
     @property
-    def request_reply_handler(self) -> callable | None:
+    def request_reply_handler(self) -> Callable | None:
         """Returns the request/reply handler."""
         return self._request_reply_handler
 
     @request_reply_handler.setter
-    def request_reply_handler(self, handler: callable) -> None:
+    def request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""
         self._request_reply_handler = handler
 
@@ -148,7 +151,7 @@ class EventServiceGrpc:
         return self._counts
 
     @property
-    def uris(self) -> dict[str, str]:
+    def uris(self) -> dict[str, Uri]:
         """Returns the URIs of the service."""
         return self._uris
 
@@ -168,7 +171,10 @@ class EventServiceGrpc:
         await self.server.wait_for_termination()
 
     async def publish(
-        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+        self,
+        path: str,
+        message: Message,
+        timestamps: list[Timestamp] | None = None,
     ) -> PublishResult:
         """Publish a message to the service.
 
@@ -218,14 +224,12 @@ class EventServiceGrpc:
         """Implementation of grpc rpc subscribe"""
 
         # create a queue for this client
-        # TODO: make a small `RequestQueue` class with `request` and `queue for better readability
         request_queue: tuple[SubscribeRequest, asyncio.Queue] = (
             request,
             asyncio.Queue(maxsize=self.QUEUE_MAX_SIZE),
         )
 
         # add the queue to the list of queues
-        # TODO: use defaultdict from collections
         if request.uri.path not in self._client_queues:
             self._client_queues[request.uri.path] = []
 
@@ -252,21 +256,21 @@ class EventServiceGrpc:
         event = Event()
         event.CopyFrom(request.event)
         event.uri.path = "/request" + event.uri.path
-        # self._publish_event_payload(event, request.payload)
 
         reply_message: Message
         if self._request_reply_handler is not None:
             reply_message = await self._request_reply_handler(self, request)
             if reply_message is None:
                 self.logger.error(
-                    "Request invalid, please check your request channel and packet ",
+                    "Request invalid, please check your request channel and packet %s",
                     request,
                 )
         else:
             reply_message = Empty()
 
         reply_uri: Uri = make_proto_uri(
-            path="/reply" + event.uri.path, message=reply_message
+            path="/reply" + event.uri.path,
+            message=reply_message,
         )
         reply_uri.query += f"&service_name={self.config.name}"
 
@@ -283,9 +287,7 @@ class EventServiceGrpc:
             payload_length=len(reply_payload),
             sequence=event.sequence,
         )
-        reply = RequestReplyReply(event=event, payload=reply_payload)
-        # self._publish_event_payload(reply.event, reply.payload)
-        return reply
+        return RequestReplyReply(event=event, payload=reply_payload)
 
     # private methods
 
@@ -320,7 +322,10 @@ class EventServiceGrpc:
             if request.every_n == 0 or reply.event.sequence % request.every_n == 0
         ]
         self.logger.debug(
-            f"Sending {uri.path}: {reply.event.sequence} to {len(queues)} clients"
+            "Sending %s: %d to %d clients",
+            uri.path,
+            reply.event.sequence,
+            len(queues),
         )
 
         # send the reply to the clients
@@ -346,7 +351,10 @@ class EventServiceGrpc:
         return len(queues)
 
     async def _send_raw(
-        self, uri: Uri, message: Message, timestamps: list[Timestamp]
+        self,
+        uri: Uri,
+        message: Message,
+        timestamps: list[Timestamp],
     ) -> dict[str, int]:
         """Send a message to the service.
 
@@ -367,7 +375,8 @@ class EventServiceGrpc:
             if previous_uri.query != uri.query:
                 type1: str = previous_uri.query.split("&")[0].split(".")[-1]
                 type2: str = uri.query.split("&")[0].split(".")[-1]
-                raise TypeError(f"Message type mismatch: {type1} != {type2}")
+                msg = f"Message type mismatch: {type1} != {type2}"
+                raise TypeError(msg)
 
         # register the URI of the message
         self._uris[uri.path] = uri
@@ -408,9 +417,11 @@ def load_service_config(_args):
     for config in _config_list.configs:
         if config.name == _args.service_name:
             _service_config = config
-    assert (
-        _service_config is not None
-    ), f"service {_args.service_name} not found in config list {_config_list}"
+    if _service_config is None:
+        msg = f"service {_args.service_name} not found in config list {_config_list}"
+        raise ValueError(
+            msg,
+        )
     return _config_list, _service_config
 
 
@@ -438,11 +449,12 @@ async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
 
 
 async def test_req_rep_handler_smoke(
-    event_service: EventServiceGrpc, request: RequestReplyRequest
+    event_service: EventServiceGrpc,
+    request: RequestReplyRequest,
 ) -> Message:
     message = payload_to_protobuf(request.event, request.payload)
     event_service.logger.info(
-        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()
+        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip(),
     )
     return message  # echo message back
 
@@ -450,7 +462,7 @@ async def test_req_rep_handler_smoke(
 # main function to run the service and all the async tasks
 async def test_main(args, event_service: EventServiceGrpc) -> None:
     # define the async tasks
-    async_tasks: list[asyncio.Task] = []
+    async_tasks = []
 
     event_service.request_reply_handler = test_req_rep_handler_smoke
 
@@ -474,7 +486,8 @@ if __name__ == "__main__":
 
     # create the gRPC server and initialize the service
     event_service: EventServiceGrpc = EventServiceGrpc(
-        grpc.aio.server(), service_config
+        grpc.aio.server(),
+        service_config,
     )
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_main(args, event_service))

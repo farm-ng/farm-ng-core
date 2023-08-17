@@ -16,11 +16,12 @@ from .event_common import event_service_config_list
 
 
 async def request_reply_handler(
-    event_service: EventServiceGrpc, request: RequestReplyRequest
+    event_service: EventServiceGrpc,
+    request: RequestReplyRequest,
 ) -> Message:
     message = payload_to_protobuf(request.event, request.payload)
     event_service.logger.info(
-        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip()
+        f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip(),
     )
     return message  # echo message back
 
@@ -29,7 +30,8 @@ class TestEventServiceRecorder:
     def test_smoke(self) -> None:
         config_list: EventServiceConfigList = event_service_config_list()
         recorder_service = EventServiceRecorder(
-            service_name="record_default", config_list=config_list
+            service_name="record_default",
+            config_list=config_list,
         )
 
         assert recorder_service is not None
@@ -40,7 +42,7 @@ class TestEventServiceRecorder:
         assert recorder_service.logger.name == "record_default"
         assert recorder_service.record_queue.qsize() == 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_record(self, tmp_path: Path) -> None:
         config_list: EventServiceConfigList = event_service_config_list()
 
@@ -48,7 +50,8 @@ class TestEventServiceRecorder:
         event_service.request_reply_handler = request_reply_handler
 
         recorder_service = EventServiceRecorder(
-            service_name="record_default", config_list=config_list
+            service_name="record_default",
+            config_list=config_list,
         )
 
         # start the event service
@@ -57,8 +60,7 @@ class TestEventServiceRecorder:
         # start the subcriber and record
         file_name = tmp_path / "test_record"
         task = asyncio.create_task(
-            # TODO: parametrize the test
-            recorder_service.subscribe_and_record(file_name)
+            recorder_service.subscribe_and_record(file_name),
         )
 
         # we need to wait for the subscribe callback to be called

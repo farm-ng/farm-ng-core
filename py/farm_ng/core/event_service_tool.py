@@ -41,8 +41,9 @@ async def config_gen_command(args):
                     port=args.port,
                     subscriptions=[
                         SubscribeRequest(
-                            uri=Uri(path="/test", query="service_name=bar"), every_n=1
-                        )
+                            uri=Uri(path="/test", query="service_name=bar"),
+                            every_n=1,
+                        ),
                     ],
                     args=["--my-arg=my-value", "foo"],
                     log_level=EventServiceConfig.LogLevel.INFO,
@@ -53,10 +54,10 @@ async def config_gen_command(args):
                         SubscribeRequest(
                             uri=Uri(path="*", query="service_name={args.name}"),
                             every_n=1,
-                        )
+                        ),
                     ],
                 ),
-            ]
+            ],
         ),
     )
 

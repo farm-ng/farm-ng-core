@@ -7,14 +7,15 @@ import struct
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import IO, Any, Generator, cast
+from typing import IO, TYPE_CHECKING, Any, Generator, cast
 
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.uri import uri_query_to_dict
-from farm_ng.core.uri_pb2 import Uri
 from google.protobuf import json_format
-from google.protobuf.message import Message
-from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 # public symbols
 
@@ -29,7 +30,8 @@ __all__ = [
 
 
 def proto_from_json_file(
-    file_path: str | Path, empty_proto_message: Message
+    file_path: str | Path,
+    empty_proto_message: Message,
 ) -> Message:
     """
     Load a proto Message from a JSON file.
@@ -46,9 +48,10 @@ def proto_from_json_file(
         file_path = Path(file_path).absolute()
 
     if not file_path.is_file():
-        raise FileNotFoundError(f"Invalid file: {file_path!s}")
+        msg = f"Invalid file: {file_path!s}"
+        raise FileNotFoundError(msg)
 
-    with open(file_path, encoding="utf-8") as file:
+    with Path(file_path).open(encoding="utf-8") as file:
         json_pb = json.load(file)
 
     return json_format.ParseDict(json_pb, empty_proto_message)
@@ -85,17 +88,20 @@ def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
         Tuple[str, str]: message name and package
     """
     if uri.scheme != "protobuf":
-        raise ValueError(f"Invalid uri scheme: {uri.scheme}")
+        msg = f"Invalid uri scheme: {uri.scheme}"
+        raise ValueError(msg)
 
     query = uri_query_to_dict(uri)
     type_split = query.get("type", None)
     pb_split = query.get("pb", None)
 
     if type_split is None:
-        raise ValueError(f"Invalid uri query: {uri.query}")
+        msg = f"Invalid uri query: {uri.query}"
+        raise ValueError(msg)
 
     if pb_split is None:
-        raise ValueError(f"Invalid uri query: {uri.query}")
+        msg = f"Invalid uri query: {uri.query}"
+        raise ValueError(msg)
 
     type_name = type_split.split(".")[-1]
     # parse the pb file location and convert to python module extension
@@ -182,7 +188,8 @@ class EventsFileReader:
             file_name = Path(file_name)
         self._file_name: Path = file_name.absolute()
         if not self._file_name.is_file():
-            raise FileNotFoundError(f"Invalid file: {self._file_name!s}")
+            msg = f"Invalid file: {self._file_name!s}"
+            raise FileNotFoundError(msg)
 
         self._file_stream: IO | None = None
         self._file_length: int = 0
@@ -190,14 +197,14 @@ class EventsFileReader:
         # store index of events in a list to seek faster
         self._events_index: list[EventLogPosition] = []
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> EventsFileReader:
         """Open the file and return the EventsFileReader instance."""
         success: bool = self.open()
         if not success:
-            raise OSError("Failed to open file")
+            msg = "Failed to open file"
+            raise OSError(msg)
         return self
 
-    # pylint: disable=redefined-builtin
     def __exit__(self, type: object, value: object, traceback: object) -> None:
         """Close the file."""
         self.close()
@@ -209,7 +216,7 @@ class EventsFileReader:
                 f"file_name: {self.file_name!s}",
                 f"file_stream: {self._file_stream}",
                 f"is_open: {self.is_open()}",
-            ]
+            ],
         )
 
     @property
@@ -243,7 +250,7 @@ class EventsFileReader:
         Returns:
             bool: True if successful
         """
-        self._file_stream = open(self._file_name, "rb")
+        self._file_stream = Path(self._file_name).open("rb")
         self._file_length = self._file_name.stat().st_size
         return self.is_open()
 
@@ -273,7 +280,8 @@ class EventsFileReader:
         file_stream = cast(IO, self._file_stream)
         buffer = file_stream.read(self.EVENTS_LENGTH_BYTES)
         if len(buffer) != self.EVENTS_LENGTH_BYTES:
-            raise EOFError(f"Failed to read {self.EVENTS_LENGTH_BYTES} bytes")
+            msg = f"Failed to read {self.EVENTS_LENGTH_BYTES} bytes"
+            raise EOFError(msg)
 
         # read the event length, then the event
         event_len = struct.unpack("<I", buffer)[0]
@@ -295,7 +303,8 @@ class EventsFileReader:
     def _build_events_index(self) -> None:
         """Build the index of events in the file."""
         if not self.is_open():
-            raise OSError("Reader not open. Please, use reader.open()")
+            msg = "Reader not open. Please, use reader.open()"
+            raise OSError(msg)
 
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(0)
@@ -342,7 +351,8 @@ class EventsFileReader:
             tuple[Event, Message]: the event and message
         """
         if not self.is_open():
-            raise OSError("Reader not open. Please, use reader.open()")
+            msg = "Reader not open. Please, use reader.open()"
+            raise OSError(msg)
 
         event_log: EventLogPosition = self.read_next_event()
         return event_log.event, self.read_message(event_log)
@@ -354,7 +364,8 @@ class EventsFileReader:
             Generator[tuple[Event, Message], None, None]: the event and message
         """
         if self._file_stream is None:
-            raise OSError("Reader not open. Please, use reader.open()")
+            msg = "Reader not open. Please, use reader.open()"
+            raise OSError(msg)
 
         self._file_stream.seek(0)
         try:
@@ -367,7 +378,7 @@ class EventsFileReader:
 
 def playback_command(args):
     with EventsFileReader(args.events_file) as reader:
-        for event, message in reader.read_messages():
+        for event, _ in reader.read_messages():
             # Note you can find the originating service from uri query string
             query = uri_query_to_dict(event.uri)
             service_name = query.get("service_name", "")

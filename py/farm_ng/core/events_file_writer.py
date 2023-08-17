@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import struct
 from pathlib import Path
-from typing import IO, cast
+from typing import IO, TYPE_CHECKING, cast
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
-from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.uri import make_proto_uri
-from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.json_format import MessageToJson
-from google.protobuf.message import Message
-from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from farm_ng.core.timestamp_pb2 import Timestamp
+    from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 # public symbols
 
@@ -41,7 +42,7 @@ def proto_to_json_file(file_path: str | Path, proto_message: Message) -> bool:
         print(f"Invalid directory: {file_path.parent!s}")
         return False
 
-    with open(file_path, "w", encoding="utf-8") as file:
+    with Path(file_path).open("w", encoding="utf-8") as file:
         file.write(MessageToJson(proto_message))
 
     return True
@@ -51,7 +52,10 @@ class EventsFileWriter:
     """Write events to a file."""
 
     def __init__(
-        self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0
+        self,
+        file_base: str | Path,
+        extension: str = ".bin",
+        max_file_mb: int = 0,
     ) -> None:
         """Create a new EventsFileWriter.
 
@@ -66,7 +70,8 @@ class EventsFileWriter:
         self.extension: str = extension
 
         if not self._file_base.parent.is_dir():
-            raise RuntimeError(f"Invalid directory: {self._file_base.parent!s}")
+            msg = f"Invalid directory: {self._file_base.parent!s}"
+            raise RuntimeError(msg)
 
         self._file_stream: IO | None = None
         self._file_length: int = 0
@@ -74,11 +79,12 @@ class EventsFileWriter:
         self._max_file_length = int(max(0, max_file_mb) * 1e6)
         self._file_idx: int = 0
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> EventsFileWriter:
         """Open the file for writing and return self."""
         success: bool = self.open()
         if not success:
-            raise RuntimeError(f"Failed to open file: {self.file_name}")
+            msg = f"Failed to open file: {self.file_name}"
+            raise RuntimeError(msg)
         return self
 
     # pylint: disable=redefined-builtin
@@ -90,8 +96,8 @@ class EventsFileWriter:
         """Return a string representation of this object."""
         return (
             f"file_name: {self.file_name!s} "
-            + f"file_stream: {self._file_stream} "
-            + f"is_open: {self.is_open()} "
+            f"file_stream: {self._file_stream} "
+            f"is_open: {self.is_open()} "
         )
 
     @property
@@ -130,7 +136,7 @@ class EventsFileWriter:
 
     def open(self) -> bool:
         """Open the file for writing. Return True if successful."""
-        self._file_stream = open(self.file_name, "wb")
+        self._file_stream = Path(self.file_name).open("wb")
         self._file_length = 0
         return self.is_open()
 
@@ -145,11 +151,13 @@ class EventsFileWriter:
 
     def write_event_payload(self, event: Event, payload: bytes) -> None:
         if self.is_closed():
-            raise RuntimeError(f"Event log is not open: {self.file_name}")
+            msg = f"Event log is not open: {self.file_name}"
+            raise RuntimeError(msg)
 
         if event.payload_length != len(payload):
+            msg = f"Payload length mismatch {event.payload_length} != {len(payload)}"
             raise RuntimeError(
-                f"Payload length mismatch {event.payload_length} != {len(payload)}"
+                msg,
             )
 
         file_stream = cast(IO, self._file_stream)
@@ -164,16 +172,21 @@ class EventsFileWriter:
         # Rollover to new log if max file size reached
         if self.max_file_length and self.file_length > self.max_file_length:
             if not self.close():
-                raise RuntimeError(f"Failed to close file: {self.file_name}")
+                msg = f"Failed to close file: {self.file_name}"
+                raise RuntimeError(msg)
 
             # Increment file index and open new file
             self._increment_file_idx()
 
             if not self.open():
-                raise RuntimeError(f"Failed to open file: {self.file_name}")
+                msg = f"Failed to open file: {self.file_name}"
+                raise RuntimeError(msg)
 
     def _write_raw(
-        self, uri: Uri, message: Message, timestamps: list[Timestamp]
+        self,
+        uri: Uri,
+        message: Message,
+        timestamps: list[Timestamp],
     ) -> None:
         """Write a message to the file.
 
@@ -192,7 +205,10 @@ class EventsFileWriter:
         self.write_event_payload(event, payload=payload)
 
     def write(
-        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+        self,
+        path: str,
+        message: Message,
+        timestamps: list[Timestamp] | None = None,
     ) -> None:
         """Write a message to the file.
 

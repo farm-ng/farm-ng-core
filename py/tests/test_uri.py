@@ -4,7 +4,9 @@ from farm_ng.core.uri import make_proto_uri, string_to_uri, uri_to_string
 
 def test_make_proto():
     stamp = timestamp_pb2.Timestamp(
-        stamp=1.2, clock_name="clock0", semantics="test/proto"
+        stamp=1.2,
+        clock_name="clock0",
+        semantics="test/proto",
     )
     uri: uri_pb2.Uri = make_proto_uri("tik/tok", stamp)
     assert uri.scheme == "protobuf"

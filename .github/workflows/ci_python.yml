@@ -26,4 +26,4 @@ jobs:
     - name: Run Tests
       run: pytest -v py/tests/
     - name: Run mypy
-      run: mypy
+      run: mypy py/farm_ng

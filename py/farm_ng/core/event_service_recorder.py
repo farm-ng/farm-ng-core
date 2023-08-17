@@ -25,9 +25,9 @@ import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import grpc
-from farm_ng.core import event_pb2
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service import (
     EventServiceGrpc,
@@ -45,8 +45,11 @@ from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now
 from farm_ng.core.uri import get_host_name, uri_query_to_dict
 from google.protobuf.empty_pb2 import Empty
-from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import StringValue
+
+if TYPE_CHECKING:
+    from farm_ng.core import event_pb2
+    from google.protobuf.message import Message
 
 __all__ = ["EventServiceRecorder", "RecorderService"]
 
@@ -85,11 +88,12 @@ class EventServiceRecorder:
                 self._clients[config.name] = EventClient(config)
 
         if self.recorder_config is None:
-            raise ValueError(f"service {self.service_name} not found in config list")
+            msg = f"service {self.service_name} not found in config list"
+            raise ValueError(msg)
 
         # the queue to store the events
         self.record_queue: asyncio.Queue[tuple[event_pb2.Event, bytes]] = asyncio.Queue(
-            maxsize=self.QUEUE_MAX_SIZE
+            maxsize=self.QUEUE_MAX_SIZE,
         )
 
     @property
@@ -103,7 +107,10 @@ class EventServiceRecorder:
         return self._clients
 
     async def record(
-        self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0
+        self,
+        file_base: str | Path,
+        extension: str = ".bin",
+        max_file_mb: int = 0,
     ) -> None:
         """Records the events that arrive in the queue to a file.
 
@@ -119,12 +126,14 @@ class EventServiceRecorder:
                 # await a new event and payload, and write it to the file
                 event, payload = await self.record_queue.get()
                 event.timestamps.append(
-                    get_monotonic_now(semantics=StampSemantics.FILE_WRITE)
+                    get_monotonic_now(semantics=StampSemantics.FILE_WRITE),
                 )
                 writer.write_event_payload(event, payload)
 
     async def subscribe(
-        self, client: EventClient, subscription: SubscribeRequest
+        self,
+        client: EventClient,
+        subscription: SubscribeRequest,
     ) -> None:
         """Subscribes to a service and puts the events in the queue.
 
@@ -142,7 +151,10 @@ class EventServiceRecorder:
                 continue
 
     async def subscribe_and_record(
-        self, file_base: str | Path, extension: str = ".bin", max_file_mb: int = 0
+        self,
+        file_base: str | Path,
+        extension: str = ".bin",
+        max_file_mb: int = 0,
     ) -> None:
         """Subscribes to a list of services and records the events to a file.
 
@@ -152,15 +164,18 @@ class EventServiceRecorder:
             max_file_mb (int, optional): the maximum size of the file in MB. Defaults to 0.
         """
         if self.recorder_config is None:
-            raise ValueError("recorder_config is None")
+            msg = "recorder_config is None"
+            raise ValueError(msg)
 
         # create the tasks list. the first task is the record task
         async_tasks: list[asyncio.Task] = [
             asyncio.create_task(
                 self.record(
-                    file_base=file_base, extension=extension, max_file_mb=max_file_mb
-                )
-            )
+                    file_base=file_base,
+                    extension=extension,
+                    max_file_mb=max_file_mb,
+                ),
+            ),
         ]
 
         # add the subscribe tasks based on the subscriptions in the recorder config
@@ -169,12 +184,13 @@ class EventServiceRecorder:
             query: dict[str, str] = uri_query_to_dict(uri=subscription.uri)
             query_service_name: str = query["service_name"]
             if query_service_name not in self.clients:
+                msg = f"Invalid subscription: {subscription}, are you sure this is a client config?"
                 raise ValueError(
-                    f"Invalid subscription: {subscription}, are you sure this is a client config?"
+                    msg,
                 )
             client: EventClient = self.clients[query_service_name]
             async_tasks.append(
-                asyncio.create_task(self.subscribe(client, subscription))
+                asyncio.create_task(self.subscribe(client, subscription)),
             )
         try:
             await asyncio.gather(*async_tasks)
@@ -189,7 +205,7 @@ class EventServiceRecorder:
 DATETIME_FORMAT: str = "%Y_%m_%d_%H_%M_%S_%f"
 
 # the default timezone
-DEFAULT_TIMEZONE: str = timezone.utc
+DEFAULT_TIMEZONE = timezone.utc
 
 
 def get_file_name_base() -> str:
@@ -231,7 +247,8 @@ class RecorderService:
         self._data_dir: Path = Path(args.data_dir)
         self._data_dir.mkdir(parents=True, exist_ok=True)
         if not self._data_dir.exists():
-            raise OSError(f"{self._data_dir} does not exist")
+            msg = f"{self._data_dir} does not exist"
+            raise OSError(msg)
 
         # set the request reply handler
         self._event_service = event_service
@@ -246,7 +263,9 @@ class RecorderService:
     # public methods
 
     async def start_recording(
-        self, file_base: Path, config_list: EventServiceConfigList
+        self,
+        file_base: Path,
+        config_list: EventServiceConfigList,
     ) -> None:
         """Starts recording the events to a file.
 
@@ -259,7 +278,7 @@ class RecorderService:
         # start recording
         self._recorder = EventServiceRecorder("record_default", config_list)
         self._recorder_task = asyncio.create_task(
-            self._recorder.subscribe_and_record(file_base=file_base)
+            self._recorder.subscribe_and_record(file_base=file_base),
         )
 
     async def stop_recording(self) -> None:
@@ -278,7 +297,9 @@ class RecorderService:
     # private methods
 
     async def _request_reply_handler(
-        self, event_service: EventServiceGrpc, request: RequestReplyRequest
+        self,
+        event_service: EventServiceGrpc,
+        request: RequestReplyRequest,
     ) -> Message:
         """Handles the request reply.
 
@@ -292,13 +313,14 @@ class RecorderService:
 
         if request.event.uri.path == "start":
             config_list: EventServiceConfigList = payload_to_protobuf(
-                request.event, request.payload
+                request.event,
+                request.payload,
             )
             event_service.logger.info("start: %s", config_list)
             file_base = self._data_dir.joinpath(get_file_name_base())
             await self.start_recording(file_base, config_list)
             return StringValue(value=str(file_base))
-        elif request.event.uri.path == "stop":
+        if request.event.uri.path == "stop":
             await self.stop_recording()
         elif request.event.uri.path == "metadata":
             if self._recorder is not None:
@@ -306,7 +328,7 @@ class RecorderService:
                 await self._recorder.record_queue.put((request.event, request.payload))
             else:
                 event_service.logger.warning(
-                    "requested to send metadata but not recording"
+                    "requested to send metadata but not recording",
                 )
         return Empty()
 
@@ -314,7 +336,8 @@ class RecorderService:
 def service_command(_args):
     config_list, service_config = load_service_config(args)
     event_service: EventServiceGrpc = EventServiceGrpc(
-        grpc.aio.server(), service_config
+        grpc.aio.server(),
+        service_config,
     )
     RecorderService(event_service)
 
@@ -353,7 +376,9 @@ def record_command(_args):
         configs = proto_from_json_file(_args.service_config, EventServiceConfigList())
         recorder = EventServiceRecorder(_args.config_name, config_list=configs)
         await recorder.subscribe_and_record(
-            _args.output, _args.extension, _args.max_file_mb
+            _args.output,
+            _args.extension,
+            _args.max_file_mb,
         )
 
     asyncio.get_event_loop().run_until_complete(job())

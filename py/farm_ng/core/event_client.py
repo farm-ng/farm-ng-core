@@ -7,7 +7,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-from typing import AsyncIterator, Protocol
+from typing import TYPE_CHECKING, AsyncIterator, Protocol
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
@@ -25,9 +25,11 @@ from farm_ng.core.event_service_pb2 import (
 from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.events_file_writer import make_proto_uri
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
-from farm_ng.core.timestamp_pb2 import Timestamp
-from farm_ng.core.uri_pb2 import Uri
-from google.protobuf.message import Message
+
+if TYPE_CHECKING:
+    from farm_ng.core.timestamp_pb2 import Timestamp
+    from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 logging.basicConfig(level=logging.INFO)
 
@@ -48,6 +50,12 @@ class EventClientProtocol(Protocol):
         ...
 
 
+def _check_valid_response(response: SubscribeReply | None) -> None:
+    if not response or response == grpc.aio.EOF:
+        msg = "End of stream"
+        raise grpc.RpcError(msg)
+
+
 class EventClient:
     """Generic client class to connect with the Amiga brain services.
 
@@ -65,13 +73,15 @@ class EventClient:
             ValueError: if the port or host are invalid.
         """
         if config.port == 0:
+            msg = f"Invalid port: {config}, are you sure this is a client config?"
             raise ValueError(
-                f"Invalid port: {config}, are you sure this is a client config?"
+                msg,
             )
 
         if config.host == "":
+            msg = f"Invalid host: {config}, are you sure this is a client config?"
             raise ValueError(
-                f"Invalid host: {config}, are you sure this is a client config?"
+                msg,
             )
 
         # the configuration data structure
@@ -130,7 +140,9 @@ class EventClient:
         return True
 
     async def subscribe(
-        self, request: SubscribeRequest, decode: bool = True
+        self,
+        request: SubscribeRequest,
+        decode: bool = True,
     ) -> AsyncIterator[tuple[Event, Message | bytes]]:
         """Subscribes to the server.
 
@@ -151,7 +163,8 @@ class EventClient:
                     response_stream.cancel()
                     response_stream = None
                 self.logger.warning(
-                    "%s is not streaming or ready to stream", self.config
+                    "%s is not streaming or ready to stream",
+                    self.config,
                 )
                 continue
 
@@ -166,10 +179,9 @@ class EventClient:
                 # try/except so app doesn't crash on killed service
                 response: SubscribeReply = await response_stream.read()
                 response.event.timestamps.append(
-                    get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
+                    get_monotonic_now(StampSemantics.DRIVER_RECEIVE),
                 )
-                if not response or response == grpc.aio.EOF:
-                    raise grpc.RpcError("End of stream")
+                _check_valid_response(response)
             except grpc.RpcError as exc:
                 self.logger.warning("here %s", exc)
                 response_stream.cancel()
@@ -184,7 +196,8 @@ class EventClient:
             # decode the payload if requested
             if decode:
                 yield response.event, payload_to_protobuf(
-                    response.event, response.payload
+                    response.event,
+                    response.payload,
                 )
             yield response.event, response.payload
 
@@ -204,16 +217,21 @@ class EventClient:
 
         try:
             response: ListUrisReply = await self.stub.listUris(ListUrisRequest())
-            return response.uris
         except grpc.RpcError as err:
             self.logger.warning(
-                "Could not list uris: %s\n err=%s", self.server_address, err
+                "Could not list uris: %s\n err=%s",
+                self.server_address,
+                err,
             )
-            return []
+        else:
+            return response.uris
+        return []
 
-    # TODO: rename to `request_reply`
     async def request_reply(
-        self, path: str, message: Message, timestamps: list[Timestamp] | None = None
+        self,
+        path: str,
+        message: Message,
+        timestamps: list[Timestamp] | None = None,
     ) -> RequestReplyReply:
         """Sends a request and waits for a reply.
 
@@ -260,25 +278,20 @@ class EventClient:
         # send the request and wait for the reply
         reply: RequestReplyReply = await self.stub.requestReply(request)
         reply.event.timestamps.append(
-            get_monotonic_now(semantics=StampSemantics.CLIENT_SEND)
+            get_monotonic_now(semantics=StampSemantics.CLIENT_SEND),
         )
         return reply
 
 
 async def test_subscribe(client: EventClient, uri: Uri):
-    # print(uri)
-    # return
     async for event, payload in client.subscribe(
-        SubscribeRequest(uri=uri, every_n=1), decode=False
+        SubscribeRequest(uri=uri, every_n=1),
+        decode=False,
     ):
         if not isinstance(payload, bytes):
-            raise TypeError("payload is not bytes")
+            msg = "payload is not bytes"
+            raise TypeError(msg)
         print(client.config.name + event.uri.path, event.sequence, len(payload))
-        # if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
-        # reply = await client.request_reply(event.uri.path, message)
-        # print("reply:", reply)
-        # print(event.uri.path, event.sequence, message, reply.event.sequence)
-        # else:
 
 
 async def test_smoke():

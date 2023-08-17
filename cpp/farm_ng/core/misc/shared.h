@@ -73,16 +73,16 @@ class Shared {
     return FARM_UNWRAP(maybe);
   }
 
-  /// Returns the interior object which is guarenteed to be available
+  /// Returns the interior object which is guaranteed to be available
   TT& operator*() { return *non_null_shared_; }
 
-  /// Returns the interior object which is guarenteed to be available
+  /// Returns the interior object which is guaranteed to be available
   TT const& operator*() const { return *non_null_shared_; }
 
-  /// Returns the interior object which is guarenteed to be available
+  /// Returns the interior object which is guaranteed to be available
   TT* operator->() { return non_null_shared_.get(); }
 
-  /// Returns the interior object which is guarenteed to be available
+  /// Returns the interior object which is guaranteed to be available
   TT const* operator->() const { return non_null_shared_.get(); }
 
   // Implicit conversion to a nullable std::shared_ptr okay

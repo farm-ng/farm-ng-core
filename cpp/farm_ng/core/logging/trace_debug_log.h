@@ -34,7 +34,7 @@ static_assert(FARM_LOG_LEVEL_INFO == int(::farm_ng::LogLevel::info));
 
 // All other log levels (INFO, WARN, CRITICAL,...) and corresponding log macros
 // LOG_INFO, LOG_WARN are always compiled (unless globally disabled).
-// In addition for beeing defined at compile-time, logging must also be enabled
+// In addition for being defined at compile-time, logging must also be enabled
 // at run-time be specifying the appropriate run-time log level using the
 // corresponding logger, such as
 // ``defaultLogger().setLogLevel(LogLevel::trace);``

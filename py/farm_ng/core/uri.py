@@ -1,15 +1,22 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import platform
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from farm_ng.core import uri_pb2
-from google.protobuf.message import Message
+
+if TYPE_CHECKING:
+    from google.protobuf.message import Message
+
+
+def _get_platform_node() -> str:
+    return platform.node()
 
 
 @dataclass
 class PlatformConfig:
-    host_name: str = platform.node()
+    host_name: str = field(default_factory=_get_platform_node)
 
 
 # https://vald-phoenix.github.io/pylint-errors/plerr/errors/variables/W0603.html
@@ -18,7 +25,6 @@ platform_config = PlatformConfig()
 
 def set_host_name(name: str) -> None:
     # global HOST_NAME
-    # HOST_NAME = name
     platform_config.host_name = name
 
 
@@ -53,5 +59,4 @@ def string_to_uri(string: str) -> uri_pb2.Uri:
 
 
 def uri_query_to_dict(uri: uri_pb2.Uri) -> dict[str, str]:
-    query = dict([x.split("=") for x in uri.query.split("&")])
-    return query
+    return dict([x.split("=") for x in uri.query.split("&")])

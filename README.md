@@ -25,7 +25,7 @@ cmake ../super_project
 make -j
 ```
 
-Run pre-commit before commiting changes
+Run pre-commit before committing changes
 
 ```
 pre-commit run -a

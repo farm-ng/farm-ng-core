@@ -1,17 +1,12 @@
 from __future__ import annotations
-import pytest
+
 import asyncio
+
 import grpc
-
+import pytest
+from farm_ng.core.event_service import EventServiceConfig, EventServiceGrpc
 from google.protobuf.wrappers_pb2 import Int32Value, StringValue
-from google.protobuf.message import Message
 
-from farm_ng.core.events_file_reader import payload_to_protobuf
-from farm_ng.core.event_service_pb2 import (
-    EventServiceConfig,
-    RequestReplyRequest,
-)
-from farm_ng.core.event_service import EventServiceGrpc, EventServiceConfig
 from .event_common import event_service_config
 
 
@@ -30,7 +25,7 @@ class TestEventServiceGrpc:
         assert not servicer.counts
         assert servicer.request_reply_handler is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publish(self) -> None:
         # create a service
         event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
@@ -66,7 +61,7 @@ class TestEventServiceGrpc:
         assert event_service.counts["/bar"] == 1
         assert event_service.uris["/bar"].query == message_uri.query
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publish_error(self) -> None:
         # create a service
         event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
@@ -79,14 +74,18 @@ class TestEventServiceGrpc:
 
         # publish a message with a different type
         with pytest.raises(
-            TypeError, match="Message type mismatch: StringValue != Int32Value"
+            TypeError,
+            match="Message type mismatch: StringValue != Int32Value",
         ):
             await event_service.publish(path="/foo", message=Int32Value(value=0))
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_multiple_publishers(self) -> None:
         async def _publish_message(
-            event_service: EventServiceGrpc, path: str, num_messages: int, delay: int
+            event_service: EventServiceGrpc,
+            path: str,
+            num_messages: int,
+            delay: float,
         ) -> bool:
             """Publishes a message to the event service."""
             for i in range(num_messages):
@@ -101,7 +100,7 @@ class TestEventServiceGrpc:
         asyncio.create_task(event_service.serve())
 
         # create multiple publishers
-        async_tasks: list[asyncio.Task] = []
+        async_tasks = []
         async_tasks.append(_publish_message(event_service, "/foo", 2, 0.2))
         async_tasks.append(_publish_message(event_service, "/bar", 3, 0.1))
 

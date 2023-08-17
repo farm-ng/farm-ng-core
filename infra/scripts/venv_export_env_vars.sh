@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Source this file (executing it wont set variables).
+# Source this file (executing it won't set variables).
 # Setup env vars for using libs and binaries in venv/prefix inside.
 # Required for CMake and dynamic library loading on Linux.
 

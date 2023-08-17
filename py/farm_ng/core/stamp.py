@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 from dataclasses import dataclass
 from farm_ng.core.timestamp_pb2 import Timestamp

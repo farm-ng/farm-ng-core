@@ -179,8 +179,8 @@ class EventServiceGrpc:
         """
         # add the timestamps to the event as it passes through the service
         timestamps = timestamps or []
-        timestamps.append(get_monotonic_now(semantics=StampSemantics.DRIVER_SEND))
-        timestamps.append(get_system_clock_now(semantics=StampSemantics.DRIVER_SEND))
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
 
         # create the URI of the message
         uri: Uri = make_proto_uri(path=path, message=message)

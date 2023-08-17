@@ -19,18 +19,20 @@ class StampSemantics:
     CLIENT_RECEIVE = "client/receive"
     # When a gRPC client sends a message to a gRPC server.
     CLIENT_SEND = "client/send"
-    SERVICE_RECEIVE = "service/receive"
-    SERVICE_SEND = "service/send"
     # When a device (e.g., camera) takes a measurement.
     DEVICE_SAMPLE = "device/sample"
     # When a device driver (gRPC service) receives a measurement/message from a device.
     DRIVER_RECEIVE = "driver/receive"
-    # When a device driver (gRPC service) sends a message to a gRPC client.
-    DRIVER_SEND = "driver/send"
     # When a device driver (gRPC service) sends a message to a device.
     DRIVER_TRANSMIT = "driver/transmit"
     # When a message is written to a file on disk.
     FILE_WRITE = "file/write"
+    # When a gRPC service (which may be a device driver) receives a message
+    # from a gRPC client or another gRPC service. This is distinct from DRIVER_RECEIVE,
+    # which is when a device driver receives a message from a device.
+    SERVICE_RECEIVE = "service/receive"
+    # When a gRPC service (which may be a device driver) sends a message
+    SERVICE_SEND = "service/send"
 
 
 def get_monotonic_now(semantics: str) -> Timestamp:

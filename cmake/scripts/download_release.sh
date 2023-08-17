@@ -30,5 +30,5 @@ else
 fi
 
 # Download Release
-VENV_TAR_URL=https://github.com/farm-ng/farm-ng-cmake/releases/download/v.$RELEASE_SHA/venv-$RELEASE_PLATFORM.tar.gz
+VENV_TAR_URL=https://github.com/farm-ng/cmake/releases/download/v.$RELEASE_SHA/venv-$RELEASE_PLATFORM.tar.gz
 curl -L $VENV_TAR_URL > venv.tar.gz

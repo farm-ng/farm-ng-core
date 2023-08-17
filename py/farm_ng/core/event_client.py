@@ -4,7 +4,7 @@ python -m farm_ng.core.event_client --service-config config.json --service-name 
 """
 from __future__ import annotations
 
-from typing import AsyncGenerator, AsyncIterator
+from typing import AsyncIterator, Protocol
 import argparse
 import asyncio
 import logging
@@ -33,6 +33,19 @@ logging.basicConfig(level=logging.INFO)
 
 
 __all__ = ["EventClient"]
+
+
+class EventClientProtocol(Protocol):
+    """Protocol for the gRPC streaming object.
+
+    This is used to make the code more testable.
+    """
+
+    async def read(self) -> SubscribeReply:
+        ...
+
+    def cancel(self) -> None:
+        ...
 
 
 class EventClient:
@@ -129,7 +142,7 @@ class EventClient:
             tuple[Event, Message | bytes]: the event and the payload.
         """
         # the streaming object
-        response_stream: AsyncGenerator[SubscribeRequest, SubscribeReply] | None = None
+        response_stream: EventClientProtocol | None = None
 
         while True:
             # check if we are connected to the server
@@ -145,6 +158,9 @@ class EventClient:
             if response_stream is None and self.stub is not None:
                 # get the streaming object
                 response_stream = self.stub.subscribe(request)
+
+            if response_stream is None:
+                continue
 
             try:
                 # try/except so app doesn't crash on killed service
@@ -169,8 +185,7 @@ class EventClient:
                 yield response.event, payload_to_protobuf(
                     response.event, response.payload
                 )
-            else:
-                yield response.event, response.payload
+            yield response.event, response.payload
 
     async def list_uris(self) -> list[Uri]:
         """Returns the list of uris.
@@ -255,6 +270,7 @@ async def test_subscribe(client: EventClient, uri: Uri):
     async for event, payload in client.subscribe(
         SubscribeRequest(uri=uri, every_n=1), decode=False
     ):
+        assert isinstance(payload, bytes)
         print(client.config.name + event.uri.path, event.sequence, len(payload))
         # if not uri.path.startswith("/request") and not uri.path.startswith("/reply"):
         # reply = await client.request_reply(event.uri.path, message)

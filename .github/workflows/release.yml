@@ -56,8 +56,7 @@ jobs:
 
       - name: Create Archive For Release
         run: |
-           ls -la
-           tar -czvf venv-${{ matrix.os }}.tar.gz venv/prefix
+           tar -czvf venv-${{ matrix.os }}.tar.gz cmake/venv/prefix
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1

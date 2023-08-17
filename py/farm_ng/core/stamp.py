@@ -54,3 +54,17 @@ def timestamp_from_monotonic(semantics: str, stamp: float) -> Timestamp:
         clock_name=get_host_name() + "/monotonic",
         semantics=semantics,
     )
+
+
+def get_stamp_by_semantics(event, semantics: str) -> float | None:
+    """
+    Utility function to get the stamp of a Timestamp by semantics.
+
+    Args:
+        event: farm-ng protobuf event
+        semantics: semantics of the timestamp to get (see StampSemantics)
+    """
+    for timestamp in event.timestamps:
+        if timestamp.semantics == semantics:
+            return timestamp.stamp
+    return None

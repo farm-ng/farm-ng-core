@@ -205,7 +205,7 @@ def get_file_name_base() -> str:
         '2021_08_31_15_54_00_000000_ubuntu'
     """
     return (
-        datetime.now(DATETIME_FORMAT).strftime(DATETIME_FORMAT) + "_" + get_host_name()
+        datetime.now(DEFAULT_TIMEZONE).strftime(DATETIME_FORMAT) + "_" + get_host_name()
     )
 
 

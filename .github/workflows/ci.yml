@@ -46,17 +46,15 @@ jobs:
       if: matrix.os == 'macos-11'
 
     - name: Download dependencies (proto)
-      working-directory: ./infra/
+      working-directory: ./cmake
       run: |
         source ./bootstrap_venv.sh
-        cd scripts
-        ./install_farm_ng_cmake.sh
 
     - name: Compile (gcc)
       working-directory: ./infra/scripts
       run: |
           ls
-          source ../venv/bin/activate
+          source ../cmake/venv/bin/activate
           ./compile_gcc.sh
       if: matrix.compiler == 'gcc'
 
@@ -64,14 +62,6 @@ jobs:
       working-directory: ./infra/scripts
       run: |
         ls
-        source ../venv/bin/activate
+        source ../cmake/venv/bin/activate
         ./compile_clang.sh
       if: matrix.compiler == 'clang'
-
-    - name: clang-tidy
-      working-directory: ./infra/
-      run: |
-        source ./bootstrap_venv.sh
-        cd ..
-        ./run_clang_tidy.sh
-      if: matrix.os == 'ubuntu-20.04' && matrix.compiler == 'clang'

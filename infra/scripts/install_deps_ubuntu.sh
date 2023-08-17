@@ -14,4 +14,5 @@ sudo apt-get install \
   libgoogle-glog-dev \
   libprotobuf-dev \
   protobuf-compiler \
+  libsuitesparse-dev \
   ninja-build

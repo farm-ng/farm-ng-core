@@ -35,7 +35,7 @@ class CaptureStdErr {
   std::streambuf* orig_std_err_buffer_;
 };
 
-// Theses are macros so we see the line number in the test where the error
+// These are macros so we see the line number in the test where the error
 // occurs.
 #define EXPECT_CONTAINS(str, regex)              \
   EXPECT_TRUE(std::regex_search((str), (regex))) \

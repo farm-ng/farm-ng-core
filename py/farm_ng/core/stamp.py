@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.uri import get_host_name
-from farm_ng.core.event_pb2 import Event
+
+if TYPE_CHECKING:
+    from farm_ng.core.event_pb2 import Event
 
 
 @dataclass

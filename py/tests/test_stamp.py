@@ -1,12 +1,12 @@
 from farm_ng.core import timestamp_pb2
+from farm_ng.core.event_pb2 import Event
 from farm_ng.core.stamp import (
+    StampSemantics,
     get_monotonic_now,
     get_stamp_by_semantics,
     get_system_clock_now,
-    StampSemantics,
     timestamp_from_monotonic,
 )
-from farm_ng.core.event_pb2 import Event
 
 
 def test_monotonic():
@@ -36,4 +36,4 @@ def test_get_semantics():
     assert get_stamp_by_semantics(event, StampSemantics.DRIVER_RECEIVE) == 1.23
     assert get_stamp_by_semantics(event, StampSemantics.SERVICE_SEND) == 2.34
     assert get_stamp_by_semantics(event, StampSemantics.CLIENT_RECEIVE) == 3.45
-    assert get_stamp_by_semantics(event, StampSemantics.DRIVER_TRANSMIT) == None
+    assert get_stamp_by_semantics(event, StampSemantics.DRIVER_TRANSMIT) is None

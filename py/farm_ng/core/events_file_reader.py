@@ -1,21 +1,19 @@
 from __future__ import annotations
-import importlib
+
+import argparse
+import json
+import struct
+import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-from typing import cast
-from typing import IO
-from typing import Generator
-from typing import Type
-import struct
-import json
+from typing import IO, TYPE_CHECKING, Any, Generator, cast
 
-from farm_ng.core.uri import uri_query_to_dict
 from farm_ng.core.event_pb2 import Event
-from farm_ng.core.uri_pb2 import Uri
-from google.protobuf.message import Message
+from farm_ng.core.uri import uri_query_to_dict, uri_to_protobuf_type
 from google.protobuf import json_format
-import argparse
+
+if TYPE_CHECKING:
+    from google.protobuf.message import Message
 
 # public symbols
 
@@ -25,15 +23,15 @@ __all__ = [
     "EventLogPosition",
     "proto_from_json_file",
     "payload_to_protobuf",
-    "event_to_protobuf_type",
 ]
 
 
 def proto_from_json_file(
-    file_path: str | Path, empty_proto_message: Message
+    file_path: str | Path,
+    empty_proto_message: Message,
 ) -> Message:
-    """
-    Load a proto Message from a JSON file.
+    """Load a proto Message from a JSON file.
+
     The ``empty_proto_message`` must be the type of the proto message to load.
 
     Args:
@@ -47,15 +45,16 @@ def proto_from_json_file(
         file_path = Path(file_path).absolute()
 
     if not file_path.is_file():
-        raise FileNotFoundError(f"Invalid file: {str(file_path)}")
+        msg = f"Invalid file: {file_path!s}"
+        raise FileNotFoundError(msg)
 
-    with open(file_path, "r", encoding="utf-8") as file:
+    with Path(file_path).open(encoding="utf-8") as file:
         json_pb = json.load(file)
 
     return json_format.ParseDict(json_pb, empty_proto_message)
 
 
-def event_has_message(event: Event, message_type: Type[Any]) -> bool:
+def event_has_message(event: Event, message_type: type[Any]) -> bool:
     """Check if event has a message of type msg_type.
 
     Args:
@@ -70,57 +69,6 @@ def event_has_message(event: Event, message_type: Type[Any]) -> bool:
     return event.uri.query.split("&")[0].split(".")[-1] == message_type.__name__
 
 
-# parse a proto descriptor and extract the message name and package.
-# See: https://developers.google.com/protocol-buffers/docs/reference/python-generated#invocation
-# NOTE: the descriptor comes in the shape of:
-# `type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto`
-
-
-def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
-    """Parse a protobuf descriptor and extract the message name and package.
-
-    Args:
-        uri: uri_pb2.Uri
-
-    Returns:
-        Tuple[str, str]: message name and package
-    """
-    assert uri.scheme == "protobuf"
-    query = uri_query_to_dict(uri)
-    type_split = query.get("type", None)
-    pb_split = query.get("pb", None)
-
-    assert type_split is not None, uri
-    assert pb_split is not None, uri
-
-    type_name = type_split.split(".")[-1]
-    # parse the pb file location and convert to python module extension
-    package_name = pb_split.replace(".proto", "_pb2").replace("/", ".")
-
-    return type_name, package_name
-
-
-def event_to_protobuf_type(event: Event) -> Type[Message]:
-    """Return the protobuf type from an event.
-
-    Args:
-        event: event_pb2.Event
-
-    Returns:
-        Type[Message]: the protobuf type
-
-    Example:
-        >>> event = Event()
-        >>> event.uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
-        >>> event_to_protobuf_type(event)
-        <class 'farm_ng.core.timestamp_pb2.Timestamp'>
-    """
-    name: str
-    package: str
-    name, package = _parse_protobuf_descriptor(event.uri)
-    return getattr(importlib.import_module(package), name)
-
-
 def payload_to_protobuf(event: Event, payload: bytes) -> Message:
     """Return the protobuf message from an event and payload.
 
@@ -131,7 +79,7 @@ def payload_to_protobuf(event: Event, payload: bytes) -> Message:
     Returns:
         Message: the protobuf message
     """
-    message_cls: Type[Message] = event_to_protobuf_type(event)
+    message_cls: type[Message] = uri_to_protobuf_type(event.uri)
 
     message: Message = message_cls()
     message.ParseFromString(payload)
@@ -142,7 +90,7 @@ def payload_to_protobuf(event: Event, payload: bytes) -> Message:
 class EventLogPosition:
     """EventLogPosition is a dataclass that stores the event, position and reader."""
 
-    def __init__(self, event: Event, pos: int, reader: "EventsFileReader") -> None:
+    def __init__(self, event: Event, pos: int, reader: EventsFileReader) -> None:
         """Initialize EventLogPosition.
 
         Args:
@@ -166,6 +114,8 @@ class EventLogPosition:
 class EventsFileReader:
     """EventsFileReader reads events from a file."""
 
+    EVENTS_LENGTH_BYTES: int = 4
+
     def __init__(self, file_name: str | Path) -> None:
         """Initialize EventsFileReader.
 
@@ -175,7 +125,9 @@ class EventsFileReader:
         if isinstance(file_name, str):
             file_name = Path(file_name)
         self._file_name: Path = file_name.absolute()
-        assert self._file_name.exists(), self._file_name
+        if not self._file_name.is_file():
+            msg = f"Invalid file: {self._file_name!s}"
+            raise FileNotFoundError(msg)
 
         self._file_stream: IO | None = None
         self._file_length: int = 0
@@ -183,13 +135,15 @@ class EventsFileReader:
         # store index of events in a list to seek faster
         self._events_index: list[EventLogPosition] = []
 
-    def __enter__(self) -> "EventsFileReader":
+    def __enter__(self) -> EventsFileReader:
         """Open the file and return the EventsFileReader instance."""
-        assert self.open()
+        success: bool = self.open()
+        if not success:
+            msg = "Failed to open file"
+            raise OSError(msg)
         return self
 
-    # pylint: disable=redefined-builtin
-    def __exit__(self, type: Any, value: Any, traceback: Any) -> None:
+    def __exit__(self, type: object, value: object, traceback: object) -> None:
         """Close the file."""
         self.close()
 
@@ -197,10 +151,10 @@ class EventsFileReader:
         """Return a string representation of the EventsFileReader."""
         return "\n".join(
             [
-                f"file_name: {str(self.file_name)}",
+                f"file_name: {self.file_name!s}",
                 f"file_stream: {self._file_stream}",
                 f"is_open: {self.is_open()}",
-            ]
+            ],
         )
 
     @property
@@ -234,7 +188,7 @@ class EventsFileReader:
         Returns:
             bool: True if successful
         """
-        self._file_stream = open(self._file_name, "rb")
+        self._file_stream = Path(self._file_name).open("rb")
         self._file_length = self._file_name.stat().st_size
         return self.is_open()
 
@@ -262,15 +216,16 @@ class EventsFileReader:
             EventLogPosition: the event, position and reader
         """
         file_stream = cast(IO, self._file_stream)
-        buffer = file_stream.read(4)
-        if len(buffer) != 4:
-            raise EOFError()
+        buffer = file_stream.read(self.EVENTS_LENGTH_BYTES)
+        if len(buffer) != self.EVENTS_LENGTH_BYTES:
+            msg = f"Failed to read {self.EVENTS_LENGTH_BYTES} bytes"
+            raise EOFError(msg)
 
         # read the event length, then the event
         event_len = struct.unpack("<I", buffer)[0]
         event_bytes: bytes = file_stream.read(event_len)
         if len(event_bytes) != event_len:
-            raise EOFError()
+            raise EOFError
         event = Event()
         event.ParseFromString(event_bytes)
         query = uri_query_to_dict(event.uri)
@@ -286,7 +241,8 @@ class EventsFileReader:
     def _build_events_index(self) -> None:
         """Build the index of events in the file."""
         if not self.is_open():
-            raise IOError("Reader not open. Please, use reader.open()")
+            msg = "Reader not open. Please, use reader.open()"
+            raise OSError(msg)
 
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(0)
@@ -323,7 +279,7 @@ class EventsFileReader:
         file_stream.seek(event_log.pos, 0)
         payload: bytes = file_stream.read(event_log.event.payload_length)
         if len(payload) != event_log.event.payload_length:
-            raise EOFError()
+            raise EOFError
         return payload_to_protobuf(event_log.event, payload)
 
     def read(self) -> tuple[Event, Message]:
@@ -332,7 +288,10 @@ class EventsFileReader:
         Returns:
             tuple[Event, Message]: the event and message
         """
-        assert self.is_open()
+        if not self.is_open():
+            msg = "Reader not open. Please, use reader.open()"
+            raise OSError(msg)
+
         event_log: EventLogPosition = self.read_next_event()
         return event_log.event, self.read_message(event_log)
 
@@ -342,6 +301,10 @@ class EventsFileReader:
         Yields:
             Generator[tuple[Event, Message], None, None]: the event and message
         """
+        if self._file_stream is None:
+            msg = "Reader not open. Please, use reader.open()"
+            raise OSError(msg)
+
         self._file_stream.seek(0)
         try:
             while True:
@@ -353,7 +316,7 @@ class EventsFileReader:
 
 def playback_command(args):
     with EventsFileReader(args.events_file) as reader:
-        for event, message in reader.read_messages():
+        for event, _ in reader.read_messages():
             # Note you can find the originating service from uri query string
             query = uri_query_to_dict(event.uri)
             service_name = query.get("service_name", "")

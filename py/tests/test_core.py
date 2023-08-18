@@ -7,7 +7,6 @@ from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 from farm_ng.core.events_file_reader import (
     EventLogPosition,
     EventsFileReader,
-    _parse_protobuf_descriptor,
     event_has_message,
     proto_from_json_file,
 )
@@ -163,16 +162,6 @@ class TestEventsReader:
         assert not reader.is_closed()
         assert reader.is_open()
         assert reader.close()
-
-    def test_parse_proto_descriptor(self):
-        uri = uri_pb2.Uri(
-            scheme="protobuf",
-            path="tik/tok",
-            query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto",
-        )
-        name, package = _parse_protobuf_descriptor(uri)
-        assert name == "Timestamp"
-        assert package == "farm_ng.core.timestamp_pb2"
 
     def test_write_read(self, log_base: Path, reader_log_file: Path) -> None:
         num_events = 10

@@ -1,0 +1,10 @@
+build
+CMakeLists.txt.user
+*.pyc
+.vscode/settings.json
+clang-tidy-build/
+.eggs
+*~
+html-dir
+docs/c++-api/html
+docs/c++-api/doxygen-awesome-css

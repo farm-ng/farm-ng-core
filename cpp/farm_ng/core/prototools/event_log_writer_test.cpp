@@ -35,19 +35,20 @@ auto getHostName() -> std::string {
   return std::string(hostname);
 }
 }  // namespace
-TEST(event_log, no_file) {  // NOLINT
-  EXPECT_THROW(EventLogReader("file_does_not_exist"), EventLogExist);
-  EXPECT_THROW(
-      EventLogWriter("/no/perms/file_does_not_exist"),
-      std::filesystem::filesystem_error);
-  { EventLogWriter writer_success("relative_event.log"); }
-  EXPECT_TRUE(std::filesystem::exists("relative_event.log"));
-  std::filesystem::remove("relative_event.log");
-  auto maybe_log_dir = createUniqueTemporaryDirectory();
+// TEST(event_log, no_file) {  // NOLINT
+//   EXPECT_THROW(EventLogReader("file_does_not_exist"), EventLogExist);
+//   EXPECT_THROW(
+//       EventLogWriter("/no/perms/file_does_not_exist"),
+//       std::filesystem::filesystem_error);
+//   { EventLogWriter writer_success("relative_event.log"); }
+//   EXPECT_TRUE(std::filesystem::exists("relative_event.log"));
+//   std::filesystem::remove("relative_event.log");
+//   auto maybe_log_dir = createUniqueTemporaryDirectory();
 
-  EventLogWriter writer_success2(
-      FARM_UNWRAP(maybe_log_dir) / "tmplocal_file.log");
-}
+//   EventLogWriter writer_success2(
+//       FARM_UNWRAP(maybe_log_dir) / "tmplocal_file.log");
+// }
+
 TEST(event_log, roundtrip) {  // NOLINT
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);

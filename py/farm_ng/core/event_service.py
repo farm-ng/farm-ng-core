@@ -113,6 +113,7 @@ class EventServiceGrpc:
 
         # the stats of the URIs, to keep track of dropped messages and other stats
         self._uris_stats: dict[str, _UriStats] = defaultdict(_UriStats)
+        self._latched_events: dict[str, SubscribeReply] = {}
 
         # the request/reply handler
         self._request_reply_handler: Callable | None = None
@@ -175,6 +176,7 @@ class EventServiceGrpc:
         path: str,
         message: Message,
         timestamps: list[Timestamp] | None = None,
+        latch: bool = False,
     ) -> PublishResult:
         """Publish a message to the service.
 
@@ -185,15 +187,20 @@ class EventServiceGrpc:
         """
         # add the timestamps to the event as it passes through the service
         timestamps = timestamps or []
-        timestamps.append(get_monotonic_now(semantics=StampSemantics.DRIVER_SEND))
-        timestamps.append(get_system_clock_now(semantics=StampSemantics.DRIVER_SEND))
+        timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
+        timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
 
         # create the URI of the message
         uri: Uri = make_proto_uri(path=path, message=message)
         uri.query += f"&service_name={self.config.name}"
 
         # send the message to the service
-        result = await self._send_raw(uri=uri, message=message, timestamps=timestamps)
+        result = await self._send_raw(
+            uri=uri,
+            message=message,
+            timestamps=timestamps,
+            latch=latch,
+        )
 
         return PublishResult(**result)
 
@@ -222,6 +229,9 @@ class EventServiceGrpc:
         context: grpc.aio.ServicerContext,
     ) -> AsyncIterator[SubscribeReply]:
         """Implementation of grpc rpc subscribe"""
+
+        if request.uri.path in self._latched_events:
+            yield self._latched_events[request.uri.path]
 
         # create a queue for this client
         request_queue: tuple[SubscribeRequest, asyncio.Queue] = (
@@ -291,7 +301,12 @@ class EventServiceGrpc:
 
     # private methods
 
-    async def _publish_event_payload(self, event: Event, payload: bytes) -> int:
+    async def _publish_event_payload(
+        self,
+        event: Event,
+        payload: bytes,
+        latch=False,
+    ) -> int:
         """Send an event and payload to the clients.
 
         Args:
@@ -310,6 +325,8 @@ class EventServiceGrpc:
             event=event,
             payload=payload,
         )
+        if latch:
+            self._latched_events[uri.path] = reply
 
         # get client queues for the URI
         client_queues: list[tuple[SubscribeRequest, asyncio.Queue]]
@@ -355,6 +372,7 @@ class EventServiceGrpc:
         uri: Uri,
         message: Message,
         timestamps: list[Timestamp],
+        latch: bool,
     ) -> dict[str, int]:
         """Send a message to the service.
 
@@ -402,7 +420,11 @@ class EventServiceGrpc:
 
         return {
             "sequence_number": count,
-            "number_clients": await self._publish_event_payload(event, payload),
+            "number_clients": await self._publish_event_payload(
+                event=event,
+                payload=payload,
+                latch=latch,
+            ),
         }
 
 

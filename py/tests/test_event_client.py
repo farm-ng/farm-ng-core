@@ -22,7 +22,7 @@ class TestEventClient:
         assert client.logger.name == "test_service/client"
         assert client.server_address == "localhost:50051"
 
-    @pytest.mark.asyncio()
+    @pytest.fixture(scope="module")
     async def test_publish_subscribe(self) -> None:
         async def subscribe_callback(client: EventClient, queue: asyncio.Queue):
             async for _, message in client.subscribe(

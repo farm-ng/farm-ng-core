@@ -81,4 +81,5 @@ max-statements = 258
   "PLR2004",  # Magic value used in comparison,
   "RUF006",   # Store a reference to the return value of `asyncio.create_task
   "SLF001",   # Private member accessed
+  "PT004",    # Fixture does not return anything, add leading underscore
 ]

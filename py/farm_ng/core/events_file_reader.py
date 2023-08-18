@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import importlib
 import json
 import struct
 import sys
@@ -10,11 +9,10 @@ from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Generator, cast
 
 from farm_ng.core.event_pb2 import Event
-from farm_ng.core.uri import uri_query_to_dict
+from farm_ng.core.uri import uri_query_to_dict, uri_to_protobuf_type
 from google.protobuf import json_format
 
 if TYPE_CHECKING:
-    from farm_ng.core.uri_pb2 import Uri
     from google.protobuf.message import Message
 
 # public symbols
@@ -25,7 +23,6 @@ __all__ = [
     "EventLogPosition",
     "proto_from_json_file",
     "payload_to_protobuf",
-    "event_to_protobuf_type",
 ]
 
 
@@ -33,8 +30,8 @@ def proto_from_json_file(
     file_path: str | Path,
     empty_proto_message: Message,
 ) -> Message:
-    """
-    Load a proto Message from a JSON file.
+    """Load a proto Message from a JSON file.
+
     The ``empty_proto_message`` must be the type of the proto message to load.
 
     Args:
@@ -72,65 +69,6 @@ def event_has_message(event: Event, message_type: type[Any]) -> bool:
     return event.uri.query.split("&")[0].split(".")[-1] == message_type.__name__
 
 
-# parse a proto descriptor and extract the message name and package.
-# See: https://developers.google.com/protocol-buffers/docs/reference/python-generated#invocation
-# NOTE: the descriptor comes in the shape of:
-# `type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto`
-
-
-def _parse_protobuf_descriptor(uri: Uri) -> tuple[str, str]:
-    """Parse a protobuf descriptor and extract the message name and package.
-
-    Args:
-        uri: uri_pb2.Uri
-
-    Returns:
-        Tuple[str, str]: message name and package
-    """
-    if uri.scheme != "protobuf":
-        msg = f"Invalid uri scheme: {uri.scheme}"
-        raise ValueError(msg)
-
-    query = uri_query_to_dict(uri)
-    type_split = query.get("type", None)
-    pb_split = query.get("pb", None)
-
-    if type_split is None:
-        msg = f"Invalid uri query: {uri.query}"
-        raise ValueError(msg)
-
-    if pb_split is None:
-        msg = f"Invalid uri query: {uri.query}"
-        raise ValueError(msg)
-
-    type_name = type_split.split(".")[-1]
-    # parse the pb file location and convert to python module extension
-    package_name = pb_split.replace(".proto", "_pb2").replace("/", ".")
-
-    return type_name, package_name
-
-
-def event_to_protobuf_type(event: Event) -> type[Message]:
-    """Return the protobuf type from an event.
-
-    Args:
-        event: event_pb2.Event
-
-    Returns:
-        Type[Message]: the protobuf type
-
-    Example:
-        >>> event = Event()
-        >>> event.uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
-        >>> event_to_protobuf_type(event)
-        <class 'farm_ng.core.timestamp_pb2.Timestamp'>
-    """
-    name: str
-    package: str
-    name, package = _parse_protobuf_descriptor(event.uri)
-    return getattr(importlib.import_module(package), name)
-
-
 def payload_to_protobuf(event: Event, payload: bytes) -> Message:
     """Return the protobuf message from an event and payload.
 
@@ -141,7 +79,7 @@ def payload_to_protobuf(event: Event, payload: bytes) -> Message:
     Returns:
         Message: the protobuf message
     """
-    message_cls: type[Message] = event_to_protobuf_type(event)
+    message_cls: type[Message] = uri_to_protobuf_type(event.uri)
 
     message: Message = message_cls()
     message.ParseFromString(payload)

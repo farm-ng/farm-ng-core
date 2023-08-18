@@ -179,7 +179,7 @@ class EventClient:
                 # try/except so app doesn't crash on killed service
                 response: SubscribeReply = await response_stream.read()
                 response.event.timestamps.append(
-                    get_monotonic_now(StampSemantics.DRIVER_RECEIVE),
+                    get_monotonic_now(StampSemantics.CLIENT_RECEIVE),
                 )
                 _check_valid_response(response)
             except grpc.RpcError as exc:
@@ -278,7 +278,7 @@ class EventClient:
         # send the request and wait for the reply
         reply: RequestReplyReply = await self.stub.requestReply(request)
         reply.event.timestamps.append(
-            get_monotonic_now(semantics=StampSemantics.CLIENT_SEND),
+            get_monotonic_now(semantics=StampSemantics.CLIENT_RECEIVE),
         )
         return reply
 

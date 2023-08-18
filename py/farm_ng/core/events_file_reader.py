@@ -69,27 +69,6 @@ def event_has_message(event: Event, message_type: type[Any]) -> bool:
     return event.uri.query.split("&")[0].split(".")[-1] == message_type.__name__
 
 
-# def event_to_protobuf_type(event: Event) -> type[Message]:
-#    """Return the protobuf type from an event.
-#
-#    Args:
-#        event: event_pb2.Event
-#
-#    Returns:
-#        Type[Message]: the protobuf type
-#
-#    Example:
-#        >>> event = Event()
-#        >>> event.uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
-#        >>> event_to_protobuf_type(event)
-#        <class 'farm_ng.core.timestamp_pb2.Timestamp'>
-#    """
-#    name: str
-#    package: str
-#    name, package = _parse_protobuf_descriptor(event.uri)
-#    return getattr(importlib.import_module(package), name)
-
-
 def payload_to_protobuf(event: Event, payload: bytes) -> Message:
     """Return the protobuf message from an event and payload.
 

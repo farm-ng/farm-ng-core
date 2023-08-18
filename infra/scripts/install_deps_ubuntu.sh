@@ -12,6 +12,6 @@ sudo apt-get install \
   libc++-dev \
   libgtest-dev \
   libgoogle-glog-dev \
-  libprotobuf-dev \
-  protobuf-compiler \
+  libatlas-base-dev \
+  libsuitesparse-dev \
   ninja-build

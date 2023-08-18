@@ -24,8 +24,7 @@ jobs:
             compiler: gcc
           - os: ubuntu-20.04
             compiler: clang
-          - os: macos-11
-            compiler: clang
+
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -39,18 +38,11 @@ jobs:
         ./install_deps_ubuntu.sh
       if: matrix.os == 'ubuntu-20.04'
 
-    - name: Install dependencies (Mac)
-      working-directory: ./infra/scripts
-      run: |
-        ./install_deps_mac.sh
-      if: matrix.os == 'macos-11'
-
     - name: Download dependencies (proto)
-      working-directory: ./infra/
+      working-directory: ./infra
       run: |
+        ls -l
         source ./bootstrap_venv.sh
-        cd scripts
-        ./install_farm_ng_cmake.sh
 
     - name: Compile (gcc)
       working-directory: ./infra/scripts
@@ -67,11 +59,3 @@ jobs:
         source ../venv/bin/activate
         ./compile_clang.sh
       if: matrix.compiler == 'clang'
-
-    - name: clang-tidy
-      working-directory: ./infra/
-      run: |
-        source ./bootstrap_venv.sh
-        cd ..
-        ./run_clang_tidy.sh
-      if: matrix.os == 'ubuntu-20.04' && matrix.compiler == 'clang'

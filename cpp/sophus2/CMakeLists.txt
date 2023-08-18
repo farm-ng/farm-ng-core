@@ -3,12 +3,16 @@ project(Sophus VERSION 2.0.0)
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
+list(APPEND CMAKE_MODULE_PATH
+    ${CMAKE_CURRENT_LIST_DIR})
 
-find_package(farm_ng_cmake 0.1.0 REQUIRED)
+
+set(farm_ng_cmake_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/cmake)
+include(${farm_ng_cmake_DIR}/farm_ng_cmakeConfig.cmake)
 farm_ng_module()
 
+
 find_package(Eigen3 3.4.0 REQUIRED)
-find_package(farm_ng_core 0.1.0 REQUIRED)
 
 
 # Determine if sophus is built as a subproject (using add_subdirectory)
@@ -51,7 +55,3 @@ endif()
 
 
 add_subdirectory(cpp)
-
-farm_ng_export_module(
-  NAME Sophus
-  REQUIRED_DEPS farm_ng_core fmt)

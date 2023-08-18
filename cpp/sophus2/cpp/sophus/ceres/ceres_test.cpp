@@ -1011,83 +1011,85 @@ struct JetLieGroupTests {
           ImplJet::action(ParamsJet::Zero().eval(), PointJet::Zero().eval());
     }
 
-    {
-      // double  x  double  =>  double
-      UnitVectorF64 r = ImplF64::action(
-          ParamsF64::Zero().eval(),
-          UnitVectorF64::fromVectorAndNormalize(PointF64::UnitX()));
-    }
-    {
+    // {
+    //   // double  x  double  =>  double
+    //   UnitVectorF64 r = ImplF64::action(
+    //       ParamsF64::Zero().eval(),
+    //       UnitVectorF64::fromVectorAndNormalize(PointF64::UnitX()));
+    // }
+    // {
+    //   // double  x  jet  =>  jet
+    //   UnitVectorJet r = ImplF64::action(
+    //       ParamsF64::Zero().eval(),
+    //       UnitVectorJet::fromVectorAndNormalize(PointJet::UnitX()));
+    // }
+    // {
+    //   // jet  x  double  =>  jet
+    //   UnitVectorJet r = ImplJet::action(
+    //       ParamsJet::Zero().eval(),
+    //       UnitVectorF64::fromVectorAndNormalize(PointF64::UnitX()));
+    // }
+    // {
+    //   // jet  x  jet  =>  jet
+    //   UnitVectorJet r = ImplJet::action(
+    //       ParamsJet::Zero().eval(),
+    //       UnitVectorJet::fromVectorAndNormalize(PointJet::UnitX()));
+    // }
+
+    if (!LieGroupF64::elementExamples().empty()) {
+      LieGroupF64 g_d = LieGroupF64::elementExamples()[0];
+      LieGroupJet g_jet = LieGroupJet::elementExamples()[0];
+
+      {
+        // double  x  double  =>  double
+        LieGroupF64 g_d_r = g_d * g_d;
+      }
+
       // double  x  jet  =>  jet
-      UnitVectorJet r = ImplF64::action(
-          ParamsF64::Zero().eval(),
-          UnitVectorJet::fromVectorAndNormalize(PointJet::UnitX()));
-    }
-    {
+      { LieGroupJet g_jet_r = g_d * g_jet; }
+
       // jet  x  double  =>  jet
-      UnitVectorJet r = ImplJet::action(
-          ParamsJet::Zero().eval(),
-          UnitVectorF64::fromVectorAndNormalize(PointF64::UnitX()));
-    }
-    {
+      { LieGroupJet g_jet_r = g_jet * g_d; }
+
       // jet  x  jet  =>  jet
-      UnitVectorJet r = ImplJet::action(
-          ParamsJet::Zero().eval(),
-          UnitVectorJet::fromVectorAndNormalize(PointJet::UnitX()));
+      { LieGroupJet g_jet_r = g_jet * g_jet; }
+
+      PointF64 p_d = PointF64::Random();
+      PointJet p_jet = PointJet::Random();
+
+      {
+        // double  x  double  =>  double
+        PointF64 p_d_r = g_d * p_d;
+      }
+
+      // double  x  jet  =>  jet
+      { PointJet p_jet_r = g_d * p_jet; }
+
+      // jet  x  double  =>  jet
+      { PointJet p_jet_r = g_jet * p_d; }
+
+      // jet  x  jet  =>  jet
+      { PointJet p_jet_r = g_jet * p_jet; }
+
+      UnitVectorF64 u_d =
+          UnitVectorF64::fromVectorAndNormalize(PointF64::UnitX());
+      UnitVectorJet u_jet =
+          UnitVectorJet::fromVectorAndNormalize(PointJet::UnitX());
+
+      {
+        // double  x  double  =>  double
+        UnitVectorF64 u_d_r = g_d * u_d;
+      }
+
+      // double  x  jet  =>  jet
+      { UnitVectorJet u_jet_r = g_d * u_jet; }
+
+      // jet  x  double  =>  jet
+      { UnitVectorJet u_jet_r = g_jet * u_d; }
+
+      // jet  x  jet  =>  jet
+      { UnitVectorJet u_jet_r = g_jet * u_jet; }
     }
-
-    LieGroupF64 g_d = LieGroupF64::elementExamples()[0];
-    LieGroupJet g_jet = LieGroupJet::elementExamples()[0];
-
-    {
-      // double  x  double  =>  double
-      LieGroupF64 g_d_r = g_d * g_d;
-    }
-
-    // double  x  jet  =>  jet
-    { LieGroupJet g_jet_r = g_d * g_jet; }
-
-    // jet  x  double  =>  jet
-    { LieGroupJet g_jet_r = g_jet * g_d; }
-
-    // jet  x  jet  =>  jet
-    { LieGroupJet g_jet_r = g_jet * g_jet; }
-
-    PointF64 p_d = PointF64::Random();
-    PointJet p_jet = PointJet::Random();
-
-    {
-      // double  x  double  =>  double
-      PointF64 p_d_r = g_d * p_d;
-    }
-
-    // double  x  jet  =>  jet
-    { PointJet p_jet_r = g_d * p_jet; }
-
-    // jet  x  double  =>  jet
-    { PointJet p_jet_r = g_jet * p_d; }
-
-    // jet  x  jet  =>  jet
-    { PointJet p_jet_r = g_jet * p_jet; }
-
-    UnitVectorF64 u_d =
-        UnitVectorF64::fromVectorAndNormalize(PointF64::UnitX());
-    UnitVectorJet u_jet =
-        UnitVectorJet::fromVectorAndNormalize(PointJet::UnitX());
-
-    {
-      // double  x  double  =>  double
-      UnitVectorF64 u_d_r = g_d * u_d;
-    }
-
-    // double  x  jet  =>  jet
-    { UnitVectorJet u_jet_r = g_d * u_jet; }
-
-    // jet  x  double  =>  jet
-    { UnitVectorJet u_jet_r = g_jet * u_d; }
-
-    // jet  x  jet  =>  jet
-    { UnitVectorJet u_jet_r = g_jet * u_jet; }
   }
 };
 

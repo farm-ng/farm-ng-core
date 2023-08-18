@@ -14,7 +14,7 @@ from .event_common import event_service_config
 
 
 class TestEventServiceGrpc:
-    @pytest.mark.asyncio()
+    @pytest.fixture(scope="module")
     async def test_smoke(self) -> None:
         server = grpc.aio.server()
         # create a service
@@ -35,7 +35,7 @@ class TestEventServiceGrpc:
 
         # await server.stop(grace=0.5)
 
-    @pytest.mark.asyncio()
+    @pytest.fixture(scope="module")
     async def test_publish(self) -> None:
         server = grpc.aio.server()
         # create a service
@@ -74,7 +74,7 @@ class TestEventServiceGrpc:
 
         # await server.stop(grace=0.5)
 
-    @pytest.mark.asyncio()
+    @pytest.fixture(scope="module")
     async def test_publish_error(self) -> None:
         server = grpc.aio.server()
         # create a service
@@ -95,7 +95,7 @@ class TestEventServiceGrpc:
 
         # await server.stop(grace=0.5)
 
-    @pytest.mark.asyncio()
+    @pytest.fixture(scope="module")
     async def test_multiple_publishers(self) -> None:
         async def _publish_message(
             event_service: EventServiceGrpc,
@@ -129,7 +129,7 @@ class TestEventServiceGrpc:
 
         # await server.stop(grace=0.5)
 
-    @pytest.mark.asyncio()
+    @pytest.fixture(scope="module")
     async def test_latch(self) -> None:
         await asyncio.sleep(0.1)
         print("starting test_latch")

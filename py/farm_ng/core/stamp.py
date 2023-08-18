@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass
 from farm_ng.core.timestamp_pb2 import Timestamp
 from farm_ng.core.uri import get_host_name
+from farm_ng.core.event_pb2 import Event
 
 
 @dataclass
@@ -60,7 +61,7 @@ def timestamp_from_monotonic(semantics: str, stamp: float) -> Timestamp:
     )
 
 
-def get_stamp_by_semantics(event, semantics: str) -> float | None:
+def get_stamp_by_semantics(event: Event, semantics: str) -> float | None:
     """
     Utility function to get the stamp of a Timestamp by semantics.
 

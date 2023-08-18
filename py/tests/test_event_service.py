@@ -4,16 +4,24 @@ import asyncio
 
 import grpc
 import pytest
-from farm_ng.core.event_service import EventServiceConfig, EventServiceGrpc
+from farm_ng.core.event_client import EventClient
+from farm_ng.core.event_service import EventServiceGrpc
+from farm_ng.core.event_service_pb2 import EventServiceConfig, SubscribeRequest
+from farm_ng.core.uri_pb2 import Uri
 from google.protobuf.wrappers_pb2 import Int32Value, StringValue
 
 from .event_common import event_service_config
 
 
 class TestEventServiceGrpc:
-    def test_smoke(self) -> None:
-        config: EventServiceConfig = event_service_config()
-        servicer: EventServiceGrpc = EventServiceGrpc(grpc.aio.server(), config)
+    @pytest.mark.asyncio()
+    async def test_smoke(self) -> None:
+        server = grpc.aio.server()
+        # create a service
+        servicer = EventServiceGrpc(server=server, config=event_service_config())
+
+        config: EventServiceConfig = servicer.config
+
         assert servicer is not None
         assert servicer.QUEUE_MAX_SIZE == 10
         assert servicer.server is not None
@@ -25,10 +33,13 @@ class TestEventServiceGrpc:
         assert not servicer.counts
         assert servicer.request_reply_handler is None
 
+        # await server.stop(grace=0.5)
+
     @pytest.mark.asyncio()
     async def test_publish(self) -> None:
+        server = grpc.aio.server()
         # create a service
-        event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
+        event_service = EventServiceGrpc(server=server, config=event_service_config())
 
         # start the server
         asyncio.create_task(event_service.serve())
@@ -61,10 +72,13 @@ class TestEventServiceGrpc:
         assert event_service.counts["/bar"] == 1
         assert event_service.uris["/bar"].query == message_uri.query
 
+        # await server.stop(grace=0.5)
+
     @pytest.mark.asyncio()
     async def test_publish_error(self) -> None:
+        server = grpc.aio.server()
         # create a service
-        event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
+        event_service = EventServiceGrpc(server=server, config=event_service_config())
 
         # start the server
         asyncio.create_task(event_service.serve())
@@ -78,6 +92,8 @@ class TestEventServiceGrpc:
             match="Message type mismatch: StringValue != Int32Value",
         ):
             await event_service.publish(path="/foo", message=Int32Value(value=0))
+
+        # await server.stop(grace=0.5)
 
     @pytest.mark.asyncio()
     async def test_multiple_publishers(self) -> None:
@@ -93,8 +109,10 @@ class TestEventServiceGrpc:
                 await asyncio.sleep(delay)
             return True
 
+        server = grpc.aio.server()
+
         # create a service
-        event_service = EventServiceGrpc(grpc.aio.server(), event_service_config())
+        event_service = EventServiceGrpc(server=server, config=event_service_config())
 
         # start the server
         asyncio.create_task(event_service.serve())
@@ -108,6 +126,53 @@ class TestEventServiceGrpc:
         assert res == [True, True]
         assert event_service.counts["/foo"] == 2
         assert event_service.counts["/bar"] == 3
+
+        # await server.stop(grace=0.5)
+
+    @pytest.mark.asyncio()
+    async def test_latch(self) -> None:
+        await asyncio.sleep(0.1)
+        print("starting test_latch")
+
+        config = EventServiceConfig(
+            name="test_latch",
+            port=50051,
+            host="localhost",
+            log_level=EventServiceConfig.LogLevel.DEBUG,
+        )
+
+        server = grpc.aio.server()
+        # create a service
+        event_service = EventServiceGrpc(server, config=config)
+
+        # start the server
+        asyncio.create_task(event_service.serve())
+
+        await asyncio.sleep(0.1)
+
+        await event_service.publish(
+            path="/latchy",
+            message=Int32Value(value=42),
+            latch=True,
+        )
+        print("published latch")
+
+        await asyncio.sleep(0.1)
+        client: EventClient = EventClient(config=config)
+
+        async for _, message in client.subscribe(
+            request=SubscribeRequest(
+                uri=Uri(path="/latchy"),
+                every_n=1,
+            ),
+            decode=True,
+        ):
+            assert isinstance(message, Int32Value)
+            print(message)
+            assert message.value == 42
+            break
+
+        # await server.stop(grace=0.5)
 
     @pytest.mark.skip(reason="TODO: implement me")
     def test_list_uris(self) -> None:

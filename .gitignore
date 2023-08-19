@@ -2,3 +2,4 @@ build
 venv
 .pytest_cache
 .eggs
+.DS_Store

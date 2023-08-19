@@ -1,0 +1,43 @@
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+syntax = "proto3";
+
+import "sophus/linalg.proto";
+
+package sophus.proto;
+
+message QuaternionF64 {
+  Vec3F64 imag = 1;
+  double real = 2;
+}
+
+message Rotation2F64 {
+  double theta = 1;
+}
+
+message Isometry2F64 {
+  Rotation2F64 rotation = 1;
+  Vec2F64 translation = 2;
+}
+
+message Rotation3F64 {
+  // Quaternion which is required to be unit length.
+  QuaternionF64 unit_quaternion = 1;
+}
+
+message Isometry3F64 {
+  Rotation3F64 rotation = 1;
+  Vec3F64 translation = 2;
+}

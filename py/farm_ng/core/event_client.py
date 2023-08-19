@@ -199,7 +199,8 @@ class EventClient:
                     response.event,
                     response.payload,
                 )
-            yield response.event, response.payload
+            else:
+                yield response.event, response.payload
 
     async def list_uris(self) -> list[Uri]:
         """Returns the list of uris.

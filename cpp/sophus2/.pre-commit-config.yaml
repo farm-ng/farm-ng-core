@@ -1,0 +1,62 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    - id: black
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+        exclude: thirdparty/.*$
+      - id: check-yaml
+      - id: check-json
+        exclude: docs/
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.1.13
+    hooks:
+      - id: insert-license
+        files: \.(h|hpp|cpp|proto)$
+        exclude: (py|thirdparty|py/sympy/cpp_gencode)/.*$
+        args:
+          - --comment-style
+          - //
+          - --license-filepath
+          - license_header.txt
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v14.0.0
+    hooks:
+      - id: clang-format
+        files: \.(h|hpp|cpp)$
+        exclude: (py|thirdparty)/.*$
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: b367d44fc93cb994af9d18b9578861478755ad0e
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, ci, build, chore, revert, bot]
+  - repo: local
+    hooks:
+      - id: pragma-once
+        name: pragma once check
+        entry: "#pragma once"
+        language: pygrep
+        files: \.(h|hpp)$
+        args: [--negate]
+        exclude: (py|thirdparty)/.*$
+      - id: no-c-std-lib
+        name: c standard library check
+        entry: |
+          (?x)<(
+            assert|complex|ctype|errno|fenv|float|inttypes|iso646|limits|locale|math|setjmp|signal|
+            stdalign|stdarg|stdatomic|stdbool|stddef|stdint|stdio|stdlib|stdnoreturn|string|tgmath|
+            threads|time|uchar|wchar|wctype
+          ).h>
+        language: pygrep
+        files: \.(h|hpp|cpp)$
+        exclude: (py|thirdparty/.*$)
+ci:
+    autofix_commit_msg: |
+        bot: auto fixes from pre-commit.com hooks
+
+        for more information, see https://pre-commit.ci

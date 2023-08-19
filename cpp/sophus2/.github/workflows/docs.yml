@@ -1,0 +1,34 @@
+on:
+  push:
+    branches: [ main, sophus2-docs, sophus2 ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+      fail-fast: false
+
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - name: Install docusaurus dependencies
+        working-directory: docs
+        run: yarn install --frozen-lockfile
+      - name: Test build website
+        working-directory: docs
+        run: yarn build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build
+          publish_branch: docs
+          destination_dir: latest

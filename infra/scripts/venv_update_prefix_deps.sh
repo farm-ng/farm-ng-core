@@ -5,7 +5,9 @@ set -ex
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." >/dev/null 2>&1 && pwd)"
 
 
-RELEASE_SHA=f9f3bb6
+RELEASE_SHA=`cat $ROOT_DIR/../release_sha.txt`
+
+echo "RELEASE_SHA: $RELEASE_SHA"
 
 # If the needed RELEASE_SHA doesn't match what we have, download
 if ! grep -q $RELEASE_SHA "$ROOT_DIR/venv/prefix/release_version.txt"; then

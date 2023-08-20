@@ -200,6 +200,7 @@ class EventClient:
                     response.event,
                     response.payload,
                 )
+
             yield response.event, payload_or_protobuf
 
     async def list_uris(self) -> list[Uri]:

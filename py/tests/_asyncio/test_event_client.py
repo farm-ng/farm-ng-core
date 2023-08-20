@@ -38,10 +38,18 @@ class TestEventClient:
 
         assert "/foo" in event_service._client_queues
 
+        # make sure the message is in the queue and decoded properly
         res = await event_service.publish(path="/foo", message=Int32Value(value=3))
         assert res.number_clients == 1
+        assert res.sequence_number == 0
+
+        # make sure the message is in the queue and decoded properly
+        res = await event_service.publish(path="/foo", message=Int32Value(value=4))
+        assert res.number_clients == 1
+        assert res.sequence_number == 1
 
         assert await queue.get() == 4
+        assert await queue.get() == 5
 
         # cancel the task once the test is done
         if not task.done():

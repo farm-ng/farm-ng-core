@@ -194,12 +194,13 @@ class EventClient:
                 continue
 
             # decode the payload if requested
+            payload_or_protobuf: bytes | Message = response.payload
             if decode:
-                yield response.event, payload_to_protobuf(
+                payload_or_protobuf = payload_to_protobuf(
                     response.event,
                     response.payload,
                 )
-            yield response.event, response.payload
+            yield response.event, payload_or_protobuf
 
     async def list_uris(self) -> list[Uri]:
         """Returns the list of uris.

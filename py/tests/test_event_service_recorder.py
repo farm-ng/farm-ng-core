@@ -1,7 +1,6 @@
 import asyncio
 from pathlib import Path
 
-import grpc
 import pytest
 from farm_ng.core.event_service import EventServiceConfigList, EventServiceGrpc
 from farm_ng.core.event_service_pb2 import (
@@ -42,11 +41,13 @@ class TestEventServiceRecorder:
         assert recorder_service.logger.name == "record_default"
         assert recorder_service.record_queue.qsize() == 0
 
-    @pytest.mark.asyncio()
-    async def test_record(self, tmp_path: Path) -> None:
+    @pytest.mark.anyio()
+    async def test_record(self, tmp_path: Path, event_service) -> None:
         config_list: EventServiceConfigList = event_service_config_list()
 
-        event_service = EventServiceGrpc(grpc.aio.server(), config_list.configs[0])
+        # event_service = EventServiceGrpc(grpc.aio.server(), config_list.configs[0])
+        # event_service.request_reply_handler = request_reply_handler
+        event_service.reset()
         event_service.request_reply_handler = request_reply_handler
 
         recorder_service = EventServiceRecorder(
@@ -55,7 +56,7 @@ class TestEventServiceRecorder:
         )
 
         # start the event service
-        asyncio.create_task(event_service.serve())
+        # asyncio.create_task(event_service.serve())
 
         # start the subcriber and record
         file_name = tmp_path / "test_record"
@@ -64,9 +65,9 @@ class TestEventServiceRecorder:
         )
 
         # we need to wait for the subscribe callback to be called
-        await asyncio.sleep(0.001)
-        await asyncio.sleep(0.001)
-        await asyncio.sleep(0.001)
+        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.1)
 
         assert "/foo" in event_service._client_queues
         assert "/bar" in event_service._client_queues

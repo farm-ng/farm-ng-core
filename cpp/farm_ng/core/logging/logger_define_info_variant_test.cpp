@@ -50,7 +50,7 @@ TEST(logger, compile_time_info_runtime_debug) {  // NOLINT
 
   invokeInfoDebugTraceLogMacros();
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*\n2)"});
-  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM DEBUG in.*\n1)"});
+  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(FARM DEBUG in)"});
   EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM TRACE in.*\n0)"});
 
   defaultLogger().setLogLevel(orig_log_level);

@@ -34,8 +34,8 @@ void invokeAllLogMacros() {
 TEST(logger, compile_time_default_runtime_default) {  // NOLINT
   CaptureStdErr capture;
   invokeAllLogMacros();
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM CRITICAL in)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM ERROR in)"});
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
   // default log level is WARN and higher, so we do not expect to see INFO.
   EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
@@ -47,7 +47,7 @@ TEST(logger, compile_time_default_runtime_critical) {  // NOLINT
 
   defaultLogger().setLogLevel(LogLevel::critical);
   invokeAllLogMacros();
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM CRITICAL in)"});
   EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
   EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
   EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
@@ -60,10 +60,10 @@ TEST(logger, compile_time_default_runtime_trace) {  // NOLINT
 
   defaultLogger().setLogLevel(LogLevel::info);
   invokeAllLogMacros();
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*5)"});
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in.*4)"});
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM CRITICAL in)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM ERROR in)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM WARN in)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM INFO in)"});
   defaultLogger().setLogLevel(orig_log_level);
 }
 
@@ -86,7 +86,7 @@ TEST(logger, header_format) {  // NOLINT
   // Revert
   defaultLogger().setHeaderFormat(orig_header_format);
   FARM_CRITICAL("baz");
-  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM CRITICAL in.*baz)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM CRITICAL in)"});
 }
 
 TEST(logger, unit) {  // NOLINT

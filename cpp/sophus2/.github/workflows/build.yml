@@ -1,0 +1,181 @@
+on:
+  push:
+    branches: [main, sophus2]
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-20.04
+            compiler: gcc
+            optional_features: minimal
+            tests: unit_test
+            access: col_major
+            build_type: Release
+          - os: ubuntu-20.04
+            compiler: gcc
+            optional_features: ceres_proto
+            tests: unit_test
+            access: col_major
+            build_type: Release
+          - os: ubuntu-20.04
+            compiler: gcc
+            optional_features: minimal
+            tests: unit_test
+            access: row_major
+            build_type: Release
+          - os: ubuntu-20.04
+            compiler: clang
+            optional_features: minimal
+            tests: clang_tidy
+            access: col_major
+            build_type: Release
+          - os: ubuntu-20.04
+            compiler: gcc
+            optional_features: minimal
+            tests: coverage
+            access: col_major
+            build_type: Debug
+          - os: macos-11
+            compiler: clang
+            optional_features: minimal
+            tests: unit_test
+            access: col_major
+            build_type: Release
+          - os: macos-12
+            compiler: clang
+            optional_features: minimal # todo: ceres_proto here
+            tests: unit_test
+            access: col_major
+            build_type: Release
+
+      fail-fast: false
+    env:
+      BUILD_TYPE: ${{ matrix.build_type }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.optional_features }}-${{ matrix.tests }}-${{ matrix.access }}-${{ matrix.build_type }}
+
+      - name: Install dependencies (Ubuntu)
+        working-directory: ./infra/scripts
+        run: |
+          ./install_deps_ubuntu.sh
+        if: matrix.os == 'ubuntu-20.04'
+
+      - name: Install dependencies (Mac)
+        working-directory: ./infra/scripts
+        run: |
+          ./install_deps_mac.sh
+        if: matrix.os == 'macos-11' || matrix.os == 'macos-12'
+
+      - name: Install dependencies from source
+        working-directory: ./infra/scripts
+        run: |
+          ./install_deps_without_ceres_proto.sh
+        if: matrix.optional_features == 'minimal'
+
+      - name: Download dependencies (gcc, ceres+proto)
+        working-directory: ./infra/
+        run: |
+          source ./bootstrap_venv.sh
+          cd scripts
+          ./install_cmake_farm_ng_core.sh
+        env:
+          ROW_ACCESS: matrix.access
+        if: matrix.optional_features == 'ceres_proto'
+
+      - name: Compile (gcc)
+        working-directory: ./infra/scripts
+        run:
+          ./compile_gcc.sh
+        env:
+          ROW_ACCESS: matrix.access
+        if: matrix.tests == 'unit_test' && matrix.compiler == 'gcc' && matrix.optional_features == 'minimal'
+
+      - name: Compile (gcc, ceres_proto)
+        working-directory: ./infra/scripts
+        run: |
+          ls
+          source ../venv/bin/activate
+          ./compile_gcc.sh
+        env:
+          ROW_ACCESS: matrix.access
+          SOPHUS_CERES: On
+        if: matrix.tests == 'unit_test' && matrix.compiler == 'gcc' &&  matrix.optional_features == 'ceres_proto'
+
+      - name: Compile (clang)
+        working-directory: ./infra/scripts
+        run:
+          ./compile_clang.sh
+        env:
+          ROW_ACCESS: matrix.access
+        if: matrix.tests == 'unit_test' && matrix.compiler == 'clang'
+
+      - name: Compile (clang, ceres_proto)
+        working-directory: ./infra/scripts
+        run: |
+          ls
+          source ../venv/bin/activate
+          ./compile_clang.sh
+        env:
+          ROW_ACCESS: matrix.access
+          SOPHUS_CERES: On
+          BUILD_FARM_NG_PROTOS: On
+        if: matrix.tests == 'unit_test' && matrix.compiler == 'clang' &&  matrix.optional_features == 'ceres_proto'
+
+      - name: Run unit tests
+        working-directory: ./infra/scripts/build
+        run: |
+          ctest --output-on-failure
+        env:
+          ROW_ACCESS: matrix.access
+        if: matrix.tests == 'unit_test' && matrix.optional_features == 'minimal'
+
+      - name: Run unit tests (ceres_proto)
+        working-directory: ./infra/scripts
+        run: |
+          source ../venv/bin/activate
+          cd build
+          ctest --output-on-failure
+        env:
+          ROW_ACCESS: matrix.access
+        if: matrix.tests == 'unit_test' && matrix.optional_features == 'ceres_proto'
+
+
+      # todo: re-enable this
+
+      - name: Run install tests
+        working-directory: ./infra/scripts/build
+        run: |
+          sudo cmake --install .
+      #     cd ..
+      #     mkdir example_build
+      #     cmake -G ../../../cpp/examples/test_install_targets
+      #     ninja
+      #   env:
+      #     ROW_ACCESS: matrix.access
+        if: matrix.tests == 'unit_test' && matrix.optional_features == 'minimal'
+
+      - name: Compile (clang) & tests coverage
+        working-directory: ./infra/scripts
+        run:
+          ./compile_gcc_coverage.sh
+        env:
+          ROW_ACCESS: matrix.access
+        if: matrix.tests == 'coverage'
+
+      - name: clang-tidy
+        run: |
+          ./run_clang_tidy.sh
+        if: matrix.tests == 'clang_tidy'

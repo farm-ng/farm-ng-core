@@ -1,0 +1,20 @@
+# trick from https://github.com/ericniebler/range-v3/blob/master/cmake/range-v3-config.cmake#L1
+if(TARGET @FARM_NG_EXPORT_MODULE_NAME@_module)
+  return()
+endif()
+
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+foreach(dep @FARM_NG_EXPORT_MODULE_REQUIRED_DEPS@)
+  find_dependency(${dep} REQUIRED)
+endforeach()
+
+foreach(dep @FARM_NG_EXPORT_MODULE_OPTIONAL_DEPS@)
+  find_dependency(${dep})
+endforeach()
+
+
+include ("${CMAKE_CURRENT_LIST_DIR}/@FARM_NG_EXPORT_MODULE_NAME@Targets.cmake")
+
+list(APPEND CMAKE_MODULE_PATH
+    ${CMAKE_CURRENT_LIST_DIR})

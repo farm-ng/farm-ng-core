@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 class TestEventServiceGrpc:
     @pytest.mark.anyio()
     async def test_smoke(self, event_service: EventServiceGrpc) -> None:
+        # reset the counts
+        event_service.reset()
         assert event_service is not None
         assert event_service.QUEUE_MAX_SIZE == 10
         assert event_service.server is not None

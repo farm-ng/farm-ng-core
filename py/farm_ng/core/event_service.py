@@ -158,6 +158,15 @@ class EventServiceGrpc:
 
     # public methods
 
+    def reset(self) -> None:
+        """Resets the service."""
+        self._client_queues = {}
+        self._uris = {}
+        self._counts = {}
+        self._uris_stats = defaultdict(_UriStats)
+        self._latched_events = {}
+        self._request_reply_handler = None
+
     async def serve(self) -> None:
         """Starts the service.
 

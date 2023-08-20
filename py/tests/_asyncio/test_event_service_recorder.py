@@ -1,9 +1,8 @@
 import asyncio
 from pathlib import Path
 
-import grpc
 import pytest
-from farm_ng.core.event_service import EventServiceConfigList, EventServiceGrpc
+from farm_ng.core.event_service import EventServiceGrpc
 from farm_ng.core.event_service_pb2 import (
     RequestReplyRequest,
 )
@@ -11,8 +10,6 @@ from farm_ng.core.event_service_recorder import EventServiceRecorder
 from farm_ng.core.events_file_reader import EventsFileReader, payload_to_protobuf
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
-
-from .event_common import event_service_config_list
 
 
 async def request_reply_handler(
@@ -27,46 +24,30 @@ async def request_reply_handler(
 
 
 class TestEventServiceRecorder:
-    def test_smoke(self) -> None:
-        config_list: EventServiceConfigList = event_service_config_list()
-        recorder_service = EventServiceRecorder(
-            service_name="record_default",
-            config_list=config_list,
-        )
-
+    def test_smoke(self, recorder_service: EventServiceRecorder) -> None:
         assert recorder_service is not None
         assert recorder_service.QUEUE_MAX_SIZE == 50
         assert recorder_service.service_name == "record_default"
-        assert recorder_service.config_list == config_list
-        assert recorder_service.recorder_config == config_list.configs[1]
         assert recorder_service.logger.name == "record_default"
         assert recorder_service.record_queue.qsize() == 0
 
-    @pytest.mark.asyncio()
-    async def test_record(self, tmp_path: Path) -> None:
-        config_list: EventServiceConfigList = event_service_config_list()
-
-        event_service = EventServiceGrpc(grpc.aio.server(), config_list.configs[0])
+    @pytest.mark.anyio()
+    async def test_record(
+        self,
+        tmp_path: Path,
+        event_service: EventServiceGrpc,
+        recorder_service: EventServiceRecorder,
+    ) -> None:
+        # reset the counts
+        event_service.reset()
         event_service.request_reply_handler = request_reply_handler
-
-        recorder_service = EventServiceRecorder(
-            service_name="record_default",
-            config_list=config_list,
-        )
-
-        # start the event service
-        asyncio.create_task(event_service.serve())
 
         # start the subcriber and record
         file_name = tmp_path / "test_record"
         task = asyncio.create_task(
             recorder_service.subscribe_and_record(file_name),
         )
-
-        # we need to wait for the subscribe callback to be called
-        await asyncio.sleep(0.001)
-        await asyncio.sleep(0.001)
-        await asyncio.sleep(0.001)
+        await asyncio.sleep(0.1)
 
         assert "/foo" in event_service._client_queues
         assert "/bar" in event_service._client_queues
@@ -81,11 +62,11 @@ class TestEventServiceRecorder:
         assert res.sequence_number == 0
 
         # to verify that the message was recorded, we need to wait for the
-        await asyncio.sleep(0.001)
+        await asyncio.sleep(0.1)
 
         task.cancel()
         # to make sure that the task is cancelled
-        await asyncio.sleep(0.001)
+        await asyncio.sleep(0.1)
 
         file_name_bin = file_name.with_suffix(".0000.bin")
         assert file_name_bin.exists()

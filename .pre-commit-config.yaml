@@ -82,3 +82,4 @@ repos:
     hooks:
       - id: ruff
         exclude: (thirdparty|cpp/sophus2)/.*$
+        args: [--fix, --exit-non-zero-on-fix]

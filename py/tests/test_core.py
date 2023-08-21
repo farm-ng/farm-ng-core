@@ -12,9 +12,9 @@ from farm_ng.core.events_file_reader import (
 )
 from farm_ng.core.events_file_writer import EventsFileWriter, proto_to_json_file
 from farm_ng.core.stamp import (
+    StampSemantics,
     get_monotonic_now,
     get_stamp_by_semantics_and_clock_type,
-    StampSemantics,
 )
 
 

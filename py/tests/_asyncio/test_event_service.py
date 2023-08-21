@@ -125,6 +125,18 @@ class TestEventServiceGrpc:
             assert message.value == 42
             break
 
+        # test "*" subscriber
+        async for _, message in client.subscribe(
+            request=SubscribeRequest(
+                uri=Uri(path="*"),
+                every_n=1,
+            ),
+            decode=True,
+        ):
+            assert isinstance(message, Int32Value)
+            assert message.value == 42
+            break
+
     @pytest.mark.skip(reason="TODO: implement me")
     def test_list_uris(self) -> None:
         pass

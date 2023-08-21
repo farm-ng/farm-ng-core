@@ -241,6 +241,10 @@ class EventServiceGrpc:
 
         if request.uri.path in self._latched_events:
             yield self._latched_events[request.uri.path]
+        elif request.uri.path == "*":
+            # send all latched items to the special subscriber "*"
+            for reply in self._latched_events.values():
+                yield reply
 
         # create a queue for this client
         request_queue: tuple[SubscribeRequest, asyncio.Queue] = (

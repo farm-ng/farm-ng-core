@@ -1,14 +1,18 @@
 use std::{pin::Pin, time::Duration};
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{transport::Server, Request, Response, Status};
+use protobuf::well_known_types::wrappers::Int32Value;
+use protobuf::Message;
+use protobuf::descriptor::FileDescriptorProto;
 
 use farm_ng::core::{
     event_service_server::{EventService, EventServiceServer},
     ListUrisReply, ListUrisRequest,
     RequestReplyReply, RequestReplyRequest,
     SubscribeReply, SubscribeRequest,
-    Uri,
+    Uri, Timestamp
 };
 
 pub mod farm_ng {
@@ -103,19 +107,110 @@ impl EventService for EventServiceGrpc {
 
 }
 
+impl EventServiceGrpc {
+    async fn publish<T: protobuf::Message + std::fmt::Debug>(
+        &self,
+        path: String,
+        message: T,
+        timestamps: Option<Vec<Timestamp>>,
+        latch: bool,
+    ) {
+
+        println!("Publish called with path: {}", path);
+        println!("Message: {:?}", message);
+
+        let payload = message.write_to_bytes().unwrap();
+        println!("Payload: {:?}", payload);
+
+        // TODO: implement me
+        let msg_descriptor = FileDescriptorProto::parse_from_bytes(&payload).unwrap();
+        println!("Message descriptor: {:?}", msg_descriptor);
+
+        // TODO: get correct hostname and service name
+        let service_name = "event_service";
+
+        let uri = farm_ng::core::Uri {
+            scheme: String::from("protobuf"),
+            authority: String::from("invalid_hostname"),
+            path: path,
+            query: String::from(format!("service_name={}", service_name))
+        };
+        println!("URI: {:?}", uri);
+
+        // TODO: get correct timestamps and counts
+
+        let event = farm_ng::core::Event {
+            uri: Some(uri),
+            timestamps: timestamps.unwrap_or(vec![]),
+            payload_length: payload.len() as i64,
+            sequence: 0,
+        };
+        println!("Event: {:?}", event);
+
+        let reply = farm_ng::core::SubscribeReply {
+            event: Some(event),
+            payload: payload,
+        };
+        println!("Reply: {:?}", reply);
+
+        println!("################")
+
+        // TODO: implement me
+        // 1. Create the event and payload
+        // 2. Submit the the RequestReplyRequest to the channel
+        // 2.1 Are we using queues or channels?
+        // 3. Wait for the response
+
+    }
+
+
+}
+
+async fn test_send_smoke(task_id: u8, delay_millis: u64, event_service: Arc<EventServiceGrpc>) {
+    let mut counter = 0;
+    loop {
+        // convert counter to Message
+        let mut counter_msg = Int32Value::new();
+        counter_msg.value = counter;
+
+        event_service.publish(
+            String::from(format!("test/{}", task_id)),
+            counter_msg,
+            None,
+            false,
+        ).await;
+
+        tokio::time::sleep(Duration::from_millis(delay_millis)).await;
+        println!("task_id: {}, counter: {}", task_id, counter);
+        counter += 1;
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // defining address for our service
-    let addr = "[::1]:50051".parse()?;
+    let addr= "[::1]:50051".parse()?;
 
     // creating a service
-    let server = EventServiceGrpc::default();
+    let event_service = EventServiceGrpc::default();
     println!("Server listening on {}", addr);
 
+    //let event_service_arc = Arc::new(Mutex::new(event_service));
+    let event_service_arc = Arc::new(event_service);
+
     // adding our service to our server.
-    Server::builder()
-        .add_service(EventServiceServer::new(server))
-        .serve(addr)
-        .await?;
+    let server = Server::builder()
+        .add_service(EventServiceServer::from_arc(event_service_arc.clone()));
+
+    // running our server
+
+    let _ = tokio::join!(
+        server.serve(addr),
+        test_send_smoke(0, 100, event_service_arc.clone()),
+        test_send_smoke(1, 200, event_service_arc.clone()),
+        test_send_smoke(2, 50, event_service_arc.clone()),
+    );
+
     Ok(())
+
 }

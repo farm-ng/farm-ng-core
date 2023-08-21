@@ -3,3 +3,4 @@ venv
 .pytest_cache
 .eggs
 .DS_Store
+scripts/venv.tar.gz

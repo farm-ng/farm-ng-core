@@ -3,7 +3,7 @@ project(Sophus VERSION 2.0.0)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-set(farm_ng_cmake_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/cmake)
+set(farm_ng_cmake_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake)
 
 message("farm_ng_cmake_DIR" ${farm_ng_cmake_DIR})
 include(${farm_ng_cmake_DIR}/farm_ng_cmakeConfig.cmake)

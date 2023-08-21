@@ -52,7 +52,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
 
       - name: Install venv dependencies
-        run: ./cmake/bootstrap_venv.sh
+        run: ./scripts/build_venv/build_venv.sh
 
       - name: Create Archive For Release
         run: |

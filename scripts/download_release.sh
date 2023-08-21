@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $DIR
 
 # Choose release SHA based on git repo SHA
-RELEASE_SHA=`cat $DIR/../../release_sha.txt`
+RELEASE_SHA=`cat $DIR/../release_sha.txt`
 
 echo "RELEASE_SHA: $RELEASE_SHA"
 

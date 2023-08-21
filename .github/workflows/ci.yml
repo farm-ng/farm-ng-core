@@ -39,23 +39,20 @@ jobs:
       if: matrix.os == 'ubuntu-20.04'
 
     - name: Download dependencies (proto)
-      working-directory: ./infra
       run: |
-        ls -l
         source ./bootstrap_venv.sh
 
     - name: Compile (gcc)
-      working-directory: ./infra/scripts
       run: |
-          ls
           source ../venv/bin/activate
+          cd scripts/
           ./compile_gcc.sh
       if: matrix.compiler == 'gcc'
 
     - name: Compile (clang)
-      working-directory: ./infra/scripts
       run: |
-        ls
-        source ../venv/bin/activate
+        clang --version
+        source venv/bin/activate
+        cd scripts/
         ./compile_clang.sh
       if: matrix.compiler == 'clang'

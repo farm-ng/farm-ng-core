@@ -1,5 +1,7 @@
+use std::collections::btree_map::IterMut;
 use std::{pin::Pin, time::Duration};
 use std::sync::Arc;
+use tokio::stream;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{transport::Server, Request, Response, Status};
@@ -90,27 +92,31 @@ impl EventService for EventServiceGrpc {
     )->SubscribeResult<Self::subscribeStream> {
         println!("Got a request: {:?}", request);
 
+        // TODO: this is still not working ...
+        let mut queue = self.queue.lock().await;
+        let mut _rx = &mut queue.rx;
+
+        let __rx = std::sync::Arc::new(tokio::sync::Mutex::new(_rx));
+
         // pull the data from the internal queue
-        let mut stream = Box::pin(tokio_stream::iter(
-            self.queue.lock().await.rx.recv().await
-        ));
+        //let mut stream = Box::pin(tokio_stream::iter(_rx.recv().await));
 
         // spawn and channel are required if you want handle "disconnect" functionality
         // the `out_stream` will not be polled after client disconnect
         let (tx, rx) = mpsc::channel(4);
+
         tokio::spawn(async move {
-            while let Some(item) = stream.next().await {
-                //match tx.send(Ok(item)).await {
-                //    Ok(_) => {
-                //        // item (server response) was queued to be send to client
-                //        println!("item (server response) was queued to be send to client");
-                //    }
-                //    Err(_item) => {
-                //        // output_stream was build from rx and both are dropped
-                //        println!("output_stream was build from rx and both are dropped");
-                //        break;
-                //    }
-                //}
+            loop {
+                let __rx_arc = __rx.clone();
+                //let item = match _rx.recv().await {
+                let item = match __rx_arc.lock().await.recv().await {
+                    Some(item) => item,
+                    None => {
+                        // output_stream was build from rx and both are dropped
+                        println!("output_stream was build from rx and both are dropped");
+                        break;
+                    }
+                };
                 tx.send(Ok(item)).await.unwrap();
             }
             println!("\tclient disconnected");

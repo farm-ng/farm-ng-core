@@ -57,7 +57,42 @@ class PublishResult:
     sequence_number: int
 
 
-@dataclass(frozen=False)
+class _TopicStats:
+    """A class to track the stats for a topic."""
+
+    def __init__(self) -> None:
+        """Initialize the _TopicStats class."""
+        super().__init__()
+        self._count: int = 0
+        self._last_time: float = 0.0
+        self._rate: float = 0.0
+
+    @property
+    def count(self) -> int:
+        """Returns the count."""
+        return self._count
+
+    @property
+    def last_time(self) -> float:
+        """Returns the last time."""
+        return self._last_time
+
+    @property
+    def rate(self) -> float:
+        """Returns the rate."""
+        return self._rate
+
+    def update(self, time: float) -> None:
+        """Update the stats.
+
+        Args:
+            time: The time.
+        """
+        self._count += 1
+        self._rate = 1.0 / (time - self._last_time)
+        self._last_time = time
+
+
 class _UriStats:
     """The stats of a URI."""
 
@@ -65,6 +100,8 @@ class _UriStats:
     dropped: int = 0
     # the not sent messages
     not_sent: int = 0
+    # the topic stats
+    topic_stats: _TopicStats = _TopicStats()
 
 
 class EventServiceGrpc:
@@ -420,6 +457,13 @@ class EventServiceGrpc:
         # so that the client can know that the message was not sent by checking
         # the count of the URI.
         self._counts[uri.path] = count + 1
+
+        # compute statistics
+        # NOTE: decide which timestamps to use for the statistics
+        self._uris_stats[uri.path].topic_stats.update(timestamps[-1].stamp)
+
+        topic_rate: float = self._uris_stats[uri.path].topic_stats.rate
+        print(f"{self.config.name}{uri.path}/rate --> {topic_rate}")
 
         # create the event and send
         payload: bytes = message.SerializeToString()

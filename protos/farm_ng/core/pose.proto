@@ -15,6 +15,7 @@
 syntax = "proto3";
 
 import "farm_ng/core/lie.proto";
+import "farm_ng/core/linalg.proto";
 
 package farm_ng.core.proto;
 

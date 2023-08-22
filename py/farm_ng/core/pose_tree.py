@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from farm_ng.core import lie_pb2, pose_pb2
+    from farm_ng.core import pose_pb2
 
 # Usage example:
 # pose_tree = ... # Load your PoseTree proto object here.
@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 # NOTE: pep8-naming throws an error here because names should be snake_case.
 
 
-def find_transform(
+def find_pose(
     pose_tree: pose_pb2.PoseTree,
     frame_a: str,
     frame_b: str,
-) -> lie_pb2.Isometry3F64 | None:
+) -> pose_pb2.Pose | None:
     """Find all poses in a PoseTree with a given frame_A and frame_B.
 
     If frames are inverted, returns the inverse transform.
@@ -33,7 +33,7 @@ def find_transform(
     pose: pose_pb2.Pose
     for pose in pose_tree.poses:
         if pose.frame_a == frame_a and pose.frame_b == frame_b:
-            return pose.B_from_A
+            return pose
         if pose.frame_a == frame_b and pose.frame_b == frame_a:
             print("NOT IMPLEMENTED, please swap your frames")
             return None

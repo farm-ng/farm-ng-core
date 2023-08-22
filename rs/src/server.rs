@@ -24,9 +24,24 @@ pub mod farm_ng {
 type SubscribeResult<T> = Result<Response<T>, Status>;
 type SubscribeResponseStream = Pin<Box<dyn Stream<Item = Result<SubscribeReply, Status>> + Send>>;
 
+#[derive(Debug)]
+struct SubscribeReplyQueue {
+    tx: tokio::sync::mpsc::Sender<SubscribeReply>,
+    rx: tokio::sync::mpsc::Receiver<SubscribeReply>,
+}
+
+impl SubscribeReplyQueue {
+    fn new(capacity: usize) -> Self {
+        let (tx, rx) = tokio::sync::mpsc::channel(capacity);
+        Self { tx, rx }
+    }
+}
+
 // defining a struct for our service
-#[derive(Debug, Default)]
-pub struct EventServiceGrpc {}
+#[derive(Debug)]
+pub struct EventServiceGrpc {
+    queue: std::sync::Arc<tokio::sync::Mutex<SubscribeReplyQueue>>,
+}
 
 // implementing rpc for service defined in .proto
 #[tonic::async_trait]
@@ -68,32 +83,35 @@ impl EventService for EventServiceGrpc {
         Ok(Response::new(reply))
     }
 
+    // TODO: for some reason it get disconnected after every call
     async fn subscribe(
         &self,
         request: Request<SubscribeRequest>,
     )->SubscribeResult<Self::subscribeStream> {
         println!("Got a request: {:?}", request);
 
-        let repeat = std::iter::repeat(SubscribeReply {
-            event: None,
-            payload: Vec::<u8>::new(),
-        });
-        let mut stream = Box::pin(tokio_stream::iter(repeat).throttle(Duration::from_millis(200)));
+        // pull the data from the internal queue
+        let mut stream = Box::pin(tokio_stream::iter(
+            self.queue.lock().await.rx.recv().await
+        ));
 
         // spawn and channel are required if you want handle "disconnect" functionality
         // the `out_stream` will not be polled after client disconnect
-        let (tx, rx) = mpsc::channel(128);
+        let (tx, rx) = mpsc::channel(4);
         tokio::spawn(async move {
             while let Some(item) = stream.next().await {
-                match tx.send(Result::<_, Status>::Ok(item)).await {
-                    Ok(_) => {
-                        // item (server response) was queued to be send to client
-                    }
-                    Err(_item) => {
-                        // output_stream was build from rx and both are dropped
-                        break;
-                    }
-                }
+                //match tx.send(Ok(item)).await {
+                //    Ok(_) => {
+                //        // item (server response) was queued to be send to client
+                //        println!("item (server response) was queued to be send to client");
+                //    }
+                //    Err(_item) => {
+                //        // output_stream was build from rx and both are dropped
+                //        println!("output_stream was build from rx and both are dropped");
+                //        break;
+                //    }
+                //}
+                tx.send(Ok(item)).await.unwrap();
             }
             println!("\tclient disconnected");
         });
@@ -108,6 +126,13 @@ impl EventService for EventServiceGrpc {
 }
 
 impl EventServiceGrpc {
+    // TODO: make queue size configurable and dynamic based on the number of subscribers
+    fn new() -> Self {
+        Self {
+            queue: std::sync::Arc::new(tokio::sync::Mutex::new(SubscribeReplyQueue::new(512))),
+        }
+    }
+
     async fn publish<T: protobuf::Message + std::fmt::Debug>(
         &self,
         path: String,
@@ -116,15 +141,15 @@ impl EventServiceGrpc {
         latch: bool,
     ) {
 
-        println!("Publish called with path: {}", path);
-        println!("Message: {:?}", message);
+        //println!("Publish called with path: {}", path);
+        //println!("Message: {:?}", message);
 
         let payload = message.write_to_bytes().unwrap();
-        println!("Payload: {:?}", payload);
+        //println!("Payload: {:?}", payload);
 
         // TODO: implement me
-        let msg_descriptor = FileDescriptorProto::parse_from_bytes(&payload).unwrap();
-        println!("Message descriptor: {:?}", msg_descriptor);
+        //let msg_descriptor = FileDescriptorProto::parse_from_bytes(&payload).unwrap();
+        //println!("Message descriptor: {:?}", msg_descriptor);
 
         // TODO: get correct hostname and service name
         let service_name = "event_service";
@@ -135,7 +160,7 @@ impl EventServiceGrpc {
             path: path,
             query: String::from(format!("service_name={}", service_name))
         };
-        println!("URI: {:?}", uri);
+        //println!("URI: {:?}", uri);
 
         // TODO: get correct timestamps and counts
 
@@ -145,24 +170,30 @@ impl EventServiceGrpc {
             payload_length: payload.len() as i64,
             sequence: 0,
         };
-        println!("Event: {:?}", event);
+        //println!("Event: {:?}", event);
+
+        //println!("################");
 
         let reply = farm_ng::core::SubscribeReply {
             event: Some(event),
             payload: payload,
         };
-        println!("Reply: {:?}", reply);
 
-        println!("################")
+        let queue_size = self.queue.lock().await.tx.capacity();
+        //println!("Queue size: {}", queue_size);
 
-        // TODO: implement me
-        // 1. Create the event and payload
-        // 2. Submit the the RequestReplyRequest to the channel
-        // 2.1 Are we using queues or channels?
-        // 3. Wait for the response
+        match self.queue.lock().await.tx.try_send(reply) {
+            Ok(_) => {
+                // item (server response) was queued to be send to client
+
+            }
+            Err(_item) => {
+                // output_stream was build from rx and both are dropped
+                println!("Error sending to queue");
+            }
+        }
 
     }
-
 
 }
 
@@ -181,7 +212,7 @@ async fn test_send_smoke(task_id: u8, delay_millis: u64, event_service: Arc<Even
         ).await;
 
         tokio::time::sleep(Duration::from_millis(delay_millis)).await;
-        println!("task_id: {}, counter: {}", task_id, counter);
+        //println!("task_id: {}, counter: {}", task_id, counter);
         counter += 1;
     }
 }
@@ -192,7 +223,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr= "[::1]:50051".parse()?;
 
     // creating a service
-    let event_service = EventServiceGrpc::default();
+    //let event_service = EventServiceGrpc::default();
+    let event_service = EventServiceGrpc::new();
     println!("Server listening on {}", addr);
 
     //let event_service_arc = Arc::new(Mutex::new(event_service));

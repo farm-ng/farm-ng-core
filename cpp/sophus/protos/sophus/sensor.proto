@@ -1,0 +1,74 @@
+
+// Copyright (c) 2011, Hauke Strasdat
+// Copyright (c) 2012, Steven Lovegrove
+// Copyright (c) 2021, farm-ng, inc.
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+syntax = "proto3";
+
+import "sophus/image.proto";
+import "sophus/lie.proto";
+
+package sophus.proto;
+
+
+message CameraModel {
+  ImageSize image_size = 1;
+
+  // Specifies the type of distortion model.
+  string distortion_type = 2;
+
+  // Parameters. Typically the first four are: fx, fy, px, py
+  repeated double params = 3;
+};
+
+message CameraModels {
+  repeated CameraModel camera_models = 1;
+}
+
+message ClippingPlanes {
+  float near = 1;
+  float far = 2;
+}
+
+message CameraInRig {
+  CameraModel camera_model = 1;
+
+  Isometry3F64 rig_from_camera = 2;
+}
+
+message MultiCameraRig {
+  repeated CameraInRig cameras = 1;
+}
+
+message GyroModel {
+  string model_type = 1;
+  repeated double params = 2;
+}
+
+message AcceleroModel {
+  string model_type = 1;
+  repeated double params = 2;
+}
+
+message ImuModel {
+  GyroModel gyro_model = 1;
+  AcceleroModel accelero_model = 2;
+}

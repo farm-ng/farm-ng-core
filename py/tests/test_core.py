@@ -11,7 +11,11 @@ from farm_ng.core.events_file_reader import (
     proto_from_json_file,
 )
 from farm_ng.core.events_file_writer import EventsFileWriter, proto_to_json_file
-from farm_ng.core.stamp import get_monotonic_now
+from farm_ng.core.stamp import (
+    StampSemantics,
+    get_monotonic_now,
+    get_stamp_by_semantics_and_clock_type,
+)
 
 
 @pytest.fixture(name="log_base")
@@ -120,6 +124,65 @@ class TestEventsWriter:
             assert writer.file_idx > 0
             assert writer.max_file_length == max_mb * 1e6
             assert (log_dir / "event.0001.bin").exists()
+
+    def test_write_with_stamps(self, log_base: Path, reader_log_file: Path) -> None:
+
+        with EventsFileWriter(file_base=log_base) as writer:
+            time_stamp = get_monotonic_now(semantics="foo/semantics")
+            writer.write(
+                path="with_write_stamps",
+                message=time_stamp,
+                timestamps=[time_stamp],
+            )
+            writer.write(
+                path="no_write_stamps",
+                message=time_stamp,
+                timestamps=[time_stamp],
+                write_stamps=False,
+            )
+
+        with EventsFileReader(reader_log_file) as reader:
+            for event, _ in reader.read_messages():
+                if event.uri.path == "with_write_stamps":
+                    assert len(event.timestamps) == 3
+                    assert (
+                        get_stamp_by_semantics_and_clock_type(
+                            event,
+                            StampSemantics.FILE_WRITE,
+                            "monotonic",
+                        )
+                        is not None
+                    )
+                    assert (
+                        get_stamp_by_semantics_and_clock_type(
+                            event,
+                            StampSemantics.FILE_WRITE,
+                            "system_clock",
+                        )
+                        is not None
+                    )
+
+                elif event.uri.path == "no_write_stamps":
+                    assert len(event.timestamps) == 1
+                    assert (
+                        get_stamp_by_semantics_and_clock_type(
+                            event,
+                            StampSemantics.FILE_WRITE,
+                            "monotonic",
+                        )
+                        is None
+                    )
+                    assert (
+                        get_stamp_by_semantics_and_clock_type(
+                            event,
+                            StampSemantics.FILE_WRITE,
+                            "system_clock",
+                        )
+                        is None
+                    )
+                else:
+                    e = f"Unexpected event: {event.uri.path}"
+                    raise RuntimeError(e)
 
 
 class TestEventsReader:

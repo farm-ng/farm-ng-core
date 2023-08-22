@@ -209,6 +209,7 @@ class EventsFileWriter:
         path: str,
         message: Message,
         timestamps: list[Timestamp] | None = None,
+        write_stamps: bool = True,
     ) -> None:
         """Write a message to the file.
 
@@ -216,10 +217,12 @@ class EventsFileWriter:
             path: Path to the message.
             message: Message to write.
             timestamps: List of timestamps to write.
+            write_stamps: If True, append FILE_WRITE timestamps to the event when writing.
         """
         if timestamps is None:
             timestamps = []
-        timestamps.append(get_monotonic_now(semantics=StampSemantics.FILE_WRITE))
-        timestamps.append(get_system_clock_now(semantics=StampSemantics.FILE_WRITE))
+        if write_stamps:
+            timestamps.append(get_monotonic_now(semantics=StampSemantics.FILE_WRITE))
+            timestamps.append(get_system_clock_now(semantics=StampSemantics.FILE_WRITE))
         uri = make_proto_uri(path=path, message=message)
         self._write_raw(uri=uri, message=message, timestamps=timestamps)

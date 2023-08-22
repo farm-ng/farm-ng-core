@@ -39,6 +39,8 @@ if TYPE_CHECKING:
     from farm_ng.core.uri_pb2 import Uri
     from google.protobuf.message import Message
 
+from .event_service_metrics import EventServiceHealthMetrics
+
 # public members
 
 __all__ = [
@@ -57,42 +59,7 @@ class PublishResult:
     sequence_number: int
 
 
-class _TopicStats:
-    """A class to track the stats for a topic."""
-
-    def __init__(self) -> None:
-        """Initialize the _TopicStats class."""
-        super().__init__()
-        self._count: int = 0
-        self._last_time: float = 0.0
-        self._rate: float = 0.0
-
-    @property
-    def count(self) -> int:
-        """Returns the count."""
-        return self._count
-
-    @property
-    def last_time(self) -> float:
-        """Returns the last time."""
-        return self._last_time
-
-    @property
-    def rate(self) -> float:
-        """Returns the rate."""
-        return self._rate
-
-    def update(self, time: float) -> None:
-        """Update the stats.
-
-        Args:
-            time: The time.
-        """
-        self._count += 1
-        self._rate = 1.0 / (time - self._last_time)
-        self._last_time = time
-
-
+@dataclass(frozen=False)
 class _UriStats:
     """The stats of a URI."""
 
@@ -100,8 +67,6 @@ class _UriStats:
     dropped: int = 0
     # the not sent messages
     not_sent: int = 0
-    # the topic stats
-    topic_stats: _TopicStats = _TopicStats()
 
 
 class EventServiceGrpc:
@@ -151,6 +116,8 @@ class EventServiceGrpc:
         # the stats of the URIs, to keep track of dropped messages and other stats
         self._uris_stats: dict[str, _UriStats] = defaultdict(_UriStats)
         self._latched_events: dict[str, SubscribeReply] = {}
+
+        self._metrics = EventServiceHealthMetrics()
 
         # the request/reply handler
         self._request_reply_handler: Callable | None = None
@@ -204,6 +171,11 @@ class EventServiceGrpc:
         self._latched_events = {}
         self._request_reply_handler = None
 
+    # notes:
+    # publish here the statistics of the service service_name/health
+    # - EventServiceHealth msg -> map<string, Struct>
+    # - singleton EventsServiceHealthMetrics
+
     async def serve(self) -> None:
         """Starts the service.
 
@@ -215,7 +187,25 @@ class EventServiceGrpc:
         await self.server.start()
 
         self.logger.info("Server started")
-        await self.server.wait_for_termination()
+
+        await asyncio.gather(
+            self.server.wait_for_termination(),
+            self.publish_health_metrics(),
+        )
+
+    async def publish_health_metrics(self) -> None:
+        """Publishes the health metrics of the service."""
+        while True:
+            # decide later a better message type
+            health_metrics = {}
+            for uri_path, counts in self._metrics.service_counts.items():
+                health_metrics[uri_path] = counts
+
+            await self.publish(
+                path=f"{self.config.name}/health",
+                message=Empty(),
+            )
+            await asyncio.sleep(1.0)
 
     async def publish(
         self,
@@ -457,13 +447,7 @@ class EventServiceGrpc:
         # so that the client can know that the message was not sent by checking
         # the count of the URI.
         self._counts[uri.path] = count + 1
-
-        # compute statistics
-        # NOTE: decide which timestamps to use for the statistics
-        self._uris_stats[uri.path].topic_stats.update(timestamps[-1].stamp)
-
-        topic_rate: float = self._uris_stats[uri.path].topic_stats.rate
-        print(f"{self.config.name}{uri.path}/rate --> {topic_rate}")
+        self._metrics.service_counts[uri.path] = count + 1
 
         # create the event and send
         payload: bytes = message.SerializeToString()

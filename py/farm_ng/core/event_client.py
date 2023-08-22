@@ -31,6 +31,8 @@ if TYPE_CHECKING:
     from farm_ng.core.uri_pb2 import Uri
     from google.protobuf.message import Message
 
+from .event_service_metrics import EventServiceHealthMetrics
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -92,6 +94,8 @@ class EventClient:
 
         # the number of messages sent
         self._counts: dict[str, int] = {}
+
+        self._metrics = EventServiceHealthMetrics()
 
         # the gRPC channel and stub
         self.channel: grpc.aio.Channel | None = None
@@ -253,6 +257,7 @@ class EventClient:
         # get the current count and increment it
         count: int = self._counts.get(path, 0)
         self._counts[path] = count + 1
+        self._metrics.client_counts[path] = count + 1
 
         # add the timestamps before sending the message
         timestamps = timestamps or []

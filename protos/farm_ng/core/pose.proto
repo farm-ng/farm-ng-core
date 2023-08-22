@@ -20,7 +20,7 @@ package farm_ng.core.proto;
 
 // A position and orientation for an object or reference frame in 3D space
 message Pose {
-  // point_in_b = b_from_a * point_in_a
+  // point_in_a = a_from_b * point_in_b
   Isometry3F64 a_from_b = 1;
   string frame_a = 2;
   string frame_b = 3;

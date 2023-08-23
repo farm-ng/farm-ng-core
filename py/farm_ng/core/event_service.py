@@ -158,6 +158,7 @@ class EventServiceGrpc:
         self._uris = {}
         self._latched_events = {}
         self._request_reply_handler = None
+        self._metrics.reset_data()
 
     async def serve(self) -> None:
         """Starts the service.
@@ -369,10 +370,12 @@ class EventServiceGrpc:
                 # keep tracked of dropped messages in a data structure
                 # to be able to report them to the user later
                 uri_path_dropped: str = f"{uri.path}/dropped"
+
                 num_dropped: int = int(self._metrics.get(uri_path_dropped))
+                num_dropped += 1  # increment the count of dropped messages
 
                 # update the metrics with the count of the dropped messages
-                self._metrics.update_data(uri_path_dropped, num_dropped + 1)
+                self._metrics.update_data(uri_path_dropped, num_dropped)
 
                 self.logger.warning(
                     "dropped %d sequence %d path: %s",
@@ -421,13 +424,8 @@ class EventServiceGrpc:
 
         # get the count of the URI
         uri_path_send_count: str = f"{uri.path}/send_count"
-        count: int = int(self._metrics.get(uri_path_send_count))
 
-        # update the metrics with the count of the URI
-        # NOTE: even if the message is not sent, the count is incremented
-        # so that the client can know that the message was not sent by checking
-        # the count of the URI.
-        self._metrics.update_data(uri_path_send_count, count + 1)
+        count: int = int(self._metrics.get(uri_path_send_count))
 
         # create the event and send
         payload: bytes = message.SerializeToString()
@@ -444,6 +442,12 @@ class EventServiceGrpc:
             payload=payload,
             latch=latch,
         )
+
+        # update the metrics with the count of the URI
+        # NOTE: even if the message is not sent, the count is incremented
+        # so that the client can know that the message was not sent by checking
+        # the count of the URI.
+        self._metrics.update_data(uri_path_send_count, count + 1)
 
         # update the metrics with the count of the clients the message was sent to
         self._metrics.update_data(f"{uri.path}/send_clients", num_clients)

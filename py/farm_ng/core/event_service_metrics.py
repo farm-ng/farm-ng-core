@@ -58,6 +58,10 @@ class EventServiceHealthMetrics(metaclass=Singleton):
 
         return self.data
 
+    def reset_data(self) -> None:
+        self.data = Struct()
+        self.stamps_buffer = {}
+
     # private methods
 
     def _compute_avg_latency(self, stamps: list[float]) -> float:

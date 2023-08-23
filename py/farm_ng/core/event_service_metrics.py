@@ -50,11 +50,10 @@ class EventServiceHealthMetrics(metaclass=Singleton):
 
         # iterate over the stamps buffer
         for topic, stamps in self.stamps_buffer.items():
-            # compute latency
-            self.data[f"{topic}/latency"] = self._compute_avg_latency(stamps)
-
             # compute rate
             self.data[f"{topic}/rate"] = self._compute_avg_rate(stamps)
+            # compute rate iter, need to be checked
+            # self.data[f"{topic}/rate"] = self._compute_avg_rate_iter(stamps)
 
         return self.data
 
@@ -64,7 +63,7 @@ class EventServiceHealthMetrics(metaclass=Singleton):
 
     # private methods
 
-    def _compute_avg_latency(self, stamps: deque[float]) -> float:
+    def _compute_avg_rate_iter(self, stamps: deque[float]) -> float:
         if len(stamps) < self.MIN_NUM_ELEMENTS:
             return 0.0
 
@@ -72,7 +71,7 @@ class EventServiceHealthMetrics(metaclass=Singleton):
             stamps[i] - stamps[i - 1] for i in range(1, len(stamps))
         ]
 
-        return sum(latencies) / len(latencies)
+        return len(latencies) / sum(latencies)
 
     def _compute_avg_rate(self, stamps: deque[float]) -> float:
         if len(stamps) < self.MIN_NUM_ELEMENTS:

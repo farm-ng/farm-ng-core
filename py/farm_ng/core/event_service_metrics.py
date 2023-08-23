@@ -8,7 +8,7 @@ __all__ = ["EventServiceHealthMetrics"]
 
 
 class Singleton(type):
-    _instances = {}  # type: ignore[PGH003] # noqa: RUF012
+    _instances: dict[type, type] = {}  # type: ignore[PGH003] # noqa: RUF012
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:

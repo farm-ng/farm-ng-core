@@ -93,8 +93,6 @@ class EventClient:
         self._logger: logging.Logger = logging.getLogger(f"{self.config.name}/client")
 
         # the number of messages sent
-        self._counts: dict[str, int] = {}
-
         self._metrics = EventServiceHealthMetrics()
 
         # the gRPC channel and stub

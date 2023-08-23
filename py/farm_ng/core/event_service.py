@@ -28,7 +28,12 @@ from farm_ng.core.event_service_pb2 import (
     SubscribeRequest,
 )
 from farm_ng.core.events_file_reader import payload_to_protobuf, proto_from_json_file
-from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
+from farm_ng.core.stamp import (
+    StampSemantics,
+    get_monotonic_now,
+    get_stamp_by_semantics_and_clock_type,
+    get_system_clock_now,
+)
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import Int32Value
@@ -126,6 +131,11 @@ class EventServiceGrpc:
         return self._logger
 
     @property
+    def metrics(self) -> EventServiceHealthMetrics:
+        """Returns the service metrics."""
+        return self._metrics
+
+    @property
     def request_reply_handler(self) -> Callable | None:
         """Returns the request/reply handler."""
         return self._request_reply_handler
@@ -170,7 +180,7 @@ class EventServiceGrpc:
         """Publishes the health metrics of the service."""
         while True:
             # publish the health metrics and wait
-            await self.publish(path="/health", message=self._metrics.get_data())
+            await self.publish(path="/health", message=self._metrics.compute_data())
             await asyncio.sleep(1.0)
 
     async def publish(
@@ -359,15 +369,14 @@ class EventServiceGrpc:
                 # keep tracked of dropped messages in a data structure
                 # to be able to report them to the user later
                 uri_path_dropped: str = f"{uri.path}/dropped"
-                if uri_path_dropped not in self._metrics.data:
-                    self._metrics.data[uri_path_dropped] = 0
+                num_dropped: int = int(self._metrics.get(uri_path_dropped))
 
                 # update the metrics with the count of the dropped messages
-                self._metrics.data[uri_path_dropped] += 1
+                self._metrics.update_data(uri_path_dropped, num_dropped + 1)
 
                 self.logger.warning(
                     "dropped %d sequence %d path: %s",
-                    int(self._metrics.data[uri_path_dropped]),
+                    num_dropped,
                     reply.event.sequence,
                     uri.path,
                 )
@@ -410,18 +419,15 @@ class EventServiceGrpc:
         # register the URI of the message
         self._uris[uri.path] = uri
 
-        uri_path_send_count: str = f"{uri.path}/send_count"
-        if uri_path_send_count not in self._metrics.data:
-            self._metrics.data[uri_path_send_count] = 0
-
         # get the count of the URI
-        count: int = int(self._metrics.data[uri_path_send_count])
+        uri_path_send_count: str = f"{uri.path}/send_count"
+        count: int = int(self._metrics.get(uri_path_send_count))
 
         # update the metrics with the count of the URI
         # NOTE: even if the message is not sent, the count is incremented
         # so that the client can know that the message was not sent by checking
         # the count of the URI.
-        self._metrics.data.update({uri_path_send_count: count + 1})
+        self._metrics.update_data(uri_path_send_count, count + 1)
 
         # create the event and send
         payload: bytes = message.SerializeToString()
@@ -440,18 +446,17 @@ class EventServiceGrpc:
         )
 
         # update the metrics with the count of the clients the message was sent to
-        uri_path_send_clients: str = f"{uri.path}/send_clients"
-        if uri_path_send_clients not in self._metrics.data:
-            self._metrics.data[uri_path_send_clients] = 0
-
-        self._metrics.data[uri_path_send_clients] += num_clients
+        self._metrics.update_data(f"{uri.path}/send_clients", num_clients)
 
         # update the metrics with the timestamp of the last message
         # to compute the rate of the messages.
-        if uri.path not in self._metrics.data_tmp:
-            self._metrics.data_tmp[uri.path] = []
-
-        self._metrics.data_tmp[uri.path].append(timestamps[-1].stamp)
+        stamp: float | None = get_stamp_by_semantics_and_clock_type(
+            event=event,
+            semantics=StampSemantics.SERVICE_SEND,
+            clock_type="monotonic",
+        )
+        if stamp is not None:
+            self._metrics.update_stamps(uri.path, stamp)
 
         return {
             "sequence_number": count,

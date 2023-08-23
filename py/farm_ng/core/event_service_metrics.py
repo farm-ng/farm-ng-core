@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import deque
+
 from google.protobuf.struct_pb2 import Struct
 
 __all__ = ["EventServiceHealthMetrics"]
@@ -15,20 +17,62 @@ class Singleton(type):
 
 
 class EventServiceHealthMetrics(metaclass=Singleton):
+    MAX_QUEUE_SIZE: int = 50  # size of the circular buffer
+    MIN_NUM_ELEMENTS: int = 2  # minimum number of elements to compute the metrics
+
     def __init__(self) -> None:
         # initialize the data with the default values
         self.data = Struct()
-        self.data_tmp = {}
+        self.stamps_buffer: dict[str, deque[float]] = {}
 
-    def get_data(self) -> Struct:
-        # update the topics rates
-        for topic, times in self.data_tmp.items():
-            if len(times) == 0:
-                duration = 0
-            else:
-                duration = times[-1] - times[0]
-            rate = len(times) / duration if duration > 0 else 0
-            self.data[f"{topic}/send_rate"] = rate
-            self.data_tmp[topic] = []  # reset the list of times
+    # public methods
+
+    def update_data(self, uri_path: str, value: float) -> None:
+        if uri_path not in self.data:
+            self.data[uri_path] = 0.0
+
+        self.data.update({uri_path: value})
+
+    def get(self, uri_path: str) -> int:
+        if uri_path not in self.data:
+            return 0
+
+        return self.data[uri_path]
+
+    def update_stamps(self, uri_path: str, stamp: float) -> None:
+        if uri_path not in self.stamps_buffer:
+            self.stamps_buffer[uri_path] = deque(maxlen=self.MAX_QUEUE_SIZE)
+
+        self.stamps_buffer[uri_path].append(stamp)
+
+    def compute_data(self) -> Struct:
+        """Compute the metrics data that requires time based computation."""
+
+        # iterate over the stamps buffer
+        for topic, stamps in self.stamps_buffer.items():
+            # compute latency
+            self.data[f"{topic}/latency"] = self._compute_avg_latency(stamps)
+
+            # compute rate
+            self.data[f"{topic}/rate"] = self._compute_avg_rate(stamps)
 
         return self.data
+
+    # private methods
+
+    def _compute_avg_latency(self, stamps: list[float]) -> float:
+        if len(stamps) < self.MIN_NUM_ELEMENTS:
+            return 0.0
+
+        latencies: list[float] = [
+            stamps[i] - stamps[i - 1] for i in range(1, len(stamps))
+        ]
+
+        return sum(latencies) / len(latencies)
+
+    def _compute_avg_rate(self, stamps: list[float]) -> float:
+        if len(stamps) < self.MIN_NUM_ELEMENTS:
+            return 0.0
+
+        duration = stamps[-1] - stamps[0]
+        return len(stamps) / duration if duration > 0 else 0.0

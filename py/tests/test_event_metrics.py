@@ -22,7 +22,7 @@ class TestEventServiceHealthMetrics:
 
     def test_count(self):
         a = EventServiceHealthMetrics()
-        a.data["/foo/send_out"] = 0
+        a.data["/foo/send_count"] = 0
 
         for _ in range(10):
             a.data["/foo/send_count"] += 1

@@ -8,7 +8,7 @@ __all__ = ["EventServiceHealthMetrics"]
 
 
 class Singleton(type):
-    _instances = {}  # noqa: RUF012
+    _instances = {}  # type: ignore[PGH003] # noqa: RUF012
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -33,7 +33,7 @@ class EventServiceHealthMetrics(metaclass=Singleton):
 
         self.data.update({uri_path: value})
 
-    def get(self, uri_path: str) -> int:
+    def get(self, uri_path: str):
         if uri_path not in self.data:
             return 0
 
@@ -64,7 +64,7 @@ class EventServiceHealthMetrics(metaclass=Singleton):
 
     # private methods
 
-    def _compute_avg_latency(self, stamps: list[float]) -> float:
+    def _compute_avg_latency(self, stamps: deque[float]) -> float:
         if len(stamps) < self.MIN_NUM_ELEMENTS:
             return 0.0
 
@@ -74,7 +74,7 @@ class EventServiceHealthMetrics(metaclass=Singleton):
 
         return sum(latencies) / len(latencies)
 
-    def _compute_avg_rate(self, stamps: list[float]) -> float:
+    def _compute_avg_rate(self, stamps: deque[float]) -> float:
         if len(stamps) < self.MIN_NUM_ELEMENTS:
             return 0.0
 

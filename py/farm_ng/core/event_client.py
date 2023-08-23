@@ -257,7 +257,7 @@ class EventClient:
         if path_received not in self._metrics.data:
             self._metrics.data[path_received] = 0
 
-        count: int = int(self._metrics.data[path_received])
+        count: int = int(self._metrics.get(path_received))
         self._metrics.data[path_received] = count + 1
 
         # add the timestamps before sending the message

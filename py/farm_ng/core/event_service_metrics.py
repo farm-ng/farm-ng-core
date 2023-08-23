@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from google.protobuf.struct_pb2 import Struct
+
 __all__ = ["EventServiceHealthMetrics"]
 
 
@@ -14,5 +16,16 @@ class Singleton(type):
 
 class EventServiceHealthMetrics(metaclass=Singleton):
     def __init__(self) -> None:
-        self.service_counts: dict[str, int] = {}
-        self.client_counts: dict[str, int] = {}
+        # initialize the data with the default values
+        self.data = Struct()
+        self.data_tmp = {}
+
+    def get_data(self) -> Struct:
+        # update the topics rates
+        for topic, times in self.data_tmp.items():
+            duration = times[-1] - times[0]
+            rate = len(times) / duration if duration > 0 else 0
+            self.data[f"{topic}/send_rate"] = rate
+            self.data_tmp[topic] = []  # reset the list of times
+
+        return self.data

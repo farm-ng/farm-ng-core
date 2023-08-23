@@ -255,9 +255,12 @@ class EventClient:
             return RequestReplyReply()
 
         # get the current count and increment it
-        count: int = self._counts.get(path, 0)
-        self._counts[path] = count + 1
-        self._metrics.client_counts[path] = count + 1
+        path_received = f"{path}/receive_count"
+        if path_received not in self._metrics.data:
+            self._metrics.data[path_received] = 0
+
+        count: int = int(self._metrics.data[path_received])
+        self._metrics.data[path_received] = count + 1
 
         # add the timestamps before sending the message
         timestamps = timestamps or []

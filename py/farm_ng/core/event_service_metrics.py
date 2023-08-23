@@ -23,7 +23,10 @@ class EventServiceHealthMetrics(metaclass=Singleton):
     def get_data(self) -> Struct:
         # update the topics rates
         for topic, times in self.data_tmp.items():
-            duration = times[-1] - times[0]
+            if len(times) == 0:
+                duration = 0
+            else:
+                duration = times[-1] - times[0]
             rate = len(times) / duration if duration > 0 else 0
             self.data[f"{topic}/send_rate"] = rate
             self.data_tmp[topic] = []  # reset the list of times

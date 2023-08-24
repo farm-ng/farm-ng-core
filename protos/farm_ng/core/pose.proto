@@ -26,12 +26,11 @@ message Pose {
   string frame_a = 2;
   string frame_b = 3;
 
+  // linear velocity of body b (with respect to body b) that exists in frame a.
+  Vec3F64 linvel_of_b_in_a = 4;
 
-  // linear velocity of body a (with respect to body b) in frame b.
-  Vec3F64 linvel_of_a_in_b = 4;
-
-  // angular velocity of body a (with respect to body b) in frame a.
-  Vec3F64 angvel_of_a_in_a = 5;
+  // angular velocity of body b (with respect to body b) that exists in frame a.
+  Vec3F64 angvel_of_b_in_a = 5;
 }
 
 // A sequence of poses

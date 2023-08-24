@@ -3,7 +3,7 @@ use tonic::transport::Channel;
 use tokio_stream::StreamExt;
 
 use protobuf::Message;
-use protobuf::well_known_types::wrappers::Int32Value;
+use protobuf::well_known_types::wrappers::{Int32Value, StringValue};
 
 pub mod farm_ng {
     pub mod core {
@@ -30,8 +30,9 @@ async fn streaming_subscribe(client: &mut EventServiceClient<Channel>) {
     // let mut stream = stream.take(5);
     while let Some(response) = stream.next().await {
         // decode the bytes into a protobuf message
-        let decoded: Int32Value = Message::parse_from_bytes(&response.unwrap().payload).unwrap();
-        println!("NOTE = {:?}", decoded);
+        //let decoded: Int32Value = Message::parse_from_bytes(&response.unwrap().payload).unwrap();
+        let decoded: StringValue = Message::parse_from_bytes(&response.unwrap().payload).unwrap();
+        println!("RESPONSE={:?}", decoded)
     }
 
 }

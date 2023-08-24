@@ -1,13 +1,11 @@
-use std::collections::btree_map::IterMut;
 use std::{pin::Pin, time::Duration};
-use std::sync::Arc;
-use tokio::stream;
-use tokio::sync::mpsc;
-use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
+use tokio_stream::Stream;
 use tonic::{transport::Server, Request, Response, Status};
-use protobuf::well_known_types::wrappers::Int32Value;
-use protobuf::Message;
-use protobuf::descriptor::FileDescriptorProto;
+use protobuf::well_known_types::wrappers::{Int32Value, StringValue};
+use async_stream::try_stream;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::{mpsc::{Sender, Receiver}, Mutex};
 
 use farm_ng::core::{
     event_service_server::{EventService, EventServiceServer},
@@ -28,21 +26,21 @@ type SubscribeResponseStream = Pin<Box<dyn Stream<Item = Result<SubscribeReply, 
 
 #[derive(Debug)]
 struct SubscribeReplyQueue {
-    tx: tokio::sync::mpsc::Sender<SubscribeReply>,
-    rx: tokio::sync::mpsc::Receiver<SubscribeReply>,
+    tx: Arc<Mutex<Sender<SubscribeReply>>>,
+    rx: Arc<Mutex<Receiver<SubscribeReply>>>,
 }
 
 impl SubscribeReplyQueue {
     fn new(capacity: usize) -> Self {
         let (tx, rx) = tokio::sync::mpsc::channel(capacity);
-        Self { tx, rx }
+        Self { tx: Arc::new(Mutex::new(tx)), rx: Arc::new(Mutex::new(rx)) }
     }
 }
 
 // defining a struct for our service
 #[derive(Debug)]
 pub struct EventServiceGrpc {
-    queue: std::sync::Arc<tokio::sync::Mutex<SubscribeReplyQueue>>,
+    client_queues: Arc<Mutex<HashMap<String, Vec<SubscribeReplyQueue>>>>,
 }
 
 // implementing rpc for service defined in .proto
@@ -92,39 +90,40 @@ impl EventService for EventServiceGrpc {
     )->SubscribeResult<Self::subscribeStream> {
         println!("Got a request: {:?}", request);
 
-        // TODO: this is still not working ...
-        let mut queue = self.queue.lock().await;
-        let mut _rx = &mut queue.rx;
+        // safely create first a queue for the client
+        let queue = SubscribeReplyQueue::new(10);
+        let rx = queue.rx.clone();
 
-        let __rx = std::sync::Arc::new(tokio::sync::Mutex::new(_rx));
+        {
+            let mut client_queues = self.client_queues.lock().await;
+            let uri_path = request.get_ref().clone().uri.unwrap().path;
 
-        // pull the data from the internal queue
-        //let mut stream = Box::pin(tokio_stream::iter(_rx.recv().await));
+            if  !client_queues.contains_key(&uri_path) {
+                client_queues.insert(uri_path.clone(), vec![]);
+            } else {
+                println!("Client queue already exists for path: {}", uri_path);
+            }
+            client_queues.get_mut(&uri_path).unwrap().push(queue);
+            println!("Added client queue for path: {}", uri_path);
+        }
 
-        // spawn and channel are required if you want handle "disconnect" functionality
-        // the `out_stream` will not be polled after client disconnect
-        let (tx, rx) = mpsc::channel(4);
-
-        tokio::spawn(async move {
+        // create the stream
+        let stream = try_stream! {
             loop {
-                let __rx_arc = __rx.clone();
-                //let item = match _rx.recv().await {
-                let item = match __rx_arc.lock().await.recv().await {
+                let item = match rx.lock().await.recv().await {
                     Some(item) => item,
                     None => {
                         // output_stream was build from rx and both are dropped
-                        println!("output_stream was build from rx and both are dropped");
+                        // println!("output_stream was build from rx and both are dropped");
                         break;
                     }
                 };
-                tx.send(Ok(item)).await.unwrap();
+                yield item;
             }
-            println!("\tclient disconnected");
-        });
+        };
 
-        let output_stream = ReceiverStream::new(rx);
         Ok(Response::new(
-            Box::pin(output_stream) as Self::subscribeStream
+            Box::pin(stream) as Self::subscribeStream
         ))
 
     }
@@ -132,10 +131,9 @@ impl EventService for EventServiceGrpc {
 }
 
 impl EventServiceGrpc {
-    // TODO: make queue size configurable and dynamic based on the number of subscribers
     fn new() -> Self {
         Self {
-            queue: std::sync::Arc::new(tokio::sync::Mutex::new(SubscribeReplyQueue::new(512))),
+            client_queues: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -163,7 +161,7 @@ impl EventServiceGrpc {
         let uri = farm_ng::core::Uri {
             scheme: String::from("protobuf"),
             authority: String::from("invalid_hostname"),
-            path: path,
+            path: path.clone(),
             query: String::from(format!("service_name={}", service_name))
         };
         //println!("URI: {:?}", uri);
@@ -185,17 +183,31 @@ impl EventServiceGrpc {
             payload: payload,
         };
 
-        let queue_size = self.queue.lock().await.tx.capacity();
-        //println!("Queue size: {}", queue_size);
-
-        match self.queue.lock().await.tx.try_send(reply) {
-            Ok(_) => {
-                // item (server response) was queued to be send to client
-
+        // get all queues for this path
+        let client_queues = self.client_queues.lock().await;
+        let queues = match client_queues.get(&path.clone()) {
+            Some(queues) => queues,
+            None => {
+                // println!("No queues for path: {}", path);
+                return;
             }
-            Err(_item) => {
-                // output_stream was build from rx and both are dropped
-                println!("Error sending to queue");
+        };
+
+        let num_clients = queues.len();
+        println!("Number of clients: {}", num_clients);
+
+        for queue in queues {
+            let tx = queue.tx.lock().await;
+            match tx.send(reply.clone()).await {
+                Ok(_) => {
+                    // item (server response) was queued to be send to client
+                    // print!("Sent to queue: {}", path);
+
+                }
+                Err(_item) => {
+                    // output_stream was build from rx and both are dropped
+                    println!("Error sending to queue");
+                }
             }
         }
 
@@ -207,11 +219,12 @@ async fn test_send_smoke(task_id: u8, delay_millis: u64, event_service: Arc<Even
     let mut counter = 0;
     loop {
         // convert counter to Message
-        let mut counter_msg = Int32Value::new();
-        counter_msg.value = counter;
+        //let mut counter_msg = Int32Value::new();
+        let mut counter_msg = StringValue::new();
+        counter_msg.value = format!("{}: {}", task_id, counter);
 
         event_service.publish(
-            String::from(format!("test/{}", task_id)),
+            String::from("foo"),
             counter_msg,
             None,
             false,

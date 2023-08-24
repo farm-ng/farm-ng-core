@@ -2,10 +2,10 @@ use std::{pin::Pin, time::Duration};
 use tokio_stream::Stream;
 use tonic::{transport::Server, Request, Response, Status};
 use protobuf::well_known_types::wrappers::{Int32Value, StringValue};
-use async_stream::try_stream;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::{mpsc::{Sender, Receiver}, Mutex};
+use tokio::sync::{mpsc, mpsc::{Sender, Receiver}, Mutex};
+use tokio_stream::{wrappers::ReceiverStream};
 
 use farm_ng::core::{
     event_service_server::{EventService, EventServiceServer},
@@ -90,40 +90,53 @@ impl EventService for EventServiceGrpc {
     )->SubscribeResult<Self::subscribeStream> {
         println!("Got a request: {:?}", request);
 
+        let uri_path = request.get_ref().clone().uri.unwrap().path;
+        println!("URI path: {}", uri_path);
+
         // safely create first a queue for the client
         let queue = SubscribeReplyQueue::new(10);
         let rx = queue.rx.clone();
 
         {
             let mut client_queues = self.client_queues.lock().await;
-            let uri_path = request.get_ref().clone().uri.unwrap().path;
 
             if  !client_queues.contains_key(&uri_path) {
                 client_queues.insert(uri_path.clone(), vec![]);
             } else {
                 println!("Client queue already exists for path: {}", uri_path);
             }
+            // add the client queue to the list of queues for this path
             client_queues.get_mut(&uri_path).unwrap().push(queue);
             println!("Added client queue for path: {}", uri_path);
         }
 
-        // create the stream
-        let stream = try_stream! {
-            loop {
-                let item = match rx.lock().await.recv().await {
-                    Some(item) => item,
-                    None => {
+        // pass the client queue to the client
+        let client_queues = self.client_queues.clone();
+
+        let (tx, rx_out) = mpsc::channel(4);
+        tokio::spawn(async move {
+            while let Some(item) = rx.lock().await.recv().await {
+                match tx.send(Ok(item)).await {
+                    Ok(_) => {
+                        // item (server response) was queued to be send to client
+                        // print!("Sent to queue: {}", path);
+                    }
+                    Err(_item) => {
                         // output_stream was build from rx and both are dropped
-                        // println!("output_stream was build from rx and both are dropped");
+                        // println!("Error sending to queue");
                         break;
                     }
-                };
-                yield item;
+                }
             }
-        };
+            println!("\tclient disconnected");
 
+            // remove the client queue from the list of queues for this path
+            client_queues.lock().await.remove(uri_path.as_str());
+        });
+
+        let output_stream = ReceiverStream::new(rx_out);
         Ok(Response::new(
-            Box::pin(stream) as Self::subscribeStream
+            Box::pin(output_stream) as Self::subscribeStream
         ))
 
     }
@@ -188,7 +201,7 @@ impl EventServiceGrpc {
         let queues = match client_queues.get(&path.clone()) {
             Some(queues) => queues,
             None => {
-                // println!("No queues for path: {}", path);
+                println!("Number of clients: {}", 0);
                 return;
             }
         };
@@ -202,7 +215,6 @@ impl EventServiceGrpc {
                 Ok(_) => {
                     // item (server response) was queued to be send to client
                     // print!("Sent to queue: {}", path);
-
                 }
                 Err(_item) => {
                     // output_stream was build from rx and both are dropped

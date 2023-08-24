@@ -22,8 +22,13 @@ jobs:
         include:
           - os: ubuntu-20.04
             compiler: gcc
+            asan: off
           - os: ubuntu-20.04
             compiler: clang
+            asan: off
+          - os: ubuntu-20.04
+            compiler: clang
+            asan: on
 
       fail-fast: false
     steps:
@@ -53,4 +58,12 @@ jobs:
         clang -v
         source venv/bin/activate
         ./scripts/compile_clang.sh
-      if: matrix.compiler == 'clang'
+      if: matrix.compiler == 'clang' && matrix.asan == 'off'
+
+
+    - name: Compile (clang asan)
+      run: |
+        clang -v
+        source venv/bin/activate
+        ./scripts/compile_clang_asan.sh
+      if: matrix.compiler == 'clang' && matrix.asan == 'on'

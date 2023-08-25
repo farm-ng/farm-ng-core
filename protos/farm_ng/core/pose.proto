@@ -19,19 +19,35 @@ import "farm_ng/core/linalg.proto";
 
 package farm_ng.core.proto;
 
-// A position and orientation for an object or reference frame in 3D space
+// A position, orientation, and velocity for an object or reference frame in 3D space
 message Pose {
   // point_in_a = a_from_b * point_in_b
   Isometry3F64 a_from_b = 1;
   string frame_a = 2;
   string frame_b = 3;
 
+  // Egocentric linear velocity of frame_b with respect to frame a.
+  // This is the movement of the body relative to the parent, but in the body's axes.
+  //
+  // For velocities, frame_b is assumed to be the body and frame_a is assumed to be the parent / reference.
+  // If frame_a is the body and b is the parent (e.g., this pose represents imu_from_robot),
+  // then this velocity is likely the inverse of what you want.
+  //
+  // Example 1:
+  //    If 'b' is the robot and 'a' is world (world_from_robot), this is the linear velocity of the robot.
+  //    x is moving forward, y laterally left, & z up. All without regard for heading / orientation.
+  // Example 2:
+  //    If 'b' is a tool and 'a' is the robot, this represents the actuation of the tool.
+  //    The directions are in the tools axes, but the movement is relative to the robot's body.
+  //    If the tools convention is that x points down, then lowering the tool would be
+  //    a positive x velocity, and any driving / turning of the robot would not be included.
+  Vec3F64 linvel_of_b_in_a = 4;
 
-  // linear velocity of body a (with respect to body b) in frame b.
-  Vec3F64 linvel_of_a_in_b = 4;
-
-  // angular velocity of body a (with respect to body b) in frame a.
-  Vec3F64 angvel_of_a_in_a = 5;
+  // Egocentric angular velocity of body b with respect to frame a.
+  // This is the movement of the body relative to the parent, but in the body's axes.
+  //
+  // Description / examples are the same as linvel_of_b_in_a.
+  Vec3F64 angvel_of_b_in_a = 5;
 }
 
 // A sequence of poses

@@ -31,6 +31,8 @@ async fn streaming_subscribe(client: &mut EventServiceClient<Channel>) {
     while let Some(response) = stream.next().await {
         // decode the bytes into a protobuf message
         //let decoded: Int32Value = Message::parse_from_bytes(&response.unwrap().payload).unwrap();
+        let msg = response.as_ref().unwrap();
+        println!("RESPONSE={:?}", msg.event);
         let decoded: StringValue = Message::parse_from_bytes(&response.unwrap().payload).unwrap();
         println!("RESPONSE={:?}", decoded)
     }

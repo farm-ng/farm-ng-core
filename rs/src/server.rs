@@ -1,11 +1,14 @@
 use std::{pin::Pin, time::Duration};
+use prost::Message;
 use tokio_stream::Stream;
 use tonic::{transport::Server, Request, Response, Status};
-use protobuf::well_known_types::wrappers::{Int32Value, StringValue};
+use tonic_reflection::pb::FILE_DESCRIPTOR_SET;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, mpsc::{Sender, Receiver}, Mutex};
-use tokio_stream::{wrappers::ReceiverStream};
+use tokio_stream::wrappers::ReceiverStream;
+use prost_types::FileDescriptorSet;
+use prost_reflect::{DynamicMessage, DescriptorPool, ReflectMessage};
 
 use farm_ng::core::{
     event_service_server::{EventService, EventServiceServer},
@@ -150,7 +153,8 @@ impl EventServiceGrpc {
         }
     }
 
-    async fn publish<T: protobuf::Message + std::fmt::Debug>(
+    //async fn publish<T: protobuf::Message + std::fmt::Debug>(
+    async fn publish<T: prost::Message + std::fmt::Debug>(
         &self,
         path: String,
         message: T,
@@ -161,21 +165,24 @@ impl EventServiceGrpc {
         //println!("Publish called with path: {}", path);
         //println!("Message: {:?}", message);
 
-        let payload = message.write_to_bytes().unwrap();
+        //let payload = message.write_to_bytes().unwrap();
+        let payload = message.encode_to_vec();
         //println!("Payload: {:?}", payload);
 
-        // TODO: implement me
-        //let msg_descriptor = FileDescriptorProto::parse_from_bytes(&payload).unwrap();
-        //println!("Message descriptor: {:?}", msg_descriptor);
+        let file_descriptor_set = prost_types::FileDescriptorSet::decode(FILE_DESCRIPTOR_SET).unwrap();
 
-        // TODO: get correct hostname and service name
+        // TODO: get correct data from the descriptor
         let service_name = "event_service";
+        let message_type = "farm_ng.core.SubscribeReply";
+        let pb_type = "farm_ng.core.proto";
 
         let uri = farm_ng::core::Uri {
-            scheme: String::from("protobuf"),
-            authority: String::from("invalid_hostname"),
+            scheme: "protobuf".to_string(),
+            authority: "hostname".to_string(),
             path: path.clone(),
-            query: String::from(format!("service_name={}", service_name))
+            query: format!(
+                "type={}&pb={}&service_name={}", message_type, pb_type, service_name
+            ).to_string()
         };
         //println!("URI: {:?}", uri);
 
@@ -231,9 +238,7 @@ async fn test_send_smoke(task_id: u8, delay_millis: u64, event_service: Arc<Even
     let mut counter = 0;
     loop {
         // convert counter to Message
-        //let mut counter_msg = Int32Value::new();
-        let mut counter_msg = StringValue::new();
-        counter_msg.value = format!("{}: {}", task_id, counter);
+        let counter_msg = String::from(format!("{}: {}", task_id, counter));
 
         event_service.publish(
             String::from("foo"),

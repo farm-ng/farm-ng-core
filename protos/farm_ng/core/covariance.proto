@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package farm_ng.core.proto;
+
+// 
+message StateVariances {
+    double var_x = 1;
+    double var_y = 2;
+    double var_theta = 3;
+    double var_vx = 4;
+    double var_vy = 5;
+  }

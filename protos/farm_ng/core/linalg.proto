@@ -70,3 +70,23 @@ message Mat3F64 {
   Vec3F64 col_1 = 2;
   Vec3F64 col_2 = 3;
 }
+
+message VecXF32 {
+   repeated float data = 1;
+}
+
+message VecXF64 {
+   repeated double data = 1;
+}
+
+message MatXF32 {
+   int32 rows =1;
+   int32 cols =2;
+   repeated float data = 3;
+}
+
+message MatXF64 {
+   int32 rows =1;
+   int32 cols =2;
+   repeated float data = 3;
+}

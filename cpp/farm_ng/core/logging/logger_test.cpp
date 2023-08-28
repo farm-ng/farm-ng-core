@@ -77,7 +77,7 @@ TEST(logger, header_format) {  // NOLINT
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(CRITICAL!foo)"});
 
   // Example 2, custom formatting
-  defaultLogger().setHeaderFormat("[{time:%Y-%m-%d %H:%M:%S}.{time_ms}]");
+  defaultLogger().setHeaderFormat("[{time:%Y-%m-%d %H:%M:%S}.{time_ms:03}]");
   FARM_WARN("bar");
   EXPECT_CONTAINS(
       capture.buffer(),

@@ -83,10 +83,6 @@ class Pose3 {
   }
 
   friend Expected<Pose3> operator*(Pose3 const& lhs, Pose3 const& rhs) {
-    // This throws rather than assert or return Expected, because a common use
-    // case for Pose3 is runtime based on configuration and network data and we
-    // want to be able to catch the error and recover, and not clutter our math
-    // with unwrap of expected
     if (lhs.frameB() != rhs.frameA()) {
       return FARM_UNEXPECTED(
           "Pose frame error: lhs a={} b={} rhs a={} b={}",

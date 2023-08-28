@@ -34,7 +34,7 @@ using py_array = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 template <typename LieGroup>
 py::class_<LieGroup> bind_liegroup(py::module_& m, char const* name) {
-  py::class_<LieGroup> cls(m, name, py::module_local());
+  py::class_<LieGroup> cls(m, name);
 
   cls.def(py::init([]() { return LieGroup(); }))
       .def(py::init(&LieGroup::fromRotationMatrix))
@@ -44,7 +44,13 @@ py::class_<LieGroup> bind_liegroup(py::module_& m, char const* name) {
       .def("inverse", [](LieGroup& self) { return self.inverse(); })
       .def_static(
           "exp", [](typename LieGroup::Tangent p) { return LieGroup::exp(p); })
-      .def(py::self * py::self);
+      .def(py::self * py::self)
+      .def(
+          "__mul__",
+          [](LieGroup const& a_from_b,
+             typename LieGroup::Point const& point_in_b) {
+            return a_from_b * point_in_b;
+          });
   return cls;
 }
 
@@ -192,16 +198,13 @@ void bind_lie(py::module_& m) {
       .def_static("Rz", sophus::Rotation3F64::fromRz);
 
   bind_liegroup<sophus::Isometry3F64>(m, "Isometry3F64")
-      .def(py::init([](Eigen::Vector3d const& translation,
-                       sophus::Rotation3F64 const& rotation) {
-        return sophus::Isometry3F64(translation, rotation);
-      }))
-
-      .def(py::init([](Eigen::Vector3d const& translation,
-                       Eigen::Vector4d const& quaternion) {
-        return sophus::Isometry3F64(
-            translation, sophus::Rotation3F64::fromParams(quaternion));
-      }))
+      .def(
+          py::init([](Eigen::Vector3d const& translation,
+                      sophus::Rotation3F64 const& rotation) {
+            return sophus::Isometry3F64(translation, rotation);
+          }),
+          py::arg("translation") = Eigen::Vector3d::Zero(),
+          py::arg("rotation") = sophus::Rotation3F64())
       .def_property(
           "rotation_matrix",
           &sophus::Isometry3F64::rotationMatrix,
@@ -261,7 +264,7 @@ void bind_lie(py::module_& m) {
             return self.translation() = x;
           });
 
-  py::class_<Pose3F64>(m, "Pose3F64", py::module_local())
+  py::class_<Pose3F64>(m, "Pose3F64")
       .def(
           py::init<
               Pose3F64::Isometry const&,
@@ -327,13 +330,18 @@ void bind_lie(py::module_& m) {
             }
             throw py::value_error(a_from_c.error().details[0].msg);
           })
+      .def(
+          "__mul__",
+          [](Pose3F64 const& a_from_b, Eigen::Vector3d const& point_in_b) {
+            return a_from_b.aFromB() * point_in_b;
+          })
       .def_static(
           "error",
           [](Pose3F64 const& lhs_a_from_b, Pose3F64 const& rhs_a_from_b) {
             farm_ng::Expected<Pose3F64::Tangent> err =
                 error(lhs_a_from_b, rhs_a_from_b);
             if (err) {
-              return *err;
+              return err->array().square();
             }
             throw py::value_error(err.error().details[0].msg);
           })

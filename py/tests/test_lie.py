@@ -103,8 +103,8 @@ def test_protobuf():
 def test_pose():
     a_from_b = ng.Pose3F64(
         a_from_b=ng.Isometry3F64(
-            [1, 2, 3],
-            ng.Rotation3F64.exp([radians(45 / 2), radians(45), radians(90)]),
+            translation=[1, 2, 3],
+            rotation=ng.Rotation3F64.exp([radians(45 / 2), radians(45), radians(90)]),
         ),
         frame_a="a",
         frame_b="b",

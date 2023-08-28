@@ -341,7 +341,7 @@ void bind_lie(py::module_& m) {
             farm_ng::Expected<Pose3F64::Tangent> err =
                 error(lhs_a_from_b, rhs_a_from_b);
             if (err) {
-              return err->array().square();
+              return err->array();
             }
             throw py::value_error(err.error().details[0].msg);
           })

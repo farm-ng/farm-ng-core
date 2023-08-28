@@ -44,10 +44,6 @@ class Pose3 {
 
   Tangent log() const { return a_from_b_.log(); }
 
-  static Expected<Tangent> logExpected(Expected<Pose3> const& pose) {
-    return pose->log();
-  }
-
   static Pose3 exp(
       Tangent const& tangent_of_b_in_a,
       double dt,
@@ -79,7 +75,10 @@ class Pose3 {
 
   friend Expected<Tangent> error(
       Pose3 const& lhs_a_from_b, Pose3 const& rhs_a_from_b) {
-    return (lhs_a_from_b.inverse() * rhs_a_from_b).and_then(Pose3::logExpected);
+    return (lhs_a_from_b.inverse() * rhs_a_from_b)
+        .and_then([](Expected<Pose3> const& pose) -> Expected<Tangent> {
+          return pose->log();
+        });
   }
 
   friend Expected<Pose3> operator*(Pose3 const& lhs, Pose3 const& rhs) {

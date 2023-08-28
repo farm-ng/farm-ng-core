@@ -41,13 +41,7 @@ message Pose {
   //    The directions are in the tools axes, but the movement is relative to the robot's body.
   //    If the tools convention is that x points down, then lowering the tool would be
   //    a positive x velocity, and any driving / turning of the robot would not be included.
-  Vec3F64 linvel_of_b_in_a = 4;
-
-  // Egocentric angular velocity of body b with respect to frame a.
-  // This is the movement of the body relative to the parent, but in the body's axes.
-  //
-  // Description / examples are the same as linvel_of_b_in_a.
-  Vec3F64 angvel_of_b_in_a = 5;
+  Isometry3F64Tangent tangent_of_b_in_a = 4;
 }
 
 // A sequence of poses

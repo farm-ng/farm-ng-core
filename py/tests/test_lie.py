@@ -149,7 +149,9 @@ def test_pose():
         )
         # computes the error between frame_b of two respective poses
         # e.g. robot and robot now
-        err = ng.Pose3F64.error(world_from_robot, world_from_robot_now) * (1.0 / dt)
+        err = np.sqrt(ng.Pose3F64.error(world_from_robot, world_from_robot_now)) * (
+            1 / dt
+        )
         # print(err)
         # print(tangent_of_now_in_prev)
         assert np.allclose(err, tangent_of_now_in_prev)

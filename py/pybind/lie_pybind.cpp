@@ -34,7 +34,7 @@ using py_array = py::array_t<double, py::array::c_style | py::array::forcecast>;
 
 template <typename LieGroup>
 py::class_<LieGroup> bind_liegroup(py::module_& m, char const* name) {
-  py::class_<LieGroup> cls(m, name);
+  py::class_<LieGroup> cls(m, name, py::module_local());
 
   cls.def(py::init([]() { return LieGroup(); }))
       .def(py::init(&LieGroup::fromRotationMatrix))
@@ -261,7 +261,7 @@ void bind_lie(py::module_& m) {
             return self.translation() = x;
           });
 
-  py::class_<Pose3F64>(m, "Pose3F64")
+  py::class_<Pose3F64>(m, "Pose3F64", py::module_local())
       .def(
           py::init<
               Pose3F64::Isometry const&,

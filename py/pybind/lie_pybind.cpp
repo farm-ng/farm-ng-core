@@ -68,21 +68,34 @@ void bind_lie(py::module_& m) {
   py::object PbPose = py::module_::import("farm_ng.core.pose_pb2").attr("Pose");
   auto rotation3F64ToProto = [PbQuaternionF64, PbRotation3F64, PbVec3F64](
                                  sophus::Rotation3F64 const& self) {
-    Eigen::Vector4d p = self.params();
+    auto quat = self.unitQuaternion();
     return PbRotation3F64(
         "unit_quaternion"_a = PbQuaternionF64(
-            "imag"_a = PbVec3F64("x"_a = p[0], "y"_a = p[1], "z"_a = p[2]),
-            "real"_a = p[3]));
+            "imag"_a = PbVec3F64(
+                "x"_a = quat.imag()[0],
+                "y"_a = quat.imag()[1],
+                "z"_a = quat.imag()[2]),
+            "real"_a = quat.real()));
   };
 
   auto rotation3F64FromProto = [](py::object proto) {
-    py::object quat = proto.attr("unit_quaternion");
-    py::object imag = quat.attr("imag");
-    return sophus::Rotation3F64::fromParams(Eigen::Vector4d(
+    py::object pb_quat = proto.attr("unit_quaternion");
+    py::object imag = pb_quat.attr("imag");
+
+    sophus::QuaternionF64 quat;
+    quat.real() = py::cast<double>(pb_quat.attr("real"));
+    quat.imag() = Eigen::Vector3d(
         py::cast<double>(imag.attr("x")),
         py::cast<double>(imag.attr("y")),
-        py::cast<double>(imag.attr("z")),
-        py::cast<double>(quat.attr("real"))));
+        py::cast<double>(imag.attr("z")));
+    static double constexpr kEps = 1e-6;
+    if (std::abs(quat.squaredNorm() - 1.0) > kEps) {
+      throw py::value_error(FARM_FORMAT(
+          "quaternion norm ({}) is not close to 1:\n{}",
+          quat.squaredNorm(),
+          quat.params().transpose()));
+    }
+    return sophus::Rotation3F64::fromUnitQuaternion(quat);
   };
 
   auto isometry3F64ToProto = [rotation3F64ToProto, PbVec3F64, PbIsometry3F64](
@@ -121,22 +134,28 @@ void bind_lie(py::module_& m) {
   };
 
   auto Pose3F64FromProto = [isometry3F64FromProto](py::object proto) {
-    auto translation = proto.attr("translation");
-    auto linear_vel = proto.attr("tangent_of_b_in_a").attr("linear_velocity");
-    auto angular_vel = proto.attr("tangent_of_b_in_a").attr("angular_velocity");
-    Pose3F64::Tangent tangent_of_b_in_a;
-    tangent_of_b_in_a.head<3>() = Eigen::Vector3d(
-        py::cast<double>(linear_vel.attr("x")),
-        py::cast<double>(linear_vel.attr("y")),
-        py::cast<double>(linear_vel.attr("z")));
+    Pose3F64::Tangent tangent_of_b_in_a = Pose3F64::Tangent::Zero();
+    auto tangent = proto.attr("tangent_of_b_in_a");
+    if (!tangent.is_none()) {
+      auto linear_vel = tangent.attr("linear_velocity");
+      auto angular_vel = tangent.attr("angular_velocity");
 
-    tangent_of_b_in_a.tail<3>() = Eigen::Vector3d(
-        py::cast<double>(angular_vel.attr("x")),
-        py::cast<double>(angular_vel.attr("y")),
-        py::cast<double>(angular_vel.attr("z")));
+      if (!linear_vel.is_none()) {
+        tangent_of_b_in_a.head<3>() = Eigen::Vector3d(
+            py::cast<double>(linear_vel.attr("x")),
+            py::cast<double>(linear_vel.attr("y")),
+            py::cast<double>(linear_vel.attr("z")));
+      }
 
+      if (!angular_vel.is_none()) {
+        tangent_of_b_in_a.tail<3>() = Eigen::Vector3d(
+            py::cast<double>(angular_vel.attr("x")),
+            py::cast<double>(angular_vel.attr("y")),
+            py::cast<double>(angular_vel.attr("z")));
+      }
+    }
     return Pose3F64(
-        isometry3F64FromProto(proto.attr("a_pose_b")),
+        isometry3F64FromProto(proto.attr("a_from_b")),
         py::cast<std::string>(proto.attr("frame_a")),
         py::cast<std::string>(proto.attr("frame_b")),
         tangent_of_b_in_a);
@@ -167,7 +186,10 @@ void bind_lie(py::module_& m) {
             self = sophus::Rotation3F64::fromRotationMatrix(mat);
           })
       .def("to_proto", rotation3F64ToProto)
-      .def_static("from_proto", rotation3F64FromProto);
+      .def_static("from_proto", rotation3F64FromProto)
+      .def_static("Rx", sophus::Rotation3F64::fromRx)
+      .def_static("Ry", sophus::Rotation3F64::fromRy)
+      .def_static("Rz", sophus::Rotation3F64::fromRz);
 
   bind_liegroup<sophus::Isometry3F64>(m, "Isometry3F64")
       .def(py::init([](Eigen::Vector3d const& translation,
@@ -199,7 +221,11 @@ void bind_lie(py::module_& m) {
             return self.translation() = x;
           })
       .def("to_proto", isometry3F64ToProto)
-      .def_static("from_proto", isometry3F64FromProto);
+      .def_static("from_proto", isometry3F64FromProto)
+      .def_static("Rx", sophus::Isometry3F64::fromRx)
+      .def_static("Ry", sophus::Isometry3F64::fromRy)
+      .def_static("Rz", sophus::Isometry3F64::fromRz);
+
   ;
   bind_liegroup<sophus::Isometry2F64>(m, "Isometry2F64")
       .def(py::init([](Eigen::Vector2d const& translation,
@@ -294,12 +320,12 @@ void bind_lie(py::module_& m) {
           })
       .def(
           "__mul__",
-          [](Pose3F64 const& a_pose_b, Pose3F64 const& b_pose_c) {
-            farm_ng::Expected<Pose3F64> a_pose_c = a_pose_b * b_pose_c;
-            if (a_pose_c) {
-              return *a_pose_c;
+          [](Pose3F64 const& a_from_b, Pose3F64 const& b_from_c) {
+            farm_ng::Expected<Pose3F64> a_from_c = a_from_b * b_from_c;
+            if (a_from_c) {
+              return *a_from_c;
             }
-            throw py::value_error(a_pose_c.error().details[0].msg);
+            throw py::value_error(a_from_c.error().details[0].msg);
           })
       .def_static(
           "error",

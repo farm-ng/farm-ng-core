@@ -49,6 +49,12 @@ def test_isometry():
     )
     assert np.allclose(eye3d.log(), ng.Isometry3F64().log())
 
+    yaw = ng.Isometry3F64.Rz(radians(45))
+    pitch = ng.Isometry3F64.Ry(radians(-3))
+    roll = ng.Isometry3F64.Rx(radians(5))
+    nautical = yaw * pitch * roll
+    print(nautical)
+
 
 def test_protobuf():
     r2d = ng.Rotation2F64()
@@ -111,10 +117,12 @@ def test_pose():
     )
 
     a_from_c = a_from_b * b_from_c
-    print("\nbegin a_from_c\n" + str(a_from_c.to_proto()), "\nend a_from_c")
+    print("woot", ng.Rotation3F64.from_proto(a_from_c.rotation.to_proto()).to_proto())
+    ng.Pose3F64.from_proto(a_from_c.to_proto())
+    print("Here!", a_from_c.log())
     assert a_from_c.frame_a == "a"
     assert a_from_c.frame_b == "c"
-    print(a_from_c.log())
+
     assert np.allclose(a_from_c.log(), ng.Isometry3F64().log())
 
     with pytest.raises(ValueError, match="Pose frame error: lhs a=b b=a rhs a=b b=c"):
@@ -132,7 +140,7 @@ def test_pose():
     )
     for _i in range(50):
         world_from_robot_t1 = world_from_robot * robot_from_robot_t1
-        print(world_from_robot_t1.to_proto())
+        world_from_robot_t1 = ng.Pose3F64.from_proto(world_from_robot_t1.to_proto())
         # note we keep the word_from_robot transform free of velocity
         world_from_robot_now = ng.Pose3F64(
             world_from_robot_t1.a_from_b,
@@ -142,7 +150,7 @@ def test_pose():
         # computes the error between frame_b of two respective poses
         # e.g. robot and robot now
         err = ng.Pose3F64.error(world_from_robot, world_from_robot_now) * (1.0 / dt)
-        print(err)
-        print(tangent_of_now_in_prev)
+        # print(err)
+        # print(tangent_of_now_in_prev)
         assert np.allclose(err, tangent_of_now_in_prev)
         world_from_robot = world_from_robot_now

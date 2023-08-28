@@ -9,7 +9,7 @@ from farm_ng.package.commands import (
 from pybind11.setup_helpers import ParallelCompile, Pybind11Extension, build_ext
 from setuptools import setup
 
-__version__ = "0.1.0"
+__version__ = "0.1.5"
 
 PROTO_ROOT: str = "protos"
 PACKAGE_ROOT: str = "py"

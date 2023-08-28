@@ -1,3 +1,4 @@
+import importlib.metadata as importlib_metadata
 from pathlib import Path
 
 from farm_ng.package.commands import (
@@ -9,8 +10,7 @@ from farm_ng.package.commands import (
 from pybind11.setup_helpers import ParallelCompile, Pybind11Extension, build_ext
 from setuptools import setup
 
-__version__ = "0.1.5"
-
+__version__ = importlib_metadata.version("farm_ng_amiga")
 PROTO_ROOT: str = "protos"
 PACKAGE_ROOT: str = "py"
 

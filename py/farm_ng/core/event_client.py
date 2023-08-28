@@ -24,7 +24,7 @@ from farm_ng.core.event_service_pb2 import (
 )
 from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.events_file_writer import make_proto_uri
-from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
+from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now, get_stamp_by_semantics_and_clock_type
 
 if TYPE_CHECKING:
     from farm_ng.core.timestamp_pb2 import Timestamp
@@ -103,6 +103,11 @@ class EventClient:
     def config(self) -> EventServiceConfig:
         """Returns the configuration data structure."""
         return self._config
+    
+    @property
+    def metrics(self) -> EventServiceHealthMetrics:
+        """Returns the metrics data structure."""
+        return self._metrics
 
     @property
     def logger(self) -> logging.Logger:
@@ -203,6 +208,29 @@ class EventClient:
                     response.payload,
                 )
 
+            # update the client / server metrics before yielding the response
+            self._metrics.update_data(
+                f"{response.event.uri.path}/receiver/count",
+                self._metrics.get(f"{response.event.uri.path}/receiver/count") + 1,
+            )
+
+            stamp_client_receive: float | None = get_stamp_by_semantics_and_clock_type(
+                response.event, StampSemantics.CLIENT_RECEIVE, "monotonic"
+            )
+            stamp_service_send: float | None = get_stamp_by_semantics_and_clock_type(
+                response.event, StampSemantics.SERVICE_SEND, "monotonic"
+            )
+            if stamp_client_receive is None or stamp_service_send is None:
+                self.logger.warning(
+                    "Could not compute latency for %s",
+                    response.event.uri.path,
+                )
+                continue
+            self._metrics.update_data(
+                f"{response.event.uri.path}/receiver/latency",
+                stamp_client_receive - stamp_service_send,
+            )
+
             yield response.event, payload_or_protobuf
 
     async def list_uris(self) -> list[Uri]:
@@ -253,12 +281,8 @@ class EventClient:
             return RequestReplyReply()
 
         # get the current count and increment it
-        path_received = f"{path}/receive_count"
-        if path_received not in self._metrics.data:
-            self._metrics.data[path_received] = 0
-
-        count: int = int(self._metrics.get(path_received))
-        self._metrics.data[path_received] = count + 1
+        count: int = int(self._metrics.get(f"{path}/receiver/count"))
+        self._metrics.update_data(f"{path}/receiver/count", count + 1)
 
         # add the timestamps before sending the message
         timestamps = timestamps or []

@@ -4,3 +4,4 @@ venv
 .eggs
 .DS_Store
 scripts/venv.tar.gz
+*.so

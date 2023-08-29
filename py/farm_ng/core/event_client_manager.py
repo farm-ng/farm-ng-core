@@ -13,36 +13,36 @@ from farm_ng.core.event_service_pb2 import (
 from farm_ng.core.uri_pb2 import Uri
 
 
-class EventServiceBackend:
-    """Class for the event service backend.
+__all__ = ["EventClientSubscriptionManager"]
+
+
+class EventClientSubscriptionManager:
+    """Class for the event client subscription manager.
 
     This class is responsible for managing the subscriptions for the service
     and maintaining the list of clients.
 
     Attributes:
-        service_config: The configuration for the service.
         clients: A map of service name to EventClient.
         subscriptions: A map of service_path to SubscribeRequest.
     """
 
     def __init__(
         self,
-        service_config: EventServiceConfig,
         config_list: EventServiceConfigList,
         logger: logging.Logger | None = None,
     ) -> None:
         """Initializes the EventServiceBackend.
 
         Args:
-            service_config: The configuration for the service.
             config_list: The configuration list for the service.
             logger: The logger for the service.
         """
-        self._service_config: EventServiceConfig = service_config
+        self._config_list = config_list
 
         # initialize the logger, ideally we would like to use the same logger as the
         # service, but we can't do that because the service is not initialized yet.
-        self._logger = logger or logging.getLogger(service_config.name)
+        self._logger = logger or logging.getLogger()
 
         # initialize a map of service name to EventClient
         self._clients: dict[str, EventClient] = self._initialize_clients(config_list)
@@ -51,19 +51,9 @@ class EventServiceBackend:
         self._subscriptions: dict[str, SubscribeRequest] = {}
 
     @property
-    def service_config(self) -> EventServiceConfig:
-        """Returns the configuration for the service."""
-        return self._service_config
-
-    @property
     def clients(self) -> dict[str, EventClient]:
         """Returns a map of service name to EventClient."""
         return self._clients
-
-    @property
-    def subscriptions(self) -> dict[str, SubscribeRequest]:
-        """Returns a map of service_path to SubscribeRequest."""
-        return self._subscriptions
 
     @property
     def logger(self) -> logging.Logger:
@@ -90,9 +80,10 @@ class EventServiceBackend:
 
         config: EventServiceConfig
         for config in config_list.configs:
-            if config.port:
-                # the config name is the service name
-                clients[config.name] = EventClient(config)
+            if config.port is None:
+                raise ValueError("Port is not set for service")
+            # update the service config
+            clients.update({config.name: EventClient(config)})
         return clients
 
     def _try_register_topic(self, service_name: str, uri_path: str) -> bool:
@@ -152,35 +143,31 @@ class EventServiceBackend:
 
         client: EventClient
         for client in self._clients.values():
-            # skip adding subscriptions for the service itself
-            if client.config.name == self._service_config.name:
-                continue
-
             tasks.append(
                 asyncio.create_task(self.update_subscriptions_for_client(client)),
             )
         await asyncio.gather(*tasks)
 
-    def get_all_uris_config_list(self) -> EventServiceConfigList:
+    def get_all_uris_config_list(self, config_name: str) -> EventServiceConfigList:
         """Returns a config list with all the subscriptions for the service.
+
+        Args:
+            config_name: The name of the generated config containing all the subscriptions.
 
         Returns:
             A config list with all the subscriptions for the service.
         """
+        # make a copy of the config list
         config_list = EventServiceConfigList()
-        client: EventClient
-        for client in self._clients.values():
-            if client.config.name == self._service_config.name:
-                continue
-            config_list.configs.append(client.config)
+        config_list.CopyFrom(self._config_list)
 
-        # add the default service config
-        service_config: EventServiceConfig = EventServiceConfig()
-        service_config.name = f"{self._service_config.name}_default"
+        # add the default service config and append the subscriptions
+        service_config = EventServiceConfig(name=config_name)
 
-        # append the subscriptions
+        subscription: SubscribeRequest
         for subscription in self._subscriptions.values():
             service_config.subscriptions.append(subscription)
+
         config_list.configs.append(service_config)
 
         return config_list

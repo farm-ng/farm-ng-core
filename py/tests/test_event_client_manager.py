@@ -1,5 +1,5 @@
 import pytest
-from farm_ng.core.event_service_backend import EventServiceBackend
+from farm_ng.core.event_client_manager import EventClientSubscriptionManager
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
     EventServiceConfigList,

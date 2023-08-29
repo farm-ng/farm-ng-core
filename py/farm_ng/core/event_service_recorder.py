@@ -281,7 +281,8 @@ class RecorderService:
             await self.stop_recording()
         # start recording
         self._recorder = EventServiceRecorder(
-            config_name or "record_default", config_list,
+            config_name or "record_default",
+            config_list,
         )
         self._recorder_task = asyncio.create_task(
             self._recorder.subscribe_and_record(file_base=file_base),

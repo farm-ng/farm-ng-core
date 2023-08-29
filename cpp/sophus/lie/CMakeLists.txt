@@ -11,6 +11,7 @@ set(sophus_lie_src_prefixes
    isometry2
    isometry3
    lie_group
+   pose3
    rotation2
    rotation3
    scaling_translation
@@ -39,14 +40,13 @@ farm_ng_add_library(sophus_lie
 target_link_libraries(sophus_lie INTERFACE sophus_linalg)
 
 
-if(${BUILD_SOPHUS_TESTS})
-  foreach(test_basename ${sophus_lie_src_prefixes})
+foreach(test_basename ${sophus_lie_src_prefixes})
     farm_ng_add_test(${test_basename}
                           PARENT_LIBRARY sophus_lie
                           LINK_LIBRARIES sophus_lie
                           LABELS small)
-  endforeach()
-endif()
+endforeach()
+
 
 if(${BUILD_FARM_NG_PROTOS})
     add_subdirectory(proto)

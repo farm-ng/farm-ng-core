@@ -44,6 +44,7 @@ def proto_to_json_file(file_path: str | Path, proto_message: Message) -> bool:
 
     with Path(file_path).open("w", encoding="utf-8") as file:
         file.write(MessageToJson(proto_message))
+        file.write("\n")
 
     return True
 

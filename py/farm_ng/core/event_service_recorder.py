@@ -266,17 +266,23 @@ class RecorderService:
         self,
         file_base: Path,
         config_list: EventServiceConfigList,
+        config_name: str | None = None,
     ) -> None:
         """Starts recording the events to a file.
 
         Args:
+            file_base (Path): the base name of the file.
             config_list (EventServiceConfigList): the configuration data structure.
+            config_name (str, optional): the name of the config. Defaults to None,
+                                            in which case "record_default" is used.
         """
         # stop recording if it is already running
         if self._recorder is not None:
             await self.stop_recording()
         # start recording
-        self._recorder = EventServiceRecorder("record_default", config_list)
+        self._recorder = EventServiceRecorder(
+            config_name or "record_default", config_list,
+        )
         self._recorder_task = asyncio.create_task(
             self._recorder.subscribe_and_record(file_base=file_base),
         )
@@ -310,19 +316,23 @@ class RecorderService:
         Returns:
             Message: the response message.
         """
+        cmd: str = request.event.uri.path
+        config_name: str | None = None
+        if cmd.count("/") == 1:
+            cmd, config_name = cmd.split("/")
 
-        if request.event.uri.path == "start":
+        if cmd == "start":
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event,
                 request.payload,
             )
-            event_service.logger.info("start: %s", config_list)
+            event_service.logger.info("start %s: %s", config_name, config_list)
             file_base = self._data_dir.joinpath(get_file_name_base())
-            await self.start_recording(file_base, config_list)
+            await self.start_recording(file_base, config_list, config_name)
             return StringValue(value=str(file_base))
-        if request.event.uri.path == "stop":
+        if cmd == "stop":
             await self.stop_recording()
-        elif request.event.uri.path == "metadata":
+        elif cmd == "metadata":
             if self._recorder is not None:
                 event_service.logger.info("send_metadata: %s", request.payload)
                 await self._recorder.record_queue.put((request.event, request.payload))
@@ -357,9 +367,13 @@ def service_command(_args):
 def client_start_command(_args):
     config_list, service_config = load_service_config(args)
     loop = asyncio.get_event_loop()
+    config_name: str = args.config_name
 
     async def job():
-        reply = await EventClient(service_config).request_reply("start", config_list)
+        reply = await EventClient(service_config).request_reply(
+            f"start/{config_name}",
+            config_list,
+        )
         print(payload_to_protobuf(reply.event, reply.payload))
 
     loop.run_until_complete(job())
@@ -394,6 +408,7 @@ if __name__ == "__main__":
 
     client_parser = sub_parsers.add_parser("start")
     add_service_parser(client_parser)
+    client_parser.add_argument("--config-name", default="record_default")
     client_parser.set_defaults(func=client_start_command)
 
     client_parser = sub_parsers.add_parser("stop")

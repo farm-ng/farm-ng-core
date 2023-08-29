@@ -24,7 +24,12 @@ from farm_ng.core.event_service_pb2 import (
 )
 from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.events_file_writer import make_proto_uri
-from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now, get_stamp_by_semantics_and_clock_type
+from farm_ng.core.stamp import (
+    StampSemantics,
+    get_monotonic_now,
+    get_stamp_by_semantics_and_clock_type,
+    get_system_clock_now,
+)
 
 if TYPE_CHECKING:
     from farm_ng.core.timestamp_pb2 import Timestamp
@@ -103,7 +108,7 @@ class EventClient:
     def config(self) -> EventServiceConfig:
         """Returns the configuration data structure."""
         return self._config
-    
+
     @property
     def metrics(self) -> EventServiceHealthMetrics:
         """Returns the metrics data structure."""
@@ -215,10 +220,14 @@ class EventClient:
             )
 
             stamp_client_receive: float | None = get_stamp_by_semantics_and_clock_type(
-                response.event, StampSemantics.CLIENT_RECEIVE, "monotonic"
+                response.event,
+                StampSemantics.CLIENT_RECEIVE,
+                "monotonic",
             )
             stamp_service_send: float | None = get_stamp_by_semantics_and_clock_type(
-                response.event, StampSemantics.SERVICE_SEND, "monotonic"
+                response.event,
+                StampSemantics.SERVICE_SEND,
+                "monotonic",
             )
             if stamp_client_receive is None or stamp_service_send is None:
                 self.logger.warning(

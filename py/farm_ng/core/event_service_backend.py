@@ -128,11 +128,21 @@ class EventServiceBackend:
 
         return True
 
-    async def update_subscriptions_for_client(self, client: EventClient):
+    async def update_subscriptions_for_client(self, client: EventClient) -> None:
+        """Updates the subscriptions for a client.
+
+        Args:
+            client: The client to update the subscriptions for.
+        """
         while True:
+            # get the list of uris from the client
             uris: list[Uri] = await client.list_uris()
+
+            # register the topics
+            uri: Uri
             for uri in uris:
-                await self._try_register_topic(client.config.name, uri.path)
+                self._try_register_topic(client.config.name, uri.path)
+
             await asyncio.sleep(1.0)
 
     async def update_subscriptions(self) -> None:

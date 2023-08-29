@@ -69,12 +69,12 @@ class TestEventServiceBackend:
             config_name="record_default",
         )
 
-        assert len(config_list.configs) == 1
-        assert config_list.configs[0].name == "test_service_default"
-        assert len(config_list.configs[0].subscriptions) == 1
-        assert config_list.configs[0].subscriptions[0].uri.path == "/foo"
+        assert len(config_list.configs) == 2
+        assert config_list.configs[1].name == "record_default"
+        assert len(config_list.configs[1].subscriptions) == 1
+        assert config_list.configs[1].subscriptions[0].uri.path == "/foo"
         assert (
-            config_list.configs[0].subscriptions[0].uri.query
+            config_list.configs[1].subscriptions[0].uri.query
             == "service_name=test_service"
         )
-        assert config_list.configs[0].subscriptions[0].every_n == 1
+        assert config_list.configs[1].subscriptions[0].every_n == 1

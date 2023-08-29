@@ -12,7 +12,6 @@ from farm_ng.core.event_service_pb2 import (
 )
 from farm_ng.core.uri_pb2 import Uri
 
-
 __all__ = ["EventClientSubscriptionManager"]
 
 
@@ -81,7 +80,8 @@ class EventClientSubscriptionManager:
         config: EventServiceConfig
         for config in config_list.configs:
             if config.port is None:
-                raise ValueError("Port is not set for service")
+                msg = "Port is not set for service"
+                raise ValueError(msg)
             # update the service config
             clients.update({config.name: EventClient(config)})
         return clients

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service_pb2 import (
@@ -28,6 +29,7 @@ class EventServiceBackend:
         self,
         service_config: EventServiceConfig,
         config_list: EventServiceConfigList,
+        logger: logging.Logger | None = None,
     ) -> None:
         """Initializes the EventServiceBackend.
 
@@ -36,6 +38,10 @@ class EventServiceBackend:
             config_list: The configuration list for the service.
         """
         self._service_config: EventServiceConfig = service_config
+
+        # initialize the logger, ideally we would like to use the same logger as the
+        # service, but we can't do that because the service is not initialized yet.
+        self._logger = logger or logging.getLogger(service_config.name)
 
         # initialize a map of service name to EventClient
         self._clients: dict[str, EventClient] = self._initialize_clients(config_list)
@@ -57,6 +63,11 @@ class EventServiceBackend:
     def subscriptions(self) -> dict[str, SubscribeRequest]:
         """Returns a map of service_path to SubscribeRequest."""
         return self._subscriptions
+
+    @property
+    def logger(self) -> logging.Logger:
+        """Returns the logger for the service."""
+        return self._logger
 
     def _initialize_clients(
         self,
@@ -94,14 +105,14 @@ class EventServiceBackend:
             True if the topic was registered successfully, False otherwise.
         """
         if service_name not in self._clients:
-            print(f"Service {service_name} not found")
+            self.logger.warning("Service %s not found", service_name)
             return False
 
         # make the key for the subscription map
         service_path: str = f"{service_name}{uri_path}"
 
         if service_path in self._subscriptions:
-            print(f"Topic {service_path} already registered")
+            self.logger.warning("Topic %s already registered", service_path)
             return False
 
         subscribe_request = SubscribeRequest(
@@ -112,7 +123,7 @@ class EventServiceBackend:
             every_n=1,
         )
 
-        print(f"Registering subscription: {service_path}")
+        self.logger.info("Registering topic %s", service_path)
         self._subscriptions[service_path] = subscribe_request
 
         return True

@@ -36,6 +36,7 @@ class EventServiceBackend:
         Args:
             service_config: The configuration for the service.
             config_list: The configuration list for the service.
+            logger: The logger for the service.
         """
         self._service_config: EventServiceConfig = service_config
 
@@ -112,7 +113,7 @@ class EventServiceBackend:
         service_path: str = f"{service_name}{uri_path}"
 
         if service_path in self._subscriptions:
-            self.logger.warning("Topic %s already registered", service_path)
+            # self.logger.warning("Topic %s already registered", service_path)
             return False
 
         subscribe_request = SubscribeRequest(

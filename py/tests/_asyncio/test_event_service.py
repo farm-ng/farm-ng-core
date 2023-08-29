@@ -25,7 +25,6 @@ class TestEventServiceGrpc:
         assert event_service.logger.name == "test_service"
         assert event_service.time_started > 0.0
         assert not event_service.uris
-        assert not event_service.counts
         assert event_service.request_reply_handler is None
 
     @pytest.mark.anyio()
@@ -35,7 +34,7 @@ class TestEventServiceGrpc:
 
         # publish a message
         res = await event_service.publish(path="/foo", message=Int32Value(value=0))
-        assert event_service.counts["/foo"] == 1
+        assert event_service.metrics.data["/foo/send_count"] == 1
         assert res.sequence_number == 0
         assert res.number_clients == 0
 
@@ -48,14 +47,14 @@ class TestEventServiceGrpc:
         res = await event_service.publish(path="/foo", message=Int32Value(value=4))
         assert res.sequence_number == 2
         assert res.number_clients == 0
-        assert event_service.counts["/foo"] == 3
+        assert event_service.metrics.data["/foo/send_count"] == 3
         assert event_service.uris["/foo"] == message_uri
 
         # add to another path
         res = await event_service.publish(path="/bar", message=Int32Value(value=1))
         assert res.sequence_number == 0
         assert res.number_clients == 0
-        assert event_service.counts["/bar"] == 1
+        assert event_service.metrics.data["/bar/send_count"] == 1
         assert event_service.uris["/bar"].query == message_uri.query
 
     @pytest.mark.anyio()
@@ -97,8 +96,8 @@ class TestEventServiceGrpc:
 
         res = await asyncio.gather(*async_tasks)
         assert res == [True, True]
-        assert event_service.counts["/foo"] == 2
-        assert event_service.counts["/bar"] == 3
+        assert event_service.metrics.data["/foo/send_count"] == 2
+        assert event_service.metrics.data["/bar/send_count"] == 3
 
     @pytest.mark.anyio()
     async def test_latch(self, event_service: EventServiceGrpc) -> None:

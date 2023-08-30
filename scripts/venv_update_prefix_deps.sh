@@ -15,6 +15,7 @@ if ! grep -q $RELEASE_SHA "$ROOT_DIR/venv/prefix/release_version.txt"; then
   $ROOT_DIR/scripts/download_release.sh
   rm -rf $ROOT_DIR/venv/prefix
   tar -xzf $ROOT_DIR/scripts/venv.tar.gz --strip-components=1 -C $ROOT_DIR/
+  mv $ROOT_DIR/build_venv/venv/prefix/ $ROOT_DIR/venv/
   echo "$RELEASE_SHA" > $ROOT_DIR/venv/prefix/release_version.txt
   echo "[Updated binary dependencies. Done!]"
 else

@@ -20,7 +20,7 @@ if(NOT FARM_NG_DEV_BUILD)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH
-    ${CMAKE_CURRENT_LIST_DIR}/cmake)
+    ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
 # here we build a c++ development environment
 include(ExternalProject)
 include(farm_ng_default_args)

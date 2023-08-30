@@ -279,6 +279,7 @@ class RecorderService:
         # stop recording if it is already running
         if self._recorder is not None:
             await self.stop_recording()
+
         # start recording
         self._recorder = EventServiceRecorder(
             config_name or "record_default",

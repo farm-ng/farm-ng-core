@@ -15,9 +15,6 @@ farm_ng_module(sophus)
 message("COMPILE_OPTIONS" ${COMPILE_OPTIONS})
 
 
-option(SOPHUS_CERES "Enable sophus ceres" ON)
-
-
 
 
 add_subdirectory(common)

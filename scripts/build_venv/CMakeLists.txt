@@ -9,7 +9,7 @@ install(FILES
     ${FARM_NG_CMAKE_FILES}
     DESTINATION
         share/farm_ng_cmake/cmake
-    )
+)
 
 
 option(FARM_NG_DEV_BUILD Off)

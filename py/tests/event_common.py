@@ -19,7 +19,6 @@ def event_service_config_list() -> EventServiceConfigList:
                         every_n=1,
                     ),
                 ],
-                args=["--my-arg=my-value", "foo"],
                 log_level=EventServiceConfig.LogLevel.DEBUG,
             ),
             EventServiceConfig(

@@ -4,9 +4,10 @@ from pathlib import Path
 import pytest
 from farm_ng.core.event_service import EventServiceGrpc
 from farm_ng.core.event_service_pb2 import (
+    EventServiceConfigList,
     RequestReplyRequest,
 )
-from farm_ng.core.event_service_recorder import EventServiceRecorder
+from farm_ng.core.event_service_recorder import EventServiceRecorder, RecorderService
 from farm_ng.core.events_file_reader import EventsFileReader, payload_to_protobuf
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
@@ -32,7 +33,7 @@ class TestEventServiceRecorder:
         assert recorder_service.record_queue.qsize() == 0
 
     @pytest.mark.anyio()
-    async def test_record(
+    async def test_event_service_recorder(
         self,
         tmp_path: Path,
         event_service: EventServiceGrpc,
@@ -66,6 +67,50 @@ class TestEventServiceRecorder:
 
         task.cancel()
         # to make sure that the task is cancelled
+        await asyncio.sleep(0.1)
+
+        file_name_bin = file_name.with_suffix(".0000.bin")
+        assert file_name_bin.exists()
+
+        # read the file
+        reader = EventsFileReader(file_name_bin)
+        assert reader.open()
+
+        for event_log in reader.get_index():
+            event_message = event_log.read_message()
+            assert event_message == message
+
+
+class TestRecorderService:
+    @pytest.mark.anyio()
+    async def test_recorder_service(
+        self,
+        tmp_path: Path,
+        event_service_config_list: EventServiceConfigList,
+        event_service: EventServiceGrpc,
+    ) -> None:
+        # reset the counts
+        event_service.reset()
+        event_service.config.args.extend(["--data-dir", str(tmp_path)])
+
+        # create the recorder service
+        recorder_service = RecorderService(event_service)
+
+        file_name = tmp_path / "test_recorder_service"
+
+        await recorder_service.start_recording(
+            file_base=file_name,
+            config_list=event_service_config_list,
+            config_name="record_default",
+        )
+        await asyncio.sleep(0.1)
+
+        # publish a message
+        message = Int32Value(value=3)
+        await event_service.publish(path="/foo", message=message)
+        await asyncio.sleep(0.1)
+
+        await recorder_service.stop_recording()
         await asyncio.sleep(0.1)
 
         file_name_bin = file_name.with_suffix(".0000.bin")

@@ -47,9 +47,4 @@ foreach(test_basename ${sophus_lie_src_prefixes})
                           LABELS small)
 endforeach()
 
-
-if(${BUILD_FARM_NG_PROTOS})
-    add_subdirectory(proto)
-endif()
-
 add_subdirectory(interp)

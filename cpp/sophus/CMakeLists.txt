@@ -30,7 +30,6 @@ add_subdirectory(image)
 add_subdirectory(sensor)
 add_subdirectory(manifold)
 add_subdirectory(ceres)
-add_subdirectory(protos)
 
 
 add_library(sophus INTERFACE)

@@ -184,10 +184,8 @@ class EventServiceRecorder:
             query: dict[str, str] = uri_query_to_dict(uri=subscription.uri)
             query_service_name: str = query["service_name"]
             if query_service_name not in self.clients:
-                msg = f"Invalid subscription: {subscription}, are you sure this is a client config?"
-                raise ValueError(
-                    msg,
-                )
+                self.logger.warning("Invalid subscription: %s", query_service_name)
+                continue
             client: EventClient = self.clients[query_service_name]
             async_tasks.append(
                 asyncio.create_task(self.subscribe(client, subscription)),
@@ -289,6 +287,22 @@ class RecorderService:
             self._recorder.subscribe_and_record(file_base=file_base),
         )
 
+        def _safe_done_callback(
+            future: asyncio.Task,
+            recorder_task: asyncio.Task | None,
+        ) -> None:
+            try:
+                future.result()
+            except asyncio.CancelledError:
+                self._event_service.logger.debug("cancelled recording task")
+            finally:
+                del future
+                del recorder_task
+
+        self._recorder_task.add_done_callback(
+            lambda f: _safe_done_callback(f, self._recorder_task),
+        )
+
     async def stop_recording(self) -> None:
         """Stops recording the events to a file."""
         # do nothing if not recording
@@ -299,8 +313,6 @@ class RecorderService:
 
         # cancel the task and set the recorder to None
         self._recorder_task.cancel()
-        self._recorder = None
-        self._recorder_task = None
 
     # private methods
 

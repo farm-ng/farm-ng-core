@@ -229,16 +229,17 @@ class EventClient:
                 StampSemantics.SERVICE_SEND,
                 "monotonic",
             )
-            if stamp_client_receive is None or stamp_service_send is None:
-                self.logger.warning(
-                    "Could not compute latency for %s",
-                    response.event.uri.path,
+            if stamp_client_receive is not None and stamp_service_send is not None:
+                self._metrics.update_data(
+                    f"{response.event.uri.path}/receiver/latency",
+                    stamp_client_receive - stamp_service_send,
                 )
-                continue
-            self._metrics.update_data(
-                f"{response.event.uri.path}/receiver/latency",
-                stamp_client_receive - stamp_service_send,
-            )
+            else:
+                self.logger.warning(
+                    "Could not compute latency: %s %s",
+                    stamp_client_receive,
+                    stamp_service_send,
+                )
 
             yield response.event, payload_or_protobuf
 

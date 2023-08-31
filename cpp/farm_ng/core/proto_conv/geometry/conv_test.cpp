@@ -12,8 +12,30 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "farm_ng/core/proto_conv/lie/conv.h"
+#include "farm_ng/core/proto_conv/geometry/conv.h"
 
 #include <gtest/gtest.h>
 
 using namespace sophus;
+
+using namespace farm_ng;
+using namespace farm_ng::core;
+
+TEST(conv_geometry, unit) {
+  {
+    auto uvec = sophus::UnitVector3F64::fromVectorAndNormalize({1.0, 2.0, 3.0});
+    proto::UnitVec3F64 proto = toProt(uvec);
+    EXPECT_EQ(proto.vec3().x(), uvec.vector().x());
+    EXPECT_EQ(proto.vec3().y(), uvec.vector().y());
+    EXPECT_EQ(proto.vec3().z(), uvec.vector().z());
+
+    auto maybe_uvec2 = fromProt(proto);
+    sophus::UnitVector3F64 uvec2 = FARM_UNWRAP(maybe_uvec2);
+    EXPECT_EQ(uvec2.vector(), uvec.vector());
+    auto vec = uvec2.vector();
+    EXPECT_NEAR(vec.norm(), 1.0, 1e-6);
+    EXPECT_EQ(vec.x(), proto.vec3().x());
+    EXPECT_EQ(vec.y(), proto.vec3().y());
+    EXPECT_EQ(vec.z(), proto.vec3().z());
+  }
+}

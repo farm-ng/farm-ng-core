@@ -14,17 +14,14 @@
 
 #pragma once
 
+#include "farm_ng/core/proto_conv/proto_conv.h"
 #include "farm_ng/core/sensor.pb.h"
 #include "sophus/sensor/camera_model.h"
 
-namespace farm_ng::core {
+namespace farm_ng {
 
-Expected<sophus::CameraModel> fromProto(proto::CameraModel const& proto);
-proto::CameraModel toProto(sophus::CameraModel const& camera_model);
+FARM_PROTO_CONV_TRAIT(sophus::CameraModel, core::proto::CameraModel);
+FARM_PROTO_CONV_TRAIT(
+    std::vector<sophus::CameraModel>, core::proto::CameraModels);
 
-Expected<std::vector<sophus::CameraModel>> fromProto(
-    proto::CameraModels const& proto);
-proto::CameraModels toProto(
-    std::vector<sophus::CameraModel> const& camera_models);
-
-}  // namespace farm_ng::core
+}  // namespace farm_ng

@@ -289,7 +289,7 @@ class RecorderService:
 
         def _safe_done_callback(
             future: asyncio.Task,
-            recorder_task: asyncio.Task,
+            recorder_task: asyncio.Task | None,
         ) -> None:
             try:
                 future.result()

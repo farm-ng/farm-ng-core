@@ -16,12 +16,14 @@
 
 #include <gtest/gtest.h>
 
-namespace sophus::test {
+namespace farm_ng::test {
+
+using namespace sophus;
 
 template <class TPixel>
 void testPixelFormat() {
   auto format_in = PixelFormat::fromTemplate<TPixel>();
-  auto maybe_format = fromProto(toProto(format_in));
+  auto maybe_format = fromProt(toProt(format_in));
   PixelFormat format_out = SOPHUS_UNWRAP(maybe_format);
   SOPHUS_ASSERT_EQ(format_in, format_out);
 }
@@ -37,8 +39,8 @@ void testDynImage(std::vector<TPixel> const& pixels) {
     }
   }
   DynImage<> dyn_image_in(std::move(mut_image));
-  auto proto = toProto(dyn_image_in);
-  auto maybe_dyn_image = fromProto(proto);
+  auto proto = toProt(dyn_image_in);
+  auto maybe_dyn_image = fromProt(proto);
 
   DynImage<> dyn_image_out = SOPHUS_UNWRAP(maybe_dyn_image);
   SOPHUS_ASSERT_IMAGE_EQ(
@@ -56,7 +58,7 @@ void testIntensityImage(std::vector<TPixel> const& pixels) {
     }
   }
   IntensityImage<> dyn_image_in(std::move(mut_image));
-  auto proto = toProto(dyn_image_in);
+  auto proto = toProt(dyn_image_in);
   auto maybe_dyn_image = intensityImageFromProto(proto);
   IntensityImage<> dyn_image_out = SOPHUS_UNWRAP(maybe_dyn_image);
 
@@ -66,11 +68,11 @@ void testIntensityImage(std::vector<TPixel> const& pixels) {
 
 TEST(conv_image, roundtrip) {
   ImageSize size_in(600, 480);
-  ImageSize size_out = fromProto(toProto(size_in));
+  ImageSize size_out = *fromProt(toProt(size_in));
   SOPHUS_ASSERT_EQ(size_in, size_out);
 
   ImageLayout layout_in(size_in, 640);
-  ImageLayout layout_out = fromProto(toProto(layout_in));
+  ImageLayout layout_out = *fromProt(toProt(layout_in));
   SOPHUS_ASSERT_EQ(layout_in, layout_out);
 
   testPixelFormat<float>();
@@ -93,4 +95,4 @@ TEST(conv_image, roundtrip) {
        Eigen::Vector3f::Zero(),
        Eigen::Vector3f(0.1, 0.2, 0.3)});
 }
-}  // namespace sophus::test
+}  // namespace farm_ng::test

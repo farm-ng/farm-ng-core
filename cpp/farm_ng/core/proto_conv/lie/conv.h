@@ -15,26 +15,18 @@
 #pragma once
 
 #include "farm_ng/core/lie.pb.h"
+#include "farm_ng/core/proto_conv/proto_conv.h"
 #include "sophus/lie/isometry2.h"
 #include "sophus/lie/isometry3.h"
 #include "sophus/lie/rotation2.h"
 #include "sophus/lie/rotation3.h"
 
-namespace farm_ng::core {
+namespace farm_ng {
 
-sophus::QuaternionF64 fromProto(proto::QuaternionF64 const& proto);
-proto::QuaternionF64 toProto(sophus::QuaternionF64 const& quat);
+FARM_PROTO_CONV_TRAIT(sophus::QuaternionF64, core::proto::QuaternionF64);
+FARM_PROTO_CONV_TRAIT(sophus::Rotation2F64, core::proto::Rotation2F64);
+FARM_PROTO_CONV_TRAIT(sophus::Isometry2F64, core::proto::Isometry2F64);
+FARM_PROTO_CONV_TRAIT(sophus::Rotation3F64, core::proto::Rotation3F64);
+FARM_PROTO_CONV_TRAIT(sophus::Isometry3F64, core::proto::Isometry3F64);
 
-sophus::Rotation2<double> fromProto(proto::Rotation2F64 const& proto);
-proto::Rotation2F64 toProto(sophus::Rotation2<double> const& rotation);
-
-sophus::Isometry2<double> fromProto(proto::Isometry2F64 const& proto);
-proto::Isometry2F64 toProto(sophus::Isometry2<double> const& pose);
-
-Expected<sophus::Rotation3<double>> fromProto(proto::Rotation3F64 const& proto);
-proto::Rotation3F64 toProto(sophus::Rotation3<double> const& rotation);
-
-Expected<sophus::Isometry3<double>> fromProto(proto::Isometry3F64 const& proto);
-proto::Isometry3F64 toProto(sophus::Isometry3<double> const& pose);
-
-}  // namespace farm_ng::core
+}  // namespace farm_ng

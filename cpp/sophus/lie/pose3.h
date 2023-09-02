@@ -44,12 +44,11 @@ class Pose3 {
 
   Isometry bFromA() const { return a_from_b_.inverse(); }
   Tangent tangentOfAInB() const {
-    Isometry b_from_a = bFromA();
     Tangent tangent_of_a_in_b;
     tangent_of_a_in_b.template head<3>() =
-        b_from_a.rotation() * tangent_of_b_in_a_.template head<3>();
+        aFromB().rotation() * tangent_of_b_in_a_.template head<3>();
     tangent_of_a_in_b.template tail<3>() =
-        b_from_a.rotation() * tangent_of_b_in_a_.template tail<3>();
+        aFromB().rotation() * tangent_of_b_in_a_.template tail<3>();
     return tangent_of_a_in_b;
   }
 

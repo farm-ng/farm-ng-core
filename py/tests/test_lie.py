@@ -160,7 +160,7 @@ def test_pose():
     )
     assert np.allclose(
         world_from_robot.inverse().tangent_of_b_in_a,
-        [0.0, -1.0, 0.0, 0.0, 0.0, radians(90)],
+        [0.0, 1.0, 0.0, 0.0, 0.0, radians(90)],
     )
     print(world_from_robot.to_proto())
     print(world_from_robot.inverse().to_proto())

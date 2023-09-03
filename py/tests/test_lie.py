@@ -55,6 +55,8 @@ def test_isometry():
     nautical = yaw * pitch * roll
     print(nautical)
 
+    print(ng.Isometry3F64.exp([1.0, 0, 0, radians(90), 0, 0]))
+
 
 def test_protobuf():
     r2d = ng.Rotation2F64()
@@ -129,28 +131,36 @@ def test_pose():
         a_from_b.inverse() * b_from_c
 
     dt = 1.0 / 50.0
-    world_from_robot = ng.Pose3F64(ng.Isometry3F64(), frame_a="world", frame_b="robot")
-
-    tangent_of_now_in_prev = [1.0, 0, 0, 0, 0, radians(90)]
-    robot_from_robot_t1 = ng.Pose3F64.exp(
-        tangent_of_now_in_prev,
-        dt,
-        "robot",
-        "robot_t1",
+    world_from_robot = ng.Pose3F64(
+        ng.Isometry3F64(),
+        frame_a="world",
+        frame_b="robot",
+        tangent_of_b_in_a=[1.0, 0, 0, 0, 0, radians(90)],
     )
+
     for _i in range(50):
-        world_from_robot_t1 = world_from_robot * robot_from_robot_t1
-        world_from_robot_t1 = ng.Pose3F64.from_proto(world_from_robot_t1.to_proto())
-        # note we keep the word_from_robot transform free of velocity
-        world_from_robot_now = ng.Pose3F64(
-            world_from_robot_t1.a_from_b,
-            frame_a="world",
-            frame_b="robot",
-        )
+        world_from_robot_now = world_from_robot.evolve(dt)
+
         # computes the error between frame_b of two respective poses
         # e.g. robot and robot now
         err = ng.Pose3F64.error(world_from_robot, world_from_robot_now) * (1 / dt)
         # print(err)
         # print(tangent_of_now_in_prev)
-        assert np.allclose(err, tangent_of_now_in_prev)
+        assert np.allclose(err, world_from_robot_now.tangent_of_b_in_a)
         world_from_robot = world_from_robot_now
+
+    world_from_robot_finish = ng.Pose3F64(
+        ng.Isometry3F64.exp([1.0, 0, 0, 0, 0, radians(90)]),
+        frame_a="world",
+        frame_b="robot",
+    )
+    assert np.allclose(
+        ng.Pose3F64.error(world_from_robot, world_from_robot_finish),
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    )
+    assert np.allclose(
+        world_from_robot.inverse().tangent_of_b_in_a,
+        [0.0, 1.0, 0.0, 0.0, 0.0, radians(90)],
+    )
+    print(world_from_robot.to_proto())
+    print(world_from_robot.inverse().to_proto())

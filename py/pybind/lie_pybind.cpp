@@ -293,12 +293,17 @@ void bind_lie(py::module_& m) {
           [](Pose3F64& self, Pose3F64::Isometry const& a_from_b) {
             self.aFromB() = a_from_b;
           })
+      .def_property_readonly(
+          "b_from_a", [](Pose3F64 const& self) { return self.bFromA(); })
       .def_property(
           "tangent_of_b_in_a",
           [](Pose3F64 const& self) { return self.tangentOfBInA(); },
           [](Pose3F64& self, Pose3F64::Tangent const& tangent_of_b_in_a) {
             self.tangentOfBInA() = tangent_of_b_in_a;
           })
+      .def_property_readonly(
+          "tangent_of_a_in_b",
+          [](Pose3F64 const& self) { return self.tangentOfAInB(); })
       .def_property(
           "rotation",
           [](Pose3F64 const& self) { return self.rotation(); },
@@ -313,14 +318,7 @@ void bind_lie(py::module_& m) {
           })
       .def("inverse", &Pose3F64::inverse)
       .def("log", &Pose3F64::log)
-      .def_static(
-          "exp",
-          [](typename Pose3F64::Tangent a_log_b,
-             double dt,
-             std::string const& frame_a,
-             std::string const& frame_b) {
-            return Pose3F64::exp(a_log_b, dt, frame_a, frame_b);
-          })
+      .def("evolve", &Pose3F64::evolve)
       .def(
           "__mul__",
           [](Pose3F64 const& a_from_b, Pose3F64 const& b_from_c) {

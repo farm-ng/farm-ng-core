@@ -42,19 +42,17 @@ class Pose3 {
   Tangent const& tangentOfBInA() const { return tangent_of_b_in_a_; }
   Tangent& tangentOfBInA() { return tangent_of_b_in_a_; }
 
-  Tangent log() const { return a_from_b_.log(); }
-
-  static Pose3 exp(
-      Tangent const& tangent_of_b_in_a,
-      double dt,
-      std::string const& frame_a,
-      std::string const& frame_b) {
-    return Pose3(
-        Isometry::exp(tangent_of_b_in_a * dt),
-        frame_a,
-        frame_b,
-        tangent_of_b_in_a);
+  Isometry bFromA() const { return a_from_b_.inverse(); }
+  Tangent tangentOfAInB() const {
+    Tangent tangent_of_a_in_b;
+    tangent_of_a_in_b.template head<3>() =
+        aFromB().rotation() * tangent_of_b_in_a_.template head<3>();
+    tangent_of_a_in_b.template tail<3>() =
+        aFromB().rotation() * tangent_of_b_in_a_.template tail<3>();
+    return tangent_of_a_in_b;
   }
+
+  Tangent log() const { return a_from_b_.log(); }
 
   Eigen::Vector<Scalar, 3> translation() const {
     return aFromB().translation();
@@ -70,7 +68,15 @@ class Pose3 {
   }
 
   Pose3 inverse() const {
-    return Pose3(a_from_b_.inverse(), frame_b_, frame_a_, -tangent_of_b_in_a_);
+    return Pose3(bFromA(), frame_b_, frame_a_, tangentOfAInB());
+  }
+
+  Pose3 evolve(double dt) const {
+    return Pose3(
+        aFromB() * Isometry::exp(tangent_of_b_in_a_ * dt),
+        frame_a_,
+        frame_b_,
+        tangent_of_b_in_a_);
   }
 
   friend Expected<Tangent> error(

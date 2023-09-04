@@ -97,18 +97,23 @@ class Pose3 {
           rhs.frameB());
     }
 
+    Isometry lhs_a_from_rhs_b = lhs.aFromB() * rhs.aFromB();
+    Rotation rhs_b_from_lhs_b = rhs.aFromB().rotation().inverse();
     Tangent tangent_of_rhs_b_in_lhs_a;
 
+    // here since tangent is egocentric in the rhs_b frame, we need to rotate
+    // the the tangent from the lhs_b frame to the rhs_b frame
+
     tangent_of_rhs_b_in_lhs_a.template head<3>() =
-        lhs.tangentOfBInA().template head<3>() +
-        lhs.aFromB().rotation() * rhs.tangentOfBInA().template head<3>();
+        rhs_b_from_lhs_b * lhs.tangentOfBInA().template head<3>() +
+        rhs.tangentOfBInA().template head<3>();
 
     tangent_of_rhs_b_in_lhs_a.template tail<3>() =
-        lhs.tangentOfBInA().template tail<3>() +
-        lhs.aFromB().rotation() * rhs.tangentOfBInA().template tail<3>();
+        rhs_b_from_lhs_b * lhs.tangentOfBInA().template tail<3>() +
+        rhs.tangentOfBInA().template tail<3>();
 
     return Pose3(
-        lhs.aFromB() * rhs.aFromB(),
+        lhs_a_from_rhs_b,
         lhs.frameA(),
         rhs.frameB(),
         tangent_of_rhs_b_in_lhs_a);

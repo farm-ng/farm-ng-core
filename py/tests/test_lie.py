@@ -164,3 +164,44 @@ def test_pose():
     )
     print(world_from_robot.to_proto())
     print(world_from_robot.inverse().to_proto())
+
+
+def test_pose_tangent():
+    a_from_b = ng.Pose3F64(
+        a_from_b=ng.Isometry3F64(
+            translation=[0, 0, 0],
+            rotation=ng.Rotation3F64.exp([0, 0, 0]),
+        ),
+        frame_a="a",
+        frame_b="b",
+        tangent_of_b_in_a=[1.0, 0.0, 0.0, 0, 0, 0],
+    )
+
+    b_from_c = ng.Pose3F64(
+        a_from_b=ng.Isometry3F64(
+            translation=[0, 0, 0],
+            rotation=ng.Rotation3F64.exp([0, 0, radians(180)]),
+        ),
+        frame_a="b",
+        frame_b="c",
+        tangent_of_b_in_a=[1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    )
+
+    a_from_c = a_from_b * b_from_c
+    assert np.allclose(a_from_c.tangent_of_b_in_a, [0, 0, 0, 0, 0, 0])
+
+    b_from_d = ng.Pose3F64(
+        a_from_b=ng.Isometry3F64(
+            translation=[0, 0, 0],
+            rotation=ng.Rotation3F64.exp([0, 0, radians(90)]),
+        ),
+        frame_a="b",
+        frame_b="d",
+        tangent_of_b_in_a=[1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    )
+    a_from_d = a_from_b * b_from_d
+
+    # here we expect velocity to be in the x=1,y=-1 in d's frame
+    # as it now has the velocity from b in a + d in b,
+    # d its rotated 90 about z from b
+    assert np.allclose(a_from_d.tangent_of_b_in_a, [1, -1, 0, 0, 0, 0])

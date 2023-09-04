@@ -1,6 +1,7 @@
 #!/bin/bash -ex
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-PYTHON_TESTS_DIR=./py/tests
+PYTHON_TESTS_DIR=$DIR/py/tests
 PYTHON_ASYNCIO_TESTS_DIR=$PYTHON_TESTS_DIR/_asyncio
 
 EXIT_STATUS=0

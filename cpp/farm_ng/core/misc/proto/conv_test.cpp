@@ -22,7 +22,7 @@ using namespace farm_ng;
 TEST(to_from_proto, uri) {  // NOLINT
   Uri uri("other", "[authority]", "foo/bar", "in=input");
 
-  Expected<Uri> maybe_to_from_uri = fromProto(toProto(uri));
+  Expected<Uri> maybe_to_from_uri = fromProt(toProt(uri));
   auto to_from_uri = FARM_UNWRAP(maybe_to_from_uri);
 
   FARM_ASSERT_EQ(uri.string(), "other://[authority]/foo/bar?in=input");

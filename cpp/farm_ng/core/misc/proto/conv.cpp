@@ -18,11 +18,13 @@
 
 namespace farm_ng {
 
-auto fromProto(core::proto::Uri const& proto) -> Uri {
+template <>
+auto fromProt(core::proto::Uri const& proto) -> Expected<Uri> {
   return Uri(proto.scheme(), proto.authority(), proto.path(), proto.query());
 }
 
-auto toProto(Uri const& uri) -> core::proto::Uri {
+template <>
+core::proto::Uri toProt(Uri const& uri) {
   core::proto::Uri proto;
   proto.set_scheme(uri.scheme);
   proto.set_authority(uri.authority);

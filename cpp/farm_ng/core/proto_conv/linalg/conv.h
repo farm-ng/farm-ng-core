@@ -15,39 +15,31 @@
 #pragma once
 
 #include "farm_ng/core/linalg.pb.h"
+#include "farm_ng/core/logging/expected.h"
+#include "farm_ng/core/proto_conv/proto_conv.h"
 
 #include <Eigen/Core>
 
-namespace farm_ng::core {
+namespace farm_ng {
 
-Eigen::Matrix<uint32_t, 2, 1> fromProto(proto::Vec2I64 const& proto);
-proto::Vec2I64 toProto(Eigen::Matrix<uint32_t, 2, 1> const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Vector2i, core::proto::Vec2I64);
 
-Eigen::Vector2f fromProto(proto::Vec2F32 const& proto);
-proto::Vec2F32 toProto(Eigen::Vector2f const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Vector2f, core::proto::Vec2F32);
 
-Eigen::Vector2d fromProto(proto::Vec2F64 const& proto);
-proto::Vec2F64 toProto(Eigen::Vector2d const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Vector2d, core::proto::Vec2F64);
 
-Eigen::Matrix<uint32_t, 3, 1> fromProto(proto::Vec3I64 const& proto);
-proto::Vec3I64 toProto(Eigen::Matrix<uint32_t, 3, 1> const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Vector3i, core::proto::Vec3I64);
 
-Eigen::Vector3f fromProto(proto::Vec3F32 const& proto);
-proto::Vec3F32 toProto(Eigen::Vector3f const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Vector3f, core::proto::Vec3F32);
 
-Eigen::Vector3d fromProto(proto::Vec3F64 const& proto);
-proto::Vec3F64 toProto(Eigen::Vector3d const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Vector3d, core::proto::Vec3F64);
 
-Eigen::Matrix2f fromProto(proto::Mat2F32 const& proto);
-proto::Mat2F32 toProto(Eigen::Matrix2f const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Matrix2f, core::proto::Mat2F32);
 
-Eigen::Matrix2d fromProto(proto::Mat2F64 const& proto);
-proto::Mat2F64 toProto(Eigen::Matrix2d const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Matrix2d, core::proto::Mat2F64);
 
-Eigen::Matrix3f fromProto(proto::Mat3F32 const& proto);
-proto::Mat3F32 toProto(Eigen::Matrix3f const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Matrix3f, core::proto::Mat3F32);
 
-Eigen::Matrix3d fromProto(proto::Mat3F64 const& proto);
-proto::Mat3F64 toProto(Eigen::Matrix3d const& v);
+FARM_PROTO_CONV_TRAIT(Eigen::Matrix3d, core::proto::Mat3F64);
 
-}  // namespace farm_ng::core
+}  // namespace farm_ng

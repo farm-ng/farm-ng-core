@@ -16,73 +16,94 @@
 
 #include "farm_ng/core/proto_conv/linalg/conv.h"
 
-namespace farm_ng::core {
+namespace farm_ng {
 
-sophus::QuaternionF64 fromProto(proto::QuaternionF64 const& proto) {
+template <>
+auto fromProt<core::proto::QuaternionF64>(
+    core::proto::QuaternionF64 const& proto)
+    -> Expected<sophus::QuaternionF64> {
   sophus::QuaternionF64 quat;
-  quat.imag() = fromProto(proto.imag());
+  FARM_TRY(auto, vec3, fromProt(proto.imag()));
+  quat.imag() = vec3;
   quat.real() = proto.real();
   return quat;
 }
 
-proto::QuaternionF64 toProto(sophus::QuaternionF64 const& quat) {
-  proto::QuaternionF64 proto;
+template <>
+auto toProt<sophus::QuaternionF64>(sophus::QuaternionF64 const& quat)
+    -> core::proto::QuaternionF64 {
+  core::proto::QuaternionF64 proto;
   proto.set_real(quat.real());
-  *proto.mutable_imag() = toProto(quat.imag().eval());
+  *proto.mutable_imag() = toProt(quat.imag().eval());
   return proto;
 }
 
-sophus::Rotation2F64 fromProto(proto::Rotation2F64 const& proto) {
+template <>
+auto fromProt<core::proto::Rotation2F64>(core::proto::Rotation2F64 const& proto)
+    -> Expected<sophus::Rotation2F64> {
   return sophus::Rotation2F64(proto.theta());
 }
 
-proto::Rotation2F64 toProto(sophus::Rotation2F64 const& rotation) {
-  proto::Rotation2F64 proto;
+template <>
+auto toProt<sophus::Rotation2F64>(sophus::Rotation2F64 const& rotation)
+    -> core::proto::Rotation2F64 {
+  core::proto::Rotation2F64 proto;
   proto.set_theta(rotation.log()[0]);
   return proto;
 }
 
-sophus::Isometry2F64 fromProto(proto::Isometry2F64 const& proto) {
-  return sophus::Isometry2F64(
-      fromProto(proto.translation()), fromProto(proto.rotation()));
+template <>
+auto fromProt<core::proto::Isometry2F64>(core::proto::Isometry2F64 const& proto)
+    -> Expected<sophus::Isometry2F64> {
+  FARM_TRY(auto, translation, fromProt(proto.translation()));
+  FARM_TRY(auto, rotation, fromProt(proto.rotation()));
+  return sophus::Isometry2F64(translation, rotation);
 }
 
-proto::Isometry2F64 toProto(sophus::Isometry2F64 const& pose) {
-  proto::Isometry2F64 proto;
-  *proto.mutable_rotation() = toProto(pose.rotation());
-  *proto.mutable_translation() = toProto(pose.translation().eval());
+template <>
+auto toProt<sophus::Isometry2F64>(sophus::Isometry2F64 const& pose)
+    -> core::proto::Isometry2F64 {
+  core::proto::Isometry2F64 proto;
+  *proto.mutable_rotation() = toProt(pose.rotation());
+  *proto.mutable_translation() = toProt(pose.translation().eval());
   return proto;
 }
 
-Expected<sophus::Rotation3F64> fromProto(proto::Rotation3F64 const& proto) {
-  sophus::QuaternionF64 quat = fromProto(proto.unit_quaternion());
-  static double constexpr kEps = 1e-6;
-  if (std::abs(quat.squaredNorm() - 1.0) > kEps) {
-    return SOPHUS_UNEXPECTED(
-        "quaternion norm ({}) is not close to 1:\n{}",
-        quat.squaredNorm(),
-        quat.params().transpose());
+template <>
+auto fromProt<core::proto::Rotation3F64>(core::proto::Rotation3F64 const& proto)
+    -> Expected<sophus::Rotation3F64> {
+  FARM_TRY(auto, quat, fromProt(proto.unit_quaternion()));
+  auto valid =
+      sophus::lie::Rotation3Impl<double>::areParamsValid(quat.params());
+  if (!valid) {
+    return FARM_UNEXPECTED("{}", valid.error());
   }
-
   return sophus::Rotation3F64::fromUnitQuaternion(quat);
 }
 
-proto::Rotation3F64 toProto(sophus::Rotation3F64 const& rotation) {
-  proto::Rotation3F64 proto;
-  *proto.mutable_unit_quaternion() = toProto(rotation.unitQuaternion());
+template <>
+auto toProt<sophus::Rotation3F64>(sophus::Rotation3F64 const& rotation)
+    -> core::proto::Rotation3F64 {
+  core::proto::Rotation3F64 proto;
+  *proto.mutable_unit_quaternion() = toProt(rotation.unitQuaternion());
   return proto;
 }
 
-Expected<sophus::Isometry3F64> fromProto(proto::Isometry3F64 const& proto) {
-  SOPHUS_TRY(sophus::Rotation3F64, rotation, fromProto(proto.rotation()));
-  return sophus::Isometry3(fromProto(proto.translation()), rotation);
+template <>
+auto fromProt<core::proto::Isometry3F64>(core::proto::Isometry3F64 const& proto)
+    -> Expected<sophus::Isometry3F64> {
+  FARM_TRY(auto, rotation, fromProt(proto.rotation()));
+  FARM_TRY(auto, translation, fromProt(proto.translation()));
+  return sophus::Isometry3F64(translation, rotation);
 }
 
-proto::Isometry3F64 toProto(sophus::Isometry3F64 const& pose) {
-  proto::Isometry3F64 proto;
-  *proto.mutable_rotation() = toProto(pose.rotation());
-  *proto.mutable_translation() = toProto(pose.translation().eval());
+template <>
+auto toProt<sophus::Isometry3F64>(sophus::Isometry3F64 const& pose)
+    -> core::proto::Isometry3F64 {
+  core::proto::Isometry3F64 proto;
+  *proto.mutable_rotation() = toProt(pose.rotation());
+  *proto.mutable_translation() = toProt(pose.translation().eval());
   return proto;
 }
 
-}  // namespace farm_ng::core
+}  // namespace farm_ng

@@ -14,131 +14,179 @@
 
 #include "farm_ng/core/proto_conv/linalg/conv.h"
 
-namespace farm_ng::core {
+namespace farm_ng {
 
-Eigen::Matrix<uint32_t, 2, 1> fromProto(proto::Vec2I64 const& proto) {
-  return Eigen::Matrix<uint32_t, 2, 1>(proto.x(), proto.y());
+template <>
+auto fromProt<core::proto::Vec2I64>(core::proto::Vec2I64 const& proto)
+    -> Expected<Eigen::Vector2i> {
+  return Eigen::Vector2i(proto.x(), proto.y());
 }
 
-proto::Vec2I64 toProto(Eigen::Matrix<uint32_t, 2, 1> const& v) {
-  proto::Vec2I64 proto;
+template <>
+auto toProt<Eigen::Vector2i>(Eigen::Vector2i const& v) -> core::proto::Vec2I64 {
+  core::proto::Vec2I64 proto;
   proto.set_x(v.x());
   proto.set_y(v.y());
   return proto;
 }
 
-Eigen::Vector2f fromProto(proto::Vec2F32 const& proto) {
+template <>
+auto fromProt<core::proto::Vec2F32>(core::proto::Vec2F32 const& proto)
+    -> Expected<Eigen::Vector2f> {
   return Eigen::Vector2f(proto.x(), proto.y());
 }
 
-proto::Vec2F32 toProto(Eigen::Vector2f const& v) {
-  proto::Vec2F32 proto;
+template <>
+auto toProt<Eigen::Vector2f>(Eigen::Vector2f const& v) -> core::proto::Vec2F32 {
+  core::proto::Vec2F32 proto;
   proto.set_x(v.x());
   proto.set_y(v.y());
   return proto;
 }
 
-Eigen::Vector2d fromProto(proto::Vec2F64 const& proto) {
+template <>
+auto fromProt<core::proto::Vec2F64>(core::proto::Vec2F64 const& proto)
+    -> Expected<Eigen::Vector2d> {
   return Eigen::Vector2d(proto.x(), proto.y());
 }
 
-proto::Vec2F64 toProto(Eigen::Vector2d const& v) {
-  proto::Vec2F64 proto;
+template <>
+auto toProt<Eigen::Vector2d>(Eigen::Vector2d const& v) -> core::proto::Vec2F64 {
+  core::proto::Vec2F64 proto;
   proto.set_x(v.x());
   proto.set_y(v.y());
   return proto;
 }
 
-Eigen::Matrix<uint32_t, 3, 1> fromProto(proto::Vec3I64 const& proto) {
-  return Eigen::Matrix<uint32_t, 3, 1>(proto.x(), proto.y(), proto.z());
+template <>
+auto fromProt<core::proto::Vec3I64>(core::proto::Vec3I64 const& proto)
+    -> Expected<Eigen::Vector3i> {
+  return Eigen::Vector3i(proto.x(), proto.y(), proto.z());
 }
 
-proto::Vec3I64 toProto(Eigen::Matrix<uint32_t, 3, 1> const& v) {
-  proto::Vec3I64 proto;
+template <>
+auto toProt<Eigen::Vector3i>(Eigen::Vector3i const& v) -> core::proto::Vec3I64 {
+  core::proto::Vec3I64 proto;
   proto.set_x(v.x());
   proto.set_y(v.y());
   proto.set_z(v.z());
   return proto;
 }
 
-Eigen::Vector3f fromProto(proto::Vec3F32 const& proto) {
+template <>
+auto fromProt<core::proto::Vec3F32>(core::proto::Vec3F32 const& proto)
+    -> Expected<Eigen::Vector3f> {
   return Eigen::Vector3f(proto.x(), proto.y(), proto.z());
 }
 
-proto::Vec3F32 toProto(Eigen::Vector3f const& v) {
-  proto::Vec3F32 proto;
+template <>
+auto toProt<Eigen::Vector3f>(Eigen::Vector3f const& v) -> core::proto::Vec3F32 {
+  core::proto::Vec3F32 proto;
   proto.set_x(v.x());
   proto.set_y(v.y());
   proto.set_z(v.z());
   return proto;
 }
 
-Eigen::Vector3d fromProto(proto::Vec3F64 const& proto) {
+template <>
+auto fromProt<core::proto::Vec3F64>(core::proto::Vec3F64 const& proto)
+    -> Expected<Eigen::Vector3d> {
   return Eigen::Vector3d(proto.x(), proto.y(), proto.z());
 }
 
-proto::Vec3F64 toProto(Eigen::Vector3d const& v) {
-  proto::Vec3F64 proto;
+template <>
+auto toProt<Eigen::Vector3d>(Eigen::Vector3d const& v) -> core::proto::Vec3F64 {
+  core::proto::Vec3F64 proto;
   proto.set_x(v.x());
   proto.set_y(v.y());
   proto.set_z(v.z());
   return proto;
 }
 
-Eigen::Matrix2f fromProto(proto::Mat2F32 const& proto) {
+template <>
+auto fromProt<core::proto::Mat2F32>(core::proto::Mat2F32 const& proto)
+    -> Expected<Eigen::Matrix2f> {
+  FARM_TRY(auto, col0, fromProt(proto.col_0()));
+  FARM_TRY(auto, col1, fromProt(proto.col_1()));
+
   Eigen::Matrix2f m;
-  m.col(0) = fromProto(proto.col_0());
-  m.col(1) = fromProto(proto.col_1());
+  m.col(0) = col0;
+  m.col(1) = col1;
   return m;
 }
-proto::Mat2F32 toProto(Eigen::Matrix2f const& v) {
-  proto::Mat2F32 proto;
-  *proto.mutable_col_0() = toProto(v.col(0).eval());
-  *proto.mutable_col_1() = toProto(v.col(1).eval());
+
+template <>
+auto toProt<Eigen::Matrix2f>(Eigen::Matrix2f const& v) -> core::proto::Mat2F32 {
+  core::proto::Mat2F32 proto;
+  *proto.mutable_col_0() = toProt<Eigen::Vector2f>(v.col(0));
+  *proto.mutable_col_1() = toProt<Eigen::Vector2f>(v.col(1));
   return proto;
 }
 
-Eigen::Matrix2d fromProto(proto::Mat2F64 const& proto) {
+template <>
+auto fromProt<core::proto::Mat2F64>(core::proto::Mat2F64 const& proto)
+    -> Expected<Eigen::Matrix2d> {
+  FARM_TRY(auto, col0, fromProt(proto.col_0()));
+  FARM_TRY(auto, col1, fromProt(proto.col_1()));
+
   Eigen::Matrix2d m;
-  m.col(0) = fromProto(proto.col_0());
-  m.col(1) = fromProto(proto.col_1());
+  m.col(0) = col0;
+  m.col(1) = col1;
   return m;
 }
-proto::Mat2F64 toProto(Eigen::Matrix2d const& v) {
-  proto::Mat2F64 proto;
-  *proto.mutable_col_0() = toProto(v.col(0).eval());
-  *proto.mutable_col_1() = toProto(v.col(1).eval());
+
+template <>
+auto toProt<Eigen::Matrix2d>(Eigen::Matrix2d const& v) -> core::proto::Mat2F64 {
+  core::proto::Mat2F64 proto;
+  *proto.mutable_col_0() = toProt<Eigen::Vector2d>(v.col(0));
+  *proto.mutable_col_1() = toProt<Eigen::Vector2d>(v.col(1));
   return proto;
 }
 
-Eigen::Matrix3f fromProto(proto::Mat3F32 const& proto) {
+template <>
+auto fromProt<core::proto::Mat3F32>(core::proto::Mat3F32 const& proto)
+    -> Expected<Eigen::Matrix3f> {
+  FARM_TRY(auto, col0, fromProt(proto.col_0()));
+  FARM_TRY(auto, col1, fromProt(proto.col_1()));
+  FARM_TRY(auto, col2, fromProt(proto.col_2()));
+
   Eigen::Matrix3f m;
-  m.col(0) = fromProto(proto.col_0());
-  m.col(1) = fromProto(proto.col_1());
-  m.col(2) = fromProto(proto.col_2());
+  m.col(0) = col0;
+  m.col(1) = col1;
+  m.col(2) = col2;
   return m;
 }
-proto::Mat3F32 toProto(Eigen::Matrix3f const& v) {
-  proto::Mat3F32 proto;
-  *proto.mutable_col_0() = toProto(v.col(0).eval());
-  *proto.mutable_col_1() = toProto(v.col(1).eval());
-  *proto.mutable_col_2() = toProto(v.col(2).eval());
+
+template <>
+auto toProt<Eigen::Matrix3f>(Eigen::Matrix3f const& v) -> core::proto::Mat3F32 {
+  core::proto::Mat3F32 proto;
+  *proto.mutable_col_0() = toProt<Eigen::Vector3f>(v.col(0));
+  *proto.mutable_col_1() = toProt<Eigen::Vector3f>(v.col(1));
+  *proto.mutable_col_2() = toProt<Eigen::Vector3f>(v.col(2));
   return proto;
 }
 
-Eigen::Matrix3d fromProto(proto::Mat3F64 const& proto) {
+template <>
+auto fromProt<core::proto::Mat3F64>(core::proto::Mat3F64 const& proto)
+    -> Expected<Eigen::Matrix3d> {
+  FARM_TRY(auto, col0, fromProt(proto.col_0()));
+  FARM_TRY(auto, col1, fromProt(proto.col_1()));
+  FARM_TRY(auto, col2, fromProt(proto.col_2()));
+
   Eigen::Matrix3d m;
-  m.col(0) = fromProto(proto.col_0());
-  m.col(1) = fromProto(proto.col_1());
-  m.col(2) = fromProto(proto.col_2());
+  m.col(0) = col0;
+  m.col(1) = col1;
+  m.col(2) = col2;
   return m;
 }
-proto::Mat3F64 toProto(Eigen::Matrix3d const& v) {
-  proto::Mat3F64 proto;
-  *proto.mutable_col_0() = toProto(v.col(0).eval());
-  *proto.mutable_col_1() = toProto(v.col(1).eval());
-  *proto.mutable_col_2() = toProto(v.col(2).eval());
+
+template <>
+auto toProt<Eigen::Matrix3d>(Eigen::Matrix3d const& v) -> core::proto::Mat3F64 {
+  core::proto::Mat3F64 proto;
+  *proto.mutable_col_0() = toProt<Eigen::Vector3d>(v.col(0));
+  *proto.mutable_col_1() = toProt<Eigen::Vector3d>(v.col(1));
+  *proto.mutable_col_2() = toProt<Eigen::Vector3d>(v.col(2));
   return proto;
 }
 
-}  // namespace farm_ng::core
+}  // namespace farm_ng

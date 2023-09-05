@@ -5,6 +5,7 @@ PROTO_FILES
 ./farm_ng/core/timestamp.proto
 ./farm_ng/core/uri.proto
 ./farm_ng/core/linalg.proto
+./farm_ng/core/calculus.proto
 ./farm_ng/core/geometry.proto
 ./farm_ng/core/lie.proto
 ./farm_ng/core/pose.proto

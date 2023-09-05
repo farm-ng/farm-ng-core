@@ -14,11 +14,10 @@ from google.protobuf.wrappers_pb2 import Int32Value
 
 
 async def request_reply_handler(
-    event_service: EventServiceGrpc,
     request: RequestReplyRequest,
 ) -> Message:
     message = payload_to_protobuf(request.event, request.payload)
-    event_service.logger.info(
+    print(
         f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip(),
     )
     return message  # echo message back

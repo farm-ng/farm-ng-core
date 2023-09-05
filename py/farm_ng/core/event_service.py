@@ -204,8 +204,11 @@ class EventServiceGrpc:
         timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
 
         # create the URI of the message
-        uri: Uri = make_proto_uri(path=path, message=message)
-        uri.query += f"&service_name={self.config.name}"
+        uri: Uri = make_proto_uri(
+            path=path,
+            message=message,
+            service_name=self.config.name,
+        )
 
         # send the message to the service
         result = await self._send_raw(
@@ -286,7 +289,7 @@ class EventServiceGrpc:
 
         reply_message: Message
         if self._request_reply_handler is not None:
-            reply_message = await self._request_reply_handler(self, request)
+            reply_message = await self._request_reply_handler(request)
             if reply_message is None:
                 self.logger.error(
                     "Request invalid, please check your request channel and packet %s",
@@ -511,11 +514,10 @@ async def test_send_smoke2(event_service: EventServiceGrpc) -> None:
 
 
 async def test_req_rep_handler_smoke(
-    event_service: EventServiceGrpc,
     request: RequestReplyRequest,
 ) -> Message:
     message = payload_to_protobuf(request.event, request.payload)
-    event_service.logger.info(
+    print(
         f"Received: {request.event.uri.path} {request.event.sequence} {message}".rstrip(),
     )
     return message  # echo message back

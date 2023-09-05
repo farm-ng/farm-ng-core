@@ -318,7 +318,6 @@ class RecorderService:
 
     async def _request_reply_handler(
         self,
-        event_service: EventServiceGrpc,
         request: RequestReplyRequest,
     ) -> Message:
         """Handles the request reply.
@@ -340,7 +339,7 @@ class RecorderService:
                 request.event,
                 request.payload,
             )
-            event_service.logger.info("start %s: %s", config_name, config_list)
+            self._event_service.logger.info("start %s: %s", config_name, config_list)
             file_base = self._data_dir.joinpath(get_file_name_base())
             await self.start_recording(file_base, config_list, config_name)
             return StringValue(value=str(file_base))
@@ -348,10 +347,10 @@ class RecorderService:
             await self.stop_recording()
         elif cmd == "metadata":
             if self._recorder is not None:
-                event_service.logger.info("send_metadata: %s", request.payload)
+                self._event_service.logger.info("send_metadata: %s", request.payload)
                 await self._recorder.record_queue.put((request.event, request.payload))
             else:
-                event_service.logger.warning(
+                self._event_service.logger.warning(
                     "requested to send metadata but not recording",
                 )
         return Empty()

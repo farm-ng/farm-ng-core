@@ -70,7 +70,7 @@ def get_authority() -> str:
     return get_host_name()
 
 
-def make_proto_uri(path: str, message: Message) -> uri_pb2.Uri:
+def make_proto_uri(path: str, message: Message, service_name=None) -> uri_pb2.Uri:
     """Return a protobuf uri from protobuf message.
 
     Args:
@@ -93,11 +93,14 @@ def make_proto_uri(path: str, message: Message) -> uri_pb2.Uri:
         path: "tik/tok"
         query: "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
     """
+    service_query = ""
+    if service_name is not None:
+        service_query = f"&service_name={service_name}"
     return uri_pb2.Uri(
         scheme="protobuf",
         authority=get_authority(),
         path=path,
-        query=f"type={message.DESCRIPTOR.full_name}&pb={message.DESCRIPTOR.file.name}",
+        query=f"type={message.DESCRIPTOR.full_name}&pb={message.DESCRIPTOR.file.name}{service_query}",
     )
 
 

@@ -35,6 +35,18 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: "recursive"
+      # We use this instead of github paths, so that it only runs when there is a change,
+      # and still completes in the case that there are no change. Thus, we can still use
+      # the workflow as a check in the build.
+    - uses: marceloprado/has-changed-path@v1.0.1
+      id: changed-builder
+      with:
+        paths: |
+          **/CMakeLists.txt
+          cmake
+          scripts
+          cpp
+          **/*.proto
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
     - name: Install dependencies (Ubuntu)

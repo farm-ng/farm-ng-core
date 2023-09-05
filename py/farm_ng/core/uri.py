@@ -71,7 +71,9 @@ def get_authority() -> str:
 
 
 def make_proto_uri(
-    path: str, message: Message, service_name: str | None = None,
+    path: str,
+    message: Message,
+    service_name: str | None = None,
 ) -> uri_pb2.Uri:
     """Return a protobuf uri from protobuf message.
 

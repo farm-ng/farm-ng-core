@@ -83,4 +83,4 @@ jobs:
         clang -v
         source venv/bin/activate
         ./scripts/compile_clang_asan.sh
-      if: (matrix.compiler == 'clang' && matrix.asan == 'on') && && (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+      if: (matrix.compiler == 'clang' && matrix.asan == 'on') && (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')

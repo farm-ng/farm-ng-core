@@ -240,6 +240,7 @@ class EventClient:
                     stamp_client_receive,
                     stamp_service_send,
                 )
+                continue
 
             yield response.event, payload_or_protobuf
 

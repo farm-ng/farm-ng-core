@@ -50,14 +50,17 @@ jobs:
           cpp
           protos
     - name: ccache
+      if: (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
       uses: hendrikmuhs/ccache-action@v1
+
     - name: Install dependencies (Ubuntu)
       working-directory: ./scripts
       run: |
         ./install_deps_ubuntu.sh
-      if: matrix.os == 'ubuntu-20.04'
+      if: matrix.os == 'ubuntu-20.04' && (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
 
     - name: Download dependencies (proto)
+      if: (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
       run: |
         source ./bootstrap_venv.sh
 
@@ -65,14 +68,14 @@ jobs:
       run: |
           source venv/bin/activate
           ./scripts/compile_gcc.sh
-      if: matrix.compiler == 'gcc'
+      if: matrix.compiler == 'gcc' && (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
 
     - name: Compile (clang)
       run: |
         clang -v
         source venv/bin/activate
         ./scripts/compile_clang.sh
-      if: matrix.compiler == 'clang' && matrix.asan == 'off'
+      if: (matrix.compiler == 'clang' && matrix.asan == 'off') && (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
 
 
     - name: Compile (clang asan)
@@ -80,4 +83,4 @@ jobs:
         clang -v
         source venv/bin/activate
         ./scripts/compile_clang_asan.sh
-      if: matrix.compiler == 'clang' && matrix.asan == 'on'
+      if: (matrix.compiler == 'clang' && matrix.asan == 'on') && && (steps.changed-builder.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')

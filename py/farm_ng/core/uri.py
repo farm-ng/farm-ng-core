@@ -70,7 +70,7 @@ def get_authority() -> str:
     return get_host_name()
 
 
-def make_proto_uri(path: str, message: Message, service_name=None) -> uri_pb2.Uri:
+def make_proto_uri(path: str, message: Message, service_name: str | None = None) -> uri_pb2.Uri:
     """Return a protobuf uri from protobuf message.
 
     Args:

@@ -49,6 +49,26 @@ logging.basicConfig(level=logging.INFO)
 __all__ = ["EventClient"]
 
 
+def make_event_and_payload(
+    path: str,
+    message: Message,
+    service_name: str,
+    sequence: int,
+    timestamps: list[Timestamp] | None = None,
+):
+    uri = make_proto_uri(path=path, message=message, service_name=service_name)
+    payload = message.SerializeToString()
+    return (
+        Event(
+            uri=uri,
+            timestamps=timestamps or [],
+            payload_length=len(payload),
+            sequence=sequence,
+        ),
+        payload,
+    )
+
+
 class EventClientProtocol(Protocol):
     """Protocol for the gRPC streaming object.
 

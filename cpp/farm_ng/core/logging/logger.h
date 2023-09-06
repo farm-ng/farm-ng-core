@@ -40,18 +40,22 @@ std::string stringFromLogLevel(LogLevel level);
 // A logger that writes to std::cerr
 class StreamLogger {
  public:
-  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::info);
-
   // The header format is a {fmt}-style format string that may include the
-  //  named arguments {level}, {text}, {file}, {line}, {function}, {time},
-  //  {time_ms}.
+  //  named arguments {level}, {text}, {file}, {line}, {function}, {time}.
   void setHeaderFormat(std::string const& str);
   std::string getHeaderFormat() const;
 
   // Set the runtime log level
   void setLogLevel(LogLevel level);
-
   LogLevel getLogLevel();
+
+  // A type-erased generator of timestamp strings
+  struct LogClock {
+    std::function<std::string()> now;
+  };
+
+  // Set the clock used to produce timestamps
+  void setLogClock(LogClock log_clock);
 
   template <typename... TT>
   inline void log(
@@ -107,8 +111,13 @@ class StreamLogger {
   static void write(std::string const& str);
   static void flush();
 
-  std::string header_format_ = "[FARM {text} in {file}:{line}]\n";
+  static std::string const kDefaultHeaderFormat;
+  static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::info);
+  static LogClock const kDefaultLogClock;
+
+  std::string header_format_ = kDefaultHeaderFormat;
   LogLevel log_level_ = kDefaultLogLevel;
+  LogClock log_clock_ = kDefaultLogClock;
   std::unordered_set<std::string> noisy_modules_;
 };
 

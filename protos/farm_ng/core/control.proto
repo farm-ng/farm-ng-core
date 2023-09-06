@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package farm_ng.control.proto;
+
+message ConvergenceState {
+    bool converged = 1;
+}

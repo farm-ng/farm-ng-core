@@ -108,6 +108,24 @@ def make_proto_uri(
     )
 
 
+def get_service_name(uri: uri_pb2.Uri) -> str | None:
+    """Return the service name from a protobuf uri.
+
+    Args:
+        uri: uri_pb2.Uri
+
+    Returns:
+        str | None: the service name.
+
+    Example:
+        >>> uri = Uri()
+        >>> uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto&service_name=service"
+        >>> get_service_name(uri)
+        'service'
+    """
+    return uri_query_to_dict(uri).get("service_name", None)
+
+
 def uri_to_string(uri: uri_pb2.Uri) -> str:
     """Return a string from a protobuf uri.
 

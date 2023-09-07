@@ -2,6 +2,7 @@ import pytest
 from farm_ng.core import timestamp_pb2, uri_pb2
 from farm_ng.core.uri import (
     _parse_protobuf_descriptor,
+    get_service_name,
     make_proto_uri,
     string_to_uri,
     uri_query_to_dict,
@@ -60,3 +61,10 @@ class TestUri:
             "Timestamp",
             "farm_ng.core.timestamp_pb2",
         )
+
+    def test_get_service_name(self, message):
+        uri: uri_pb2.Uri = make_proto_uri("tik/tok", message)
+        assert get_service_name(uri) is None
+
+        uri = make_proto_uri("tik/tok", message, service_name="tik_service")
+        assert get_service_name(uri) == "tik_service"

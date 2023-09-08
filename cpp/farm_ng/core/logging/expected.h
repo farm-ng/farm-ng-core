@@ -61,10 +61,22 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 }  // namespace details
 }  // namespace farm_ng
 
+// You might want to disable callstacks in tests where one wishes to compare
+// exact strings of error messages.
+#ifdef FARM_ERROR_CALLSTACK_DISABLED
+
+#define FARM_ERROR_DETAIL(...)                                \
+  ::farm_ng::ErrorDetail {                                    \
+    .file = "n/a", .line = 0, .msg = FARM_FORMAT(__VA_ARGS__) \
+  }
+
+#else
+
 #define FARM_ERROR_DETAIL(...)                                          \
   ::farm_ng::ErrorDetail {                                              \
     .file = __FILE__, .line = __LINE__, .msg = FARM_FORMAT(__VA_ARGS__) \
   }
+#endif
 
 #define FARM_ERROR_REPORT(cstr, ...)                      \
   ::farm_ng::Error {                                      \
@@ -76,11 +88,14 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 
 /// Assigns `*expression` to `var` of `Type`, but returns error if there is
 /// one.
-#define FARM_TRY(Type, var, expression)               \
-  auto maybe##var = (expression);                     \
-  if (!maybe##var) {                                  \
-    return ::tl::make_unexpected(maybe##var.error()); \
-  }                                                   \
+#define FARM_TRY(Type, var, expression)                     \
+  auto maybe##var = (expression);                           \
+  if (!maybe##var) {                                        \
+    auto error = maybe##var.error();                        \
+    error.details.emplace_back(                             \
+        FARM_ERROR_DETAIL("FARM_TRY propagated error.\n")); \
+    return ::tl::make_unexpected(error);                    \
+  }                                                         \
   Type var = ::std::move(*maybe##var);
 
 #define FARM_ASSERT_OR_ERROR(condition, ...)                             \

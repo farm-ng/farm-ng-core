@@ -116,11 +116,12 @@ TEST(expected, success) {  // NOLINT
 TEST(expected, single_error) {  // NOLINT
   Expected<Abc> abc = makeAbc(true, false, true);
   FARM_ASSERT(!abc);
-  FARM_ASSERT_EQ(abc.error().details.size(), 1);
+  FARM_INFO("{}", abc.error());
+  FARM_ASSERT_EQ(abc.error().details.size(), 3, "foo ");
 
   abc = makeAbc(false, true, false);
   FARM_ASSERT(!abc);
-  FARM_ASSERT_EQ(abc.error().details.size(), 1);
+  FARM_ASSERT_EQ(abc.error().details.size(), 2);
 
   abc = makeAbc(false, false, true);
   FARM_ASSERT(!abc);

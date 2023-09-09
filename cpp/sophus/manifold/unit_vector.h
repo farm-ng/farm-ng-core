@@ -40,6 +40,18 @@ class UnitVectorImpl {
   using Params = Eigen::Vector<Scalar, kNumParams>;
   using Tangent = Eigen::Vector<Scalar, kDof>;
 
+  static auto unitX() -> UnitVector<Scalar, kDim> {
+    return UnitVector<Scalar, kDim>::fromUnitVector(Params::UnitX());
+  }
+
+  static auto unitY() -> UnitVector<Scalar, kDim> {
+    return UnitVector<Scalar, kDim>::fromUnitVector(Params::UnitY());
+  }
+
+  static auto unitZ() -> UnitVector<Scalar, kDim> {
+    return UnitVector<Scalar, kDim>::fromUnitVector(Params::UnitZ());
+  }
+
   static auto areParamsValid(Params const& unit_vector)
       -> sophus::Expected<Success> {
     static const Scalar kThr = kEpsilon<Scalar>;

@@ -131,11 +131,13 @@ def test_pose():
         a_from_b.inverse() * b_from_c
 
     dt = 1.0 / 50.0
+    vel = [1.0, 0, 0, 0, 0, radians(90)]
+
     world_from_robot = ng.Pose3F64(
         ng.Isometry3F64(),
         frame_a="world",
         frame_b="robot",
-        tangent_of_b_in_a=[1.0, 0, 0, 0, 0, radians(90)],
+        tangent_of_b_in_a=vel,
     )
 
     for _i in range(50):
@@ -150,7 +152,7 @@ def test_pose():
         world_from_robot = world_from_robot_now
 
     world_from_robot_finish = ng.Pose3F64(
-        ng.Isometry3F64.exp([1.0, 0, 0, 0, 0, radians(90)]),
+        ng.Isometry3F64.exp(vel),
         frame_a="world",
         frame_b="robot",
     )
@@ -158,9 +160,15 @@ def test_pose():
         ng.Pose3F64.error(world_from_robot, world_from_robot_finish),
         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     )
+    expected = -np.array(vel)
+    print(
+        "world_from_robot.inverse().tangent_of_b_in_a: ",
+        world_from_robot.inverse().tangent_of_b_in_a,
+    )
+    print("expected: ", expected)
     assert np.allclose(
         world_from_robot.inverse().tangent_of_b_in_a,
-        [0.0, 1.0, 0.0, 0.0, 0.0, radians(90)],
+        expected,
     )
     print(world_from_robot.to_proto())
     print(world_from_robot.inverse().to_proto())

@@ -301,9 +301,6 @@ void bind_lie(py::module_& m) {
           [](Pose3F64& self, Pose3F64::Tangent const& tangent_of_b_in_a) {
             self.tangentOfBInA() = tangent_of_b_in_a;
           })
-      .def_property_readonly(
-          "tangent_of_a_in_b",
-          [](Pose3F64 const& self) { return self.tangentOfAInB(); })
       .def_property(
           "rotation",
           [](Pose3F64 const& self) { return self.rotation(); },

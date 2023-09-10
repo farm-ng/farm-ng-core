@@ -24,11 +24,11 @@ class Pose3 {
       Isometry const& a_from_b,
       std::string const& frame_a,
       std::string const& frame_b,
-      Tangent const& tangent_of_b_in_a = Tangent::Zero())
+      Tangent const& tangent_in_b = Tangent::Zero())
       : a_from_b_(a_from_b),
         frame_a_(frame_a),
         frame_b_(frame_b),
-        tangent_of_b_in_a_(tangent_of_b_in_a) {}
+        tangent_in_b_(tangent_in_b) {}
 
   std::string const& frameA() const { return frame_a_; }
   std::string& frameA() { return frame_a_; }
@@ -39,17 +39,30 @@ class Pose3 {
   Isometry const& aFromB() const { return a_from_b_; }
   Isometry& aFromB() { return a_from_b_; }
 
-  Tangent const& tangentOfBInA() const { return tangent_of_b_in_a_; }
-  Tangent& tangentOfBInA() { return tangent_of_b_in_a_; }
+  /// Rate of change of the pose ``a_from_b`` represented in frame ``b``.
+  ///
+  /// In other words tangent_in_b_ is the relative linear and angular velocity
+  /// of the rigid body ``b`` (with respect to frame ``a``) and this
+  /// velocity is expressed in frame ``b``.
+  Tangent const& tangentInB() const { return tangent_in_b_; }
 
+  /// Mutable version of tangentInB.
+  Tangent& tangentInB() { return tangent_in_b_; }
+
+  // deprecated naming convention
+  Tangent const& tangentOfBInA() const { return tangentInB(); }
+
+  // deprecated naming convention
+  Tangent& tangentOfBInA() { return tangentInB(); }
+
+  /// Pose of entity ``b`` in the ``a`` frame.
   Isometry bFromA() const { return a_from_b_.inverse(); }
-  Tangent tangentOfAInB() const {
-    Tangent tangent_of_a_in_b;
-    tangent_of_a_in_b.template head<3>() =
-        aFromB().rotation() * tangent_of_b_in_a_.template head<3>();
-    tangent_of_a_in_b.template tail<3>() =
-        aFromB().rotation() * tangent_of_b_in_a_.template tail<3>();
-    return tangent_of_a_in_b;
+
+  /// Changes origin frame of tangent vector from frame ``bar`` to frame
+  /// ``foo``.
+  static Tangent changeTangentOrigin(
+      sophus::Isometry3F64 const& foo_from_bar, Tangent const& tangent_in_bar) {
+    return foo_from_bar.adj() * tangent_in_bar;
   }
 
   Tangent log() const { return a_from_b_.log(); }
@@ -67,16 +80,26 @@ class Pose3 {
     return aFromB().setRotation(rotation);
   }
 
+  /// Inverse of the pose (and its velocity).
+  ///
   Pose3 inverse() const {
-    return Pose3(bFromA(), frame_b_, frame_a_, tangentOfAInB());
+    return Pose3(
+        bFromA(),
+        frame_b_,
+        frame_a_,
+        -changeTangentOrigin(aFromB(), tangent_in_b_));
   }
 
+  /// Evolves the pose by a small increment ``dt``.
+  ///
+  /// It is assumed that the egocentric velocity of the rigid body ``b`` stays
+  /// constant.
   Pose3 evolve(double dt) const {
     return Pose3(
-        aFromB() * Isometry::exp(tangent_of_b_in_a_ * dt),
+        aFromB() * Isometry::exp(tangent_in_b_ * dt),
         frame_a_,
         frame_b_,
-        tangent_of_b_in_a_);
+        tangent_in_b_);
   }
 
   friend Expected<Tangent> error(
@@ -97,26 +120,39 @@ class Pose3 {
           rhs.frameB());
     }
 
-    Isometry lhs_a_from_rhs_b = lhs.aFromB() * rhs.aFromB();
-    Rotation rhs_b_from_lhs_b = rhs.aFromB().rotation().inverse();
-    Tangent tangent_of_rhs_b_in_lhs_a;
+    /// for notation simplicity, let's introduce the following three frames:
+    ///
+    /// a  := lhs.frameA()
+    /// mid  := lhs.frameB() == rhs.frameA()
+    /// b  := rhs.frameB()
 
-    // here since tangent is egocentric in the rhs_b frame, we need to rotate
-    // the the tangent from the lhs_b frame to the rhs_b frame
+    Isometry a_from_mid = lhs.aFromB();
+    Isometry mid_from_b = rhs.aFromB();
+    // Relative velocity of the rigid body ``mid`` (with respect to frame
+    // a) in frame ``mid``.
+    Tangent velocity_of_mid_wrt_a_in_mid = lhs.tangentInB();
+    // Relative velocity of the rigid body ``b`` (with respect to frame
+    // mid) in frame ``b``.
+    Tangent velocity_of_b_wrt_mid_in_b = rhs.tangentInB();
 
-    tangent_of_rhs_b_in_lhs_a.template head<3>() =
-        rhs_b_from_lhs_b * lhs.tangentOfBInA().template head<3>() +
-        rhs.tangentOfBInA().template head<3>();
+    /// We aim to calculate the pose of ``a_from_b`` and its velocity
+    /// ``velocity_of_b_wrt_a_in_b``.
+    Isometry a_from_b = a_from_mid * mid_from_b;
 
-    tangent_of_rhs_b_in_lhs_a.template tail<3>() =
-        rhs_b_from_lhs_b * lhs.tangentOfBInA().template tail<3>() +
-        rhs.tangentOfBInA().template tail<3>();
+    // Given relative velocity of the rigid body ``mid`` (with respect to frame
+    // a) in frame ``mid``,
+    // we calculate the relative velocity of the rigid body ``mid`` (with
+    // respect to frame a) in frame ``b``.
+    Eigen::Vector<double, 6> velocity_of_mid_wrt_a_in_b =
+        changeTangentOrigin(mid_from_b.inverse(), velocity_of_mid_wrt_a_in_mid);
+
+    // This is basically just vec(a,mid) + vec(mid,b) = vec(a,b). This is valid
+    // because all velocities are expressed in the same frame b.
+    Tangent velocity_of_b_wrt_a_in_b =
+        velocity_of_mid_wrt_a_in_b + velocity_of_b_wrt_mid_in_b;
 
     return Pose3(
-        lhs_a_from_rhs_b,
-        lhs.frameA(),
-        rhs.frameB(),
-        tangent_of_rhs_b_in_lhs_a);
+        a_from_b, lhs.frameA(), rhs.frameB(), velocity_of_b_wrt_a_in_b);
   }
 
   friend Expected<Pose3> operator*(
@@ -150,7 +186,7 @@ class Pose3 {
   Isometry a_from_b_;
   std::string frame_a_;
   std::string frame_b_;
-  Tangent tangent_of_b_in_a_;
+  Tangent tangent_in_b_;
 };
 
 using Pose3F32 = Pose3<float>;

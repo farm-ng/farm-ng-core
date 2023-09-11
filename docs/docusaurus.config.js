@@ -66,7 +66,7 @@ const config = {
             label: 'Book',
           },
           {
-            href: 'https://farm-ng.github.io/docs/namespaces.html',
+            href: 'https://farm-ng.github.io/api/namespaces.html',
             position: 'left',
             label: 'API reference',
           },

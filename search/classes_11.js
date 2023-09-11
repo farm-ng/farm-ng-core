@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['ray_1853',['Ray',['../classsophus_1_1_ray.html',1,'sophus']]],
+  ['recorderservice_1854',['RecorderService',['../classcore_1_1event__service__recorder_1_1_recorder_service.html',1,'core::event_service_recorder']]],
+  ['reduce_1855',['Reduce',['../classsophus_1_1concepts_1_1details_1_1_reduce.html',1,'sophus::concepts::details']]],
+  ['reduce_3c_20tt_20_3e_1856',['Reduce&lt; TT &gt;',['../classsophus_1_1concepts_1_1details_1_1_reduce_3_01_t_t_01_4.html',1,'sophus::concepts::details']]],
+  ['region_1857',['Region',['../classsophus_1_1_region.html',1,'sophus']]],
+  ['rotation2_1858',['Rotation2',['../classsophus_1_1_rotation2.html',1,'sophus']]],
+  ['rotation2impl_1859',['Rotation2Impl',['../classsophus_1_1lie_1_1_rotation2_impl.html',1,'sophus::lie']]],
+  ['rotation3_1860',['Rotation3',['../classsophus_1_1_rotation3.html',1,'sophus']]],
+  ['rotation3impl_1861',['Rotation3Impl',['../classsophus_1_1lie_1_1_rotation3_impl.html',1,'sophus::lie']]],
+  ['rotationalpart_1862',['RotationalPart',['../structsophus_1_1test_1_1_rotational_part.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3aisometry2f64_20_3e_1863',['RotationalPart&lt; sophus::Isometry2F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_isometry2_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3aisometry3f64_20_3e_1864',['RotationalPart&lt; sophus::Isometry3F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_isometry3_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3arotation2f64_20_3e_1865',['RotationalPart&lt; sophus::Rotation2F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_rotation2_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3arotation3f64_20_3e_1866',['RotationalPart&lt; sophus::Rotation3F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_rotation3_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3ascaling_3c_20double_2c_202_20_3e_20_3e_1867',['RotationalPart&lt; sophus::Scaling&lt; double, 2 &gt; &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_scaling_3_01double_00_012_01_4_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3ascaling_3c_20double_2c_203_20_3e_20_3e_1868',['RotationalPart&lt; sophus::Scaling&lt; double, 3 &gt; &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_scaling_3_01double_00_013_01_4_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3ascalingtranslation_3c_20double_2c_202_20_3e_20_3e_1869',['RotationalPart&lt; sophus::ScalingTranslation&lt; double, 2 &gt; &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_scaling_translation_3_01double_00_012_01_4_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3ascalingtranslation_3c_20double_2c_203_20_3e_20_3e_1870',['RotationalPart&lt; sophus::ScalingTranslation&lt; double, 3 &gt; &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_scaling_translation_3_01double_00_013_01_4_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3asimilarity2f64_20_3e_1871',['RotationalPart&lt; sophus::Similarity2F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_similarity2_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3asimilarity3f64_20_3e_1872',['RotationalPart&lt; sophus::Similarity3F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_similarity3_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3aspiralsimilarity2f64_20_3e_1873',['RotationalPart&lt; sophus::SpiralSimilarity2F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_spiral_similarity2_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3aspiralsimilarity3f64_20_3e_1874',['RotationalPart&lt; sophus::SpiralSimilarity3F64 &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_spiral_similarity3_f64_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3atranslation_3c_20double_2c_202_20_3e_20_3e_1875',['RotationalPart&lt; sophus::Translation&lt; double, 2 &gt; &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_translation_3_01double_00_012_01_4_01_4.html',1,'sophus::test']]],
+  ['rotationalpart_3c_20sophus_3a_3atranslation_3c_20double_2c_203_20_3e_20_3e_1876',['RotationalPart&lt; sophus::Translation&lt; double, 3 &gt; &gt;',['../structsophus_1_1test_1_1_rotational_part_3_01sophus_1_1_translation_3_01double_00_013_01_4_01_4.html',1,'sophus::test']]]
+];

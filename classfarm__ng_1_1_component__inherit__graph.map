@@ -1,0 +1,7 @@
+<map id="farm_ng::Component" name="farm_ng::Component">
+<area shape="rect" id="node1" title="Parent definition of a farm_ng::Component." alt="" coords="219,5,378,32"/>
+<area shape="rect" id="node2" href="$classfarm__ng_1_1_adder.html" title=" " alt="" coords="5,80,128,107"/>
+<area shape="rect" id="node3" href="$classfarm__ng_1_1_printer.html" title=" " alt="" coords="153,80,279,107"/>
+<area shape="rect" id="node4" href="$struct_input_test_component.html" title=" " alt="" coords="303,80,459,107"/>
+<area shape="rect" id="node5" href="$struct_output_test_component.html" title=" " alt="" coords="483,80,650,107"/>
+</map>

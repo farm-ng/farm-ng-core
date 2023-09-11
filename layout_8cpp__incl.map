@@ -1,0 +1,52 @@
+<map id="projects/farm&#45;ng&#45;core/cpp/sophus/image/layout.cpp" name="projects/farm&#45;ng&#45;core/cpp/sophus/image/layout.cpp">
+<area shape="rect" id="node1" title=" " alt="" coords="2355,5,2571,47"/>
+<area shape="rect" id="node2" href="$layout_8h.html" title=" " alt="" coords="2378,95,2549,121"/>
+<area shape="rect" id="node3" href="$common_8h.html" title=" " alt="" coords="1639,430,1842,457"/>
+<area shape="rect" id="node21" title=" " alt="" coords="2123,787,2203,814"/>
+<area shape="rect" id="node39" href="$concepts_2image_8h.html" title=" " alt="" coords="1817,259,2003,285"/>
+<area shape="rect" id="node45" href="$image__size_8h.html" title=" " alt="" coords="2384,169,2543,211"/>
+<area shape="rect" id="node50" title=" " alt="" coords="2677,259,2780,285"/>
+<area shape="rect" id="node4" title=" " alt="" coords="2389,609,2481,635"/>
+<area shape="rect" id="node5" title=" " alt="" coords="1843,519,1969,546"/>
+<area shape="rect" id="node6" href="$eigen_8h.html" title=" " alt="" coords="1441,512,1601,553"/>
+<area shape="rect" id="node7" href="$logger_8h.html" title=" " alt="" coords="1254,601,1414,643"/>
+<area shape="rect" id="node12" href="$format_8h.html" title=" " alt="" coords="758,691,918,732"/>
+<area shape="rect" id="node27" href="$expected_8h.html" title=" " alt="" coords="969,512,1129,553"/>
+<area shape="rect" id="node32" href="$variant__utils_8h.html" title=" " alt="" coords="1625,512,1819,553"/>
+<area shape="rect" id="node34" title=" " alt="" coords="1993,519,2056,546"/>
+<area shape="rect" id="node35" title=" " alt="" coords="2081,519,2142,546"/>
+<area shape="rect" id="node36" title=" " alt="" coords="1153,519,1219,546"/>
+<area shape="rect" id="node37" title=" " alt="" coords="1345,519,1417,546"/>
+<area shape="rect" id="node38" title=" " alt="" coords="1917,698,2009,725"/>
+<area shape="rect" id="node8" href="$farm__ng_2core_2enum_2enum_8h.html" title=" " alt="" coords="254,698,457,725"/>
+<area shape="rect" id="node22" title=" " alt="" coords="993,691,1157,732"/>
+<area shape="rect" id="node23" title=" " alt="" coords="1181,691,1345,732"/>
+<area shape="rect" id="node24" title=" " alt="" coords="1370,698,1437,725"/>
+<area shape="rect" id="node25" title=" " alt="" coords="1461,698,1551,725"/>
+<area shape="rect" id="node26" title=" " alt="" coords="1575,698,1690,725"/>
+<area shape="rect" id="node9" href="$enum__without__iostream_8h.html" title=" " alt="" coords="5,780,196,821"/>
+<area shape="rect" id="node10" title=" " alt="" coords="221,787,293,814"/>
+<area shape="rect" id="node11" title=" " alt="" coords="317,787,393,814"/>
+<area shape="rect" id="node13" href="$backtrace_8h.html" title=" " alt="" coords="1099,780,1259,821"/>
+<area shape="rect" id="node14" title=" " alt="" coords="1283,780,1454,821"/>
+<area shape="rect" id="node15" title=" " alt="" coords="1479,780,1643,821"/>
+<area shape="rect" id="node16" title=" " alt="" coords="417,780,581,821"/>
+<area shape="rect" id="node17" title=" " alt="" coords="605,787,695,814"/>
+<area shape="rect" id="node18" title=" " alt="" coords="719,787,824,814"/>
+<area shape="rect" id="node19" title=" " alt="" coords="849,787,963,814"/>
+<area shape="rect" id="node20" title=" " alt="" coords="988,787,1075,814"/>
+<area shape="rect" id="node28" title=" " alt="" coords="926,609,1049,635"/>
+<area shape="rect" id="node29" title=" " alt="" coords="1073,609,1147,635"/>
+<area shape="rect" id="node30" title=" " alt="" coords="1171,609,1230,635"/>
+<area shape="rect" id="node31" title=" " alt="" coords="2604,609,2667,635"/>
+<area shape="rect" id="node33" title=" " alt="" coords="1688,609,1756,635"/>
+<area shape="rect" id="node40" href="$sophus_2common_2enum_8h.html" title=" " alt="" coords="1559,341,1741,367"/>
+<area shape="rect" id="node41" href="$params_8h.html" title=" " alt="" coords="2129,341,2323,367"/>
+<area shape="rect" id="node42" href="$point_8h.html" title=" " alt="" coords="2267,519,2446,546"/>
+<area shape="rect" id="node43" href="$utils_8h.html" title=" " alt="" coords="2143,609,2317,635"/>
+<area shape="rect" id="node44" title=" " alt="" coords="2175,698,2285,725"/>
+<area shape="rect" id="node46" href="$region_8h.html" title=" " alt="" coords="2313,259,2496,285"/>
+<area shape="rect" id="node47" href="$vector__space_8h.html" title=" " alt="" coords="2413,333,2567,375"/>
+<area shape="rect" id="node49" href="$vector__space__traits_8h.html" title=" " alt="" coords="2299,423,2452,464"/>
+<area shape="rect" id="node48" href="$cast_8h.html" title=" " alt="" coords="2528,430,2679,457"/>
+</map>

@@ -1,0 +1,4 @@
+var struct_eigen_1_1_scalar_binary_op_traits_3_01sophus_1_1concepts_1_1_compat_scalar_ex_3_01_t_t_012b28b98171c6dc63d65dabcb80c7358c =
+[
+    [ "ReturnType", "struct_eigen_1_1_scalar_binary_op_traits_3_01sophus_1_1concepts_1_1_compat_scalar_ex_3_01_t_t_012b28b98171c6dc63d65dabcb80c7358c.html#ae9be04c384b9d8a99c3fc3e58699c167", null ]
+];

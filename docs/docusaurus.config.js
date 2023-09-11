@@ -88,26 +88,14 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Discourse',
-                href: 'https://discourse.farm-ng.com/',
-              },
-              {
                 label: 'Linkedin',
                 href: 'https://www.linkedin.com/company/farm-ng',
               },
             ],
           },
           {
-            title: 'farm-ng and sister projects',
+            title: 'farm-ng sister projects',
             items: [
-              {
-                label: 'farm-ng-core',
-                href: 'https://farm-ng.github.io/farm-ng-core/',
-              },
-              {
-                label: 'Sophus',
-                href: 'https://strasdat.github.io/Sophus/latest/',
-              },
               {
                 label: 'Pangolin',
                 href: 'https://github.com/stevenlovegrove/Pangolin',

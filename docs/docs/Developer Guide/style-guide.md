@@ -2,11 +2,9 @@
 sidebar_position: 1
 ---
 
-# Farm-ng C++ Style Guide
+# C++ Style Guide
 
-This is the c++ style guide for farm-ng. It does not just apply to
-*farm-ng-core* but the mentioned libraries above, but other all farm-ng
-libraries and sister open source projects such as *Sophus*.
+This is the c++ style guide for farm-ng-coe.
 
 ## Coding standard
 

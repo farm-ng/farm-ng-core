@@ -106,19 +106,30 @@ class EventLogWriterBinaryImpl : public EventLogWriterImpl {
   std::ofstream out;
 };
 
-EventLogWriter::EventLogWriter(std::filesystem::path const& log_path)
-    : log_path_(log_path) {
-  // generate the directory tree in case it's empty or doesn't exist
+static Expected<EventLogWriter> EventLogWriter::fromPath(
+    std::filesystem::path const& log_path) {
+  EventLogWriter writer;
+  writer.log_path_ = log_path;
 
-  std::filesystem::path path_prefix = log_path;
-  path_prefix.remove_filename();
-  if (!path_prefix.empty() && !std::filesystem::exists(path_prefix)) {
-    if (!std::filesystem::create_directories(path_prefix)) {
-      throw EventLogExist(FARM_FORMAT(
-          "Could not create log directory: {}", path_prefix.string()));
+  try {
+    // generate the directory tree in case it's empty or doesn't exist
+    std::filesystem::path path_prefix = log_path;
+    path_prefix.remove_filename();
+    if (!path_prefix.empty() && !std::filesystem::exists(path_prefix)) {
+      if (!std::filesystem::create_directories(path_prefix)) {
+        throw EventLogExist(FARM_FORMAT(
+            "Could not create log directory: {}", path_prefix.string()));
+      }
     }
+    writer.impl_ = std::make_unique<EventLogWriterBinaryImpl>(log_path);
+  } catch (std::exception& e) {
+    return FARM_UNEXPECTED(FARM_FORMAT(
+        "Could not create log directory: {}\nerror: {}",
+        log_path.string(),
+        e.what()));
   }
-  impl_ = std::make_unique<EventLogWriterBinaryImpl>(log_path);
+
+  return writer;
 }
 
 EventLogWriter::~EventLogWriter() noexcept { impl_.reset(nullptr); }

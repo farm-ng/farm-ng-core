@@ -16,7 +16,9 @@
 
 #pragma once
 
-#include <farm_ng/core/event.pb.h>
+#include "farm_ng/core/event.pb.h"
+#include "farm_ng/core/logging/expected.h"
+
 
 #include <filesystem>
 #include <memory>
@@ -50,7 +52,7 @@ class EventLogWriter {
   /// does not exist. If ``log-path`` does exist, it must be a folder and it
   /// must be empty.
   ///
-  EventLogWriter(std::filesystem::path const& log_path);
+  static Expected<EventLogWriter> fromPath(std::filesystem::path const& log_path);
 
   /// Main destructor
   virtual ~EventLogWriter() noexcept;
@@ -60,20 +62,22 @@ class EventLogWriter {
       std::string const& path,
       google::protobuf::Message const& message,
       std::vector<core::proto::Timestamp> const& timestamps =
-          std::vector<core::proto::Timestamp>());
+          std::vector<core::proto::Timestamp>()) noexcept;
   void write(
       std::string const& path,
       google::protobuf::Message const& message,
       google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
-          timestamps);
+          timestamps) noexcept;
 
   /// Returns the path including the fileaname
   [[nodiscard]] std::filesystem::path getPath() const { return log_path_; }
 
   /// Returns the number of bytes written to the file so far
-  [[nodiscard]] ssize_t getBytesWritten();
+  [[nodiscard]] ssize_t getBytesWritten() noexcept;
 
  private:
+   EventLogWriter(){}
+
   // The log path including the filename
   std::filesystem::path log_path_;
   // Implementation pointer of the class

@@ -16,7 +16,7 @@
 
 #include "farm_ng/core/logging/expected.h"
 #include "farm_ng/core/misc/uri.h"
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 
 #include <farm_ng/core/uri.pb.h>
 

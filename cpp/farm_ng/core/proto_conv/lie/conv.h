@@ -15,7 +15,7 @@
 #pragma once
 
 #include "farm_ng/core/lie.pb.h"
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 #include "sophus/lie/isometry2.h"
 #include "sophus/lie/isometry3.h"
 #include "sophus/lie/rotation2.h"

@@ -27,7 +27,65 @@ template <class TT>
 class Shared {
  public:
   using ExpectedT = farm_ng::Expected<Shared<TT>>;
-  using BadExpectedAccess = tl::bad_expected_access<farm_ng::Error>;
+
+  // Default constructable only if T is
+
+  template <class TTT = TT>
+  Shared() requires(std::is_default_constructible<TTT>::value)
+      : non_null_shared_(std::make_shared<TTT>()) {}
+
+  // Rule of 5
+
+  // Destructor
+  ~Shared() noexcept = default;
+
+  // Copy constr/assignment
+  Shared(Shared const&) = default;
+  Shared& operator=(Shared const&) = default;
+
+  // TODO: Better to not have move constructor and assignment operator, but it
+  // is currently used in downstream code
+
+  // Move constr/assignment (mimic copy constructor)
+  Shared(Shared<TT>&& o) noexcept : non_null_shared_(o.non_null_shared_) {
+    // We mustn't move the internal shared_ptr
+    // because that would break the invariant.
+  }
+  Shared<TT>& operator=(Shared<TT>&& o) noexcept {
+    // We maintain the invariant since
+    // o.non_null_shared_ must also be valid
+    non_null_shared_ = o.non_null_shared_;
+    return *this;
+  }
+
+  /// Construct from a possibly null shared_ptr
+  ///
+  /// Panics if shared is null. See `tryFrom()` for alternate.
+  Shared(std::shared_ptr<TT> const& panic_if_null) noexcept
+      : non_null_shared_(panic_if_null) {
+    FARM_ASSERT_NE(non_null_shared_, nullptr);
+  }
+
+  /// From TDerived constructors
+
+  // Copy constructor from derived bases
+  template <DerivedFrom<TT> TDerived>
+  Shared(Shared<TDerived> const& other) noexcept
+      : non_null_shared_(other.sharedPtr()) {}
+
+  // Construct from shared_ptr
+  template <DerivedFrom<TT> TDerived>
+  Shared(std::shared_ptr<TDerived> const& panic_if_null) noexcept
+      : non_null_shared_(panic_if_null) {
+    FARM_ASSERT_NE(non_null_shared_, nullptr);
+  }
+
+  // Take ownership from unique_ptr
+  template <DerivedFrom<TT> TDerived>
+  Shared(std::unique_ptr<TDerived>&& panic_if_null) noexcept
+      : non_null_shared_(std::move(panic_if_null)) {
+    FARM_ASSERT_NE(non_null_shared_, nullptr);
+  }
 
   /// Construct from a possibly null shared_ptr
   /// The return value is an object containing either a non-null Shared object
@@ -39,7 +97,7 @@ class Shared {
     }
     // For some reason, Expected seems to have trouble accepting an r-value
     // Shared<T> with its deleted copy constructor.
-    Shared<TT> temp(maybe_null);
+    Shared temp(maybe_null);
     return temp;
   }
 
@@ -99,65 +157,11 @@ class Shared {
   // Return the raw point from this Shared<T> object
   TT* ptr() { return sharedPtr().get(); }
 
-  // Default constructable only if T is
-  Shared() requires(std::is_default_constructible<TT>::value)
-      : non_null_shared_(std::make_shared<TT>()) {
-    checkMaybeThrow();
-  }
-
-  // Copy constructor from derived bases
-  template <DerivedFrom<TT> TDerived>
-  Shared(Shared<TDerived> const& other) : non_null_shared_(other.sharedPtr()) {
-    checkMaybeThrow();
-  }
-
-  // Construct from shared_ptr
-  template <DerivedFrom<TT> TDerived>
-  Shared(std::shared_ptr<TDerived> const& panic_if_null)
-      : non_null_shared_(panic_if_null) {
-    checkMaybeThrow();
-  }
-
-  // Take ownership from unique_ptr
-  template <DerivedFrom<TT> TDerived>
-  Shared(std::unique_ptr<TDerived>&& panic_if_null)
-      : non_null_shared_(std::move(panic_if_null)) {
-    checkMaybeThrow();
-  }
-
-  // Not sure why this is needed when the generic one
-  // is defined above
-  Shared(std::shared_ptr<TT> const& panic_if_null)
-      : non_null_shared_(panic_if_null) {
-    checkMaybeThrow();
-  }
-
-  Shared(Shared<TT>&& o) noexcept : non_null_shared_(o.non_null_shared_) {
-    // We mustn't move the internal shared_ptr
-    // because that would break the invariant.
-  }
-
-  Shared<TT>& operator=(Shared<TT>&& o) noexcept {
-    // We maintain the invariant since
-    // o.non_null_shared_ must also be valid
-    non_null_shared_ = o.non_null_shared_;
-    return *this;
-  }
-
-  Shared(Shared<TT> const&) = default;
-  Shared<TT>& operator=(Shared<TT> const&) = default;
-
   bool operator==(Shared<TT> const& rhs) const noexcept {
     return this->non_null_shared_ == rhs.non_null_shared_;
   }
 
  private:
-  void checkMaybeThrow() const {
-    if (!non_null_shared_) {
-      throw BadExpectedAccess(FARM_ERROR_REPORT("Shared is null."));
-    }
-  }
-
   // Class invariant:non_null_shared_ is guaranteed not to be null.
   std::shared_ptr<TT> non_null_shared_;
 };

@@ -26,7 +26,6 @@
 
 #include <climits>
 #include <filesystem>
-#include <fstream>
 #include <memory>
 #include <stdexcept>
 
@@ -61,87 +60,80 @@ auto makeWriteStamp() -> core::proto::Timestamp {
   return stamp;
 }
 
-class EventLogWriterBinaryImpl : public EventLogWriterImpl {
- public:
-  EventLogWriterBinaryImpl(std::filesystem::path const& log_path)
-      : log_path(log_path) {}
+void EventLogWriter::write(
+    std::string const& path,
+    google::protobuf::Message const& message,
+    google::protobuf::RepeatedPtrField<core::proto::Timestamp>
+        proto_stamps) noexcept {
+  if (!maybe_outstream_->is_open()) {
+    maybe_outstream_->open(log_path_.string(), std::ofstream::binary);
+  }
+  std::string payload;
+  message.SerializeToString(&payload);
+  core::proto::Event event;
+  // see py/farm_ng/core/uri.py
+  core::proto::Uri* uri = event.mutable_uri();
+  uri->set_scheme("protobuf");
+  uri->set_authority(getAuthority());
+  uri->set_path(path);
+  uri->set_query(
+      "type=" + message.GetDescriptor()->full_name() +
+      "&pb=" + message.GetDescriptor()->file()->name());
 
-  void write(
-      std::string path,
-      google::protobuf::Message const& message,
-      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
-          timestamps) override {
-    if (!out.is_open()) {
-      out.open(log_path.string(), std::ofstream::binary);
-    }
-    std::string payload;
-    message.SerializeToString(&payload);
-    core::proto::Event event;
-    // see py/farm_ng/core/uri.py
-    core::proto::Uri* uri = event.mutable_uri();
-    uri->set_scheme("protobuf");
-    uri->set_authority(getAuthority());
-    uri->set_path(path);
-    uri->set_query(
-        "type=" + message.GetDescriptor()->full_name() +
-        "&pb=" + message.GetDescriptor()->file()->name());
-
-    for (core::proto::Timestamp const& stamp : timestamps) {
-      event.add_timestamps()->CopyFrom(stamp);
-    }
-    event.add_timestamps()->CopyFrom(makeWriteStamp());
-    event.set_payload_length(payload.size());
-    std::string event_str;
-    event.SerializeToString(&event_str);
-    uint32_t n_bytes = event_str.size();
-    out.write(reinterpret_cast<char const*>(&n_bytes), sizeof(n_bytes));
-    out << event_str;
-    out << payload;
-    out.flush();
+  for (core::proto::Timestamp const& stamp : proto_stamps) {
+    event.add_timestamps()->CopyFrom(stamp);
   }
 
-  ssize_t getBytesWritten() override { return out.tellp(); }
-
-  std::filesystem::path log_path;
-  std::ofstream out;
-};
-
-EventLogWriter::EventLogWriter(std::filesystem::path const& log_path)
-    : log_path_(log_path) {
-  // generate the directory tree in case it's empty or doesn't exist
-
-  std::filesystem::path path_prefix = log_path;
-  path_prefix.remove_filename();
-  if (!path_prefix.empty() && !std::filesystem::exists(path_prefix)) {
-    if (!std::filesystem::create_directories(path_prefix)) {
-      throw EventLogExist(FARM_FORMAT(
-          "Could not create log directory: {}", path_prefix.string()));
-    }
-  }
-  impl_ = std::make_unique<EventLogWriterBinaryImpl>(log_path);
+  event.add_timestamps()->CopyFrom(makeWriteStamp());
+  event.set_payload_length(payload.size());
+  std::string event_str;
+  event.SerializeToString(&event_str);
+  uint32_t n_bytes = event_str.size();
+  maybe_outstream_->write(
+      reinterpret_cast<char const*>(&n_bytes), sizeof(n_bytes));
+  (*maybe_outstream_) << event_str;
+  (*maybe_outstream_) << payload;
+  maybe_outstream_->flush();
 }
-
-EventLogWriter::~EventLogWriter() noexcept { impl_.reset(nullptr); }
 
 void EventLogWriter::write(
     std::string const& path,
     google::protobuf::Message const& message,
-    std::vector<core::proto::Timestamp> const& timestamps) {
+    std::vector<core::proto::Timestamp> const& timestamps) noexcept {
   google::protobuf::RepeatedPtrField<core::proto::Timestamp> proto_stamps;
   for (auto stamp : timestamps) {
     proto_stamps.Add()->CopyFrom(stamp);
   }
-  impl_->write(path, message, proto_stamps);
+  write(path, message, proto_stamps);
 }
 
-void EventLogWriter::write(
-    std::string const& path,
-    google::protobuf::Message const& message,
-    google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
-        timestamps) {
-  impl_->write(path, message, timestamps);
+ssize_t EventLogWriter::getBytesWritten() noexcept {
+  return maybe_outstream_->tellp();
 }
 
-ssize_t EventLogWriter::getBytesWritten() { return impl_->getBytesWritten(); }
+Expected<EventLogWriter> EventLogWriter::fromPath(
+    std::filesystem::path const& log_path) noexcept {
+  EventLogWriter writer;
+  writer.log_path_ = log_path;
+
+  try {
+    // generate the directory tree in case it's empty or doesn't exist
+    std::filesystem::path path_prefix = log_path;
+    path_prefix.remove_filename();
+    if (!path_prefix.empty() && !std::filesystem::exists(path_prefix)) {
+      if (!std::filesystem::create_directories(path_prefix)) {
+        throw EventLogExist(FARM_FORMAT(
+            "Could not create log directory: {}", path_prefix.string()));
+      }
+    }
+  } catch (std::exception& e) {
+    return FARM_UNEXPECTED(FARM_FORMAT(
+        "Could not create log directory: {}\nerror: {}",
+        log_path.string(),
+        e.what()));
+  }
+
+  return writer;
+}
 
 }  // namespace farm_ng

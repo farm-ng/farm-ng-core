@@ -15,7 +15,7 @@
 #pragma once
 
 #include "farm_ng/core/calculus.pb.h"
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 #include "sophus/calculus/region.h"
 
 namespace farm_ng {

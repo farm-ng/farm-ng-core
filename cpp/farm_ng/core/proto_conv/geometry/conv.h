@@ -15,7 +15,7 @@
 #pragma once
 
 #include "farm_ng/core/geometry.pb.h"
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 #include "sophus/geometry/ray.h"
 
 namespace farm_ng {

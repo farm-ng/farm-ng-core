@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include "farm_ng/core/logging/expected.h"
+#include "farm_ng/core/misc/shared.h"
+
 #include <farm_ng/core/event.pb.h>
 
 #include <exception>
@@ -33,47 +36,46 @@ class EventLogExist : public std::runtime_error {
   explicit EventLogExist(std::string const& what) : std::runtime_error(what) {}
 };
 
-class EventLogReaderImpl;
+class EventLogPos;
+
+struct EventLogReaderBase {
+  virtual ~EventLogReaderBase() {}
+
+  virtual Expected<std::pair<core::proto::Event, std::streampos>>
+  readNextEventImpl(std::string* payload) noexcept = 0;
+
+  virtual std::vector<EventLogPos>& index() = 0;
+
+  virtual auto readPayload(
+      core::proto::Event const& event, std::streampos pos) noexcept
+      -> Expected<std::string> = 0;
+
+  [[nodiscard]] virtual Expected<Success> reset() noexcept = 0;
+};
+
 class EventLogPos {
  public:
   EventLogPos(
       core::proto::Event event,
       std::streampos pos,
-      std::weak_ptr<EventLogReaderImpl> log);
+      Shared<EventLogReaderBase> reader_impl)
+      : event_(std::move(event)),
+        pos_(pos),
+        reader_weak_ptr_(reader_impl.sharedPtr()) {}
 
   core::proto::Event const& event() const;
-  std::string readPayload() const;
+  Expected<std::string> readPayload() const;
 
  private:
   core::proto::Event event_;
   std::streampos pos_;
-  std::weak_ptr<EventLogReaderImpl> log_;
+  std::weak_ptr<EventLogReaderBase> reader_weak_ptr_;
 };
 
-/// Implementation of the `EventLogReader` class
-///
-class EventLogReaderImpl
-    : public std::enable_shared_from_this<EventLogReaderImpl> {
- public:
-  /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
-  virtual ~EventLogReaderImpl() {}
-
-  virtual void reset() = 0;
-
-  /// Returns next event.
-  virtual EventLogPos readNextEvent(std::string* payload = nullptr) = 0;
-
-  virtual std::string readPayload(
-      core::proto::Event const& event, std::streampos pos) = 0;
-
-  /// Returns the path including the fileaname
-  virtual std::filesystem::path getPath() const = 0;
-
-  std::vector<EventLogPos> const& getIndex();
-
- private:
-  std::vector<EventLogPos> index_;
-};
+auto getStamp(
+    core::proto::Event const& event,
+    std::string const& clock_name,
+    std::string const& semantics) -> core::proto::Timestamp const*;
 
 /// Reader to deserialize data written by the EventLogWriter.
 ///
@@ -81,40 +83,34 @@ class EventLogReader {
  public:
   /// Open's log file to read.
   ///
-  /// Throws runtime-error if files could not be opened or if logfile does not
+  /// Returns error if files could not be opened or if logfile does not
   /// contain a valid header.
-  explicit EventLogReader(std::filesystem::path const& log_path);
-
-  /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
-  virtual ~EventLogReader();
+  static Expected<EventLogReader> fromPath(
+      std::filesystem::path const& log_path) noexcept;
 
   // This function throws EventLogEof if the end of file is reached or a message
   // can not be decoded (typically due to an interrupted process).
-  EventLogPos readNextEvent(std::string* payload = nullptr);
+  Expected<EventLogPos> readNextEvent(std::string* payload = nullptr) noexcept;
 
   // Returns an index of all the events contained in the file.  This function
   // caches the index, so its only computed once; the index requires seeking
   // through the entire file and decoding the events.  It should be fast as
   // payloads are skipped with seekg and not decoded.
-  std::vector<EventLogPos> const& getIndex();
+  std::vector<EventLogPos> const& getIndex() noexcept;
 
   /// Returns the path including the fileaname
-  [[nodiscard]] std::filesystem::path getPath() const;
+  [[nodiscard]] std::filesystem::path getPath() const noexcept;
 
   /// Reset the writer to the beginning of the file
-  void reset();
+  [[nodiscard]] Expected<Success> reset() noexcept;
 
  private:
-  std::shared_ptr<EventLogReaderImpl> impl_;
-};
+  auto readPayload(core::proto::Event const& event, std::streampos pos)
+      const noexcept -> Expected<std::string>;
 
-// finds the first matching stamp in the event.  If no stamp is found this
-// returns a nullptr. Note that this does not allocate the stamp, its a
-// reference to the underlying Timestamp owned by the event.
-core::proto::Timestamp const* getStamp(
-    core::proto::Event const& event,
-    std::string const& clock_name,
-    std::string const& semantics);
+  EventLogReader() {}
+  std::shared_ptr<EventLogReaderBase> impl_;
+};
 
 struct EventTimeCompareClockAndSemantics {
   std::string clock_name;

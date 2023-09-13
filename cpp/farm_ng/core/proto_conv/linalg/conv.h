@@ -16,7 +16,7 @@
 
 #include "farm_ng/core/linalg.pb.h"
 #include "farm_ng/core/logging/expected.h"
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 
 #include <Eigen/Core>
 

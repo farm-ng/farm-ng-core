@@ -25,129 +25,96 @@
 
 namespace farm_ng {
 
-class EventLogReaderBinaryImpl : public EventLogReaderImpl {
+namespace {
+class EventLogReaderImpl : public EventLogReaderBase {
  public:
-  EventLogReaderBinaryImpl(std::filesystem::path const& log_path)
-      : log_path(log_path) {
-    reset();
+  EventLogReaderImpl() : instream_(), log_path_(), index_() {}
+  static ExpectShared<EventLogReaderImpl> fromPath(
+      std::filesystem::path const& log_path) noexcept {
+    auto shared_impl = Shared<EventLogReaderImpl>::make();
+
+    shared_impl->log_path_ = log_path;
+
+    FARM_TRY(auto, ok, shared_impl->reset());
+
+    return shared_impl;
   }
 
-  void reset() override {
-    in = std::ifstream(log_path.string(), std::ofstream::binary);
-    if (!in) {
-      throw EventLogExist(FARM_FORMAT("Could not open file: {}", log_path));
+  Expected<Success> reset() noexcept {
+    instream_ = std::ifstream(log_path_.string(), std::ofstream::binary);
+    if (!instream_) {
+      return FARM_UNEXPECTED("Could not open file: {}", log_path_);
     }
+
+    return Success{};
   }
-  auto readBytes(uint64_t n_bytes) -> std::string {
-    FARM_ASSERT(in.good());
+  auto readBytes(uint64_t n_bytes) -> Expected<std::string> {
+    FARM_ASSERT(instream_.good());
     std::string str;
     str.resize(n_bytes);
-    in.read(str.data(), n_bytes);
-    if (!in) {
-      reset();
-      throw EventLogEof("Could not read data.");
+    instream_.read(str.data(), n_bytes);
+    if (!instream_) {
+      FARM_TRY(auto, ok, reset());
+      return FARM_UNEXPECTED("Could not read data");
     }
     return str;
   }
 
-  auto readEventSize() -> uint64_t {
-    FARM_ASSERT(in.good());
+  auto readEventSize() noexcept -> Expected<uint64_t> {
+    FARM_ASSERT(instream_.good());
     uint32_t n_bytes = 0;
-    in.read(reinterpret_cast<char*>(&n_bytes), sizeof(n_bytes));
-    if (!in) {
-      reset();
-      throw EventLogEof("Could not read packet length header");
+    instream_.read(reinterpret_cast<char*>(&n_bytes), sizeof(n_bytes));
+    if (!instream_) {
+      FARM_TRY(auto, ok, reset());
+      return FARM_UNEXPECTED("Could not read packet length header");
     }
     return n_bytes;
   }
 
-  auto readNextEvent(std::string* payload = nullptr) -> EventLogPos override {
-    FARM_ASSERT(in.good());
+  Expected<std::pair<core::proto::Event, std::streampos>> readNextEventImpl(
+      std::string* payload) noexcept final {
+    FARM_ASSERT(instream_.good());
     core::proto::Event event;
-    if (!event.ParseFromString(readBytes(readEventSize()))) {
-      reset();
-      throw EventLogEof("Could not parse event.");
+    FARM_TRY(auto, read, readEventSize());
+    FARM_TRY(auto, bytes, readBytes(read));
+    if (!event.ParseFromString(bytes)) {
+      FARM_TRY(auto, ok, reset());
+      return FARM_UNEXPECTED("Could not parse event.");
     }
-    std::streampos pos = in.tellg();
+    std::streampos pos = instream_.tellg();
     if (payload != nullptr) {
-      *payload = readBytes(event.payload_length());
+      FARM_TRY(auto, payload_bytes, readBytes(event.payload_length()));
+      *payload = payload_bytes;
     } else {
-      in.seekg(event.payload_length(), std::ifstream::cur);
-      if (!in) {
-        reset();
-        throw EventLogEof("Could not seek past payload.");
+      instream_.seekg(event.payload_length(), std::ifstream::cur);
+      if (!instream_) {
+        FARM_TRY(auto, ok, reset());
+
+        return FARM_UNEXPECTED("Could not seek past payload.");
       }
     }
-    return EventLogPos(event, pos, this->shared_from_this());
+    return std::make_pair(event, pos);
   }
 
-  auto readPayload(core::proto::Event const& event, std::streampos pos)
-      -> std::string override {
-    FARM_ASSERT(in.good());
+  auto readPayload(core::proto::Event const& event, std::streampos pos) noexcept
+      -> Expected<std::string> {
+    FARM_ASSERT(instream_.good());
 
-    in.seekg(pos);
-    if (!in) {
-      reset();
-      throw EventLogEof("Could not seek to read payload.");
+    instream_.seekg(pos);
+    if (!instream_) {
+      FARM_TRY(auto, ok, reset());
     }
     return readBytes(event.payload_length());
   }
 
-  auto getPath() const -> std::filesystem::path override { return log_path; }
+  std::vector<EventLogPos>& index() { return index_; }
+  std::vector<EventLogPos> const& index() const { return index_; }
 
-  std::filesystem::path log_path;
-  std::ifstream in;
+  std::ifstream instream_;
+  std::filesystem::path log_path_;
+  std::vector<EventLogPos> index_;
 };
-
-EventLogPos::EventLogPos(
-    core::proto::Event event,
-    std::streampos pos,
-    std::weak_ptr<EventLogReaderImpl> log)
-    : event_(std::move(event)), pos_(pos), log_(log) {}
-
-auto EventLogPos::event() const -> core::proto::Event const& { return event_; }
-
-auto EventLogPos::readPayload() const -> std::string {
-  std::shared_ptr<EventLogReaderImpl> log = log_.lock();
-  FARM_ASSERT(!!log, "Log closed: {}", event_.ShortDebugString());
-  return log->readPayload(event_, pos_);
-}
-
-auto EventLogReaderImpl::getIndex() -> std::vector<EventLogPos> const& {
-  if (index_.empty()) {
-    reset();
-    while (true) {
-      try {
-        index_.push_back(readNextEvent());
-      } catch (EventLogEof const& e) {
-        // throws exception at end of file.
-        break;
-      }
-    }
-  }
-  return index_;
-}
-
-EventLogReader::EventLogReader(std::filesystem::path const& log_path)
-    : impl_(std::make_shared<EventLogReaderBinaryImpl>(log_path)) {}
-
-EventLogReader::~EventLogReader() {}
-
-auto EventLogReader::readNextEvent(std::string* payload) -> EventLogPos {
-  return impl_->readNextEvent(payload);
-}
-
-auto EventLogReader::getIndex() -> std::vector<EventLogPos> const& {
-  return impl_->getIndex();
-}
-
-auto EventLogReader::getPath() const -> std::filesystem::path {
-  return impl_->getPath();
-}
-
-void EventLogReader::reset() {
-  impl_ = std::make_shared<EventLogReaderBinaryImpl>(impl_->getPath());
-}
+}  // namespace
 
 auto getStamp(
     core::proto::Event const& event,
@@ -207,6 +174,57 @@ auto eventLogTimeOrderedIndex(
       ordered_index.end(),
       EventTimeCompareClockAndSemantics{clock_name, semantics});
   return ordered_index;
+}
+
+Expected<EventLogReader> EventLogReader::fromPath(
+    std::filesystem::path const& log_path) noexcept {
+  FARM_TRY(auto, reader_impl, EventLogReaderImpl::fromPath(log_path));
+  EventLogReader reader;
+  reader.impl_ = Shared(reader_impl).sharedPtr();
+  return reader;
+}
+
+Expected<EventLogPos> EventLogReader::readNextEvent(
+    std::string* payload) noexcept {
+  FARM_TRY(auto, pair, impl_->readNextEventImpl(payload));
+
+  return EventLogPos(pair.first, pair.second, this->impl_);
+}
+
+auto EventLogReader::getIndex() noexcept -> std::vector<EventLogPos> const& {
+  if (impl_->index().empty()) {
+    auto reset_ok = reset();
+    if (!reset_ok) {
+      FARM_WARN("{}", reset_ok.error());
+      return impl_->index();
+    }
+
+    while (auto maybe_event = readNextEvent()) {
+      impl_->index().push_back(FARM_UNWRAP(maybe_event));
+    }
+  }
+  return impl_->index();
+}
+
+auto EventLogReader::readPayload(
+    core::proto::Event const& event, std::streampos pos) const noexcept
+    -> Expected<std::string> {
+  return impl_->readPayload(event, pos);
+}
+
+auto EventLogReader::reset() noexcept -> Expected<Success> {
+  return impl_->reset();
+}
+
+auto EventLogPos::event() const -> core::proto::Event const& { return event_; }
+
+auto EventLogPos::readPayload() const -> Expected<std::string> {
+  auto maybe_reader = reader_weak_ptr_.lock();
+
+  if (!maybe_reader) {
+    return FARM_UNEXPECTED("Log closed: {}", event_.ShortDebugString());
+  }
+  return maybe_reader->readPayload(this->event_, this->pos_);
 }
 
 }  // namespace farm_ng

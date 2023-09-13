@@ -16,68 +16,50 @@
 
 #pragma once
 
-#include <farm_ng/core/event.pb.h>
+#include "farm_ng/core/event.pb.h"
+#include "farm_ng/core/logging/expected.h"
 
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <string>
 
 namespace farm_ng {
 
-/// Implementation of the `EventLogWriter` class
-///
-class EventLogWriterImpl {
- public:
-  /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor
-  virtual ~EventLogWriterImpl() {}
-
-  virtual void write(
-      std::string path,
-      google::protobuf::Message const& message,
-      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
-          timestamps) = 0;
-
-  /// Returns the number of bytes written to the file so far
-  virtual ssize_t getBytesWritten() = 0;
-};
-
 /// Class that serializes incoming protobuf events to a file in disk.
 class EventLogWriter {
  public:
-  /// Main constructor of the class.
+  /// Creates a new EventLogWriter that writes to the file ``log_path``.
   ///
-  /// Precondition: It must be possible to create the folder ``log_path_`` if it
-  /// does not exist. If ``log-path`` does exist, it must be a folder and it
-  /// must be empty.
-  ///
-  EventLogWriter(std::filesystem::path const& log_path);
-
-  /// Main destructor
-  virtual ~EventLogWriter() noexcept;
+  /// Return an error if
+  ///  - ``log_path`` exists and but it is not a folder or is not empty.
+  ///  - ``log_path`` does not exist and it cannot be created.
+  static Expected<EventLogWriter> fromPath(
+      std::filesystem::path const& log_path) noexcept;
 
   /// Writes an incoming protobuf in the log file
   void write(
       std::string const& path,
       google::protobuf::Message const& message,
       std::vector<core::proto::Timestamp> const& timestamps =
-          std::vector<core::proto::Timestamp>());
+          std::vector<core::proto::Timestamp>()) noexcept;
   void write(
       std::string const& path,
       google::protobuf::Message const& message,
-      google::protobuf::RepeatedPtrField<core::proto::Timestamp> const&
-          timestamps);
+      google::protobuf::RepeatedPtrField<core::proto::Timestamp>
+          proto_stamps) noexcept;
 
   /// Returns the path including the fileaname
   [[nodiscard]] std::filesystem::path getPath() const { return log_path_; }
 
   /// Returns the number of bytes written to the file so far
-  [[nodiscard]] ssize_t getBytesWritten();
+  [[nodiscard]] ssize_t getBytesWritten() noexcept;
 
  private:
-  // The log path including the filename
+  EventLogWriter() { maybe_outstream_ = std::make_shared<std::ofstream>(); }
+
   std::filesystem::path log_path_;
-  // Implementation pointer of the class
-  std::unique_ptr<EventLogWriterImpl> impl_;
+  std::shared_ptr<std::ofstream> maybe_outstream_;
 };
 
 core::proto::Timestamp makeWriteStamp();

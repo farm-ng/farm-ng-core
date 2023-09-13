@@ -73,8 +73,6 @@ TEST(Shared, Conversions) {  // NOLINT
   Shared<Base> x6 = std::make_unique<Derived>();
   Shared<Base> x7 = std::make_shared<Derived>();
 
-  EXPECT_ANY_THROW(
-      []() { Shared<Base> x = std::unique_ptr<Derived>(nullptr); }());
-  EXPECT_ANY_THROW(
-      []() { Shared<Base> x = std::shared_ptr<Derived>(nullptr); }());
+  EXPECT_DEATH({ Shared<Base> x = std::unique_ptr<Derived>(nullptr); }, "");
+  EXPECT_DEATH({ Shared<Base> x = std::shared_ptr<Derived>(nullptr); }, "");
 }

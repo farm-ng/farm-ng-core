@@ -15,7 +15,7 @@
 #pragma once
 
 #include "farm_ng/core/image.pb.h"
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 #include "sophus/image/dyn_image_types.h"
 
 namespace farm_ng {

@@ -35,26 +35,14 @@ auto getHostName() -> std::string {
   return std::string(hostname);
 }
 }  // namespace
-// TEST(event_log, no_file) {  // NOLINT
-//   EXPECT_THROW(EventLogReader("file_does_not_exist"), EventLogExist);
-//   EXPECT_THROW(
-//       EventLogWriter("/no/perms/file_does_not_exist"),
-//       std::filesystem::filesystem_error);
-//   { EventLogWriter writer_success("relative_event.log"); }
-//   EXPECT_TRUE(std::filesystem::exists("relative_event.log"));
-//   std::filesystem::remove("relative_event.log");
-//   auto maybe_log_dir = createUniqueTemporaryDirectory();
-
-//   EventLogWriter writer_success2(
-//       FARM_UNWRAP(maybe_log_dir) / "tmplocal_file.log");
-// }
 
 TEST(event_log, roundtrip) {  // NOLINT
   auto maybe_log_dir = createUniqueTemporaryDirectory();
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
   auto file = log_dir / "events.log";
   {
-    EventLogWriter writer(file);
+    auto maybe_writer = EventLogWriter::fromPath(file);
+    auto writer = FARM_UNWRAP(maybe_writer);
     core::proto::Timestamp x;
     for (int i = 0; i < 10; ++i) {
       x.set_stamp(i);
@@ -62,15 +50,20 @@ TEST(event_log, roundtrip) {  // NOLINT
     }
   }
   {
-    EventLogReader reader(file);
+    auto maybe_reader = EventLogReader::fromPath(file);
+    auto reader = FARM_UNWRAP(maybe_reader);
+
     int i = 0;
     while (true) {
       std::string payload;
       if (i == 10) {
-        EXPECT_THROW(reader.readNextEvent(), EventLogEof);
+        auto maybe_event = reader.readNextEvent();
+
+        FARM_ASSERT(!maybe_event, "should be false, we are at the end");
         break;
       }
-      EventLogPos pos = reader.readNextEvent(&payload);
+      auto maybe_pos = reader.readNextEvent(&payload);
+      auto pos = FARM_UNWRAP(maybe_pos);
       core::proto::Timestamp x;
       EXPECT_EQ(true, x.ParseFromString(payload));
       EXPECT_EQ(i, x.stamp());
@@ -90,7 +83,8 @@ TEST(event_log, index) {  // NOLINT
   auto log_dir = FARM_UNWRAP(maybe_log_dir);
   auto file = log_dir / "events.log";
   {
-    EventLogWriter writer(file);
+    auto maybe_writer = EventLogWriter::fromPath(file);
+    auto writer = FARM_UNWRAP(maybe_writer);
     core::proto::Timestamp x;
     for (int i = 0; i < 10; ++i) {
       x.set_stamp(i);
@@ -98,11 +92,15 @@ TEST(event_log, index) {  // NOLINT
     }
   }
   {
-    EventLogReader reader(file);
+    auto maybe_reader = EventLogReader::fromPath(file);
+    auto reader = FARM_UNWRAP(maybe_reader);
     int i = 0;
-    for (EventLogPos const& pos : reader.getIndex()) {
+    auto index = reader.getIndex();
+    for (EventLogPos& pos : index) {
       core::proto::Timestamp x;
-      x.ParseFromString(pos.readPayload());
+      auto maybe_payload = pos.readPayload();
+      auto payload = FARM_UNWRAP(maybe_payload);
+      x.ParseFromString(payload);
       EXPECT_EQ(i, x.stamp());
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
       EXPECT_EQ("my_stamps", pos.event().uri().path());
@@ -122,8 +120,12 @@ TEST(event_log, time_ordered_zip) {  // NOLINT
   auto file2 = log_dir / "events2.log";
 
   {
-    EventLogWriter writer1(file1);
-    EventLogWriter writer2(file2);
+    auto maybe_writer1 = EventLogWriter::fromPath(file1);
+    auto writer1 = FARM_UNWRAP(maybe_writer1);
+
+    auto maybe_writer2 = EventLogWriter::fromPath(file2);
+    auto writer2 = FARM_UNWRAP(maybe_writer2);
+
     core::proto::Timestamp x;
     for (int i = 0; i < 10; ++i) {
       x.set_stamp(i);
@@ -132,18 +134,22 @@ TEST(event_log, time_ordered_zip) {  // NOLINT
     }
   }
   {
-    EventLogReader reader1(file1);
-    EventLogReader reader2(file2);
+    auto maybe_reader1 = EventLogReader::fromPath(file1);
+    auto reader1 = FARM_UNWRAP(maybe_reader1);
+    auto maybe_reader2 = EventLogReader::fromPath(file2);
+    auto reader2 = FARM_UNWRAP(maybe_reader2);
+
     // Grab a reference write stamp from the first reader.
-    core::proto::Timestamp ref =
-        reader1.readNextEvent().event().timestamps().Get(0);
+    auto maybe_ref = reader1.readNextEvent();
+    auto ref = FARM_UNWRAP(maybe_ref).event().timestamps().Get(0);
     EXPECT_EQ(ref.semantics(), "log/write");
     std::vector<EventLogPos> index = eventLogTimeOrderedIndex(
         ref.clock_name(), ref.semantics(), {reader1, reader2});
     int i = 0;
     for (EventLogPos const& pos : index) {
       core::proto::Timestamp x;
-      x.ParseFromString(pos.readPayload());
+      auto maybe_payload = pos.readPayload();
+      x.ParseFromString(FARM_UNWRAP(maybe_payload));
       EXPECT_EQ(i / 2, x.stamp());
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
       if (i % 2 == 0) {
@@ -166,7 +172,8 @@ TEST(event_log, post_processed_time_ordered_zip) {  // NOLINT
   auto file1 = log_dir / "events1.log";
   auto file2 = log_dir / "events2.log";
   {
-    EventLogWriter writer1(file1);
+    auto maybe_writer = EventLogWriter::fromPath(file1);
+    auto writer1 = FARM_UNWRAP(maybe_writer);
     core::proto::Timestamp x;
     for (int i = 0; i < 10; ++i) {
       x.set_stamp(i);
@@ -174,30 +181,39 @@ TEST(event_log, post_processed_time_ordered_zip) {  // NOLINT
     }
   }
   {
-    EventLogReader reader1(file1);
+    auto maybe_reader1 = EventLogReader::fromPath(file1);
+    auto reader1 = FARM_UNWRAP(maybe_reader1);
 
-    EventLogWriter writer2(file2);
+    auto maybe_writer2 = EventLogWriter::fromPath(file2);
+    auto writer2 = FARM_UNWRAP(maybe_writer2);
     for (EventLogPos pos : reader1.getIndex()) {
       core::proto::Timestamp x;
-      x.ParseFromString(pos.readPayload());
+      auto maybe_payload = pos.readPayload();
+      x.ParseFromString(FARM_UNWRAP(maybe_payload));
       x.set_stamp(x.stamp() + 1.0);
       writer2.write("my_stamps2", x, pos.event().timestamps());
     }
   }
 
   {
-    EventLogReader reader1(file1);
-    EventLogReader reader2(file2);
+    auto maybe_reader1 = EventLogReader::fromPath(file1);
+    auto reader1 = FARM_UNWRAP(maybe_reader1);
+
+    auto maybe_reader2 = EventLogReader::fromPath(file2);
+    auto reader2 = FARM_UNWRAP(maybe_reader2);
+
     // Grab a reference write stamp from the first reader.
-    core::proto::Timestamp ref =
-        reader1.readNextEvent().event().timestamps().Get(0);
+    auto maybe_ref = reader1.readNextEvent();
+    auto ref = FARM_UNWRAP(maybe_ref).event().timestamps().Get(0);
     EXPECT_EQ(ref.semantics(), "log/write");
     std::vector<EventLogPos> index = eventLogTimeOrderedIndex(
         ref.clock_name(), ref.semantics(), {reader1, reader2});
     int i = 0;
     for (EventLogPos const& pos : index) {
       core::proto::Timestamp x;
-      x.ParseFromString(pos.readPayload());
+
+      auto maybe_payload = pos.readPayload();
+      x.ParseFromString(FARM_UNWRAP(maybe_payload));
 
       EXPECT_EQ("protobuf", pos.event().uri().scheme());
       if (i % 2 == 0) {

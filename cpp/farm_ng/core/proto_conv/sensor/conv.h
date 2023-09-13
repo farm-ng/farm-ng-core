@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "farm_ng/core/proto_conv/proto_conv.h"
+#include "farm_ng/core/proto_conv/traits.h"
 #include "farm_ng/core/sensor.pb.h"
 #include "sophus/sensor/camera_model.h"
 

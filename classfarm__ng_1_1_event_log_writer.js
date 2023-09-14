@@ -1,9 +1,7 @@
 var classfarm__ng_1_1_event_log_writer =
 [
-    [ "EventLogWriter", "classfarm__ng_1_1_event_log_writer.html#ae87d9aeb7676b1fba4b7e08b4861215a", null ],
-    [ "~EventLogWriter", "classfarm__ng_1_1_event_log_writer.html#ab73f8492ac274a8fda9b19db4c44c534", null ],
-    [ "getBytesWritten", "classfarm__ng_1_1_event_log_writer.html#af3d1b24857f550f873e8eedd07506cbb", null ],
+    [ "getBytesWritten", "classfarm__ng_1_1_event_log_writer.html#ae71875740047dae295d3c501edc17a0b", null ],
     [ "getPath", "classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2", null ],
-    [ "write", "classfarm__ng_1_1_event_log_writer.html#a6041037685fc5b12913ad312491bdc6c", null ],
-    [ "write", "classfarm__ng_1_1_event_log_writer.html#a1656f5af91b828eccbe365bd49fc07be", null ]
+    [ "write", "classfarm__ng_1_1_event_log_writer.html#abbf61b421473e00c752867f20cba26c1", null ],
+    [ "write", "classfarm__ng_1_1_event_log_writer.html#a75303c57a1e6bf04e266348d98c1cc56", null ]
 ];

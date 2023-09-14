@@ -64,7 +64,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('classfarm__ng_1_1_event_log_writer_impl.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('structfarm__ng_1_1_event_log_reader_base.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -84,15 +84,17 @@ $(document).ready(function(){initNavTree('classfarm__ng_1_1_event_log_writer_imp
 
 <div class="header">
   <div class="headertitle">
-<div class="title">farm_ng::EventLogWriterImpl Member List</div>  </div>
+<div class="title">farm_ng::EventLogReaderBase Member List</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html">farm_ng::EventLogWriterImpl</a>, including all inherited members.</p>
+<p>This is the complete list of members for <a class="el" href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a>, including all inherited members.</p>
 <table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html#a5330ed640c7743c7ae9dcc3ef5280fa3">getBytesWritten</a>()=0</td><td class="entry"><a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html">farm_ng::EventLogWriterImpl</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html#aa053de67e7eaf374e37dfb5468a861e8">write</a>(std::string path, google::protobuf::Message const &amp;message, google::protobuf::RepeatedPtrField&lt; core::proto::Timestamp &gt; const &amp;timestamps)=0</td><td class="entry"><a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html">farm_ng::EventLogWriterImpl</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html#ad06db4d3799bbde1161e8fc3ec51f1db">~EventLogWriterImpl</a>()</td><td class="entry"><a class="el" href="classfarm__ng_1_1_event_log_writer_impl.html">farm_ng::EventLogWriterImpl</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html#a6853527891cd98323c66e8444c69cc55">index</a>()=0</td><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html#a84f92e92eb5a5035b6912ce351daf1ea">readNextEventImpl</a>(std::string *payload) noexcept=0</td><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>(core::proto::Event const &amp;event, std::streampos pos) noexcept -&gt; Expected&lt; std::string &gt;=0</td><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html#a801fa81d789ab97476a479a50aac8782">reset</a>() noexcept=0</td><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">~EventLogReaderBase</a>()</td><td class="entry"><a class="el" href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

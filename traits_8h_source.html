@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>farm-ng-core: /home/runner/work/farm-ng-core/farm-ng-core/cpp/farm_ng/core/proto_conv/proto_conv.h Source File</title>
+<title>farm-ng-core: /home/runner/work/farm-ng-core/farm-ng-core/cpp/farm_ng/core/proto_conv/traits.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,7 +64,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('proto__conv_8h_source.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('traits_8h_source.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -84,10 +84,10 @@ $(document).ready(function(){initNavTree('proto__conv_8h_source.html',''); initR
 
 <div class="header">
   <div class="headertitle">
-<div class="title">proto_conv.h</div>  </div>
+<div class="title">traits.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="proto__conv_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">//    Copyright 2022, farm-ng inc.</span></div>
+<a href="traits_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">//    Copyright 2022, farm-ng inc.</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">//    you may not use this file except in compliance with the License.</span></div>
@@ -176,7 +176,7 @@ $(document).ready(function(){initNavTree('proto__conv_8h_source.html',''); initR
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">///     auto toProt&lt;Eigen::Vector3d&gt;(Eigen::Vector3d const&amp; cpp)</span></div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment">///         -&gt; proto::Vec3F64;</span></div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">///</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno"><a class="line" href="proto__conv_8h.html#a4084a3af2ef6e82fe28360f6b2f1825d">   90</a></span>&#160;<span class="comment"></span><span class="preprocessor">#define FARM_PROTO_CONV_TRAIT(TCpp, TProto)                   \</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno"><a class="line" href="traits_8h.html#a4084a3af2ef6e82fe28360f6b2f1825d">   90</a></span>&#160;<span class="comment"></span><span class="preprocessor">#define FARM_PROTO_CONV_TRAIT(TCpp, TProto)                   \</span></div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="preprocessor">  template &lt;&gt;                                                 \</span></div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="preprocessor">  struct ToProtoTrait&lt;TCpp&gt; {                                 \</span></div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor">    using ProtoType = TProto;                                 \</span></div>
@@ -197,14 +197,14 @@ $(document).ready(function(){initNavTree('proto__conv_8h_source.html',''); initR
 <div class="ttc" id="anamespacefarm__ng_html"><div class="ttname"><a href="namespacefarm__ng.html">farm_ng</a></div><div class="ttdef"><b>Definition:</b> backtrace.cpp:102</div></div>
 <div class="ttc" id="anamespacefarm__ng_html_ae01b54213ae63cf589d98f89b8fb35d6"><div class="ttname"><a href="namespacefarm__ng.html#ae01b54213ae63cf589d98f89b8fb35d6">farm_ng::toProt</a></div><div class="ttdeci">core::proto::Uri toProt(Uri const &amp;uri)</div><div class="ttdef"><b>Definition:</b> conv.cpp:27</div></div>
 <div class="ttc" id="aexpected_8h_html"><div class="ttname"><a href="expected_8h.html">expected.h</a></div></div>
-<div class="ttc" id="astructfarm__ng_1_1_from_proto_trait_html"><div class="ttname"><a href="structfarm__ng_1_1_from_proto_trait.html">farm_ng::FromProtoTrait</a></div><div class="ttdoc">Trait to associate one concrete Cpp type with given proto type TProto.</div><div class="ttdef"><b>Definition:</b> proto_conv.h:31</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_from_proto_trait_html"><div class="ttname"><a href="structfarm__ng_1_1_from_proto_trait.html">farm_ng::FromProtoTrait</a></div><div class="ttdoc">Trait to associate one concrete Cpp type with given proto type TProto.</div><div class="ttdef"><b>Definition:</b> traits.h:31</div></div>
 <div class="ttc" id="anamespacefarm__ng_html_a378365a620e35fa8fe20a1b75dd31e7d"><div class="ttname"><a href="namespacefarm__ng.html#a378365a620e35fa8fe20a1b75dd31e7d">farm_ng::fromProt</a></div><div class="ttdeci">auto fromProt(core::proto::Uri const &amp;proto) -&gt; Expected&lt; Uri &gt;</div><div class="ttdef"><b>Definition:</b> conv.cpp:22</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_to_proto_trait_html"><div class="ttname"><a href="structfarm__ng_1_1_to_proto_trait.html">farm_ng::ToProtoTrait</a></div><div class="ttdoc">Trait to associate one concrete Proto type with given C++ type TCpp.</div><div class="ttdef"><b>Definition:</b> proto_conv.h:25</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_to_proto_trait_html"><div class="ttname"><a href="structfarm__ng_1_1_to_proto_trait.html">farm_ng::ToProtoTrait</a></div><div class="ttdoc">Trait to associate one concrete Proto type with given C++ type TCpp.</div><div class="ttdef"><b>Definition:</b> traits.h:25</div></div>
 <div class="ttc" id="anamespacefarm__ng_html_a048d5e416c9003f203d6f76cc806dabb"><div class="ttname"><a href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">farm_ng::Expected</a></div><div class="ttdeci">tl::expected&lt; TT, TE &gt; Expected</div><div class="ttdef"><b>Definition:</b> expected.h:37</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_df511e5bd85cec96854b39d5e1c27aa8.html">cpp</a></li><li class="navelem"><a class="el" href="dir_0308c12ad8158275f0c131a01f906685.html">farm_ng</a></li><li class="navelem"><a class="el" href="dir_c1d4bf06504c7829838fa1aa9a28d188.html">core</a></li><li class="navelem"><a class="el" href="dir_bec86702f76fe8a47b16c5a16f7ef7c9.html">proto_conv</a></li><li class="navelem"><a class="el" href="proto__conv_8h.html">proto_conv.h</a></li>
+    <li class="navelem"><a class="el" href="dir_df511e5bd85cec96854b39d5e1c27aa8.html">cpp</a></li><li class="navelem"><a class="el" href="dir_0308c12ad8158275f0c131a01f906685.html">farm_ng</a></li><li class="navelem"><a class="el" href="dir_c1d4bf06504c7829838fa1aa9a28d188.html">core</a></li><li class="navelem"><a class="el" href="dir_bec86702f76fe8a47b16c5a16f7ef7c9.html">proto_conv</a></li><li class="navelem"><a class="el" href="traits_8h.html">traits.h</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.17 </li>

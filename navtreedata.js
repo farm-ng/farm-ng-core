@@ -64,18 +64,18 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "____init_____8py.html",
-"classfarm__ng_1_1_input_config.html#aaa223f565bf87063bed755d7273380da",
-"classsophus_1_1_dyn_image_view.html#ae5be4a5fbf37ceadf95bdfb256c20f4d",
-"classsophus_1_1_region.html#a24d69d213e451c1412384e8a163badbe",
-"classsophus_1_1lie_1_1_group.html#a9f7d3f135a047765b8efbe562b9f493c",
-"dyn__image__types__test_8cpp.html",
-"format_8cpp.html#ab051a60bbb258b8e09e91a542bfc060c",
-"image__types_8cpp.html#acaf678642a74dd280745ba67027bfe4b",
-"misc_2proto_2conv_8h_source.html",
-"proto__conv_2calculus_2conv_8h.html#a0a86e1b8e2250395085d1b99d3121b20",
-"spiral__similarity2_8h_source.html",
-"structsophus_1_1_pixel_format.html#aa6473703e1099900ebcadc71273fcd49",
-"translation_8h.html#a403a704916284dc4cdb129b57e6fd57e"
+"classfarm__ng_1_1_shared.html#af5382582ba2e2474ab1d5dabd55b0261",
+"classsophus_1_1_imu_model.html#aa55f7b5b2915be98d5d4ff86ce1d36c3",
+"classsophus_1_1_region.html#adfa0aa4e325c47bcd72861fec7198319",
+"classsophus_1_1lie_1_1_rotation2_impl.html#a7e8757b641a456456e1372977444da79",
+"enum__details_8h.html#aed6828d2569527e8e7092188e21a842e",
+"functions_f.html",
+"image__types_8h.html#a5cdbb31d5df3ce423d99da75ad78d806",
+"mut__image__view__test_8cpp.html#a5016156a4fdf5b7293df6e1c36e5de2e",
+"proto__conv_2image_2conv_8cpp.html#aba7ac6706599a469ffcc35db284b5845",
+"struct_eigen_1_1_num_traits_3_01sophus_1_1concepts_1_1_compat_scalar_ex_3_01_t_t_01_4_01_4.html#af7cefc13f3621df9409b5f89162c0d56",
+"structsophus_1_1_scaling_non_orthogonality_gyro_model.html#ad0572c53926d1a4f34dcc9297d927cb3",
+"unit__vector__test_8cpp.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

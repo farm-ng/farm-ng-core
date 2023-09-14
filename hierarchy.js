@@ -39,9 +39,9 @@ var hierarchy =
     [ "farm_ng::Context", "classfarm__ng_1_1_context.html", null ],
     [ "farm_ng::ContextStrand", "classfarm__ng_1_1_context_strand.html", null ],
     [ "sophus::test::Cost", "structsophus_1_1test_1_1_cost.html", null ],
-    [ "sophus::test::SimplePriorProblem< TTransform >::CostFunctor", "structsophus_1_1test_1_1_simple_prior_problem_1_1_cost_functor.html", null ],
     [ "sophus::test::TransformGraphProblem< TTransform, kDim >::CostFunctor", "structsophus_1_1test_1_1_transform_graph_problem_1_1_cost_functor.html", null ],
     [ "sophus::test::SensorMeasurementProblem< TTransform >::CostFunctor", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_cost_functor.html", null ],
+    [ "sophus::test::SimplePriorProblem< TTransform >::CostFunctor", "structsophus_1_1test_1_1_simple_prior_problem_1_1_cost_functor.html", null ],
     [ "disjunction", null, [
       [ "farm_ng::HasType< T, std::variant< Us... > >", "structfarm__ng_1_1_has_type_3_01_t_00_01std_1_1variant_3_01_us_8_8_8_01_4_01_4.html", null ]
     ] ],
@@ -54,11 +54,6 @@ var hierarchy =
       [ "sophus::DynImage< TPredicate, TAllocator >", "classsophus_1_1_dyn_image.html", null ],
       [ "sophus::MutDynImageView< TPredicate >", "classsophus_1_1_mut_dyn_image_view.html", null ]
     ] ],
-    [ "enable_shared_from_this", null, [
-      [ "farm_ng::EventLogReaderImpl", "classfarm__ng_1_1_event_log_reader_impl.html", [
-        [ "farm_ng::EventLogReaderBinaryImpl", "classfarm__ng_1_1_event_log_reader_binary_impl.html", null ]
-      ] ]
-    ] ],
     [ "farm_ng::Error", "structfarm__ng_1_1_error.html", null ],
     [ "farm_ng::ErrorDetail", "structfarm__ng_1_1_error_detail.html", null ],
     [ "ErrorTag", "struct_error_tag.html", null ],
@@ -67,10 +62,8 @@ var hierarchy =
     [ "farm_ng::EventLogPos", "classfarm__ng_1_1_event_log_pos.html", null ],
     [ "core.events_file_reader.EventLogPosition", "classcore_1_1events__file__reader_1_1_event_log_position.html", null ],
     [ "farm_ng::EventLogReader", "classfarm__ng_1_1_event_log_reader.html", null ],
+    [ "farm_ng::EventLogReaderBase", "structfarm__ng_1_1_event_log_reader_base.html", null ],
     [ "farm_ng::EventLogWriter", "classfarm__ng_1_1_event_log_writer.html", null ],
-    [ "farm_ng::EventLogWriterImpl", "classfarm__ng_1_1_event_log_writer_impl.html", [
-      [ "farm_ng::EventLogWriterBinaryImpl", "classfarm__ng_1_1_event_log_writer_binary_impl.html", null ]
-    ] ],
     [ "core.event_service.EventServiceGrpc", "classcore_1_1event__service_1_1_event_service_grpc.html", null ],
     [ "core.event_service_recorder.EventServiceRecorder", "classcore_1_1event__service__recorder_1_1_event_service_recorder.html", null ],
     [ "core.events_file_reader.EventsFileReader", "classcore_1_1events__file__reader_1_1_events_file_reader.html", null ],
@@ -239,15 +232,15 @@ var hierarchy =
     ] ],
     [ "sophus::UninitTag", "structsophus_1_1_uninit_tag.html", null ],
     [ "sophus::UniqueDataAreaDeleter< TAllocator >", "structsophus_1_1_unique_data_area_deleter.html", null ],
-    [ "sophus::concepts::UnitVector< TScalar, kN >", "classsophus_1_1concepts_1_1_unit_vector.html", null ],
     [ "sophus::UnitVector< TScalar, kN >", "classsophus_1_1_unit_vector.html", null ],
+    [ "sophus::concepts::UnitVector< TScalar, kN >", "classsophus_1_1concepts_1_1_unit_vector.html", null ],
     [ "sophus::linalg::UnitVectorImpl< TScalar, kDim >", "classsophus_1_1linalg_1_1_unit_vector_impl.html", null ],
     [ "farm_ng::details::UnwrapImpl< TWrapper >", "structfarm__ng_1_1details_1_1_unwrap_impl.html", null ],
     [ "farm_ng::details::UnwrapImpl< tl::expected< TT, TE > >", "structfarm__ng_1_1details_1_1_unwrap_impl_3_01tl_1_1expected_3_01_t_t_00_01_t_e_01_4_01_4.html", null ],
     [ "farm_ng::Uri", "structfarm__ng_1_1_uri.html", null ],
+    [ "sophus::test::SensorMeasurementProblem< TTransform >::Variables", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_variables.html", null ],
     [ "sophus::test::TransformGraphProblem< TTransform, kDim >::Variables", "structsophus_1_1test_1_1_transform_graph_problem_1_1_variables.html", null ],
     [ "sophus::test::SimplePriorProblem< TTransform >::Variables", "structsophus_1_1test_1_1_simple_prior_problem_1_1_variables.html", null ],
-    [ "sophus::test::SensorMeasurementProblem< TTransform >::Variables", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_variables.html", null ],
     [ "sophus::VectorManifold< TScalar, kDim >", "structsophus_1_1_vector_manifold.html", null ],
     [ "sophus::detail::VisitImpl< TUserFunc, TDynImage, TTpixelFormats >", "structsophus_1_1detail_1_1_visit_impl.html", null ],
     [ "sophus::detail::VisitImpl< TUserFunc, TDynImage, std::variant< TPixelFormat > >", "structsophus_1_1detail_1_1_visit_impl_3_01_t_user_func_00_01_t_dyn_image_00_01std_1_1variant_3_01_t_pixel_format_01_4_01_4.html", null ],

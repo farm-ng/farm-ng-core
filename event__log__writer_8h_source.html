@@ -105,88 +105,67 @@ $(document).ready(function(){initNavTree('event__log__writer_8h_source.html','')
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;farm_ng/core/event.pb.h&gt;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &lt;filesystem&gt;</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefarm__ng.html">farm_ng</a> {</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">/// Implementation of the `EventLogWriter` class</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">///</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_writer_impl.html">   29</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_writer_impl.html">EventLogWriterImpl</a> {</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">  /// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_writer_impl.html#ad06db4d3799bbde1161e8fc3ec51f1db">   32</a></span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <a class="code" href="classfarm__ng_1_1_event_log_writer_impl.html#ad06db4d3799bbde1161e8fc3ec51f1db">~EventLogWriterImpl</a>() {}</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classfarm__ng_1_1_event_log_writer_impl.html#aa053de67e7eaf374e37dfb5468a861e8">write</a>(</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      std::string path,</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      google::protobuf::Message <span class="keyword">const</span>&amp; <a class="code" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>,</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      google::protobuf::RepeatedPtrField&lt;core::proto::Timestamp&gt; <span class="keyword">const</span>&amp;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;          timestamps) = 0;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;farm_ng/core/event.pb.h&quot;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="expected_8h.html">farm_ng/core/logging/expected.h</a>&quot;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;filesystem&gt;</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;fstream&gt;</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefarm__ng.html">farm_ng</a> {</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">/// Class that serializes incoming protobuf events to a file in disk.</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_writer.html">   30</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_writer.html">EventLogWriter</a> {</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">  /// Creates a new EventLogWriter that writes to the file ``log_path``.</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">  /// Return an error if</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">  ///  - ``log_path`` exists and but it is not a folder or is not empty.</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">  ///  - ``log_path`` does not exist and it cannot be created.</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;EventLogWriter&gt;</a> <a class="code" href="classfarm__ng_1_1_event_log_writer.html#a7f1899694006db6d00ed7ffa627c5217">fromPath</a>(</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      std::filesystem::path <span class="keyword">const</span>&amp; log_path) noexcept;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">  /// Returns the number of bytes written to the file so far</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> ssize_t <a class="code" href="classfarm__ng_1_1_event_log_writer_impl.html#a5330ed640c7743c7ae9dcc3ef5280fa3">getBytesWritten</a>() = 0;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;};</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">/// Class that serializes incoming protobuf events to a file in disk.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_writer.html">   45</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_writer.html">EventLogWriter</a> {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  /// Main constructor of the class.</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /// Precondition: It must be possible to create the folder ``log_path_`` if it</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">  /// does not exist. If ``log-path`` does exist, it must be a folder and it</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">  /// must be empty.</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"></span>  <a class="code" href="classfarm__ng_1_1_event_log_writer.html#ae87d9aeb7676b1fba4b7e08b4861215a">EventLogWriter</a>(std::filesystem::path <span class="keyword">const</span>&amp; log_path);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">  /// Writes an incoming protobuf in the log file</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classfarm__ng_1_1_event_log_writer.html#a75303c57a1e6bf04e266348d98c1cc56">write</a>(</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      std::string <span class="keyword">const</span>&amp; path,</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      google::protobuf::Message <span class="keyword">const</span>&amp; <a class="code" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>,</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      std::vector&lt;core::proto::Timestamp&gt; <span class="keyword">const</span>&amp; timestamps =</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;          std::vector&lt;core::proto::Timestamp&gt;()) noexcept;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classfarm__ng_1_1_event_log_writer.html#a75303c57a1e6bf04e266348d98c1cc56">write</a>(</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      std::string <span class="keyword">const</span>&amp; path,</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      google::protobuf::Message <span class="keyword">const</span>&amp; <a class="code" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>,</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      google::protobuf::RepeatedPtrField&lt;core::proto::Timestamp&gt;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;          proto_stamps) noexcept;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">  /// Returns the path including the fileaname</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">   53</a></span>&#160;<span class="comment"></span>  [[nodiscard]] std::filesystem::path <a class="code" href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">getPath</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> log_path_; }</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">  /// Main destructor</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <a class="code" href="classfarm__ng_1_1_event_log_writer.html#ab73f8492ac274a8fda9b19db4c44c534">~EventLogWriter</a>() noexcept;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">  /// Writes an incoming protobuf in the log file</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classfarm__ng_1_1_event_log_writer.html#a1656f5af91b828eccbe365bd49fc07be">write</a>(</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;      std::string <span class="keyword">const</span>&amp; path,</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;      google::protobuf::Message <span class="keyword">const</span>&amp; <a class="code" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>,</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;      std::vector&lt;core::proto::Timestamp&gt; <span class="keyword">const</span>&amp; timestamps =</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;          std::vector&lt;core::proto::Timestamp&gt;());</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classfarm__ng_1_1_event_log_writer.html#a1656f5af91b828eccbe365bd49fc07be">write</a>(</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;      std::string <span class="keyword">const</span>&amp; path,</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;      google::protobuf::Message <span class="keyword">const</span>&amp; <a class="code" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>,</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      google::protobuf::RepeatedPtrField&lt;core::proto::Timestamp&gt; <span class="keyword">const</span>&amp;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;          timestamps);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">  /// Returns the path including the fileaname</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">   71</a></span>&#160;<span class="comment"></span>  [[nodiscard]] std::filesystem::path <a class="code" href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">getPath</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> log_path_; }</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">  /// Returns the number of bytes written to the file so far</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment"></span>  [[nodiscard]] ssize_t <a class="code" href="classfarm__ng_1_1_event_log_writer.html#af3d1b24857f550f873e8eedd07506cbb">getBytesWritten</a>();</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="comment">// The log path including the filename</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  std::filesystem::path log_path_;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// Implementation pointer of the class</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  std::unique_ptr&lt;EventLogWriterImpl&gt; impl_;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;};</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;core::proto::Timestamp <a class="code" href="namespacefarm__ng.html#ab211134636a9f9381a286d4d4726d5c9">makeWriteStamp</a>();</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}  <span class="comment">// namespace farm_ng</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">  /// Returns the number of bytes written to the file so far</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment"></span>  [[nodiscard]] ssize_t <a class="code" href="classfarm__ng_1_1_event_log_writer.html#ae71875740047dae295d3c501edc17a0b">getBytesWritten</a>() noexcept;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; private:</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <a class="code" href="classfarm__ng_1_1_event_log_writer.html">EventLogWriter</a>() { maybe_outstream_ = std::make_shared&lt;std::ofstream&gt;(); }</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  std::filesystem::path log_path_;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  std::shared_ptr&lt;std::ofstream&gt; maybe_outstream_;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;};</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;core::proto::Timestamp <a class="code" href="namespacefarm__ng.html#ab211134636a9f9381a286d4d4726d5c9">makeWriteStamp</a>();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;}  <span class="comment">// namespace farm_ng</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="anamespacefarm__ng_html"><div class="ttname"><a href="namespacefarm__ng.html">farm_ng</a></div><div class="ttdef"><b>Definition:</b> backtrace.cpp:102</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_ab73f8492ac274a8fda9b19db4c44c534"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#ab73f8492ac274a8fda9b19db4c44c534">farm_ng::EventLogWriter::~EventLogWriter</a></div><div class="ttdeci">virtual ~EventLogWriter() noexcept</div><div class="ttdoc">Main destructor.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:124</div></div>
-<div class="ttc" id="anamespacefarm__ng_html_ab211134636a9f9381a286d4d4726d5c9"><div class="ttname"><a href="namespacefarm__ng.html#ab211134636a9f9381a286d4d4726d5c9">farm_ng::makeWriteStamp</a></div><div class="ttdeci">auto makeWriteStamp() -&gt; core::proto::Timestamp</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:56</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_afe8d8d97efdcd22b04a2892df2137bb2"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">farm_ng::EventLogWriter::getPath</a></div><div class="ttdeci">std::filesystem::path getPath() const</div><div class="ttdoc">Returns the path including the fileaname.</div><div class="ttdef"><b>Definition:</b> event_log_writer.h:71</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html">farm_ng::EventLogWriter</a></div><div class="ttdoc">Class that serializes incoming protobuf events to a file in disk.</div><div class="ttdef"><b>Definition:</b> event_log_writer.h:45</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_impl_html_a5330ed640c7743c7ae9dcc3ef5280fa3"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer_impl.html#a5330ed640c7743c7ae9dcc3ef5280fa3">farm_ng::EventLogWriterImpl::getBytesWritten</a></div><div class="ttdeci">virtual ssize_t getBytesWritten()=0</div><div class="ttdoc">Returns the number of bytes written to the file so far.</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_impl_html_aa053de67e7eaf374e37dfb5468a861e8"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer_impl.html#aa053de67e7eaf374e37dfb5468a861e8">farm_ng::EventLogWriterImpl::write</a></div><div class="ttdeci">virtual void write(std::string path, google::protobuf::Message const &amp;message, google::protobuf::RepeatedPtrField&lt; core::proto::Timestamp &gt; const &amp;timestamps)=0</div></div>
+<div class="ttc" id="anamespacefarm__ng_html_ab211134636a9f9381a286d4d4726d5c9"><div class="ttname"><a href="namespacefarm__ng.html#ab211134636a9f9381a286d4d4726d5c9">farm_ng::makeWriteStamp</a></div><div class="ttdeci">auto makeWriteStamp() -&gt; core::proto::Timestamp</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:55</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_afe8d8d97efdcd22b04a2892df2137bb2"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">farm_ng::EventLogWriter::getPath</a></div><div class="ttdeci">std::filesystem::path getPath() const</div><div class="ttdoc">Returns the path including the fileaname.</div><div class="ttdef"><b>Definition:</b> event_log_writer.h:53</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_a75303c57a1e6bf04e266348d98c1cc56"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#a75303c57a1e6bf04e266348d98c1cc56">farm_ng::EventLogWriter::write</a></div><div class="ttdeci">void write(std::string const &amp;path, google::protobuf::Message const &amp;message, std::vector&lt; core::proto::Timestamp &gt; const &amp;timestamps=std::vector&lt; core::proto::Timestamp &gt;()) noexcept</div><div class="ttdoc">Writes an incoming protobuf in the log file.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:99</div></div>
+<div class="ttc" id="aexpected_8h_html"><div class="ttname"><a href="expected_8h.html">expected.h</a></div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_ae71875740047dae295d3c501edc17a0b"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#ae71875740047dae295d3c501edc17a0b">farm_ng::EventLogWriter::getBytesWritten</a></div><div class="ttdeci">ssize_t getBytesWritten() noexcept</div><div class="ttdoc">Returns the number of bytes written to the file so far.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:110</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html">farm_ng::EventLogWriter</a></div><div class="ttdoc">Class that serializes incoming protobuf events to a file in disk.</div><div class="ttdef"><b>Definition:</b> event_log_writer.h:30</div></div>
 <div class="ttc" id="asophus_2_c_make_lists_8txt_html_a0a336f4f09eebacd3c1416cb0015f58f"><div class="ttname"><a href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a></div><div class="ttdeci">cmake message(&quot;farm_ng_cmake_DIR&quot; ${farm_ng_cmake_DIR}) include($</div><div class="ttdef"><b>Definition:</b> CMakeLists.txt:8</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_impl_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer_impl.html">farm_ng::EventLogWriterImpl</a></div><div class="ttdoc">Implementation of the EventLogWriter class.</div><div class="ttdef"><b>Definition:</b> event_log_writer.h:29</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_a1656f5af91b828eccbe365bd49fc07be"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#a1656f5af91b828eccbe365bd49fc07be">farm_ng::EventLogWriter::write</a></div><div class="ttdeci">void write(std::string const &amp;path, google::protobuf::Message const &amp;message, std::vector&lt; core::proto::Timestamp &gt; const &amp;timestamps=std::vector&lt; core::proto::Timestamp &gt;())</div><div class="ttdoc">Writes an incoming protobuf in the log file.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:126</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_ae87d9aeb7676b1fba4b7e08b4861215a"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#ae87d9aeb7676b1fba4b7e08b4861215a">farm_ng::EventLogWriter::EventLogWriter</a></div><div class="ttdeci">EventLogWriter(std::filesystem::path const &amp;log_path)</div><div class="ttdoc">Main constructor of the class.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:109</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_af3d1b24857f550f873e8eedd07506cbb"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#af3d1b24857f550f873e8eedd07506cbb">farm_ng::EventLogWriter::getBytesWritten</a></div><div class="ttdeci">ssize_t getBytesWritten()</div><div class="ttdoc">Returns the number of bytes written to the file so far.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:145</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_impl_html_ad06db4d3799bbde1161e8fc3ec51f1db"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer_impl.html#ad06db4d3799bbde1161e8fc3ec51f1db">farm_ng::EventLogWriterImpl::~EventLogWriterImpl</a></div><div class="ttdeci">virtual ~EventLogWriterImpl()</div><div class="ttdoc">https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-dtor</div><div class="ttdef"><b>Definition:</b> event_log_writer.h:32</div></div>
+<div class="ttc" id="anamespacefarm__ng_html_a048d5e416c9003f203d6f76cc806dabb"><div class="ttname"><a href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">farm_ng::Expected</a></div><div class="ttdeci">tl::expected&lt; TT, TE &gt; Expected</div><div class="ttdef"><b>Definition:</b> expected.h:37</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_writer_html_a7f1899694006db6d00ed7ffa627c5217"><div class="ttname"><a href="classfarm__ng_1_1_event_log_writer.html#a7f1899694006db6d00ed7ffa627c5217">farm_ng::EventLogWriter::fromPath</a></div><div class="ttdeci">static Expected&lt; EventLogWriter &gt; fromPath(std::filesystem::path const &amp;log_path) noexcept</div><div class="ttdoc">Creates a new EventLogWriter that writes to the file log_path.</div><div class="ttdef"><b>Definition:</b> event_log_writer.cpp:114</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

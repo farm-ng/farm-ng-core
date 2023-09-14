@@ -85,6 +85,7 @@ $(document).ready(function(){initNavTree('classfarm__ng_1_1_event_log_writer.htm
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classfarm__ng_1_1_event_log_writer-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">farm_ng::EventLogWriter Class Reference</div>  </div>
@@ -98,50 +99,29 @@ $(document).ready(function(){initNavTree('classfarm__ng_1_1_event_log_writer.htm
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae87d9aeb7676b1fba4b7e08b4861215a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#ae87d9aeb7676b1fba4b7e08b4861215a">EventLogWriter</a> (std::filesystem::path const &amp;log_path)</td></tr>
-<tr class="memdesc:ae87d9aeb7676b1fba4b7e08b4861215a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main constructor of the class.  <a href="classfarm__ng_1_1_event_log_writer.html#ae87d9aeb7676b1fba4b7e08b4861215a">More...</a><br /></td></tr>
-<tr class="separator:ae87d9aeb7676b1fba4b7e08b4861215a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab73f8492ac274a8fda9b19db4c44c534"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#ab73f8492ac274a8fda9b19db4c44c534">~EventLogWriter</a> () noexcept</td></tr>
-<tr class="memdesc:ab73f8492ac274a8fda9b19db4c44c534"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main destructor.  <a href="classfarm__ng_1_1_event_log_writer.html#ab73f8492ac274a8fda9b19db4c44c534">More...</a><br /></td></tr>
-<tr class="separator:ab73f8492ac274a8fda9b19db4c44c534"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1656f5af91b828eccbe365bd49fc07be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#a1656f5af91b828eccbe365bd49fc07be">write</a> (std::string const &amp;path, google::protobuf::Message const &amp;<a class="el" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>, std::vector&lt; core::proto::Timestamp &gt; const &amp;timestamps=std::vector&lt; core::proto::Timestamp &gt;())</td></tr>
-<tr class="memdesc:a1656f5af91b828eccbe365bd49fc07be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an incoming protobuf in the log file.  <a href="classfarm__ng_1_1_event_log_writer.html#a1656f5af91b828eccbe365bd49fc07be">More...</a><br /></td></tr>
-<tr class="separator:a1656f5af91b828eccbe365bd49fc07be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6041037685fc5b12913ad312491bdc6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#a6041037685fc5b12913ad312491bdc6c">write</a> (std::string const &amp;path, google::protobuf::Message const &amp;<a class="el" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>, google::protobuf::RepeatedPtrField&lt; core::proto::Timestamp &gt; const &amp;timestamps)</td></tr>
-<tr class="separator:a6041037685fc5b12913ad312491bdc6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75303c57a1e6bf04e266348d98c1cc56"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#a75303c57a1e6bf04e266348d98c1cc56">write</a> (std::string const &amp;path, google::protobuf::Message const &amp;<a class="el" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>, std::vector&lt; core::proto::Timestamp &gt; const &amp;timestamps=std::vector&lt; core::proto::Timestamp &gt;()) noexcept</td></tr>
+<tr class="memdesc:a75303c57a1e6bf04e266348d98c1cc56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an incoming protobuf in the log file.  <a href="classfarm__ng_1_1_event_log_writer.html#a75303c57a1e6bf04e266348d98c1cc56">More...</a><br /></td></tr>
+<tr class="separator:a75303c57a1e6bf04e266348d98c1cc56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbf61b421473e00c752867f20cba26c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#abbf61b421473e00c752867f20cba26c1">write</a> (std::string const &amp;path, google::protobuf::Message const &amp;<a class="el" href="sophus_2_c_make_lists_8txt.html#a0a336f4f09eebacd3c1416cb0015f58f">message</a>, google::protobuf::RepeatedPtrField&lt; core::proto::Timestamp &gt; proto_stamps) noexcept</td></tr>
+<tr class="separator:abbf61b421473e00c752867f20cba26c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe8d8d97efdcd22b04a2892df2137bb2"><td class="memItemLeft" align="right" valign="top">std::filesystem::path&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">getPath</a> () const</td></tr>
 <tr class="memdesc:afe8d8d97efdcd22b04a2892df2137bb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the path including the fileaname.  <a href="classfarm__ng_1_1_event_log_writer.html#afe8d8d97efdcd22b04a2892df2137bb2">More...</a><br /></td></tr>
 <tr class="separator:afe8d8d97efdcd22b04a2892df2137bb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3d1b24857f550f873e8eedd07506cbb"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#af3d1b24857f550f873e8eedd07506cbb">getBytesWritten</a> ()</td></tr>
-<tr class="memdesc:af3d1b24857f550f873e8eedd07506cbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of bytes written to the file so far.  <a href="classfarm__ng_1_1_event_log_writer.html#af3d1b24857f550f873e8eedd07506cbb">More...</a><br /></td></tr>
-<tr class="separator:af3d1b24857f550f873e8eedd07506cbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae71875740047dae295d3c501edc17a0b"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#ae71875740047dae295d3c501edc17a0b">getBytesWritten</a> () noexcept</td></tr>
+<tr class="memdesc:ae71875740047dae295d3c501edc17a0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of bytes written to the file so far.  <a href="classfarm__ng_1_1_event_log_writer.html#ae71875740047dae295d3c501edc17a0b">More...</a><br /></td></tr>
+<tr class="separator:ae71875740047dae295d3c501edc17a0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a7f1899694006db6d00ed7ffa627c5217"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected</a>&lt; <a class="el" href="classfarm__ng_1_1_event_log_writer.html">EventLogWriter</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_event_log_writer.html#a7f1899694006db6d00ed7ffa627c5217">fromPath</a> (std::filesystem::path const &amp;log_path) noexcept</td></tr>
+<tr class="memdesc:a7f1899694006db6d00ed7ffa627c5217"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new <a class="el" href="classfarm__ng_1_1_event_log_writer.html" title="Class that serializes incoming protobuf events to a file in disk.">EventLogWriter</a> that writes to the file <code>log_path</code>.  <a href="classfarm__ng_1_1_event_log_writer.html#a7f1899694006db6d00ed7ffa627c5217">More...</a><br /></td></tr>
+<tr class="separator:a7f1899694006db6d00ed7ffa627c5217"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class that serializes incoming protobuf events to a file in disk. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ae87d9aeb7676b1fba4b7e08b4861215a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae87d9aeb7676b1fba4b7e08b4861215a">&#9670;&nbsp;</a></span>EventLogWriter()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">farm_ng::EventLogWriter::EventLogWriter </td>
-          <td>(</td>
-          <td class="paramtype">std::filesystem::path const &amp;&#160;</td>
-          <td class="paramname"><em>log_path</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Main constructor of the class. </p>
-<p>Precondition: It must be possible to create the folder <code>log_path_</code> if it does not exist. If <code>log-path</code> does exist, it must be a folder and it must be empty. </p>
-
-</div>
-</div>
-<a id="ab73f8492ac274a8fda9b19db4c44c534"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab73f8492ac274a8fda9b19db4c44c534">&#9670;&nbsp;</a></span>~EventLogWriter()</h2>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7f1899694006db6d00ed7ffa627c5217"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f1899694006db6d00ed7ffa627c5217">&#9670;&nbsp;</a></span>fromPath()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -150,29 +130,36 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">farm_ng::EventLogWriter::~EventLogWriter </td>
+          <td class="memname"><a class="el" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected</a>&lt; <a class="el" href="classfarm__ng_1_1_event_log_writer.html">EventLogWriter</a> &gt; farm_ng::EventLogWriter::fromPath </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">std::filesystem::path const &amp;&#160;</td>
+          <td class="paramname"><em>log_path</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Main destructor. </p>
+<p>Creates a new <a class="el" href="classfarm__ng_1_1_event_log_writer.html" title="Class that serializes incoming protobuf events to a file in disk.">EventLogWriter</a> that writes to the file <code>log_path</code>. </p>
+<p>Return an error if</p><ul>
+<li><code>log_path</code> exists and but it is not a folder or is not empty.</li>
+<li><code>log_path</code> does not exist and it cannot be created. </li>
+</ul>
 
 </div>
 </div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="af3d1b24857f550f873e8eedd07506cbb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af3d1b24857f550f873e8eedd07506cbb">&#9670;&nbsp;</a></span>getBytesWritten()</h2>
+<a id="ae71875740047dae295d3c501edc17a0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71875740047dae295d3c501edc17a0b">&#9670;&nbsp;</a></span>getBytesWritten()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">ssize_t farm_ng::EventLogWriter::getBytesWritten </td>
@@ -181,6 +168,11 @@ Public Member Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Returns the number of bytes written to the file so far. </p>
@@ -214,11 +206,14 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a6041037685fc5b12913ad312491bdc6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6041037685fc5b12913ad312491bdc6c">&#9670;&nbsp;</a></span>write() <span class="overload">[1/2]</span></h2>
+<a id="abbf61b421473e00c752867f20cba26c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbf61b421473e00c752867f20cba26c1">&#9670;&nbsp;</a></span>write() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void farm_ng::EventLogWriter::write </td>
@@ -235,8 +230,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">google::protobuf::RepeatedPtrField&lt; core::proto::Timestamp &gt; const &amp;&#160;</td>
-          <td class="paramname"><em>timestamps</em>&#160;</td>
+          <td class="paramtype">google::protobuf::RepeatedPtrField&lt; core::proto::Timestamp &gt;&#160;</td>
+          <td class="paramname"><em>proto_stamps</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -244,15 +239,23 @@ Public Member Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a1656f5af91b828eccbe365bd49fc07be"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1656f5af91b828eccbe365bd49fc07be">&#9670;&nbsp;</a></span>write() <span class="overload">[2/2]</span></h2>
+<a id="a75303c57a1e6bf04e266348d98c1cc56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75303c57a1e6bf04e266348d98c1cc56">&#9670;&nbsp;</a></span>write() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void farm_ng::EventLogWriter::write </td>
@@ -278,6 +281,11 @@ Public Member Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Writes an incoming protobuf in the log file. </p>

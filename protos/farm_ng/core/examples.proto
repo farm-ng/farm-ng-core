@@ -12,10 +12,16 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "farm_ng/core/pipeline/thread_pool.h"
+syntax = "proto3";
 
-#include <gtest/gtest.h>
+package farm_ng.core.proto;
 
-using namespace farm_ng;
+message StructExample1 {
+  double integer = 1;
+  float f = 2;
+}
 
-TEST(thread_pool, unit) {}
+message StructExample2 {
+  string name = 1;
+  StructExample1 ex1 = 2;
+}

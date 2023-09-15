@@ -7,6 +7,7 @@
 	"settings": {
 		"files.associations": {
 			"*.ipp": "cpp"
-		}
+		},
+		"workbench.colorTheme": "GitHub Dark High Contrast"
 	}
 }

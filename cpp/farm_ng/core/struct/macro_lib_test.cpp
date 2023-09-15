@@ -12,10 +12,16 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "farm_ng/core/pipeline/thread_pool.h"
+#include "farm_ng/core/struct/macro_lib.h"
 
+#include <farm_pp/preprocessor/stringize.hpp>
 #include <gtest/gtest.h>
 
-using namespace farm_ng;
+namespace farm_ng {}  // namespace farm_ng
 
-TEST(thread_pool, unit) {}
+TEST(macro_lib, unit) {
+  EXPECT_EQ(
+      std::string(FARM_PP_STRINGIZE(
+          FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE((A, (B, 2), (C))))),
+      std::string("((A )) ((B, 2 )) ((C ))"));
+}

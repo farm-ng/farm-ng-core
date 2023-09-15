@@ -12,8 +12,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// Copyright (c) farm-ng, inc. All rights reserved.
-
 #include "farm_ng/core/pipeline/component.h"
 
 #include <cxxabi.h>

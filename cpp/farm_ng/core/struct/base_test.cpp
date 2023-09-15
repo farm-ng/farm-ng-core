@@ -12,10 +12,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "farm_ng/core/pipeline/thread_pool.h"
+#include "farm_ng/core/struct/base.h"
 
+#include <farm_pp/preprocessor/stringize.hpp>
 #include <gtest/gtest.h>
 
-using namespace farm_ng;
-
-TEST(thread_pool, unit) {}
+TEST(struct_test, unit) {
+  // clang-format off
+  std::string expected_string = std::string(
+      "static int constexpr kNumFields = 2; "
+      "static std::array<std::string_view, kNumFields> constexpr kFieldNames = { \"i\" , \"d\" }; "
+      "using FieldTypes = std::tuple<int , double >; "
+      "int i {1}; "
+      "double d {0.5};");
+  // clang-format on
+  EXPECT_EQ(
+      FARM_PP_STRINGIZE(FARM_STRUCT_DETAILS_BASE(
+          Foo, 2, ((int, i, {1}))((double, d, {0.5})))),
+      expected_string);
+}

@@ -22,6 +22,9 @@
 
 #include <atomic>
 #include <filesystem>
+#include <fstream>  // std::ofstream
+#include <mutex>
+#include <optional>
 #include <unordered_set>
 
 namespace farm_ng {
@@ -37,9 +40,16 @@ FARM_ENUM(
 
 std::string stringFromLogLevel(LogLevel level);
 
-// A logger that writes to std::cerr
+// A logger that writes to std::cerr (and optionally to a file).
 class StreamLogger {
  public:
+  struct DiskLogging {
+    // if log_dir_!=nullopt, then logging to a file is enabled.
+    std::optional<std::filesystem::path> log_dir;
+    std::ofstream log_file_stream;
+    std::mutex log_file_mutex;
+  };
+
   // The header format is a {fmt}-style format string that may include the
   //  named arguments {level}, {text}, {file}, {line}, {function}, {time}.
   void setHeaderFormat(std::string const& str);
@@ -48,6 +58,16 @@ class StreamLogger {
   // Set the runtime log level
   void setLogLevel(LogLevel level);
   LogLevel getLogLevel();
+
+  // Set the directory where log files are written to. A file named
+  // "text.log" will be created in this directory.
+  //
+  // If the directory does not exist, or is not writable, false is returned.
+  bool trySetLogDir(std::filesystem::path const& path) noexcept;
+
+  // Get the directory where log files are written to. Returns nullopt if no
+  // directory has been set.
+  std::optional<std::filesystem::path> getLogDir() const noexcept;
 
   // A type-erased generator of timestamp strings
   struct LogClock {
@@ -73,22 +93,26 @@ class StreamLogger {
       if (noisy_modules_.find(file) == noisy_modules_.end()) {
         // Only warn about noisy log level once per enabled compilation unit.
         noisy_modules_.insert(file);
-        write("\n");
+        write(disk_logging_, "\n");
         writeHeader(LogLevel::warning, header_text, file, line, function);
-        write(FARM_FORMAT(
-            "Noisy logging (DEBUG or TRACE) enabled for module: {}  (runtime "
-            "log "
-            "level: {})",
-            file,
-            log_level_));
-        flush();
+        write(
+            disk_logging_,
+            FARM_FORMAT(
+                "Noisy logging (DEBUG or TRACE) enabled for module: {}  "
+                "(runtime "
+                "log "
+                "level: {})",
+                file,
+                log_level_));
+        flush(disk_logging_);
       }
     }
 
     if (log_level_ <= log_level) {
       writeHeader(log_level, header_text, file, line, function);
-      write(FARM_FORMAT(message, std::forward<TT>(args)...));
-      flush();
+      write(
+          this->disk_logging_, FARM_FORMAT(message, std::forward<TT>(args)...));
+      flush(disk_logging_);
     }
   }
 
@@ -108,8 +132,8 @@ class StreamLogger {
       std::string const& file,
       int line,
       std::string const& function);
-  static void write(std::string const& str);
-  static void flush();
+  static void write(DiskLogging& disk_logging, std::string const& str);
+  static void flush(DiskLogging& disk_logging);
 
   static std::string const kDefaultHeaderFormat;
   static LogLevel const kDefaultLogLevel = LogLevel(LogLevel::info);
@@ -119,6 +143,8 @@ class StreamLogger {
   LogLevel log_level_ = kDefaultLogLevel;
   LogClock log_clock_ = kDefaultLogClock;
   std::unordered_set<std::string> noisy_modules_;
+
+  DiskLogging disk_logging_;
 };
 
 inline StreamLogger& defaultLogger() {

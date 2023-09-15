@@ -42,22 +42,82 @@ void StreamLogger::writeHeader(
     std::string const& file,
     int line,
     std::string const& function) {
-  write(FARM_FORMAT(
-      header_format_,
-      fmt::arg("time", log_clock_.now()),
-      fmt::arg("level", stringFromLogLevel(log_level)),
-      fmt::arg("text", header_text),
-      fmt::arg("file", file),
-      fmt::arg("line", line),
-      fmt::arg("function", function)));
+  write(
+      disk_logging_,
+      FARM_FORMAT(
+          header_format_,
+          fmt::arg("time", log_clock_.now()),
+          fmt::arg("level", stringFromLogLevel(log_level)),
+          fmt::arg("text", header_text),
+          fmt::arg("file", file),
+          fmt::arg("line", line),
+          fmt::arg("function", function)));
 }
-void StreamLogger::write(std::string const& str) { std::cerr << str; }
-void StreamLogger::flush() { std::cerr << std::endl; }
 
-const std::string StreamLogger::kDefaultHeaderFormat =
+bool StreamLogger::trySetLogDir(std::filesystem::path const& path) noexcept {
+  if (!std::filesystem::exists(path)) {
+    FARM_WARN(
+        "Failed to enable text logging to disk. The path `{}` does not exist.",
+        path);
+    return false;
+  }
+  if (!std::filesystem::is_directory(path)) {
+    FARM_WARN(
+        "Failed to enable text logging to disk. The path `{}` is not a "
+        "directory.",
+        path);
+    return false;
+  }
+  this->disk_logging_.log_dir = path;
+
+  std::filesystem::path log_file_path = path / "text.log";
+
+  this->disk_logging_.log_file_stream = std::ofstream(log_file_path.string());
+
+  if (!this->disk_logging_.log_file_stream) {
+    FARM_WARN(
+        "Failed to enable text logging to disk. Unable to open stream for "
+        "`{}`.",
+        log_file_path);
+    return false;
+  }
+
+  return true;
+}
+
+// Get the directory where log files are written to. Returns nullopt if no
+// directory has been set.
+std::optional<std::filesystem::path> StreamLogger::getLogDir() const noexcept {
+  return disk_logging_.log_dir;
+}
+
+void StreamLogger::write(DiskLogging& disk_logging, std::string const& str) {
+  fmt::print(stderr, "{}", str);
+
+  if (disk_logging.log_dir) {
+    // Note: "log_file_stream_ << str; would not work since writing to streams
+    //        other than cout and cerr is not thread safe.
+    std::scoped_lock lock(disk_logging.log_file_mutex);
+
+    fmt::print(disk_logging.log_file_stream, "{}", str);
+  }
+}
+
+void StreamLogger::flush(DiskLogging& disk_logging) {
+  std::cerr << std::endl;
+  if (disk_logging.log_dir) {
+    std::scoped_lock lock(disk_logging.log_file_mutex);
+    // Note: log_file_stream.flush is not threadsafe.
+    fmt::print(disk_logging.log_file_stream, "\n");
+    // Flush here or not?
+    disk_logging.log_file_stream.flush();
+  }
+}
+
+std::string const StreamLogger::kDefaultHeaderFormat =
     "[FARM {text} in {file}:{line}]\n";
 
-const StreamLogger::LogClock StreamLogger::kDefaultLogClock =
+StreamLogger::LogClock const StreamLogger::kDefaultLogClock =
     StreamLogger::LogClock{.now = []() {
       auto now = std::chrono::system_clock::now();
       auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(

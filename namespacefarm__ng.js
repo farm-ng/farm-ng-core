@@ -1,6 +1,7 @@
 var namespacefarm__ng =
 [
     [ "details", "namespacefarm__ng_1_1details.html", "namespacefarm__ng_1_1details" ],
+    [ "proto_conv_details", "namespacefarm__ng_1_1proto__conv__details.html", "namespacefarm__ng_1_1proto__conv__details" ],
     [ "testing", "namespacefarm__ng_1_1testing.html", "namespacefarm__ng_1_1testing" ],
     [ "time_series", "namespacefarm__ng_1_1time__series.html", "namespacefarm__ng_1_1time__series" ],
     [ "A", "structfarm__ng_1_1_a.html", "structfarm__ng_1_1_a" ],
@@ -19,6 +20,7 @@ var namespacefarm__ng =
     [ "EventLogReaderBase", "structfarm__ng_1_1_event_log_reader_base.html", "structfarm__ng_1_1_event_log_reader_base" ],
     [ "EventLogWriter", "classfarm__ng_1_1_event_log_writer.html", "classfarm__ng_1_1_event_log_writer" ],
     [ "EventTimeCompareClockAndSemantics", "structfarm__ng_1_1_event_time_compare_clock_and_semantics.html", "structfarm__ng_1_1_event_time_compare_clock_and_semantics" ],
+    [ "FromProtImpl", "structfarm__ng_1_1_from_prot_impl.html", null ],
     [ "FromProtoTrait", "structfarm__ng_1_1_from_proto_trait.html", null ],
     [ "HasType", "structfarm__ng_1_1_has_type.html", null ],
     [ "HasType< T, std::variant< Us... > >", "structfarm__ng_1_1_has_type_3_01_t_00_01std_1_1variant_3_01_us_8_8_8_01_4_01_4.html", null ],
@@ -37,6 +39,7 @@ var namespacefarm__ng =
     [ "Success", "structfarm__ng_1_1_success.html", null ],
     [ "ThreadPool", "classfarm__ng_1_1_thread_pool.html", "classfarm__ng_1_1_thread_pool" ],
     [ "TimeSeries", "classfarm__ng_1_1_time_series.html", "classfarm__ng_1_1_time_series" ],
+    [ "ToProtImpl", "structfarm__ng_1_1_to_prot_impl.html", null ],
     [ "ToProtoTrait", "structfarm__ng_1_1_to_proto_trait.html", null ],
     [ "ToProtoTrait< sophus::IntensityImage<> >", "structfarm__ng_1_1_to_proto_trait_3_01sophus_1_1_intensity_image_3_4_01_4.html", "structfarm__ng_1_1_to_proto_trait_3_01sophus_1_1_intensity_image_3_4_01_4" ],
     [ "Uri", "structfarm__ng_1_1_uri.html", "structfarm__ng_1_1_uri" ],

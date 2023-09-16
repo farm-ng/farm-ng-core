@@ -101,147 +101,145 @@ $(document).ready(function(){initNavTree('event__log__reader_8h_source.html','')
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">//    See the License for the specific language governing permissions and</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">//    limitations under the License.</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">// Copyright (c) farm-ng, inc. All rights reserved.</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#pragma once</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="expected_8h.html">farm_ng/core/logging/expected.h</a>&quot;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="shared_8h.html">farm_ng/core/misc/shared.h</a>&quot;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="expected_8h.html">farm_ng/core/logging/expected.h</a>&quot;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="shared_8h.html">farm_ng/core/misc/shared.h</a>&quot;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;farm_ng/core/event.pb.h&gt;</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;farm_ng/core/event.pb.h&gt;</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &lt;exception&gt;</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &lt;filesystem&gt;</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefarm__ng.html">farm_ng</a> {</div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_eof.html">   30</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_eof.html">EventLogEof</a> : <span class="keyword">public</span> std::runtime_error {</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_eof.html#a0600fc4841f448a50559b294f393cf02">   32</a></span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classfarm__ng_1_1_event_log_eof.html#a0600fc4841f448a50559b294f393cf02">EventLogEof</a>(std::string <span class="keyword">const</span>&amp; what) : std::runtime_error(what) {}</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;};</div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_exist.html">   34</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_exist.html">EventLogExist</a> : <span class="keyword">public</span> std::runtime_error {</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_exist.html#ac26b483ebaf47b79b92b68e97c0f96f6">   36</a></span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classfarm__ng_1_1_event_log_exist.html#ac26b483ebaf47b79b92b68e97c0f96f6">EventLogExist</a>(std::string <span class="keyword">const</span>&amp; what) : std::runtime_error(what) {}</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;};</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#include &lt;exception&gt;</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#include &lt;filesystem&gt;</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefarm__ng.html">farm_ng</a> {</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_eof.html">   28</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_eof.html">EventLogEof</a> : <span class="keyword">public</span> std::runtime_error {</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_eof.html#a0600fc4841f448a50559b294f393cf02">   30</a></span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classfarm__ng_1_1_event_log_eof.html#a0600fc4841f448a50559b294f393cf02">EventLogEof</a>(std::string <span class="keyword">const</span>&amp; what) : std::runtime_error(what) {}</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;};</div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_exist.html">   32</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_exist.html">EventLogExist</a> : <span class="keyword">public</span> std::runtime_error {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_exist.html#ac26b483ebaf47b79b92b68e97c0f96f6">   34</a></span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classfarm__ng_1_1_event_log_exist.html#ac26b483ebaf47b79b92b68e97c0f96f6">EventLogExist</a>(std::string <span class="keyword">const</span>&amp; what) : std::runtime_error(what) {}</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;};</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">class </span>EventLogPos;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">class </span>EventLogPos;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_log_reader_base.html">   41</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfarm__ng_1_1_event_log_reader_base.html">EventLogReaderBase</a> {</div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">   42</a></span>&#160;  <span class="keyword">virtual</span> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">~EventLogReaderBase</a>() {}</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::pair&lt;core::proto::Event, std::streampos&gt;</a>&gt;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a84f92e92eb5a5035b6912ce351daf1ea">readNextEventImpl</a>(std::string* payload) noexcept = 0;</div>
+<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_log_reader_base.html">   39</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfarm__ng_1_1_event_log_reader_base.html">EventLogReaderBase</a> {</div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">   40</a></span>&#160;  <span class="keyword">virtual</span> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">~EventLogReaderBase</a>() {}</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::pair&lt;core::proto::Event, std::streampos&gt;</a>&gt;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a84f92e92eb5a5035b6912ce351daf1ea">readNextEventImpl</a>(std::string* payload) noexcept = 0;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keyword">virtual</span> std::vector&lt;EventLogPos&gt;&amp; <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a6853527891cd98323c66e8444c69cc55">index</a>() = 0;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keyword">virtual</span> std::vector&lt;EventLogPos&gt;&amp; <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a6853527891cd98323c66e8444c69cc55">index</a>() = 0;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="keyword">virtual</span> <span class="keyword">auto</span> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>(</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      core::proto::Event <span class="keyword">const</span>&amp; event, std::streampos pos) noexcept</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      -&gt; <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::string&gt;</a> = 0;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  [[nodiscard]] <span class="keyword">virtual</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;Success&gt;</a> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a801fa81d789ab97476a479a50aac8782">reset</a>() noexcept = 0;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;};</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_pos.html">   56</a></span>&#160;class <a class="code" href="classfarm__ng_1_1_event_log_pos.html">EventLogPos</a> {</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_pos.html#a224a28cb8c1f2e03aa79eb7ff1b6c477">   58</a></span>&#160;  <a class="code" href="classfarm__ng_1_1_event_log_pos.html#a224a28cb8c1f2e03aa79eb7ff1b6c477">EventLogPos</a>(</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      core::proto::Event event,</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;      std::streampos pos,</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;      <a class="code" href="classfarm__ng_1_1_shared.html">Shared&lt;EventLogReaderBase&gt;</a> reader_impl)</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;      : event_(std::move(event)),</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        pos_(pos),</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        reader_weak_ptr_(reader_impl.sharedPtr()) {}</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  core::proto::Event <span class="keyword">const</span>&amp; event() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::string&gt;</a> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  core::proto::Event event_;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  std::streampos pos_;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  std::weak_ptr&lt;EventLogReaderBase&gt; reader_weak_ptr_;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;};</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">auto</span> <a class="code" href="namespacefarm__ng.html#a61c73a0275bbf4600efb8187bf4566ea">getStamp</a>(</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    core::proto::Event <span class="keyword">const</span>&amp; event,</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    std::string <span class="keyword">const</span>&amp; clock_name,</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    std::string <span class="keyword">const</span>&amp; semantics) -&gt; core::proto::Timestamp <span class="keyword">const</span>*;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">/// Reader to deserialize data written by the EventLogWriter.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">///</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_reader.html">   82</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_reader.html">EventLogReader</a> {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">  /// Open&#39;s log file to read.</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">  /// Returns error if files could not be opened or if logfile does not</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">  /// contain a valid header.</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;EventLogReader&gt;</a> fromPath(</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;      std::filesystem::path <span class="keyword">const</span>&amp; log_path) noexcept;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="comment">// This function throws EventLogEof if the end of file is reached or a message</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="comment">// can not be decoded (typically due to an interrupted process).</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;EventLogPos&gt;</a> readNextEvent(std::string* payload = <span class="keyword">nullptr</span>) noexcept;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="comment">// Returns an index of all the events contained in the file.  This function</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="comment">// caches the index, so its only computed once; the index requires seeking</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">// through the entire file and decoding the events.  It should be fast as</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="comment">// payloads are skipped with seekg and not decoded.</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  std::vector&lt;EventLogPos&gt; <span class="keyword">const</span>&amp; getIndex() noexcept;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  /// Returns the path including the fileaname</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment"></span>  [[nodiscard]] std::filesystem::path getPath() <span class="keyword">const</span> noexcept;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  /// Reset the writer to the beginning of the file</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment"></span>  [[nodiscard]] <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;Success&gt;</a> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a801fa81d789ab97476a479a50aac8782">reset</a>() noexcept;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keyword">auto</span> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>(core::proto::Event <span class="keyword">const</span>&amp; event, std::streampos pos)</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;      <span class="keyword">const</span> noexcept -&gt; <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::string&gt;</a>;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <a class="code" href="classfarm__ng_1_1_event_log_reader.html">EventLogReader</a>() {}</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  std::shared_ptr&lt;EventLogReaderBase&gt; impl_;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;};</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
-<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html">  115</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html">EventTimeCompareClockAndSemantics</a> {</div>
-<div class="line"><a name="l00116"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae3bb817a09d9854a2eb13da76d764555">  116</a></span>&#160;  std::string <a class="code" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae3bb817a09d9854a2eb13da76d764555">clock_name</a>;</div>
-<div class="line"><a name="l00117"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae043502ebf2a03852f92edb10e0e49f8">  117</a></span>&#160;  std::string <a class="code" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae043502ebf2a03852f92edb10e0e49f8">semantics</a>;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="comment">// precondition:</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="comment">//    lhs and rhs both contain a stamp from the target clock_name and</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="comment">//    semantics.</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="keywordtype">bool</span> operator()(<a class="code" href="classfarm__ng_1_1_event_log_pos.html">EventLogPos</a> <span class="keyword">const</span>&amp; lhs, <a class="code" href="classfarm__ng_1_1_event_log_pos.html">EventLogPos</a> <span class="keyword">const</span>&amp; rhs) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;};</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment">// Returns events in time order, using the given reference clock and semantics</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment">// If two timestamps are exactly the same, the uri().path() of the event is used</span></div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">// to disambiguate the sorting.</span></div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;std::vector&lt;EventLogPos&gt; <a class="code" href="namespacefarm__ng.html#ab1c4e803418d7a13dce77b34e4128082">eventLogTimeOrderedIndex</a>(</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    std::string <span class="keyword">const</span>&amp; clock_name,</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::string <span class="keyword">const</span>&amp; semantics,</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    std::vector&lt;EventLogReader&gt; <span class="keyword">const</span>&amp; readers);</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;}  <span class="comment">// namespace farm_ng</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keyword">virtual</span> <span class="keyword">auto</span> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>(</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      core::proto::Event <span class="keyword">const</span>&amp; event, std::streampos pos) noexcept</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      -&gt; <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::string&gt;</a> = 0;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  [[nodiscard]] <span class="keyword">virtual</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;Success&gt;</a> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a801fa81d789ab97476a479a50aac8782">reset</a>() noexcept = 0;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;};</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_pos.html">   54</a></span>&#160;class <a class="code" href="classfarm__ng_1_1_event_log_pos.html">EventLogPos</a> {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_pos.html#a224a28cb8c1f2e03aa79eb7ff1b6c477">   56</a></span>&#160;  <a class="code" href="classfarm__ng_1_1_event_log_pos.html#a224a28cb8c1f2e03aa79eb7ff1b6c477">EventLogPos</a>(</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      core::proto::Event event,</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;      std::streampos pos,</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      <a class="code" href="classfarm__ng_1_1_shared.html">Shared&lt;EventLogReaderBase&gt;</a> reader_impl)</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;      : event_(std::move(event)),</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        pos_(pos),</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        reader_weak_ptr_(reader_impl.sharedPtr()) {}</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  core::proto::Event <span class="keyword">const</span>&amp; event() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::string&gt;</a> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  core::proto::Event event_;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  std::streampos pos_;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  std::weak_ptr&lt;EventLogReaderBase&gt; reader_weak_ptr_;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;};</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="keyword">auto</span> <a class="code" href="namespacefarm__ng.html#a61c73a0275bbf4600efb8187bf4566ea">getStamp</a>(</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    core::proto::Event <span class="keyword">const</span>&amp; event,</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    std::string <span class="keyword">const</span>&amp; clock_name,</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    std::string <span class="keyword">const</span>&amp; semantics) -&gt; core::proto::Timestamp <span class="keyword">const</span>*;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">/// Reader to deserialize data written by the EventLogWriter.</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="classfarm__ng_1_1_event_log_reader.html">   80</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfarm__ng_1_1_event_log_reader.html">EventLogReader</a> {</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">  /// Open&#39;s log file to read.</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">  /// Returns error if files could not be opened or if logfile does not</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /// contain a valid header.</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;EventLogReader&gt;</a> fromPath(</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      std::filesystem::path <span class="keyword">const</span>&amp; log_path) noexcept;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="comment">// This function throws EventLogEof if the end of file is reached or a message</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="comment">// can not be decoded (typically due to an interrupted process).</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;EventLogPos&gt;</a> readNextEvent(std::string* payload = <span class="keyword">nullptr</span>) noexcept;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="comment">// Returns an index of all the events contained in the file.  This function</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="comment">// caches the index, so its only computed once; the index requires seeking</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="comment">// through the entire file and decoding the events.  It should be fast as</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="comment">// payloads are skipped with seekg and not decoded.</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  std::vector&lt;EventLogPos&gt; <span class="keyword">const</span>&amp; getIndex() noexcept;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  /// Returns the path including the fileaname</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment"></span>  [[nodiscard]] std::filesystem::path getPath() <span class="keyword">const</span> noexcept;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  /// Reset the writer to the beginning of the file</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment"></span>  [[nodiscard]] <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;Success&gt;</a> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#a801fa81d789ab97476a479a50aac8782">reset</a>() noexcept;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keyword">auto</span> <a class="code" href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">readPayload</a>(core::proto::Event <span class="keyword">const</span>&amp; event, std::streampos pos)</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;      <span class="keyword">const</span> noexcept -&gt; <a class="code" href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">Expected&lt;std::string&gt;</a>;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160; </div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <a class="code" href="classfarm__ng_1_1_event_log_reader.html">EventLogReader</a>() {}</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  std::shared_ptr&lt;EventLogReaderBase&gt; impl_;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;};</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html">  113</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html">EventTimeCompareClockAndSemantics</a> {</div>
+<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae3bb817a09d9854a2eb13da76d764555">  114</a></span>&#160;  std::string <a class="code" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae3bb817a09d9854a2eb13da76d764555">clock_name</a>;</div>
+<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae043502ebf2a03852f92edb10e0e49f8">  115</a></span>&#160;  std::string <a class="code" href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae043502ebf2a03852f92edb10e0e49f8">semantics</a>;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="comment">// precondition:</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="comment">//    lhs and rhs both contain a stamp from the target clock_name and</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="comment">//    semantics.</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="keywordtype">bool</span> operator()(<a class="code" href="classfarm__ng_1_1_event_log_pos.html">EventLogPos</a> <span class="keyword">const</span>&amp; lhs, <a class="code" href="classfarm__ng_1_1_event_log_pos.html">EventLogPos</a> <span class="keyword">const</span>&amp; rhs) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;};</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">// Returns events in time order, using the given reference clock and semantics</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">// If two timestamps are exactly the same, the uri().path() of the event is used</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment">// to disambiguate the sorting.</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;std::vector&lt;EventLogPos&gt; <a class="code" href="namespacefarm__ng.html#ab1c4e803418d7a13dce77b34e4128082">eventLogTimeOrderedIndex</a>(</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    std::string <span class="keyword">const</span>&amp; clock_name,</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    std::string <span class="keyword">const</span>&amp; semantics,</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    std::vector&lt;EventLogReader&gt; <span class="keyword">const</span>&amp; readers);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;}  <span class="comment">// namespace farm_ng</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html_a84f92e92eb5a5035b6912ce351daf1ea"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html#a84f92e92eb5a5035b6912ce351daf1ea">farm_ng::EventLogReaderBase::readNextEventImpl</a></div><div class="ttdeci">virtual Expected&lt; std::pair&lt; core::proto::Event, std::streampos &gt; &gt; readNextEventImpl(std::string *payload) noexcept=0</div></div>
 <div class="ttc" id="anamespacefarm__ng_html"><div class="ttname"><a href="namespacefarm__ng.html">farm_ng</a></div><div class="ttdef"><b>Definition:</b> backtrace.cpp:102</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:41</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html_a2234a5a97861e4bc5d22792d4ad3246d"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">farm_ng::EventLogReaderBase::~EventLogReaderBase</a></div><div class="ttdeci">virtual ~EventLogReaderBase()</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:42</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_event_time_compare_clock_and_semantics_html_ae043502ebf2a03852f92edb10e0e49f8"><div class="ttname"><a href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae043502ebf2a03852f92edb10e0e49f8">farm_ng::EventTimeCompareClockAndSemantics::semantics</a></div><div class="ttdeci">std::string semantics</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:117</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_eof_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_eof.html">farm_ng::EventLogEof</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:30</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_pos_html_a224a28cb8c1f2e03aa79eb7ff1b6c477"><div class="ttname"><a href="classfarm__ng_1_1_event_log_pos.html#a224a28cb8c1f2e03aa79eb7ff1b6c477">farm_ng::EventLogPos::EventLogPos</a></div><div class="ttdeci">EventLogPos(core::proto::Event event, std::streampos pos, Shared&lt; EventLogReaderBase &gt; reader_impl)</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:58</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_event_time_compare_clock_and_semantics_html_ae3bb817a09d9854a2eb13da76d764555"><div class="ttname"><a href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae3bb817a09d9854a2eb13da76d764555">farm_ng::EventTimeCompareClockAndSemantics::clock_name</a></div><div class="ttdeci">std::string clock_name</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:116</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html">farm_ng::EventLogReaderBase</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:39</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html_a2234a5a97861e4bc5d22792d4ad3246d"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html#a2234a5a97861e4bc5d22792d4ad3246d">farm_ng::EventLogReaderBase::~EventLogReaderBase</a></div><div class="ttdeci">virtual ~EventLogReaderBase()</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:40</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_event_time_compare_clock_and_semantics_html_ae043502ebf2a03852f92edb10e0e49f8"><div class="ttname"><a href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae043502ebf2a03852f92edb10e0e49f8">farm_ng::EventTimeCompareClockAndSemantics::semantics</a></div><div class="ttdeci">std::string semantics</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:115</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_eof_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_eof.html">farm_ng::EventLogEof</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:28</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_pos_html_a224a28cb8c1f2e03aa79eb7ff1b6c477"><div class="ttname"><a href="classfarm__ng_1_1_event_log_pos.html#a224a28cb8c1f2e03aa79eb7ff1b6c477">farm_ng::EventLogPos::EventLogPos</a></div><div class="ttdeci">EventLogPos(core::proto::Event event, std::streampos pos, Shared&lt; EventLogReaderBase &gt; reader_impl)</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:56</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_event_time_compare_clock_and_semantics_html_ae3bb817a09d9854a2eb13da76d764555"><div class="ttname"><a href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html#ae3bb817a09d9854a2eb13da76d764555">farm_ng::EventTimeCompareClockAndSemantics::clock_name</a></div><div class="ttdeci">std::string clock_name</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:114</div></div>
 <div class="ttc" id="aexpected_8h_html"><div class="ttname"><a href="expected_8h.html">expected.h</a></div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_exist_html_ac26b483ebaf47b79b92b68e97c0f96f6"><div class="ttname"><a href="classfarm__ng_1_1_event_log_exist.html#ac26b483ebaf47b79b92b68e97c0f96f6">farm_ng::EventLogExist::EventLogExist</a></div><div class="ttdeci">EventLogExist(std::string const &amp;what)</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:36</div></div>
-<div class="ttc" id="anamespacefarm__ng_html_ab1c4e803418d7a13dce77b34e4128082"><div class="ttname"><a href="namespacefarm__ng.html#ab1c4e803418d7a13dce77b34e4128082">farm_ng::eventLogTimeOrderedIndex</a></div><div class="ttdeci">auto eventLogTimeOrderedIndex(std::string const &amp;clock_name, std::string const &amp;semantics, std::vector&lt; EventLogReader &gt; const &amp;readers) -&gt; std::vector&lt; EventLogPos &gt;</div><div class="ttdef"><b>Definition:</b> event_log_reader.cpp:154</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_pos_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_pos.html">farm_ng::EventLogPos</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:56</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_exist_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_exist.html">farm_ng::EventLogExist</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:34</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_exist_html_ac26b483ebaf47b79b92b68e97c0f96f6"><div class="ttname"><a href="classfarm__ng_1_1_event_log_exist.html#ac26b483ebaf47b79b92b68e97c0f96f6">farm_ng::EventLogExist::EventLogExist</a></div><div class="ttdeci">EventLogExist(std::string const &amp;what)</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:34</div></div>
+<div class="ttc" id="anamespacefarm__ng_html_ab1c4e803418d7a13dce77b34e4128082"><div class="ttname"><a href="namespacefarm__ng.html#ab1c4e803418d7a13dce77b34e4128082">farm_ng::eventLogTimeOrderedIndex</a></div><div class="ttdeci">auto eventLogTimeOrderedIndex(std::string const &amp;clock_name, std::string const &amp;semantics, std::vector&lt; EventLogReader &gt; const &amp;readers) -&gt; std::vector&lt; EventLogPos &gt;</div><div class="ttdef"><b>Definition:</b> event_log_reader.cpp:152</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_pos_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_pos.html">farm_ng::EventLogPos</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:54</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_exist_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_exist.html">farm_ng::EventLogExist</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:32</div></div>
 <div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html_a6853527891cd98323c66e8444c69cc55"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html#a6853527891cd98323c66e8444c69cc55">farm_ng::EventLogReaderBase::index</a></div><div class="ttdeci">virtual std::vector&lt; EventLogPos &gt; &amp; index()=0</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_eof_html_a0600fc4841f448a50559b294f393cf02"><div class="ttname"><a href="classfarm__ng_1_1_event_log_eof.html#a0600fc4841f448a50559b294f393cf02">farm_ng::EventLogEof::EventLogEof</a></div><div class="ttdeci">EventLogEof(std::string const &amp;what)</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:32</div></div>
-<div class="ttc" id="anamespacefarm__ng_html_a61c73a0275bbf4600efb8187bf4566ea"><div class="ttname"><a href="namespacefarm__ng.html#a61c73a0275bbf4600efb8187bf4566ea">farm_ng::getStamp</a></div><div class="ttdeci">auto getStamp(core::proto::Event const &amp;event, std::string const &amp;clock_name, std::string const &amp;semantics) -&gt; core::proto::Timestamp const *</div><div class="ttdef"><b>Definition:</b> event_log_reader.cpp:119</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_eof_html_a0600fc4841f448a50559b294f393cf02"><div class="ttname"><a href="classfarm__ng_1_1_event_log_eof.html#a0600fc4841f448a50559b294f393cf02">farm_ng::EventLogEof::EventLogEof</a></div><div class="ttdeci">EventLogEof(std::string const &amp;what)</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:30</div></div>
+<div class="ttc" id="anamespacefarm__ng_html_a61c73a0275bbf4600efb8187bf4566ea"><div class="ttname"><a href="namespacefarm__ng.html#a61c73a0275bbf4600efb8187bf4566ea">farm_ng::getStamp</a></div><div class="ttdeci">auto getStamp(core::proto::Event const &amp;event, std::string const &amp;clock_name, std::string const &amp;semantics) -&gt; core::proto::Timestamp const *</div><div class="ttdef"><b>Definition:</b> event_log_reader.cpp:117</div></div>
 <div class="ttc" id="aclassfarm__ng_1_1_shared_html"><div class="ttname"><a href="classfarm__ng_1_1_shared.html">farm_ng::Shared</a></div><div class="ttdef"><b>Definition:</b> shared.h:27</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_event_time_compare_clock_and_semantics_html"><div class="ttname"><a href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html">farm_ng::EventTimeCompareClockAndSemantics</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:115</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_event_time_compare_clock_and_semantics_html"><div class="ttname"><a href="structfarm__ng_1_1_event_time_compare_clock_and_semantics.html">farm_ng::EventTimeCompareClockAndSemantics</a></div><div class="ttdef"><b>Definition:</b> event_log_reader.h:113</div></div>
 <div class="ttc" id="ashared_8h_html"><div class="ttname"><a href="shared_8h.html">shared.h</a></div></div>
 <div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html_aa98b919cbe5cc570410abb97013da7d1"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html#aa98b919cbe5cc570410abb97013da7d1">farm_ng::EventLogReaderBase::readPayload</a></div><div class="ttdeci">virtual auto readPayload(core::proto::Event const &amp;event, std::streampos pos) noexcept -&gt; Expected&lt; std::string &gt;=0</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_event_log_reader_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_reader.html">farm_ng::EventLogReader</a></div><div class="ttdoc">Reader to deserialize data written by the EventLogWriter.</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:82</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_event_log_reader_html"><div class="ttname"><a href="classfarm__ng_1_1_event_log_reader.html">farm_ng::EventLogReader</a></div><div class="ttdoc">Reader to deserialize data written by the EventLogWriter.</div><div class="ttdef"><b>Definition:</b> event_log_reader.h:80</div></div>
 <div class="ttc" id="anamespacefarm__ng_html_a048d5e416c9003f203d6f76cc806dabb"><div class="ttname"><a href="namespacefarm__ng.html#a048d5e416c9003f203d6f76cc806dabb">farm_ng::Expected</a></div><div class="ttdeci">tl::expected&lt; TT, TE &gt; Expected</div><div class="ttdef"><b>Definition:</b> expected.h:37</div></div>
 <div class="ttc" id="astructfarm__ng_1_1_event_log_reader_base_html_a801fa81d789ab97476a479a50aac8782"><div class="ttname"><a href="structfarm__ng_1_1_event_log_reader_base.html#a801fa81d789ab97476a479a50aac8782">farm_ng::EventLogReaderBase::reset</a></div><div class="ttdeci">virtual Expected&lt; Success &gt; reset() noexcept=0</div></div>
 <!-- start footer part -->

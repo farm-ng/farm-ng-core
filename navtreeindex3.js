@@ -1,5 +1,16 @@
 var NAVTREEINDEX3 =
 {
+"classsophus_1_1_region.html#aaa5aadcd65a4768d42bd54f6410c4b69":[3,0,4,58,26],
+"classsophus_1_1_region.html#aaa5aadcd65a4768d42bd54f6410c4b69":[3,0,4,58,27],
+"classsophus_1_1_region.html#aaa5aadcd65a4768d42bd54f6410c4b69":[3,0,4,58,28],
+"classsophus_1_1_region.html#aba3907f7134ffcc1d70b0df6839c6120":[3,0,4,58,31],
+"classsophus_1_1_region.html#abd00dbf418fd0a68186e6823b25edb24":[3,0,4,58,15],
+"classsophus_1_1_region.html#abeede4edbece195c92ea29442530563a":[3,0,4,58,9],
+"classsophus_1_1_region.html#abfb146aad1c6f88583f1a377817a48c7":[3,0,4,58,3],
+"classsophus_1_1_region.html#ac9b1a9834d0ada5b5fb00748d222e0d1":[3,0,4,58,5],
+"classsophus_1_1_region.html#acba553d203a965a60a6c7a5e371d26f5":[3,0,4,58,16],
+"classsophus_1_1_region.html#adef55cdfcda3407aa6faf8c3d40f9a6e":[3,0,4,58,11],
+"classsophus_1_1_region.html#adf89acd5b350e8a2a909c00f9c3e166f":[3,0,4,58,6],
 "classsophus_1_1_region.html#adfa0aa4e325c47bcd72861fec7198319":[3,0,4,58,0],
 "classsophus_1_1_region.html#ae5695248a6df6f50e1a8bd56ac155808":[3,0,4,58,22],
 "classsophus_1_1_region.html#afc9ba1e6929035286186dd00e78c6db6":[3,0,4,58,34],
@@ -238,16 +249,5 @@ var NAVTREEINDEX3 =
 "classsophus_1_1lie_1_1_identity_impl.html":[3,0,4,4,1],
 "classsophus_1_1lie_1_1_identity_impl.html#a4a49b9cd43b999576ab0cc3afeccdae5":[3,0,4,4,1,5],
 "classsophus_1_1lie_1_1_identity_impl.html#a57c32bfc684d2736662579e472b9acba":[3,0,4,4,1,6],
-"classsophus_1_1lie_1_1_identity_impl.html#a64c6613da2cb143c6b6a0f56293792fe":[3,0,4,4,1,0],
-"classsophus_1_1lie_1_1_identity_impl.html#a860614eb04d1ac03d5c3f87d617621d8":[3,0,4,4,1,2],
-"classsophus_1_1lie_1_1_identity_impl.html#aa5c35058b069df351344f9b05bd6ac89":[3,0,4,4,1,3],
-"classsophus_1_1lie_1_1_identity_impl.html#aaad9906eb7e44a14e1db1fe201997bd0":[3,0,4,4,1,4],
-"classsophus_1_1lie_1_1_identity_impl.html#ab1aeebfd646abc2955000dce90b9772a":[3,0,4,4,1,7],
-"classsophus_1_1lie_1_1_identity_impl.html#af99529b913f48c3937ff6e9fb52782d6":[3,0,4,4,1,1],
-"classsophus_1_1lie_1_1_rotation2_impl.html":[3,0,4,4,3],
-"classsophus_1_1lie_1_1_rotation2_impl.html#a050068819d4e8f40c10a52170032f271":[3,0,4,4,3,0],
-"classsophus_1_1lie_1_1_rotation2_impl.html#a2b677b4b709b1f6a856c880f6bf4bb27":[3,0,4,4,3,2],
-"classsophus_1_1lie_1_1_rotation2_impl.html#a43cfb3c284bd9b0e0fdbcf64919ad772":[3,0,4,4,3,4],
-"classsophus_1_1lie_1_1_rotation2_impl.html#a50ce0d83c5ba76762edb7d5ba45d0877":[3,0,4,4,3,3],
-"classsophus_1_1lie_1_1_rotation2_impl.html#a71751fa7eee78c59981c4ec485f4f876":[3,0,4,4,3,6]
+"classsophus_1_1lie_1_1_identity_impl.html#a64c6613da2cb143c6b6a0f56293792fe":[3,0,4,4,1,0]
 };

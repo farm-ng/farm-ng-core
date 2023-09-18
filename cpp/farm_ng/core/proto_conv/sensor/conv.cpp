@@ -15,6 +15,7 @@
 #include "farm_ng/core/proto_conv/sensor/conv.h"
 
 #include "farm_ng/core/proto_conv/image/conv.h"
+#include "farm_ng/core/proto_conv/lie/conv.h"
 
 namespace farm_ng {
 
@@ -70,6 +71,26 @@ auto toProt<std::vector<sophus::CameraModel>>(
   for (auto const& model : camera_models) {
     *proto.add_camera_models() = toProt(model);
   }
+  return proto;
+}
+
+template <>
+auto fromProt<core::proto::RigidCamera>(core::proto::RigidCamera const& proto)
+    -> Expected<sophus::RigidCamera> {
+  sophus::RigidCamera s;
+  SOPHUS_TRY(auto, intrinsics, fromProt(proto.intrinsics()));
+  SOPHUS_TRY(auto, extrinsics, fromProt(proto.rig_from_camera()));
+  s.intrinsics = intrinsics;
+  s.rig_from_camera = extrinsics;
+  return s;
+}
+
+template <>
+auto toProt<sophus::RigidCamera>(sophus::RigidCamera const& s)
+    -> core::proto::RigidCamera {
+  core::proto::RigidCamera proto;
+  *proto.mutable_intrinsics() = toProt(s.intrinsics);
+  *proto.mutable_rig_from_camera() = toProt(s.rig_from_camera);
   return proto;
 }
 

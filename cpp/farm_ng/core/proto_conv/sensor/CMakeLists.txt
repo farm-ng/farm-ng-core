@@ -12,6 +12,7 @@ target_link_libraries(farm_ng_core_proto_conv_sensor PUBLIC
   protobuf::libprotobuf
   farm_ng_core::farm_ng_core_prototools
   farm_ng_core::farm_ng_core_proto_conv_image
+  farm_ng_core::farm_ng_core_proto_conv_lie
 )
 
 

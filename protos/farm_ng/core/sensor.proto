@@ -62,14 +62,10 @@ message ClippingPlanes {
   float far = 2;
 }
 
-message CameraInRig {
-  CameraModel camera_model = 1;
+message RigidCamera {
+  CameraModel intrinsics = 1;
 
   Isometry3F64 rig_from_camera = 2;
-}
-
-message MultiCameraRig {
-  repeated CameraInRig cameras = 1;
 }
 
 message GyroModel {

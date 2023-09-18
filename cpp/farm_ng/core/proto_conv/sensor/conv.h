@@ -17,11 +17,13 @@
 #include "farm_ng/core/proto_conv/traits.h"
 #include "farm_ng/core/sensor.pb.h"
 #include "sophus/sensor/camera_model.h"
+#include "sophus/sensor/camera_rig.h"
 
 namespace farm_ng {
 
 FARM_PROTO_CONV_TRAIT(sophus::CameraModel, core::proto::CameraModel);
 FARM_PROTO_CONV_TRAIT(
     std::vector<sophus::CameraModel>, core::proto::CameraModels);
+FARM_PROTO_CONV_TRAIT(sophus::RigidCamera, core::proto::RigidCamera);
 
 }  // namespace farm_ng

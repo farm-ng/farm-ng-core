@@ -330,7 +330,7 @@ class EventClient:
         reply_or_message: RequestReplyReply | Message = reply
         if decode:
             reply_or_message = payload_to_protobuf(reply.event, reply.payload)
-    
+
         return reply_or_message
 
 

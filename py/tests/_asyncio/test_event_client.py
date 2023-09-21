@@ -3,7 +3,12 @@ import asyncio
 import pytest
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service import EventServiceGrpc
-from google.protobuf.wrappers_pb2 import Int32Value
+from farm_ng.core.event_service_pb2 import (
+    RequestReplyRequest,
+)
+from google.protobuf.empty_pb2 import Empty
+from google.protobuf.message import Message
+from google.protobuf.wrappers_pb2 import Int32Value, StringValue
 
 
 class TestEventClient:
@@ -59,3 +64,41 @@ class TestEventClient:
             except asyncio.CancelledError:
                 pass
         assert task.done()
+
+    @pytest.mark.anyio()
+    async def test_request_reply(
+        self,
+        event_service: EventServiceGrpc,
+        event_client: EventClient,
+    ) -> None:
+        async def request_reply_handler(
+            request: RequestReplyRequest,
+        ) -> Message:
+            if request.event.uri.path == "/get_foo":
+                return StringValue(value="foo")
+            if request.event.uri.path == "/get_bar":
+                return StringValue(value="bar")
+            if request.event.uri.path == "/await":
+                await asyncio.sleep(0.1)
+                return Empty()
+            return None
+
+        # reset the counts
+        event_service.reset()
+        event_service.request_reply_handler = request_reply_handler
+
+        # get decoded response
+        res = await event_client.request_reply("/get_foo", Empty(), decode=True)
+        assert res.value == "foo"
+
+        res = await event_client.request_reply("/get_bar", Empty(), decode=True)
+        assert res.value == "bar"
+
+        res = await event_client.request_reply("/await", Empty(), decode=True)
+        assert isinstance(res, Empty)
+
+        # get raw response
+        res = await event_client.request_reply("/get_foo", Empty(), decode=False)
+        assert res.event.uri.path == "/reply/request/get_foo"
+        assert "StringValue" in res.event.uri.query
+        assert res.payload == b"\n\x03foo"

@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 from farm_ng.core.event_client import EventClient
+from farm_ng.core.event_pb2 import Event
 from farm_ng.core.event_service import EventServiceGrpc
 from farm_ng.core.event_service_pb2 import (
     RequestReplyRequest,
@@ -102,3 +103,38 @@ class TestEventClient:
         assert res.event.uri.path == "/reply/request/get_foo"
         assert "StringValue" in res.event.uri.query
         assert res.payload == b"\n\x03foo"
+
+    @pytest.mark.anyio()
+    async def test_request_reply_callback(
+        self,
+        event_service: EventServiceGrpc,
+        event_client: EventClient,
+    ) -> None:
+        async def request_reply_handler(
+            event: Event,
+            message: StringValue,
+        ) -> StringValue:
+            if event.uri.path == "/foo":
+                return StringValue(value=f"{message.value} world !")
+            return Empty()
+
+        # reset the counts
+        event_service.reset()
+        event_service.add_request_reply_handler(request_reply_handler)
+
+        # get decoded response
+        res = await event_client.request_reply(
+            "/foo",
+            StringValue(value="hello"),
+            decode=True,
+        )
+        assert isinstance(res, StringValue)
+        assert res.value == "hello world !"
+
+        # empty response
+        res = await event_client.request_reply(
+            "/bar",
+            StringValue(value="hello"),
+            decode=True,
+        )
+        assert isinstance(res, Empty)

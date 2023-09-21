@@ -151,7 +151,7 @@ class EventServiceGrpc:
 
     def add_request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""
-        if not isinstance(handler, Callable):
+        if not type(handler) == Callable:
             msg = "handler must be a callable"
             raise TypeError(msg)
 

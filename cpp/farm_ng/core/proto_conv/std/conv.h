@@ -14,21 +14,22 @@
 
 #pragma once
 
-#include "farm_ng/core/calculus.pb.h"
 #include "farm_ng/core/proto_conv/traits.h"
-#include "sophus/calculus/region.h"
+#include "farm_ng/core/std.pb.h"
 
-#include <deque>
+#include <filesystem>
+#include <optional>
 
 namespace farm_ng {
 
-FARM_PROTO_CONV_TRAIT(sophus::RegionI, core::proto::RegionI32);
-FARM_PROTO_CONV_TRAIT(sophus::RegionF32, core::proto::RegionF32);
-FARM_PROTO_CONV_TRAIT(sophus::RegionF64, core::proto::RegionF64);
-
-FARM_PROTO_CONV_TRAIT(sophus::Region2F64, core::proto::Region2F64);
-
+FARM_PROTO_CONV_TRAIT(std::optional<float>, core::proto::OptionalG0Float);
+FARM_PROTO_CONV_TRAIT(std::optional<double>, core::proto::OptionalG0Double);
+FARM_PROTO_CONV_TRAIT(std::optional<int32_t>, core::proto::OptionalG0Int32);
+FARM_PROTO_CONV_TRAIT(std::optional<int64_t>, core::proto::OptionalG0Int64);
 FARM_PROTO_CONV_TRAIT(
-    std::deque<sophus::Region2F64>, core::proto::RepeatedG0Region2F64);
+    std::optional<std::string>, core::proto::OptionalG0String);
+FARM_PROTO_CONV_TRAIT(std::optional<bool>, core::proto::OptionalG0Bool);
+
+FARM_PROTO_CONV_TRAIT(std::filesystem::path, core::proto::FileSystemPath);
 
 }  // namespace farm_ng

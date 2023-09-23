@@ -14,7 +14,7 @@
 
 #define FARM_ERROR_CALLSTACK_DISABLED
 
-#include "farm_ng/core/proto_conv/struct/conv.h"
+#include "farm_ng/core/proto_conv/struct/conv_impl_macro.ipp"
 
 #include "farm_ng/core/examples.pb.h"
 #include "farm_ng/core/struct/struct.h"

@@ -12,17 +12,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-syntax = "proto3";
+#include "farm_ng/core/proto_conv/std/conv.h"
 
-import "farm_ng/core/linalg.proto";
+#include <gtest/gtest.h>
 
-package farm_ng.core.proto;
+using namespace farm_ng;
+using namespace farm_ng::core;
 
-message UnitVec3F64 {
-  Vec3F64 vec3 = 1;
-}
-
-message Hyperplane3F64 {
-  UnitVec3F64 normal = 1;
-  double offset = 2;
-}
+TEST(std, unit) {}

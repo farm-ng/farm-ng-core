@@ -45,3 +45,7 @@ message Region2F64 {
     farm_ng.core.proto.Vec2F64 min = 2;
     farm_ng.core.proto.Vec2F64 max = 3;
 }
+
+
+message RepeatedG0Region2F64 {
+  repeated farm_ng.core.proto.Region2F64 value = 1; }

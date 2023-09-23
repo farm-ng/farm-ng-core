@@ -2,7 +2,9 @@
 core
 ]]
 
+
 add_subdirectory(struct)
+add_subdirectory(std)
 add_subdirectory(linalg)
 add_subdirectory(calculus)
 add_subdirectory(lie)

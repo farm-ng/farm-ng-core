@@ -11,4 +11,5 @@ PROTO_FILES
 ./farm_ng/core/lie.proto
 ./farm_ng/core/pose.proto
 ./farm_ng/core/image.proto
-./farm_ng/core/sensor.proto)
+./farm_ng/core/sensor.proto
+./farm_ng/core/std.proto)

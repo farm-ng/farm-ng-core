@@ -15,6 +15,7 @@
 #include "farm_ng/core/proto_conv/calculus/conv.h"
 
 #include "farm_ng/core/proto_conv/linalg/conv.h"
+#include "farm_ng/core/proto_conv/std/conv_impl_macro.ipp"
 
 namespace farm_ng {
 
@@ -129,5 +130,7 @@ auto toProt<sophus::Region2F64>(sophus::Region2F64 const& region)
   }
   return proto;
 }
+
+FARM_CONV_IMPL_REPEATED(core::proto::RepeatedG0Region2F64, sophus::Region2F64)
 
 }  // namespace farm_ng

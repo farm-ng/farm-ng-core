@@ -39,6 +39,22 @@ struct FromProtoTrait;
 ///
 /// Note: The return type is deduced from the argument type using the
 /// `FromProtoTrait` trait.
+///
+/// TODO: Redesign to allow {1:many} mappings.
+///
+/// * We always do know the c++ type and the proto type. We can use that to
+/// * generate a function that converts from the proto type to the c++ type.
+/// * We want a syntax like this:
+/// *
+/// *    auto v = fromProt<Eigen::Vector3d>(proto);
+/// *
+/// * where fromProt would have the following signature:
+/// *
+/// *    template <class TCpp, class TProto>
+/// *    auto fromProt(TProto const& proto) -> Expected<TCpp>;
+/// *
+/// * Note: This shall also eliminate the indirection FromProtImpl in
+/// struct/conv_impl_macro.h.
 template <class TProto>
 auto fromProt(TProto const& proto)
     -> Expected<typename FromProtoTrait<TProto>::CppType>;
@@ -55,6 +71,14 @@ auto fromProt(TProto const& proto)
 ///
 /// Note: The return type is deduced from the argument type using the
 /// `ToProtoTrait` trait.
+///
+/// TODO:
+/// * Slight redesign to allow partial specialization e.g. to have a
+/// * single function definition to map std::vector<float> and std::deque<float>
+/// * to a common proto type.
+/// *
+/// * Note: We will kepp a {many:1} mapping. In particular, any given C++ type
+/// * can be mapped to at most one proto type.
 template <class TCpp>
 auto toProt(TCpp const& cpp) -> typename ToProtoTrait<TCpp>::ProtoType;
 

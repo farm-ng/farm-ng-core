@@ -14,6 +14,9 @@
 
 #pragma once
 
+// NOTE: This file should typically only be included in *.cpp files - to keep
+// compile times low.
+
 #include "farm_ng/core/struct/macro_lib.h"
 
 #include <farm_ng/core/logging/expected.h>
@@ -40,7 +43,7 @@
 #define FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME(r, field_names, index, tuple) \
   static_assert(                                                             \
       field_names[index] == FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, tuple)), \
-      "Field" FARM_PP_STRINGIZE(index) " in FARM_PROTO_CONV_IMPL is `"       \
+      "Field #" FARM_PP_STRINGIZE(index) " in FARM_PROTO_CONV_IMPL is `"       \
       FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, tuple)) "` but expected `"     \
       FARM_PP_STRINGIZE(field_names[index]) "`.");
 

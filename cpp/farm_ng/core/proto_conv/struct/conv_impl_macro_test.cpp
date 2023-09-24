@@ -113,12 +113,12 @@ TEST(FARM_PROTO_CONV_IMPL, macro) {
       "\"Number of fields in FARM_PROTO_CONV_IMPL macro must match number of "
       "\" \"fields in \" \"StructExample1\" \" FARM_STRUCT\"); "  //
       "static_assert( StructExample1::kFieldNames[0] == \"integer\", "
-      "\"Field\" \"0\" \" in FARM_PROTO_CONV_IMPL is `\" \"integer\" "
+      "\"Field #\" \"0\" \" in FARM_PROTO_CONV_IMPL is `\" \"integer\" "
       "\"` but expected `\" \"StructExample1::kFieldNames[0]\" \"`.\");";
   std::string macro_start =
       std::string(FARM_PP_STRINGIZE(FARM_PROTO_CONV_IMPL(
                       StructExample1, core::proto::StructExample1, (integer))))
-          .substr(0, 338);
+          .substr(0, 340);
 
   EXPECT_EQ(macro_start, expected_string);
 }

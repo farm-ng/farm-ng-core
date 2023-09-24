@@ -92,7 +92,7 @@ std::optional<std::filesystem::path> StreamLogger::getLogDir() const noexcept {
 }
 
 void StreamLogger::write(DiskLogging& disk_logging, std::string const& str) {
-  fmt::print(stderr, "{}", str);
+  std::cerr << str;
 
   if (disk_logging.log_dir) {
     // Note: "log_file_stream_ << str; would not work since writing to streams

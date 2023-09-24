@@ -24,14 +24,14 @@
 //
 // This intermediate macro exists since the conversion from a list to a sequence
 // is likely somewhat expensive, so we want to do it once and reuse it.
-#define FARM_STRUCT_DETAIL_FROM_SEQ(StructName, num_fields, field_seq) \
-  struct StructName {                                                  \
-    FARM_STRUCT_DETAILS_BASE(StructName, num_fields, field_seq)        \
+#define FARM_STRUCT_DETAIL_FROM_SEQ(Struct_Name, Num_Fields_, Field_Seq_) \
+  struct Struct_Name {                                                    \
+    FARM_STRUCT_DETAILS_BASE(Num_Fields_, Field_Seq_)                     \
   }
 
 /// Takes in a struct name and a tuple of fields and generates a struct.
-#define FARM_STRUCT(StructName, tuple_of_fields) \
-  FARM_STRUCT_DETAIL_FROM_SEQ(                   \
-      StructName,                                \
-      FARM_PP_TUPLE_SIZE(tuple_of_fields),       \
-      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_fields))
+#define FARM_STRUCT(Struct_Name, Tuple_Of_Fields_) \
+  FARM_STRUCT_DETAIL_FROM_SEQ(                     \
+      Struct_Name,                                 \
+      FARM_PP_TUPLE_SIZE(Tuple_Of_Fields_),        \
+      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Fields_))

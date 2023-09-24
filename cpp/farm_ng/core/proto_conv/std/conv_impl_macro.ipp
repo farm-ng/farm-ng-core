@@ -25,11 +25,11 @@
 
 namespace farm_ng {
 
-#define FARM_CONV_IMPL_OPTIONAL(Proto_Type, Cpp_Type)                    \
+#define FARM_CONV_IMPL_OPTIONAL(Proto_Type_, Cpp_Type_)                    \
   template <>                                                            \
-  auto fromProt<Proto_Type>(Proto_Type const& proto)                     \
-      -> Expected<std::optional<Cpp_Type>> {                             \
-    std::optional<Cpp_Type> v;                                           \
+  auto fromProt<Proto_Type_>(Proto_Type_ const& proto)                     \
+      -> Expected<std::optional<Cpp_Type_>> {                             \
+    std::optional<Cpp_Type_> v;                                           \
     if (proto.has_value()) {                                             \
       v = proto.value();                                                 \
     } else {                                                             \
@@ -39,9 +39,9 @@ namespace farm_ng {
   }                                                                      \
                                                                          \
   template <>                                                            \
-  auto toProt<std::optional<Cpp_Type>>(std::optional<Cpp_Type> const& v) \
-      -> Proto_Type {                                                    \
-    Proto_Type proto;                                                    \
+  auto toProt<std::optional<Cpp_Type_>>(std::optional<Cpp_Type_> const& v) \
+      -> Proto_Type_ {                                                    \
+    Proto_Type_ proto;                                                    \
     if (v.has_value()) {                                                 \
       proto.set_value(v.value());                                        \
       proto.set_has_value(true);                                         \
@@ -58,11 +58,11 @@ namespace farm_ng {
       FARM_PP_TUPLE_ELEM(0, Proto_Cpp_Pair),                     \
       FARM_PP_TUPLE_ELEM(1, Proto_Cpp_Pair))
 
-#define FARM_CONV_IMPL_REPEATED(Proto_Type, Cpp_Type)              \
+#define FARM_CONV_IMPL_REPEATED(Proto_Type_, Cpp_Type_)              \
   template <>                                                      \
-  auto fromProt<Proto_Type>(Proto_Type const& proto)               \
-      -> Expected<std::deque<Cpp_Type>> {                          \
-    std::deque<Cpp_Type> v;                                        \
+  auto fromProt<Proto_Type_>(Proto_Type_ const& proto)               \
+      -> Expected<std::deque<Cpp_Type_>> {                          \
+    std::deque<Cpp_Type_> v;                                        \
     for (int i = 0; i < proto.value_size(); ++i) {                 \
       FARM_TRY(auto, value, fromProt(proto.value(i)));             \
       v.push_back(value);                                          \
@@ -71,9 +71,9 @@ namespace farm_ng {
   }                                                                \
                                                                    \
   template <>                                                      \
-  auto toProt<std::deque<Cpp_Type>>(std::deque<Cpp_Type> const& v) \
-      -> Proto_Type {                                              \
-    Proto_Type proto;                                              \
+  auto toProt<std::deque<Cpp_Type_>>(std::deque<Cpp_Type_> const& v) \
+      -> Proto_Type_ {                                              \
+    Proto_Type_ proto;                                              \
     for (auto const& value : v) {                                  \
       *proto.add_value() = toProt(value);                          \
     }                                                              \

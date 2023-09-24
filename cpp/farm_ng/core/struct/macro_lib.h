@@ -32,8 +32,8 @@
 //
 // Input:  (A)
 // Output: (((A))
-#define FARM_MACROLIB_DETAILS_MAKE_TUPLE(D1, D2, Entity) \
-  ((FARM_PP_REMOVE_PARENS(Entity)))
+#define FARM_MACROLIB_DETAILS_MAKE_TUPLE(D1_, D2_, Entity_) \
+  ((FARM_PP_REMOVE_PARENS(Entity_)))
 
 // Given a tuple of entities, which might be tuples, return a sequence of
 // tuples.
@@ -42,8 +42,8 @@
 //
 // Input:  (A, (B,2) , C)
 // Output: ((A))((B,2))((C))
-#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Entities) \
-  FARM_PP_SEQ_FOR_EACH(                                           \
-      FARM_MACROLIB_DETAILS_MAKE_TUPLE,                           \
-      _,                                                          \
-      FARM_PP_TUPLE_TO_SEQ(Tuple_Of_Entities))
+#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Entities_) \
+  FARM_PP_SEQ_FOR_EACH(                                            \
+      FARM_MACROLIB_DETAILS_MAKE_TUPLE,                            \
+      _,                                                           \
+      FARM_PP_TUPLE_TO_SEQ(Tuple_Of_Entities_))

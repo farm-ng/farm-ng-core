@@ -18,6 +18,7 @@ var namespacesophus =
     [ "CameraModelT", "classsophus_1_1_camera_model_t.html", "classsophus_1_1_camera_model_t" ],
     [ "ClippingPlanes", "structsophus_1_1_clipping_planes.html", "structsophus_1_1_clipping_planes" ],
     [ "ClosestApproachResult", "structsophus_1_1_closest_approach_result.html", "structsophus_1_1_closest_approach_result" ],
+    [ "Color", "structsophus_1_1_color.html", "structsophus_1_1_color" ],
     [ "Complex", "classsophus_1_1_complex.html", "classsophus_1_1_complex" ],
     [ "ComplexImpl", "classsophus_1_1_complex_impl.html", "classsophus_1_1_complex_impl" ],
     [ "DynImage", "classsophus_1_1_dyn_image.html", "classsophus_1_1_dyn_image" ],

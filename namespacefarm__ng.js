@@ -1,6 +1,7 @@
 var namespacefarm__ng =
 [
     [ "details", "namespacefarm__ng_1_1details.html", "namespacefarm__ng_1_1details" ],
+    [ "plotting", "namespacefarm__ng_1_1plotting.html", "namespacefarm__ng_1_1plotting" ],
     [ "proto_conv_details", "namespacefarm__ng_1_1proto__conv__details.html", "namespacefarm__ng_1_1proto__conv__details" ],
     [ "testing", "namespacefarm__ng_1_1testing.html", "namespacefarm__ng_1_1testing" ],
     [ "time_series", "namespacefarm__ng_1_1time__series.html", "namespacefarm__ng_1_1time__series" ],
@@ -28,7 +29,11 @@ var namespacefarm__ng =
     [ "InputConfig", "classfarm__ng_1_1_input_config.html", "classfarm__ng_1_1_input_config" ],
     [ "Output", "classfarm__ng_1_1_output.html", "classfarm__ng_1_1_output" ],
     [ "Overload", "structfarm__ng_1_1_overload.html", null ],
+    [ "PlottingComponent", "classfarm__ng_1_1_plotting_component.html", "classfarm__ng_1_1_plotting_component" ],
+    [ "PlottingComponentImpl", "structfarm__ng_1_1_plotting_component_impl.html", "structfarm__ng_1_1_plotting_component_impl" ],
+    [ "PlottingRemoteClientImpl", "classfarm__ng_1_1_plotting_remote_client_impl.html", "classfarm__ng_1_1_plotting_remote_client_impl" ],
     [ "Printer", "classfarm__ng_1_1_printer.html", "classfarm__ng_1_1_printer" ],
+    [ "RemotePlottingClient", "classfarm__ng_1_1_remote_plotting_client.html", "classfarm__ng_1_1_remote_plotting_client" ],
     [ "ScopedTimer", "structfarm__ng_1_1_scoped_timer.html", "structfarm__ng_1_1_scoped_timer" ],
     [ "Shared", "classfarm__ng_1_1_shared.html", "classfarm__ng_1_1_shared" ],
     [ "StampedBar", "structfarm__ng_1_1_stamped_bar.html", "structfarm__ng_1_1_stamped_bar" ],

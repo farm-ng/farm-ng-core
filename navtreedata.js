@@ -64,18 +64,19 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "____init_____8py.html",
-"classfarm__ng_1_1_shared.html#a6ef9fec3a845bfc6a3dc965d5eaabd29",
-"classsophus_1_1_image_layout.html#a6345e23475aff75f369de0a1b6b9ee7c",
-"classsophus_1_1_region.html#a9a13d4c081e3c311b76a18cd8d8d747a",
-"classsophus_1_1lie_1_1_identity_impl.html#a57c32bfc684d2736662579e472b9acba",
-"dyn__image__view__test_8cpp.html",
-"format_8h.html",
-"image__types_8cpp.html#af3910ddfc2643effd4acc73cad6ee870",
-"misc_2proto_2conv_8cpp.html",
-"proto__conv_2calculus_2conv_8cpp.html#a8ec1eef21cc5d34adb8380eee6db8189",
-"similarity2_8h.html#a90cc40be00447dc7b445ae1e7db34cd9",
-"structsophus_1_1_image_view.html#a528bbadf7c273703e3b2d3aac877152b",
-"structsophus_1_1test_1_1_transform_graph_problem_1_1_observation.html#a17c1e375776d1800ce01a81daabf55f8"
+"classfarm__ng_1_1_remote_plotting_client.html",
+"classsophus_1_1_image.html#a4ce2ed4ae226bc4176a383dad39f4c65",
+"classsophus_1_1_region.html#a5c17c91635eebee0f7da87037e9de216",
+"classsophus_1_1lie_1_1_group.html#ae027307b649fc8dd14ba958ad297ecbd",
+"dyn__image__test_8cpp.html#a229e4238019191b909cf235cfa061bb9",
+"farm__ng_2core_2enum_2enum_8h.html#a38bde29501eb42fa480234100a88da4d",
+"image_8cpp.html",
+"logger__define__info__variant__test_8cpp.html#ad4e41da5270277f7f388ec460bbe1ebe",
+"point__traits__test_8cpp.html#a4a9e99e5b21b7faac1c8fa127d653c79",
+"ray_8h.html#ae6f4bbc1af834b2d2d7f116cc8e72aad",
+"structfarm__ng_1_1_time_series_1_1_bounds.html",
+"structsophus_1_1test_1_1_cost.html#a2b97565d62bf8e7e0a8d4bffe3677286",
+"vector__space_8h.html#a06e5f307fbc1934d81825d46b347e4c9"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

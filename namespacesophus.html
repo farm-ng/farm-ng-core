@@ -141,6 +141,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsophus_1_1_closest_approach_result.html">ClosestApproachResult</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsophus_1_1_color.html">Color</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsophus_1_1_complex.html">Complex</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsophus_1_1_complex_impl.html">ComplexImpl</a></td></tr>
@@ -629,6 +631,12 @@ Functions</h2></td></tr>
 <tr class="separator:a9771fb9d889aa371558c8c037e9e143b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a155086f5fbf86f423d9ff08598be21cc"><td class="memItemLeft" align="right" valign="top">constexpr std::false_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesophus.html#a155086f5fbf86f423d9ff08598be21cc">complete</a> (...)</td></tr>
 <tr class="separator:a155086f5fbf86f423d9ff08598be21cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c0ed147f514066f886c19e54df6d34e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesophus.html#a4c0ed147f514066f886c19e54df6d34e">SOPHUS_ENUM</a> (ColorHue,(red, orange, yellow, chartreuse, green, turquoise, cyan, azure, blue, violet, magenta, pink))</td></tr>
+<tr class="separator:a4c0ed147f514066f886c19e54df6d34e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6088acddaa965d5d099c2088c8f6760c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesophus.html#a6088acddaa965d5d099c2088c8f6760c">SOPHUS_ENUM</a> (ColorBrightness,(bright, medium, dark))</td></tr>
+<tr class="separator:a6088acddaa965d5d099c2088c8f6760c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02c2a39e31641c08ac1fe8a7bf444873"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesophus.html#a02c2a39e31641c08ac1fe8a7bf444873">SOPHUS_ENUM</a> (ColorSaturation,(normal, neon))</td></tr>
+<tr class="separator:a02c2a39e31641c08ac1fe8a7bf444873"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77fea79ddc32bf7913dca93c7c10d2d9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesophus.html#a77fea79ddc32bf7913dca93c7c10d2d9">SOPHUS_ENUM</a> (NumberType,(fixed_point, floating_point))</td></tr>
 <tr class="separator:a77fea79ddc32bf7913dca93c7c10d2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad84196fdbb6529a6bbe08708c761ef16"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacesophus.html#ad84196fdbb6529a6bbe08708c761ef16">fitPlaneToPoints</a> (Eigen::Matrix3Xd const &amp;points) -&gt; Eigen::Hyperplane&lt; double, 3 &gt;</td></tr>
@@ -5629,7 +5637,7 @@ template&lt;class TT &gt; </div>
 </div>
 </div>
 <a id="a942cd0b6e76770511bbb534c52cf1832"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a942cd0b6e76770511bbb534c52cf1832">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[1/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a942cd0b6e76770511bbb534c52cf1832">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[1/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5657,7 +5665,7 @@ template&lt;class TT &gt; </div>
 </div>
 </div>
 <a id="a25779a2a68a87f8e7120d790821606c4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a25779a2a68a87f8e7120d790821606c4">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[2/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a25779a2a68a87f8e7120d790821606c4">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[2/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5686,8 +5694,92 @@ template&lt;class TT &gt; </div>
 
 </div>
 </div>
+<a id="a6088acddaa965d5d099c2088c8f6760c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6088acddaa965d5d099c2088c8f6760c">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[3/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">sophus::SOPHUS_ENUM </td>
+          <td>(</td>
+          <td class="paramtype">ColorBrightness&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">(bright, medium, dark)&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4c0ed147f514066f886c19e54df6d34e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c0ed147f514066f886c19e54df6d34e">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[4/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">sophus::SOPHUS_ENUM </td>
+          <td>(</td>
+          <td class="paramtype">ColorHue&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">(red, orange, yellow, chartreuse, green, turquoise, cyan, azure, blue, violet, magenta, pink)&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a02c2a39e31641c08ac1fe8a7bf444873"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02c2a39e31641c08ac1fe8a7bf444873">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[5/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">sophus::SOPHUS_ENUM </td>
+          <td>(</td>
+          <td class="paramtype">ColorSaturation&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">(normal, neon)&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a1c4987ec52bed93626405f0cb7d65489"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c4987ec52bed93626405f0cb7d65489">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[3/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c4987ec52bed93626405f0cb7d65489">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[6/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5715,7 +5807,7 @@ template&lt;class TT &gt; </div>
 </div>
 </div>
 <a id="aee76e02cec2f1468339b58c7ca5b7e39"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee76e02cec2f1468339b58c7ca5b7e39">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[4/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aee76e02cec2f1468339b58c7ca5b7e39">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[7/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5743,7 +5835,7 @@ template&lt;class TT &gt; </div>
 </div>
 </div>
 <a id="a77fea79ddc32bf7913dca93c7c10d2d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a77fea79ddc32bf7913dca93c7c10d2d9">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[5/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a77fea79ddc32bf7913dca93c7c10d2d9">&#9670;&nbsp;</a></span>SOPHUS_ENUM() <span class="overload">[8/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

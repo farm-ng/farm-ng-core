@@ -26,11 +26,14 @@ var hierarchy =
     [ "farm_ng::details::CheckNear< TT, std::enable_if_t< std::is_arithmetic_v< TT >, void > >", "structfarm__ng_1_1details_1_1_check_near_3_01_t_t_00_01std_1_1enable__if__t_3_01std_1_1is__arith017fa716e541913aaa43294e80fbce56.html", null ],
     [ "sophus::ClippingPlanes", "structsophus_1_1_clipping_planes.html", null ],
     [ "sophus::ClosestApproachResult< TT >", "structsophus_1_1_closest_approach_result.html", null ],
+    [ "sophus::Color", "structsophus_1_1_color.html", null ],
+    [ "farm_ng::plotting::ColoredRect", "structfarm__ng_1_1plotting_1_1_colored_rect.html", null ],
     [ "sophus::concepts::CompatScalarEx< TT >", "structsophus_1_1concepts_1_1_compat_scalar_ex.html", null ],
     [ "sophus::Complex< TScalar >", "classsophus_1_1_complex.html", null ],
     [ "sophus::ComplexImpl< TScalar >", "classsophus_1_1_complex_impl.html", null ],
     [ "farm_ng::Component", "classfarm__ng_1_1_component.html", [
       [ "farm_ng::Adder", "classfarm__ng_1_1_adder.html", null ],
+      [ "farm_ng::PlottingComponentImpl", "structfarm__ng_1_1_plotting_component_impl.html", null ],
       [ "farm_ng::Printer", "classfarm__ng_1_1_printer.html", null ],
       [ "InputTestComponent", "struct_input_test_component.html", null ],
       [ "OutputTestComponent", "struct_output_test_component.html", null ]
@@ -41,6 +44,7 @@ var hierarchy =
     [ "sophus::test::SimplePriorProblem< TTransform >::CostFunctor", "structsophus_1_1test_1_1_simple_prior_problem_1_1_cost_functor.html", null ],
     [ "sophus::test::TransformGraphProblem< TTransform, kDim >::CostFunctor", "structsophus_1_1test_1_1_transform_graph_problem_1_1_cost_functor.html", null ],
     [ "sophus::test::SensorMeasurementProblem< TTransform >::CostFunctor", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_cost_functor.html", null ],
+    [ "farm_ng::plotting::CurveResetPredicate", "structfarm__ng_1_1plotting_1_1_curve_reset_predicate.html", null ],
     [ "disjunction", null, [
       [ "farm_ng::HasType< T, std::variant< Us... > >", "structfarm__ng_1_1_has_type_3_01_t_00_01std_1_1variant_3_01_us_8_8_8_01_4_01_4.html", null ]
     ] ],
@@ -122,6 +126,7 @@ var hierarchy =
     [ "sophus::IndexAndU", "structsophus_1_1_index_and_u.html", null ],
     [ "farm_ng::Input< TArg >", "classfarm__ng_1_1_input.html", null ],
     [ "farm_ng::Input< int >", "classfarm__ng_1_1_input.html", null ],
+    [ "farm_ng::Input< std::vector< plotting::Message > >", "classfarm__ng_1_1_input.html", null ],
     [ "farm_ng::InputConfig", "classfarm__ng_1_1_input_config.html", null ],
     [ "sophus::IntensityImagePredicate", "structsophus_1_1_intensity_image_predicate.html", null ],
     [ "sophus::test::InterpolatePropTestSuite< TGenericGroup, TScalar, TGroup >", "structsophus_1_1test_1_1_interpolate_prop_test_suite.html", null ],
@@ -152,8 +157,12 @@ var hierarchy =
     [ "farm_ng::Output< TArg >", "classfarm__ng_1_1_output.html", null ],
     [ "farm_ng::Output< int & >", "classfarm__ng_1_1_output.html", null ],
     [ "farm_ng::Output< int >", "classfarm__ng_1_1_output.html", null ],
+    [ "farm_ng::RemotePlottingClient::Params", "structfarm__ng_1_1_remote_plotting_client_1_1_params.html", null ],
     [ "sophus::PixelFormat", "structsophus_1_1_pixel_format.html", null ],
     [ "core.uri.PlatformConfig", "classcore_1_1uri_1_1_platform_config.html", null ],
+    [ "farm_ng::PlottingComponent", "classfarm__ng_1_1_plotting_component.html", [
+      [ "farm_ng::PlottingComponentImpl", "structfarm__ng_1_1_plotting_component_impl.html", null ]
+    ] ],
     [ "sophus::test::SensorMeasurementProblem< TTransform >::PointTrack", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_point_track.html", null ],
     [ "sophus::test::SensorMeasurementProblem< TTransform >::PointTracks", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_point_tracks.html", null ],
     [ "sophus::PointTraits< TPoint >", "structsophus_1_1_point_traits.html", null ],
@@ -171,6 +180,9 @@ var hierarchy =
     [ "sophus::concepts::details::Reduce< TScalar >", "classsophus_1_1concepts_1_1details_1_1_reduce.html", null ],
     [ "sophus::concepts::details::Reduce< TT >", "classsophus_1_1concepts_1_1details_1_1_reduce_3_01_t_t_01_4.html", null ],
     [ "sophus::Region< TPoint >", "classsophus_1_1_region.html", null ],
+    [ "farm_ng::RemotePlottingClient", "classfarm__ng_1_1_remote_plotting_client.html", [
+      [ "farm_ng::PlottingRemoteClientImpl", "classfarm__ng_1_1_plotting_remote_client_impl.html", null ]
+    ] ],
     [ "sophus::RigidCamera", "structsophus_1_1_rigid_camera.html", null ],
     [ "sophus::lie::Rotation2Impl< TScalar >", "classsophus_1_1lie_1_1_rotation2_impl.html", null ],
     [ "sophus::lie::Rotation3Impl< TScalar >", "classsophus_1_1lie_1_1_rotation3_impl.html", null ],

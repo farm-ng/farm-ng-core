@@ -2,6 +2,7 @@ var dir_955fab3374a7652c82f8c2b63089d242 =
 [
     [ "calculus", "dir_1d93d1ed5108c4d2071899c26be7717c.html", "dir_1d93d1ed5108c4d2071899c26be7717c" ],
     [ "ceres", "dir_9357f5e81d5154233f425db7fc50f4a9.html", "dir_9357f5e81d5154233f425db7fc50f4a9" ],
+    [ "color", "dir_7ddc02f937c9af201dac1ebb8481aa2a.html", "dir_7ddc02f937c9af201dac1ebb8481aa2a" ],
     [ "common", "dir_a7082e164d91aec3b9943421365f2e0b.html", "dir_a7082e164d91aec3b9943421365f2e0b" ],
     [ "concepts", "dir_1a48f71b4ec7f0d3f3dd1bd12332744a.html", "dir_1a48f71b4ec7f0d3f3dd1bd12332744a" ],
     [ "geometry", "dir_ac36b4d59fa077a170b439c47c9c2b90.html", "dir_ac36b4d59fa077a170b439c47c9c2b90" ],

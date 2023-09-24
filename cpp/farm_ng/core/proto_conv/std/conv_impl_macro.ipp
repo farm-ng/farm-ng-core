@@ -26,58 +26,58 @@
 namespace farm_ng {
 
 #define FARM_CONV_IMPL_OPTIONAL(Proto_Type_, Cpp_Type_)                    \
-  template <>                                                            \
+  template <>                                                              \
   auto fromProt<Proto_Type_>(Proto_Type_ const& proto)                     \
-      -> Expected<std::optional<Cpp_Type_>> {                             \
-    std::optional<Cpp_Type_> v;                                           \
-    if (proto.has_value()) {                                             \
-      v = proto.value();                                                 \
-    } else {                                                             \
-      v = std::nullopt;                                                  \
-    }                                                                    \
-    return v;                                                            \
-  }                                                                      \
-                                                                         \
-  template <>                                                            \
+      -> Expected<std::optional<Cpp_Type_>> {                              \
+    std::optional<Cpp_Type_> v;                                            \
+    if (proto.has_value()) {                                               \
+      v = proto.value();                                                   \
+    } else {                                                               \
+      v = std::nullopt;                                                    \
+    }                                                                      \
+    return v;                                                              \
+  }                                                                        \
+                                                                           \
+  template <>                                                              \
   auto toProt<std::optional<Cpp_Type_>>(std::optional<Cpp_Type_> const& v) \
-      -> Proto_Type_ {                                                    \
-    Proto_Type_ proto;                                                    \
-    if (v.has_value()) {                                                 \
-      proto.set_value(v.value());                                        \
-      proto.set_has_value(true);                                         \
-    } else {                                                             \
-      proto.set_has_value(false);                                        \
-    }                                                                    \
-    return proto;                                                        \
+      -> Proto_Type_ {                                                     \
+    Proto_Type_ proto;                                                     \
+    if (v.has_value()) {                                                   \
+      proto.set_value(v.value());                                          \
+      proto.set_has_value(true);                                           \
+    } else {                                                               \
+      proto.set_has_value(false);                                          \
+    }                                                                      \
+    return proto;                                                          \
   }
 
 // Proxy for FARM_CONV_IMPL_OPTIONAL to make it callable from
 // FARM_PP_SEQ_FOR_EACH.
-#define FARM_CONV_IMPL_OPTIONAL_ONE_ITER(D0, D1, Proto_Cpp_Pair) \
-  FARM_CONV_IMPL_OPTIONAL(                                       \
-      FARM_PP_TUPLE_ELEM(0, Proto_Cpp_Pair),                     \
-      FARM_PP_TUPLE_ELEM(1, Proto_Cpp_Pair))
+#define FARM_CONV_IMPL_OPTIONAL_ONE_ITER(D0_, D1_, Proto_Cpp_Pair_) \
+  FARM_CONV_IMPL_OPTIONAL(                                          \
+      FARM_PP_TUPLE_ELEM(0, Proto_Cpp_Pair_),                       \
+      FARM_PP_TUPLE_ELEM(1, Proto_Cpp_Pair_))
 
 #define FARM_CONV_IMPL_REPEATED(Proto_Type_, Cpp_Type_)              \
-  template <>                                                      \
+  template <>                                                        \
   auto fromProt<Proto_Type_>(Proto_Type_ const& proto)               \
-      -> Expected<std::deque<Cpp_Type_>> {                          \
-    std::deque<Cpp_Type_> v;                                        \
-    for (int i = 0; i < proto.value_size(); ++i) {                 \
-      FARM_TRY(auto, value, fromProt(proto.value(i)));             \
-      v.push_back(value);                                          \
-    }                                                              \
-    return v;                                                      \
-  }                                                                \
-                                                                   \
-  template <>                                                      \
+      -> Expected<std::deque<Cpp_Type_>> {                           \
+    std::deque<Cpp_Type_> v;                                         \
+    for (int i = 0; i < proto.value_size(); ++i) {                   \
+      FARM_TRY(auto, value, fromProt(proto.value(i)));               \
+      v.push_back(value);                                            \
+    }                                                                \
+    return v;                                                        \
+  }                                                                  \
+                                                                     \
+  template <>                                                        \
   auto toProt<std::deque<Cpp_Type_>>(std::deque<Cpp_Type_> const& v) \
-      -> Proto_Type_ {                                              \
-    Proto_Type_ proto;                                              \
-    for (auto const& value : v) {                                  \
-      *proto.add_value() = toProt(value);                          \
-    }                                                              \
-    return proto;                                                  \
+      -> Proto_Type_ {                                               \
+    Proto_Type_ proto;                                               \
+    for (auto const& value : v) {                                    \
+      *proto.add_value() = toProt(value);                            \
+    }                                                                \
+    return proto;                                                    \
   }
 
 }  // namespace farm_ng

@@ -33,9 +33,10 @@
 // Input:  (Type0, name0, {init0})
 // Output: Type name {init};
 //
-#define FARM_STRUCT_DETAILS_FIELD_DECLARATION(Dummy1_, Dummy2, Type_Name_Init) \
-  FARM_PP_TUPLE_ELEM(0, Type_Name_Init)                                        \
-  FARM_PP_TUPLE_ELEM(1, Type_Name_Init) FARM_PP_TUPLE_ELEM(2, Type_Name_Init);
+#define FARM_STRUCT_DETAILS_FIELD_DECLARATION( \
+    Dummy1_, Dummy2_, Type_Name_Init_)         \
+  FARM_PP_TUPLE_ELEM(0, Type_Name_Init_)       \
+  FARM_PP_TUPLE_ELEM(1, Type_Name_Init_) FARM_PP_TUPLE_ELEM(2, Type_Name_Init_);
 
 // Given a sequence of triplets, create field declarations for
 // each triplet.
@@ -58,8 +59,8 @@
 //
 // Input:  (Type0, name0, {init0})
 // Output: , "name0"
-#define FARM_STRUCT_DETAILS_FIELD_NAME(Dummy1_, Dummy2, Type_Name_Init) \
-  , FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, Type_Name_Init))
+#define FARM_STRUCT_DETAILS_FIELD_NAME(Dummy1_, Dummy2_, Type_Name_Init_) \
+  , FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, Type_Name_Init_))
 
 // Given a sequence of triplets, create a comma separated list of field name
 // strings.
@@ -83,8 +84,8 @@
 //
 // Input:  (Type0, name0, {init0})
 // Output: , Type
-#define FARM_STRUCT_DETAILS_FIELD_TYPE(Dummy1_, Dummy2, Type_Name_Init) \
-  , FARM_PP_TUPLE_ELEM(0, Type_Name_Init)
+#define FARM_STRUCT_DETAILS_FIELD_TYPE(Dummy1_, Dummy2_, Type_Name_Init_) \
+  , FARM_PP_TUPLE_ELEM(0, Type_Name_Init_)
 
 // Given a sequence of triplets, create a comma separated list of field types.
 //

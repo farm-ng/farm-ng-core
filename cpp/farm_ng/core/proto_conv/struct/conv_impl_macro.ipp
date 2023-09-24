@@ -41,12 +41,12 @@
 //
 // Output: static_assert(TCpp::kFieldNames[i] == "name0");
 #define FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME(    \
-    Dummy_, Field_Names_, Index_, Type_Name_Init) \
+    Dummy_, Field_Names_, Index_, Type_Name_Init_) \
   static_assert(                                                             \
       Field_Names_[Index_] == \
-      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, Type_Name_Init)), \
+      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, Type_Name_Init_)), \
       "Field #" FARM_PP_STRINGIZE(Index_) " in FARM_PROTO_CONV_IMPL is `"       \
-      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, Type_Name_Init)) "` but expected `"     \
+      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, Type_Name_Init_)) "` but expected `"     \
       FARM_PP_STRINGIZE(Field_Names_[Index_]) "`.");
 
 // Given a sequence of triplets, create a static_assert which checks that the

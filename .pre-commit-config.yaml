@@ -17,7 +17,7 @@ repos:
     rev: v1.1.13
     hooks:
       - id: insert-license
-        files: cpp/sophus/.*\.(h|hpp|cpp|proto)$
+        files: cpp/sophus/.*\.(h|hpp|cpp|proto|ipp)$
         exclude: (thirdparty|sympy/cpp_gencode)/.*$
         args:
           - --comment-style
@@ -28,7 +28,7 @@ repos:
     rev: v1.1.13
     hooks:
       - id: insert-license
-        files: \.(h|cpp|proto)$
+        files: \.(h|cpp|proto|ipp)$
         exclude: (thirdparty|cpp/sophus)/.*$
         args:
           - --comment-style
@@ -39,7 +39,7 @@ repos:
     rev: v14.0.0
     hooks:
       - id: clang-format
-        files: \.(h|cpp)
+        files: \.(h|cpp|ipp)
         exclude: (cpp/sophus/sympy|thirdparty)/.*$
   - repo: local
     hooks:

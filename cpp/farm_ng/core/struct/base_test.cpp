@@ -27,7 +27,7 @@ TEST(struct_test, unit) {
       "double d {0.5};");
   // clang-format on
   EXPECT_EQ(
-      FARM_PP_STRINGIZE(FARM_STRUCT_DETAILS_BASE(
-          Foo, 2, ((int, i, {1}))((double, d, {0.5})))),
+      FARM_PP_STRINGIZE(
+          FARM_STRUCT_DETAILS_BASE(2, ((int, i, {1}))((double, d, {0.5})))),
       expected_string);
 }

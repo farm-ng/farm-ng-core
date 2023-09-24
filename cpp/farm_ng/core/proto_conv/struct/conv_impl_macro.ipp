@@ -35,32 +35,36 @@
 // Example:
 //
 // Inputs
-//   field_names:  TCpp::kFieldNames
-//   index:        0
+//   Field_Names_:  TCpp::kFieldNames
+//   Index_:        0
 //   tuple:        (Type0, name0, {})
 //
 // Output: static_assert(TCpp::kFieldNames[i] == "name0");
-#define FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME(r, field_names, index, tuple) \
+#define FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME(    \
+    Dummy_, Field_Names_, Index_, Type_Name_Init) \
   static_assert(                                                             \
-      field_names[index] == FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, tuple)), \
-      "Field #" FARM_PP_STRINGIZE(index) " in FARM_PROTO_CONV_IMPL is `"       \
-      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, tuple)) "` but expected `"     \
-      FARM_PP_STRINGIZE(field_names[index]) "`.");
+      Field_Names_[Index_] == \
+      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, Type_Name_Init)), \
+      "Field #" FARM_PP_STRINGIZE(Index_) " in FARM_PROTO_CONV_IMPL is `"       \
+      FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(0, Type_Name_Init)) "` but expected `"     \
+      FARM_PP_STRINGIZE(Field_Names_[Index_]) "`.");
 
 // Given a sequence of triplets, create a static_assert which checks that the
 // expected fields names match the stringized names.
 //
 // Example
 // Input:
-//   field_names:  TCpp::kFieldNames
+//   Field_Names_:  TCpp::kFieldNames
 //   field_seq:    ((Type0, name0, {})) ((Type1, name1, {}))
 //
 // Output:
 //     static_assert(TCpp::kFieldNames[0] == "name0");
 //     static_assert(TCpp::kFieldNames[1] == "name1");
-#define FARM_STRUCT_DETAILS_ASSERT_FILED_NAME_LOOP(cpp, field_seq) \
-  FARM_PP_SEQ_FOR_EACH_I(                                          \
-      FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME, cpp::kFieldNames, field_seq)
+#define FARM_STRUCT_DETAILS_ASSERT_FILED_NAME_LOOP(Cpp_Type_, Field_Seq_) \
+  FARM_PP_SEQ_FOR_EACH_I(                                                 \
+      FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME,                              \
+      Cpp_Type_::kFieldNames,                                             \
+      Field_Seq_)
 
 namespace farm_ng {
 namespace proto_conv_details {
@@ -89,29 +93,32 @@ struct ToProtImpl;
 //
 // See farm_ng_core/cpp/farm_ng/core/core/struct/proto_conv_test.cpp
 // for examples.
-#define FARM_STRUCT_DETAILS_FROM_PROTO(dummy1, field_types, index, tuple)      \
-  FARM_PP_IF(                                                                  \
-      FARM_PP_EQUAL(FARM_PP_TUPLE_SIZE(tuple), 2),                             \
-      static_assert(                                                           \
-          FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, tuple)) ==                   \
-          std::string_view("SKIP"));                                           \
-      ,                                                                        \
-      if constexpr (::farm_ng::proto_conv_details::IsPrimitive<                \
-                        std::tuple_element_t<index, field_types>>::value) {    \
-        s.FARM_PP_TUPLE_ELEM(0, tuple) = proto.FARM_PP_TUPLE_ELEM(0, tuple)(); \
-      } else {                                                                 \
-        FARM_TRY(                                                              \
-            auto,                                                              \
-            res,                                                               \
-            ::farm_ng::fromProt(proto.FARM_PP_TUPLE_ELEM(0, tuple)()));        \
-        s.FARM_PP_TUPLE_ELEM(0, tuple) = res;                                  \
+#define FARM_STRUCT_DETAILS_FROM_PROTO(Dummy1_, Field_Types_, Index_, Tuple_) \
+  FARM_PP_IF(                                                                 \
+      FARM_PP_EQUAL(FARM_PP_TUPLE_SIZE(Tuple_), 2),                           \
+      static_assert(                                                          \
+          FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, Tuple_)) ==                 \
+          std::string_view("SKIP"));                                          \
+      ,                                                                       \
+      if constexpr (::farm_ng::proto_conv_details::IsPrimitive<               \
+                        std::tuple_element_t<Index_, Field_Types_>>::value) { \
+        s.FARM_PP_TUPLE_ELEM(0, Tuple_) =                                     \
+            proto.FARM_PP_TUPLE_ELEM(0, Tuple_)();                            \
+      } else {                                                                \
+        FARM_TRY(                                                             \
+            auto,                                                             \
+            res,                                                              \
+            ::farm_ng::fromProt(proto.FARM_PP_TUPLE_ELEM(0, Tuple_)()));      \
+        s.FARM_PP_TUPLE_ELEM(0, Tuple_) = res;                                \
       })
 
 // Given a sequence of triplets, create from-proto conversion code for each
 // field.
-#define FARM_STRUCT_DETAILS_FROM_PROTO_LOOP(cpp, field_seq) \
-  FARM_PP_SEQ_FOR_EACH_I(                                   \
-      FARM_STRUCT_DETAILS_FROM_PROTO, typename cpp::FieldTypes, field_seq)
+#define FARM_STRUCT_DETAILS_FROM_PROTO_LOOP(Cpp_Type_, Field_Seq_) \
+  FARM_PP_SEQ_FOR_EACH_I(                                          \
+      FARM_STRUCT_DETAILS_FROM_PROTO,                              \
+      typename Cpp_Type_::FieldTypes,                              \
+      Field_Seq_)
 
 // Given a tuple of tuple, either
 //
@@ -122,70 +129,78 @@ struct ToProtImpl;
 //
 // See farm_ng_core/cpp/farm_ng/core/core/struct/proto_conv_test.cpp
 // for examples.
-#define FARM_STRUCT_DETAILS_TO_PROTO(dummy1, field_types, index, tuple)     \
-  FARM_PP_IF(                                                               \
-      FARM_PP_EQUAL(FARM_PP_TUPLE_SIZE(tuple), 2),                          \
-      static_assert(                                                        \
-          FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, tuple)) ==                \
-          std::string_view("SKIP"));                                        \
-      ,                                                                     \
-      if constexpr (::farm_ng::proto_conv_details::IsPrimitive<             \
-                        std::tuple_element_t<index, field_types>>::value) { \
-        proto.FARM_PP_CAT(set_, FARM_PP_TUPLE_ELEM(0, tuple))(              \
-            s.FARM_PP_TUPLE_ELEM(0, tuple));                                \
-      } else {                                                              \
-        *proto.FARM_PP_CAT(mutable_, FARM_PP_TUPLE_ELEM(0, tuple))() =      \
-            toProt(s.FARM_PP_TUPLE_ELEM(0, tuple));                         \
+#define FARM_STRUCT_DETAILS_TO_PROTO(Dummy1_, Field_Types_, Index_, Tuple_)   \
+  FARM_PP_IF(                                                                 \
+      FARM_PP_EQUAL(FARM_PP_TUPLE_SIZE(Tuple_), 2),                           \
+      static_assert(                                                          \
+          FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, Tuple_)) ==                 \
+          std::string_view("SKIP"));                                          \
+      ,                                                                       \
+      if constexpr (::farm_ng::proto_conv_details::IsPrimitive<               \
+                        std::tuple_element_t<Index_, Field_Types_>>::value) { \
+        proto.FARM_PP_CAT(set_, FARM_PP_TUPLE_ELEM(0, Tuple_))(               \
+            s.FARM_PP_TUPLE_ELEM(0, Tuple_));                                 \
+      } else {                                                                \
+        *proto.FARM_PP_CAT(mutable_, FARM_PP_TUPLE_ELEM(0, Tuple_))() =       \
+            toProt(s.FARM_PP_TUPLE_ELEM(0, Tuple_));                          \
       })
 
 // Given a sequence of triplets, create to-proto conversion code for each
 // field.
-#define FARM_STRUCT_DETAILS_TO_PROTO_LOOP(cpp, field_seq) \
-  FARM_PP_SEQ_FOR_EACH_I(                                 \
-      FARM_STRUCT_DETAILS_TO_PROTO, typename cpp::FieldTypes, field_seq)
+#define FARM_STRUCT_DETAILS_TO_PROTO_LOOP(Cpp_Type_, Field_Seq_) \
+  FARM_PP_SEQ_FOR_EACH_I(                                        \
+      FARM_STRUCT_DETAILS_TO_PROTO,                              \
+      typename Cpp_Type_::FieldTypes,                            \
+      Field_Seq_)
 
 // Implementation details for FARM_PROTO_CONV_IMPL_FN. It takes a sequence of
 // triplets, such as ((Type0, name0, init0)) ((Type1, name1, init1)) ... instead
 // of a tuple of triplets.
 #define FARM_PROTO_DETAILS_CONV_IMPL_FROM_SEQ(                                 \
-    Cpp, Proto, from_proto_user_fn, to_proto_user_fn, num_fields, field_seq)   \
+    Cpp_Type_,                                                                 \
+    Proto_Type_,                                                               \
+    From_Proto_User_Fn_,                                                       \
+    To_Proto_User_Fn_,                                                         \
+    Num_Fields_,                                                               \
+    Field_Seq_)                                                                \
   static_assert(                                                               \
-      Cpp::kNumFields == num_fields,                                           \
+      Cpp_Type_::kNumFields == Num_Fields_,                                    \
       "Number of fields in FARM_PROTO_CONV_IMPL macro must match number of "   \
-      "fields in " FARM_PP_STRINGIZE(Cpp) " FARM_STRUCT");                     \
-  FARM_STRUCT_DETAILS_ASSERT_FILED_NAME_LOOP(Cpp, field_seq)                   \
+      "fields in " FARM_PP_STRINGIZE(Cpp_Type_) " FARM_STRUCT");               \
+  FARM_STRUCT_DETAILS_ASSERT_FILED_NAME_LOOP(Cpp_Type_, Field_Seq_)            \
                                                                                \
   /* This indirection is required. "if constexpr" branches are only skipped */ \
   /* if the condition depends on a template parameter, e.g. TCpp.*/            \
   template <>                                                                  \
-  struct FromProtImpl<Cpp, Proto> {                                            \
-    template <class TProto = Proto, class TCpp = Cpp>                          \
+  struct FromProtImpl<Cpp_Type_, Proto_Type_> {                                \
+    template <class TProto = Proto_Type_, class TCpp = Cpp_Type_>              \
     static auto impl(TProto const& proto) -> Expected<TCpp> {                  \
       TCpp s;                                                                  \
-      FARM_STRUCT_DETAILS_FROM_PROTO_LOOP(TCpp, field_seq)                     \
-      return from_proto_user_fn(std::move(s), proto);                          \
+      FARM_STRUCT_DETAILS_FROM_PROTO_LOOP(TCpp, Field_Seq_)                    \
+      return From_Proto_User_Fn_(std::move(s), proto);                         \
     }                                                                          \
   };                                                                           \
                                                                                \
   /* This indirection is required. See above.*/                                \
   template <>                                                                  \
-  struct ToProtImpl<Cpp, Proto> {                                              \
-    template <class TProto = Proto, class TCpp = Cpp>                          \
+  struct ToProtImpl<Cpp_Type_, Proto_Type_> {                                  \
+    template <class TProto = Proto_Type_, class TCpp = Cpp_Type_>              \
     static auto impl(TCpp const& s) -> TProto {                                \
       TProto proto;                                                            \
-      FARM_STRUCT_DETAILS_TO_PROTO_LOOP(TCpp, field_seq)                       \
-      return to_proto_user_fn(std::move(proto), s);                            \
+      FARM_STRUCT_DETAILS_TO_PROTO_LOOP(TCpp, Field_Seq_)                      \
+      return To_Proto_User_Fn_(std::move(proto), s);                           \
     }                                                                          \
   };                                                                           \
                                                                                \
   template <>                                                                  \
-  auto fromProt<Proto>(Proto const& proto)->Expected<Cpp> {                    \
-    return FromProtImpl<Cpp, Proto>::impl(proto);                              \
+  auto fromProt<Proto_Type_>(Proto_Type_ const& proto)                         \
+      -> Expected<Cpp_Type_> {                                                 \
+    return FromProtImpl<Cpp_Type_, Proto_Type_>::impl(proto);                  \
   }                                                                            \
                                                                                \
   template <>                                                                  \
-  auto toProt<Cpp>(Cpp const& s)->Proto {                                      \
-    return ToProtImpl<Cpp, Proto>::impl(s);                                    \
+  auto toProt<Cpp_Type_>(Cpp_Type_ const& s) -> Proto_Type_ {                  \
+    return ToProtImpl<Cpp_Type_, Proto_Type_>::impl(s);                        \
   }
 
 // Given a Cpp type, a Proto type and a tuple of field triplets, and two user
@@ -219,15 +234,19 @@ struct ToProtImpl;
 // In this example, world_from_from_robot is serialized using the default
 // mechanism, but debug_bucket is serialized using user provided custom
 // conversion functions.
-#define FARM_PROTO_CONV_IMPL_FN(                                       \
-    Cpp, Proto, tuple_of_fields, from_proto_user_fn, to_proto_user_fn) \
-  FARM_PROTO_DETAILS_CONV_IMPL_FROM_SEQ(                               \
-      Cpp,                                                             \
-      Proto,                                                           \
-      from_proto_user_fn,                                              \
-      to_proto_user_fn,                                                \
-      FARM_PP_TUPLE_SIZE(tuple_of_fields),                             \
-      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_fields))
+#define FARM_PROTO_CONV_IMPL_FN(            \
+    Cpp_Type_,                              \
+    Proto_Type_,                            \
+    Tuple_Of_Fields_,                       \
+    From_Proto_User_Fn_,                    \
+    To_Proto_User_Fn_)                      \
+  FARM_PROTO_DETAILS_CONV_IMPL_FROM_SEQ(    \
+      Cpp_Type_,                            \
+      Proto_Type_,                          \
+      From_Proto_User_Fn_,                  \
+      To_Proto_User_Fn_,                    \
+      FARM_PP_TUPLE_SIZE(Tuple_Of_Fields_), \
+      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Fields_))
 
 // Given a Cpp type, a Proto type and a tuple of field triplets, create
 // from-proto and to-proto conversion code. For fields with the SKIP tag, no
@@ -244,13 +263,15 @@ struct ToProtImpl;
 // Note: In this example, debug_bucket is not serialized. Use
 // FARM_PROTO_CONV_IMPL_FN if you like to implement custom serialization for
 // debug_bucket instead.
-#define FARM_PROTO_CONV_IMPL(Cpp, Proto, tuple_of_fields)                    \
-  FARM_PROTO_DETAILS_CONV_IMPL_FROM_SEQ(                                     \
-      Cpp,                                                                   \
-      Proto,                                                                 \
-      [](Cpp&& s, Proto const& proto) -> Expected<Cpp> {                     \
-        return std::move(s);                                                 \
-      },                                                                     \
-      [](Proto&& proto, Cpp const& s) -> Proto { return std::move(proto); }, \
-      FARM_PP_TUPLE_SIZE(tuple_of_fields),                                   \
-      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_fields))
+#define FARM_PROTO_CONV_IMPL(Cpp_Type_, Proto_Type_, Tuple_Of_Fields_)     \
+  FARM_PROTO_DETAILS_CONV_IMPL_FROM_SEQ(                                   \
+      Cpp_Type_,                                                           \
+      Proto_Type_,                                                         \
+      [](Cpp_Type_&& s, Proto_Type_ const& proto) -> Expected<Cpp_Type_> { \
+        return std::move(s);                                               \
+      },                                                                   \
+      [](Proto_Type_&& proto, Cpp_Type_ const& s) -> Proto_Type_ {         \
+        return std::move(proto);                                           \
+      },                                                                   \
+      FARM_PP_TUPLE_SIZE(Tuple_Of_Fields_),                                \
+      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Fields_))

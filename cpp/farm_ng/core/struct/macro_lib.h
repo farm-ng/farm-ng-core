@@ -19,7 +19,7 @@
 #include <farm_pp/preprocessor/seq/for_each_i.hpp>
 #include <farm_pp/preprocessor/tuple/to_seq.hpp>
 
-// Given an entity, which might be a tuple, return a sequence containing a
+// Given an Entity, which might be a tuple, return a sequence containing a
 // single tuple.
 //
 // Examples:
@@ -32,8 +32,8 @@
 //
 // Input:  (A)
 // Output: (((A))
-#define FARM_MACROLIB_DETAILS_MAKE_TUPLE(dummy1, dummy2, entity) \
-  ((FARM_PP_REMOVE_PARENS(entity)))
+#define FARM_MACROLIB_DETAILS_MAKE_TUPLE(D1, D2, Entity) \
+  ((FARM_PP_REMOVE_PARENS(Entity)))
 
 // Given a tuple of entities, which might be tuples, return a sequence of
 // tuples.
@@ -42,8 +42,8 @@
 //
 // Input:  (A, (B,2) , C)
 // Output: ((A))((B,2))((C))
-#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_entities) \
+#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Entities) \
   FARM_PP_SEQ_FOR_EACH(                                           \
       FARM_MACROLIB_DETAILS_MAKE_TUPLE,                           \
       _,                                                          \
-      FARM_PP_TUPLE_TO_SEQ(tuple_of_entities))
+      FARM_PP_TUPLE_TO_SEQ(Tuple_Of_Entities))

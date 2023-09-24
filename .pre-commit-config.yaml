@@ -74,7 +74,7 @@ repos:
         exclude: (thirdparty|cpp/sophus2)/.*$
         args:
           - --ignore-words-list
-          - "te,tring"
+          - "te,tring,crate"
           - --skip
           - "cpp/thirdparty/*,docs/package-lock.json"
   - repo: https://github.com/astral-sh/ruff-pre-commit

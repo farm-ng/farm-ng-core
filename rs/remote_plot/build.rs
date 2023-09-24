@@ -1,0 +1,20 @@
+fn main() {
+    tonic_build::configure()
+        .build_server(true)
+        .compile(
+            &[
+                "../../protos/farm_ng/core/std.proto",
+                "../../protos/farm_ng/core/calculus.proto",
+                "../../protos/farm_ng/core/color.proto",
+                "../../protos/farm_ng/core/linalg.proto",
+                "../../protos/farm_ng/core/lie.proto",
+                "../../protos/farm_ng/core/plotting/plotting.proto",
+            ],
+            &[
+                "../../protos/",
+                "../../protos/farm_ng/core/",
+                "../../protos/farm_ng/core/plotting/",
+            ],
+        )
+        .unwrap();
+}

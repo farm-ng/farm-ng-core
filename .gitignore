@@ -5,3 +5,4 @@ venv
 .DS_Store
 scripts/venv.tar.gz
 *.so
+Cargo.lock

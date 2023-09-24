@@ -16,7 +16,6 @@ var hierarchy =
     [ "sophus::BasisSplineSegment< TGroup >", "structsophus_1_1_basis_spline_segment.html", null ],
     [ "farm_ng::TimeSeries< TValueWithStamp >::Bounds", "structfarm__ng_1_1_time_series_1_1_bounds.html", null ],
     [ "sophus::BrownConradyTransform", "classsophus_1_1_brown_conrady_transform.html", null ],
-    [ "sophus::CameraInRig", "structsophus_1_1_camera_in_rig.html", null ],
     [ "sophus::CameraModel", "classsophus_1_1_camera_model.html", null ],
     [ "sophus::CameraModelT< TScalar, TDistortion, TProj >", "classsophus_1_1_camera_model_t.html", null ],
     [ "sophus::CameraModelT< double, AffineTransform, ProjectionZ1 >", "classsophus_1_1_camera_model_t.html", null ],
@@ -45,6 +44,7 @@ var hierarchy =
     [ "disjunction", null, [
       [ "farm_ng::HasType< T, std::variant< Us... > >", "structfarm__ng_1_1_has_type_3_01_t_00_01std_1_1variant_3_01_us_8_8_8_01_4_01_4.html", null ]
     ] ],
+    [ "farm_ng::StreamLogger::DiskLogging", "structfarm__ng_1_1_stream_logger_1_1_disk_logging.html", null ],
     [ "sophus::test::DivisionRingTestSuite< TRing >", "structsophus_1_1test_1_1_division_ring_test_suite.html", null ],
     [ "sophus::DynImageView< TPredicate >", "classsophus_1_1_dyn_image_view.html", null ],
     [ "sophus::DynImageView< AnyImagePredicate >", "classsophus_1_1_dyn_image_view.html", [
@@ -145,7 +145,6 @@ var hierarchy =
     [ "metaclass", null, [
       [ "core.event_service_metrics.EventServiceHealthMetrics", "classcore_1_1event__service__metrics_1_1_event_service_health_metrics.html", null ]
     ] ],
-    [ "sophus::MultiCameraRig", "structsophus_1_1_multi_camera_rig.html", null ],
     [ "sophus::MutImage< TPixel, TAllocator >", "classsophus_1_1_mut_image.html", null ],
     [ "farm_ng::time_series::NearnessThreshold", "structfarm__ng_1_1time__series_1_1_nearness_threshold.html", null ],
     [ "Eigen::NumTraits< sophus::concepts::CompatScalarEx< TT > >", "struct_eigen_1_1_num_traits_3_01sophus_1_1concepts_1_1_compat_scalar_ex_3_01_t_t_01_4_01_4.html", null ],
@@ -172,6 +171,7 @@ var hierarchy =
     [ "sophus::concepts::details::Reduce< TScalar >", "classsophus_1_1concepts_1_1details_1_1_reduce.html", null ],
     [ "sophus::concepts::details::Reduce< TT >", "classsophus_1_1concepts_1_1details_1_1_reduce_3_01_t_t_01_4.html", null ],
     [ "sophus::Region< TPoint >", "classsophus_1_1_region.html", null ],
+    [ "sophus::RigidCamera", "structsophus_1_1_rigid_camera.html", null ],
     [ "sophus::lie::Rotation2Impl< TScalar >", "classsophus_1_1lie_1_1_rotation2_impl.html", null ],
     [ "sophus::lie::Rotation3Impl< TScalar >", "classsophus_1_1lie_1_1_rotation3_impl.html", null ],
     [ "sophus::test::RotationalPart< LieGroup >", "structsophus_1_1test_1_1_rotational_part.html", null ],
@@ -241,9 +241,9 @@ var hierarchy =
     [ "farm_ng::details::UnwrapImpl< TWrapper >", "structfarm__ng_1_1details_1_1_unwrap_impl.html", null ],
     [ "farm_ng::details::UnwrapImpl< tl::expected< TT, TE > >", "structfarm__ng_1_1details_1_1_unwrap_impl_3_01tl_1_1expected_3_01_t_t_00_01_t_e_01_4_01_4.html", null ],
     [ "farm_ng::Uri", "structfarm__ng_1_1_uri.html", null ],
-    [ "sophus::test::SensorMeasurementProblem< TTransform >::Variables", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_variables.html", null ],
-    [ "sophus::test::SimplePriorProblem< TTransform >::Variables", "structsophus_1_1test_1_1_simple_prior_problem_1_1_variables.html", null ],
     [ "sophus::test::TransformGraphProblem< TTransform, kDim >::Variables", "structsophus_1_1test_1_1_transform_graph_problem_1_1_variables.html", null ],
+    [ "sophus::test::SimplePriorProblem< TTransform >::Variables", "structsophus_1_1test_1_1_simple_prior_problem_1_1_variables.html", null ],
+    [ "sophus::test::SensorMeasurementProblem< TTransform >::Variables", "structsophus_1_1test_1_1_sensor_measurement_problem_1_1_variables.html", null ],
     [ "sophus::VectorManifold< TScalar, kDim >", "structsophus_1_1_vector_manifold.html", null ],
     [ "sophus::detail::VisitImpl< TUserFunc, TDynImage, TTpixelFormats >", "structsophus_1_1detail_1_1_visit_impl.html", null ],
     [ "sophus::detail::VisitImpl< TUserFunc, TDynImage, std::variant< TPixelFormat > >", "structsophus_1_1detail_1_1_visit_impl_3_01_t_user_func_00_01_t_dyn_image_00_01std_1_1variant_3_01_t_pixel_format_01_4_01_4.html", null ],

@@ -7,8 +7,7 @@ var dir_6c48d565312b55a82638228487a5053e =
     [ "camera_model_test.cpp", "camera__model__test_8cpp.html", "camera__model__test_8cpp" ],
     [ "camera_rig.cpp", "camera__rig_8cpp.html", null ],
     [ "camera_rig.h", "camera__rig_8h.html", [
-      [ "CameraInRig", "structsophus_1_1_camera_in_rig.html", "structsophus_1_1_camera_in_rig" ],
-      [ "MultiCameraRig", "structsophus_1_1_multi_camera_rig.html", "structsophus_1_1_multi_camera_rig" ]
+      [ "RigidCamera", "structsophus_1_1_rigid_camera.html", "structsophus_1_1_rigid_camera" ]
     ] ],
     [ "camera_rig_test.cpp", "camera__rig__test_8cpp.html", "camera__rig__test_8cpp" ],
     [ "clipping_planes.cpp", "clipping__planes_8cpp.html", null ],

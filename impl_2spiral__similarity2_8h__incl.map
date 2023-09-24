@@ -1,52 +1,52 @@
 <map id="/home/runner/work/farm&#45;ng&#45;core/farm&#45;ng&#45;core/cpp/sophus/lie/impl/spiral_similarity2.h" name="/home/runner/work/farm&#45;ng&#45;core/farm&#45;ng&#45;core/cpp/sophus/lie/impl/spiral_similarity2.h">
-<area shape="rect" id="node1" title=" " alt="" coords="791,5,983,76"/>
-<area shape="rect" id="node2" href="$concepts_2lie__group_8h.html" title=" " alt="" coords="508,213,658,255"/>
-<area shape="rect" id="node39" href="$impl_2rotation2_8h.html" title=" " alt="" coords="789,131,985,158"/>
-<area shape="rect" id="node40" href="$complex_8h.html" title=" " alt="" coords="683,221,886,247"/>
-<area shape="rect" id="node47" href="$unit__vector_8h.html" title=" " alt="" coords="944,213,1102,255"/>
-<area shape="rect" id="node50" href="$sim__mat__w_8h.html" title=" " alt="" coords="1130,124,1279,165"/>
-<area shape="rect" id="node3" href="$params_8h.html" title=" " alt="" coords="516,399,711,426"/>
-<area shape="rect" id="node4" href="$common_8h.html" title=" " alt="" coords="1135,481,1338,508"/>
-<area shape="rect" id="node36" href="$point_8h.html" title=" " alt="" coords="482,563,660,590"/>
-<area shape="rect" id="node37" href="$utils_8h.html" title=" " alt="" coords="516,653,690,679"/>
-<area shape="rect" id="node5" title=" " alt="" coords="400,653,492,679"/>
-<area shape="rect" id="node6" title=" " alt="" coords="837,563,964,590"/>
-<area shape="rect" id="node7" href="$eigen_8h.html" title=" " alt="" coords="988,556,1148,597"/>
-<area shape="rect" id="node8" href="$logger_8h.html" title=" " alt="" coords="1156,645,1316,687"/>
-<area shape="rect" id="node10" href="$format_8h.html" title=" " alt="" coords="1622,735,1782,776"/>
-<area shape="rect" id="node25" href="$expected_8h.html" title=" " alt="" coords="1902,556,2062,597"/>
-<area shape="rect" id="node30" href="$variant__utils_8h.html" title=" " alt="" coords="1325,556,1518,597"/>
-<area shape="rect" id="node31" title=" " alt="" coords="1542,563,1605,590"/>
-<area shape="rect" id="node32" title=" " alt="" coords="1630,563,1691,590"/>
-<area shape="rect" id="node33" title=" " alt="" coords="1716,563,1781,590"/>
-<area shape="rect" id="node34" title=" " alt="" coords="1806,563,1878,590"/>
-<area shape="rect" id="node35" title=" " alt="" coords="557,742,649,769"/>
-<area shape="rect" id="node9" href="$farm__ng_2core_2enum_2enum_8h.html" title=" " alt="" coords="927,742,1130,769"/>
-<area shape="rect" id="node20" title=" " alt="" coords="1154,735,1318,776"/>
-<area shape="rect" id="node21" title=" " alt="" coords="1342,735,1506,776"/>
-<area shape="rect" id="node22" title=" " alt="" coords="1531,742,1598,769"/>
-<area shape="rect" id="node23" title=" " alt="" coords="674,742,764,769"/>
-<area shape="rect" id="node24" title=" " alt="" coords="788,742,903,769"/>
-<area shape="rect" id="node11" href="$backtrace_8h.html" title=" " alt="" coords="1962,824,2122,865"/>
-<area shape="rect" id="node12" title=" " alt="" coords="896,824,1067,865"/>
-<area shape="rect" id="node13" title=" " alt="" coords="1092,824,1256,865"/>
-<area shape="rect" id="node14" title=" " alt="" coords="1280,824,1444,865"/>
-<area shape="rect" id="node15" title=" " alt="" coords="1468,831,1557,858"/>
-<area shape="rect" id="node16" title=" " alt="" coords="1581,831,1686,858"/>
-<area shape="rect" id="node17" title=" " alt="" coords="1711,831,1826,858"/>
-<area shape="rect" id="node18" title=" " alt="" coords="1850,831,1937,858"/>
-<area shape="rect" id="node19" title=" " alt="" coords="2146,831,2226,858"/>
-<area shape="rect" id="node26" title=" " alt="" coords="2086,653,2208,679"/>
-<area shape="rect" id="node27" title=" " alt="" coords="1854,653,1928,679"/>
-<area shape="rect" id="node28" title=" " alt="" coords="1952,653,2011,679"/>
-<area shape="rect" id="node29" title=" " alt="" coords="190,653,253,679"/>
-<area shape="rect" id="node38" title=" " alt="" coords="422,742,533,769"/>
-<area shape="rect" id="node41" href="$division__ring_8h.html" title=" " alt="" coords="590,303,776,344"/>
-<area shape="rect" id="node42" href="$vector__space_8h.html" title=" " alt="" coords="193,392,346,433"/>
-<area shape="rect" id="node43" href="$cast_8h.html" title=" " alt="" coords="137,481,288,508"/>
-<area shape="rect" id="node44" title=" " alt="" coords="186,563,271,590"/>
-<area shape="rect" id="node45" title=" " alt="" coords="296,563,356,590"/>
-<area shape="rect" id="node46" href="$reduce_8h.html" title=" " alt="" coords="363,481,531,508"/>
-<area shape="rect" id="node48" href="$concepts_2manifold_8h.html" title=" " alt="" coords="852,310,1056,337"/>
-<area shape="rect" id="node49" title=" " alt="" coords="1080,310,1182,337"/>
+<area shape="rect" id="node1" title=" " alt="" coords="612,5,804,76"/>
+<area shape="rect" id="node2" href="$concepts_2lie__group_8h.html" title=" " alt="" coords="295,213,446,255"/>
+<area shape="rect" id="node39" href="$impl_2rotation2_8h.html" title=" " alt="" coords="474,131,670,158"/>
+<area shape="rect" id="node40" href="$complex_8h.html" title=" " alt="" coords="471,221,673,247"/>
+<area shape="rect" id="node47" href="$unit__vector_8h.html" title=" " alt="" coords="698,213,857,255"/>
+<area shape="rect" id="node50" href="$sim__mat__w_8h.html" title=" " alt="" coords="843,124,992,165"/>
+<area shape="rect" id="node3" href="$params_8h.html" title=" " alt="" coords="59,399,253,426"/>
+<area shape="rect" id="node4" href="$common_8h.html" title=" " alt="" coords="917,481,1120,508"/>
+<area shape="rect" id="node36" href="$point_8h.html" title=" " alt="" coords="152,563,331,590"/>
+<area shape="rect" id="node37" href="$utils_8h.html" title=" " alt="" coords="41,653,215,679"/>
+<area shape="rect" id="node5" title=" " alt="" coords="669,653,761,679"/>
+<area shape="rect" id="node6" title=" " alt="" coords="803,563,930,590"/>
+<area shape="rect" id="node7" href="$eigen_8h.html" title=" " alt="" coords="1056,556,1216,597"/>
+<area shape="rect" id="node8" href="$logger_8h.html" title=" " alt="" coords="1951,645,2111,687"/>
+<area shape="rect" id="node10" href="$format_8h.html" title=" " alt="" coords="1056,735,1216,776"/>
+<area shape="rect" id="node26" href="$expected_8h.html" title=" " alt="" coords="1817,556,1977,597"/>
+<area shape="rect" id="node30" href="$variant__utils_8h.html" title=" " alt="" coords="1241,556,1434,597"/>
+<area shape="rect" id="node31" title=" " alt="" coords="1458,563,1521,590"/>
+<area shape="rect" id="node32" title=" " alt="" coords="1545,563,1607,590"/>
+<area shape="rect" id="node33" title=" " alt="" coords="1631,563,1697,590"/>
+<area shape="rect" id="node34" title=" " alt="" coords="1721,563,1793,590"/>
+<area shape="rect" id="node35" title=" " alt="" coords="565,742,657,769"/>
+<area shape="rect" id="node9" href="$farm__ng_2core_2enum_2enum_8h.html" title=" " alt="" coords="2441,742,2644,769"/>
+<area shape="rect" id="node20" title=" " alt="" coords="2669,735,2833,776"/>
+<area shape="rect" id="node21" title=" " alt="" coords="1949,735,2113,776"/>
+<area shape="rect" id="node22" title=" " alt="" coords="2137,742,2204,769"/>
+<area shape="rect" id="node23" title=" " alt="" coords="2228,742,2319,769"/>
+<area shape="rect" id="node24" title=" " alt="" coords="2343,742,2417,769"/>
+<area shape="rect" id="node25" title=" " alt="" coords="1849,742,1924,769"/>
+<area shape="rect" id="node11" href="$backtrace_8h.html" title=" " alt="" coords="1204,824,1364,865"/>
+<area shape="rect" id="node12" title=" " alt="" coords="1388,824,1559,865"/>
+<area shape="rect" id="node13" title=" " alt="" coords="1583,824,1747,865"/>
+<area shape="rect" id="node14" title=" " alt="" coords="522,824,686,865"/>
+<area shape="rect" id="node15" title=" " alt="" coords="710,831,799,858"/>
+<area shape="rect" id="node16" title=" " alt="" coords="823,831,929,858"/>
+<area shape="rect" id="node17" title=" " alt="" coords="953,831,1068,858"/>
+<area shape="rect" id="node18" title=" " alt="" coords="1093,831,1179,858"/>
+<area shape="rect" id="node19" title=" " alt="" coords="1772,831,1852,858"/>
+<area shape="rect" id="node27" title=" " alt="" coords="1569,653,1692,679"/>
+<area shape="rect" id="node28" title=" " alt="" coords="1716,653,1775,679"/>
+<area shape="rect" id="node29" title=" " alt="" coords="411,653,474,679"/>
+<area shape="rect" id="node38" title=" " alt="" coords="73,742,183,769"/>
+<area shape="rect" id="node41" href="$division__ring_8h.html" title=" " alt="" coords="121,303,306,344"/>
+<area shape="rect" id="node42" href="$vector__space_8h.html" title=" " alt="" coords="415,392,569,433"/>
+<area shape="rect" id="node43" href="$cast_8h.html" title=" " alt="" coords="233,481,383,508"/>
+<area shape="rect" id="node44" title=" " alt="" coords="491,563,576,590"/>
+<area shape="rect" id="node45" title=" " alt="" coords="406,563,466,590"/>
+<area shape="rect" id="node46" href="$reduce_8h.html" title=" " alt="" coords="509,481,677,508"/>
+<area shape="rect" id="node48" href="$concepts_2manifold_8h.html" title=" " alt="" coords="330,310,534,337"/>
+<area shape="rect" id="node49" title=" " alt="" coords="815,310,918,337"/>
 </map>

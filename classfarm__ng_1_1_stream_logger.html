@@ -96,6 +96,8 @@ $(document).ready(function(){initNavTree('classfarm__ng_1_1_stream_logger.html',
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfarm__ng_1_1_stream_logger_1_1_disk_logging.html">DiskLogging</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfarm__ng_1_1_stream_logger_1_1_log_clock.html">LogClock</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -109,6 +111,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a50eaf9a1829d1530ed9896ce6f0925e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9938146080d9ff4fa4391e57f67d1223"><td class="memItemLeft" align="right" valign="top">LogLevel&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_stream_logger.html#a9938146080d9ff4fa4391e57f67d1223">getLogLevel</a> ()</td></tr>
 <tr class="separator:a9938146080d9ff4fa4391e57f67d1223"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a8b5d8b96b5af2f5686b94b361ab7df"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_stream_logger.html#a8a8b5d8b96b5af2f5686b94b361ab7df">trySetLogDir</a> (std::filesystem::path const &amp;path) noexcept</td></tr>
+<tr class="separator:a8a8b5d8b96b5af2f5686b94b361ab7df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e2d422d0867beb15d73195a80e3dfe0"><td class="memItemLeft" align="right" valign="top">std::optional&lt; std::filesystem::path &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_stream_logger.html#a0e2d422d0867beb15d73195a80e3dfe0">getLogDir</a> () const noexcept</td></tr>
+<tr class="separator:a0e2d422d0867beb15d73195a80e3dfe0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47870b6a5534556a323e4cf1bd40f052"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_stream_logger.html#a47870b6a5534556a323e4cf1bd40f052">setLogClock</a> (<a class="el" href="structfarm__ng_1_1_stream_logger_1_1_log_clock.html">LogClock</a> log_clock)</td></tr>
 <tr class="separator:a47870b6a5534556a323e4cf1bd40f052"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4db216a57b741cb3812ed1bba78fd14"><td class="memTemplParams" colspan="2">template&lt;typename... TT&gt; </td></tr>
@@ -131,6 +137,31 @@ Public Member Functions</h2></td></tr>
           <td> const</td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0e2d422d0867beb15d73195a80e3dfe0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e2d422d0867beb15d73195a80e3dfe0">&#9670;&nbsp;</a></span>getLogDir()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::optional&lt; std::filesystem::path &gt; farm_ng::StreamLogger::getLogDir </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>
@@ -324,6 +355,32 @@ template&lt;typename... TT&gt; </div>
           <td></td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8a8b5d8b96b5af2f5686b94b361ab7df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a8b5d8b96b5af2f5686b94b361ab7df">&#9670;&nbsp;</a></span>trySetLogDir()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool farm_ng::StreamLogger::trySetLogDir </td>
+          <td>(</td>
+          <td class="paramtype">std::filesystem::path const &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>

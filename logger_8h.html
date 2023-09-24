@@ -98,20 +98,26 @@ $(document).ready(function(){initNavTree('logger_8h.html',''); initResizable(); 
 <code>#include &lt;farm_pp/preprocessor/empty.hpp&gt;</code><br />
 <code>#include &lt;atomic&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
+<code>#include &lt;fstream&gt;</code><br />
+<code>#include &lt;mutex&gt;</code><br />
+<code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;unordered_set&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for logger.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="logger_8h__incl.png" border="0" usemap="#_2home_2runner_2work_2farm-ng-core_2farm-ng-core_2cpp_2farm__ng_2core_2logging_2logger_8h" alt=""/></div>
 <map name="_2home_2runner_2work_2farm-ng-core_2farm-ng-core_2cpp_2farm__ng_2core_2logging_2logger_8h" id="_2home_2runner_2work_2farm-ng-core_2farm-ng-core_2cpp_2farm__ng_2core_2logging_2logger_8h">
-<area shape="rect" title=" " alt="" coords="1737,5,1927,76"/>
+<area shape="rect" title=" " alt="" coords="1927,5,2118,76"/>
 <area shape="rect" href="farm__ng_2core_2enum_2enum_8h.html" title=" " alt="" coords="1335,131,1537,158"/>
 <area shape="rect" href="format_8h.html" title=" " alt="" coords="623,303,783,344"/>
 <area shape="rect" title=" " alt="" coords="1562,124,1726,165"/>
 <area shape="rect" title=" " alt="" coords="1750,124,1914,165"/>
 <area shape="rect" title=" " alt="" coords="1939,131,2005,158"/>
 <area shape="rect" title=" " alt="" coords="2029,131,2120,158"/>
-<area shape="rect" title=" " alt="" coords="2144,131,2259,158"/>
+<area shape="rect" title=" " alt="" coords="2145,131,2218,158"/>
+<area shape="rect" title=" " alt="" coords="2243,131,2307,158"/>
+<area shape="rect" title=" " alt="" coords="2331,131,2405,158"/>
+<area shape="rect" title=" " alt="" coords="2429,131,2544,158"/>
 <area shape="rect" href="enum__without__iostream_8h.html" title=" " alt="" coords="1301,213,1491,255"/>
 <area shape="rect" title=" " alt="" coords="1516,221,1588,247"/>
 <area shape="rect" title=" " alt="" coords="1613,221,1689,247"/>
@@ -148,12 +154,12 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="common_8h.html" title=" " alt="" coords="387,257,621,313"/>
 <area shape="rect" href="expected_8h.html" title=" " alt="" coords="2473,124,2663,195"/>
 <area shape="rect" href="expected__test_8cpp.html" title=" " alt="" coords="2033,250,2223,321"/>
-<area shape="rect" href="misc_2proto_2conv_8cpp.html" title=" " alt="" coords="1762,495,1942,565"/>
-<area shape="rect" href="misc_2proto_2conv__test_8cpp.html" title=" " alt="" coords="2186,495,2366,565"/>
-<area shape="rect" href="event__log__reader_8cpp.html" title=" " alt="" coords="2390,495,2599,565"/>
-<area shape="rect" href="event__log__writer_8cpp.html" title=" " alt="" coords="2623,495,2833,565"/>
-<area shape="rect" href="event__log__writer__test_8cpp.html" title=" " alt="" coords="2857,495,3066,565"/>
-<area shape="rect" href="proto__conv_2struct_2conv_8h.html" title=" " alt="" coords="1985,376,2165,447"/>
+<area shape="rect" href="misc_2proto_2conv_8cpp.html" title=" " alt="" coords="1771,502,1951,573"/>
+<area shape="rect" href="misc_2proto_2conv__test_8cpp.html" title=" " alt="" coords="2221,502,2401,573"/>
+<area shape="rect" href="event__log__reader_8cpp.html" title=" " alt="" coords="2425,502,2634,573"/>
+<area shape="rect" href="event__log__writer_8cpp.html" title=" " alt="" coords="2658,502,2867,573"/>
+<area shape="rect" href="event__log__writer__test_8cpp.html" title=" " alt="" coords="2891,502,3101,573"/>
+<area shape="rect" href="struct_2conv__impl__macro_8ipp.html" title=" " alt="" coords="1982,376,2226,447"/>
 <area shape="rect" href="proto__reader__writer_8h.html" title=" " alt="" coords="3331,250,3541,321"/>
 <area shape="rect" href="proto__reader__writer__test_8cpp.html" title=" " alt="" coords="3635,376,3848,447"/>
 <area shape="rect" href="format__test_8cpp.html" title=" " alt="" coords="3522,124,3713,195"/>
@@ -164,8 +170,8 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="erase__test_8cpp.html" title=" " alt="" coords="4381,124,4561,195"/>
 <area shape="rect" href="stopwatch_8h.html" title=" " alt="" coords="4585,124,4765,195"/>
 <area shape="rect" href="component_8h.html" title=" " alt="" coords="1197,250,1392,321"/>
-<area shape="rect" href="component__test_8cpp.html" title=" " alt="" coords="1324,495,1519,565"/>
-<area shape="rect" href="output_8cpp.html" title=" " alt="" coords="1543,495,1737,565"/>
+<area shape="rect" href="component__test_8cpp.html" title=" " alt="" coords="1325,502,1520,573"/>
+<area shape="rect" href="output_8cpp.html" title=" " alt="" coords="1549,502,1744,573"/>
 <area shape="rect" href="input_8cpp.html" title=" " alt="" coords="1509,250,1704,321"/>
 <area shape="rect" href="input_8h.html" title=" " alt="" coords="1408,124,1603,195"/>
 <area shape="rect" href="thread__pool_8cpp.html" title=" " alt="" coords="4789,124,4984,195"/>
@@ -174,15 +180,15 @@ This graph shows which files directly or indirectly include this file:</div>
 <area shape="rect" href="region_8h.html" title=" " alt="" coords="259,383,472,439"/>
 <area shape="rect" href="ceres__test_8cpp.html" title=" " alt="" coords="497,376,677,447"/>
 <area shape="rect" href="expected_8cpp.html" title=" " alt="" coords="2913,250,3103,321"/>
-<area shape="rect" href="misc_2proto_2conv_8h.html" title=" " alt="" coords="2203,376,2383,447"/>
+<area shape="rect" href="misc_2proto_2conv_8h.html" title=" " alt="" coords="2250,376,2430,447"/>
 <area shape="rect" href="shared_8h.html" title=" " alt="" coords="2657,250,2837,321"/>
-<area shape="rect" href="event__log__reader_8h.html" title=" " alt="" coords="2622,376,2831,447"/>
+<area shape="rect" href="event__log__reader_8h.html" title=" " alt="" coords="2658,376,2867,447"/>
 <area shape="rect" href="time__series_8h.html" title=" " alt="" coords="3127,250,3307,321"/>
-<area shape="rect" href="proto__conv_2linalg_2conv_8h.html" title=" " alt="" coords="2414,376,2594,447"/>
+<area shape="rect" href="proto__conv_2linalg_2conv_8h.html" title=" " alt="" coords="2454,376,2634,447"/>
 <area shape="rect" href="traits_8h.html" title=" " alt="" coords="2299,250,2479,321"/>
-<area shape="rect" href="event__log__writer_8h.html" title=" " alt="" coords="2855,376,3065,447"/>
+<area shape="rect" href="event__log__writer_8h.html" title=" " alt="" coords="2891,376,3101,447"/>
 <area shape="rect" href="time__series__test_8cpp.html" title=" " alt="" coords="3430,376,3610,447"/>
-<area shape="rect" href="proto__conv_2struct_2conv__test_8cpp.html" title=" " alt="" coords="1967,495,2161,565"/>
+<area shape="rect" href="conv__impl__macro__test_8cpp.html" title=" " alt="" coords="1977,495,2197,580"/>
 <area shape="rect" href="proto__reader__writer_8cpp.html" title=" " alt="" coords="3197,376,3406,447"/>
 <area shape="rect" href="logger__define__debug__variant__test_8cpp.html" title=" " alt="" coords="3923,243,4138,328"/>
 <area shape="rect" href="logger__define__info__variant__test_8cpp.html" title=" " alt="" coords="4162,243,4361,328"/>
@@ -201,6 +207,8 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfarm__ng_1_1_stream_logger.html">farm_ng::StreamLogger</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfarm__ng_1_1_stream_logger_1_1_disk_logging.html">farm_ng::StreamLogger::DiskLogging</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfarm__ng_1_1_stream_logger_1_1_log_clock.html">farm_ng::StreamLogger::LogClock</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1394,18 +1402,18 @@ Functions</h2></td></tr>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aformat_8h_html_a433412d321d236f0533bf9f9011fe0c0"><div class="ttname"><a href="format_8h.html#a433412d321d236f0533bf9f9011fe0c0">FARM_FORMAT</a></div><div class="ttdeci">#define FARM_FORMAT(...)</div><div class="ttdoc">Formats the cstr using the libfmt library.</div><div class="ttdef"><b>Definition:</b> format.h:125</div></div>
-<div class="ttc" id="alogger_8h_html_a4431ee42f6c90820a94f7a8ef7b305b8"><div class="ttname"><a href="logger_8h.html#a4431ee42f6c90820a94f7a8ef7b305b8">FARM_VARGS</a></div><div class="ttdeci">#define FARM_VARGS(...)</div><div class="ttdef"><b>Definition:</b> logger.h:132</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_error_detail_html"><div class="ttname"><a href="structfarm__ng_1_1_error_detail.html">farm_ng::ErrorDetail</a></div><div class="ttdef"><b>Definition:</b> logger.h:401</div></div>
-<div class="ttc" id="aclassfarm__ng_1_1_stream_logger_html_ab4db216a57b741cb3812ed1bba78fd14"><div class="ttname"><a href="classfarm__ng_1_1_stream_logger.html#ab4db216a57b741cb3812ed1bba78fd14">farm_ng::StreamLogger::log</a></div><div class="ttdeci">void log(LogLevel log_level, std::string const &amp;header_text, std::string const &amp;file, int line, std::string const &amp;function, std::string const &amp;message, TT &amp;&amp;... args)</div><div class="ttdef"><b>Definition:</b> logger.h:61</div></div>
-<div class="ttc" id="alogger_8h_html_aef15d15c861f070099eaa30042585222"><div class="ttname"><a href="logger_8h.html#aef15d15c861f070099eaa30042585222">FARM_VARGS_NONE</a></div><div class="ttdeci">#define FARM_VARGS_NONE(...)</div><div class="ttdef"><b>Definition:</b> logger.h:134</div></div>
-<div class="ttc" id="astructfarm__ng_1_1details_1_1_check_near_html"><div class="ttname"><a href="structfarm__ng_1_1details_1_1_check_near.html">farm_ng::details::CheckNear</a></div><div class="ttdef"><b>Definition:</b> logger.h:311</div></div>
-<div class="ttc" id="alogger_8h_html_ac51a1f45e92fc222e670bbf6ff8d685a"><div class="ttname"><a href="logger_8h.html#ac51a1f45e92fc222e670bbf6ff8d685a">FARM_MAYBE_VARGS</a></div><div class="ttdeci">#define FARM_MAYBE_VARGS(...)</div><div class="ttdef"><b>Definition:</b> logger.h:136</div></div>
-<div class="ttc" id="anamespacefarm__ng_1_1details_html_ad39361767f6713f0709a35b810d7554d"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#ad39361767f6713f0709a35b810d7554d">farm_ng::details::checkedGetFromAssociativeContainer</a></div><div class="ttdeci">auto checkedGetFromAssociativeContainer(TContainer &amp;container, TKey const &amp;key, char const *container_cstr, char const *key_cstr, std::string const &amp;file, int line, std::string const &amp;func, std::string const &amp;str) -&gt; decltype(*(container.find(key)))</div><div class="ttdef"><b>Definition:</b> logger.h:439</div></div>
-<div class="ttc" id="astructfarm__ng_1_1_error_detail_html_a676f2059f25fb1fed395ea06565f9c3e"><div class="ttname"><a href="structfarm__ng_1_1_error_detail.html#a676f2059f25fb1fed395ea06565f9c3e">farm_ng::ErrorDetail::file</a></div><div class="ttdeci">std::string file</div><div class="ttdef"><b>Definition:</b> logger.h:402</div></div>
-<div class="ttc" id="anamespacefarm__ng_html_ab1ba3ac58871ae436e4c3b4cc56bde05"><div class="ttname"><a href="namespacefarm__ng.html#ab1ba3ac58871ae436e4c3b4cc56bde05">farm_ng::defaultLogger</a></div><div class="ttdeci">StreamLogger &amp; defaultLogger()</div><div class="ttdef"><b>Definition:</b> logger.h:124</div></div>
-<div class="ttc" id="anamespacefarm__ng_1_1details_html_a994e10ebe5373b404f49877be02a571f"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#a994e10ebe5373b404f49877be02a571f">farm_ng::details::insertKeyValueInMap</a></div><div class="ttdeci">auto insertKeyValueInMap(TMapLike &amp;map, TKey const &amp;key, TValue const &amp;value, char const *container_cstr, char const *key_cstr, char const *value_cstr, std::string const &amp;file, int line, std::string const &amp;func, std::string const &amp;str)</div><div class="ttdef"><b>Definition:</b> logger.h:469</div></div>
-<div class="ttc" id="anamespacefarm__ng_1_1details_html_ac368ae2ef8278ead7959d082add4f962"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#ac368ae2ef8278ead7959d082add4f962">farm_ng::details::unwrapImpl</a></div><div class="ttdeci">auto unwrapImpl(TWrapper &amp;wrapper, char const *wrapper_cstr, ::farm_ng::ErrorDetail detail) -&gt; decltype(*wrapper)</div><div class="ttdef"><b>Definition:</b> logger.h:525</div></div>
-<div class="ttc" id="anamespacefarm__ng_1_1details_html_a3880c4851ec9d41408e9f36841830c0b"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#a3880c4851ec9d41408e9f36841830c0b">farm_ng::details::checkedAtContiguousContainer</a></div><div class="ttdeci">auto checkedAtContiguousContainer(TContainer &amp;container, size_t index, char const *container_cstr, char const *index_cstr, std::string const &amp;file, int line, std::string const &amp;func, std::string const &amp;str) -&gt; decltype(container[index])</div><div class="ttdef"><b>Definition:</b> logger.h:410</div></div>
+<div class="ttc" id="alogger_8h_html_a4431ee42f6c90820a94f7a8ef7b305b8"><div class="ttname"><a href="logger_8h.html#a4431ee42f6c90820a94f7a8ef7b305b8">FARM_VARGS</a></div><div class="ttdeci">#define FARM_VARGS(...)</div><div class="ttdef"><b>Definition:</b> logger.h:158</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_error_detail_html"><div class="ttname"><a href="structfarm__ng_1_1_error_detail.html">farm_ng::ErrorDetail</a></div><div class="ttdef"><b>Definition:</b> logger.h:427</div></div>
+<div class="ttc" id="aclassfarm__ng_1_1_stream_logger_html_ab4db216a57b741cb3812ed1bba78fd14"><div class="ttname"><a href="classfarm__ng_1_1_stream_logger.html#ab4db216a57b741cb3812ed1bba78fd14">farm_ng::StreamLogger::log</a></div><div class="ttdeci">void log(LogLevel log_level, std::string const &amp;header_text, std::string const &amp;file, int line, std::string const &amp;function, std::string const &amp;message, TT &amp;&amp;... args)</div><div class="ttdef"><b>Definition:</b> logger.h:81</div></div>
+<div class="ttc" id="alogger_8h_html_aef15d15c861f070099eaa30042585222"><div class="ttname"><a href="logger_8h.html#aef15d15c861f070099eaa30042585222">FARM_VARGS_NONE</a></div><div class="ttdeci">#define FARM_VARGS_NONE(...)</div><div class="ttdef"><b>Definition:</b> logger.h:160</div></div>
+<div class="ttc" id="astructfarm__ng_1_1details_1_1_check_near_html"><div class="ttname"><a href="structfarm__ng_1_1details_1_1_check_near.html">farm_ng::details::CheckNear</a></div><div class="ttdef"><b>Definition:</b> logger.h:337</div></div>
+<div class="ttc" id="alogger_8h_html_ac51a1f45e92fc222e670bbf6ff8d685a"><div class="ttname"><a href="logger_8h.html#ac51a1f45e92fc222e670bbf6ff8d685a">FARM_MAYBE_VARGS</a></div><div class="ttdeci">#define FARM_MAYBE_VARGS(...)</div><div class="ttdef"><b>Definition:</b> logger.h:162</div></div>
+<div class="ttc" id="anamespacefarm__ng_1_1details_html_ad39361767f6713f0709a35b810d7554d"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#ad39361767f6713f0709a35b810d7554d">farm_ng::details::checkedGetFromAssociativeContainer</a></div><div class="ttdeci">auto checkedGetFromAssociativeContainer(TContainer &amp;container, TKey const &amp;key, char const *container_cstr, char const *key_cstr, std::string const &amp;file, int line, std::string const &amp;func, std::string const &amp;str) -&gt; decltype(*(container.find(key)))</div><div class="ttdef"><b>Definition:</b> logger.h:465</div></div>
+<div class="ttc" id="astructfarm__ng_1_1_error_detail_html_a676f2059f25fb1fed395ea06565f9c3e"><div class="ttname"><a href="structfarm__ng_1_1_error_detail.html#a676f2059f25fb1fed395ea06565f9c3e">farm_ng::ErrorDetail::file</a></div><div class="ttdeci">std::string file</div><div class="ttdef"><b>Definition:</b> logger.h:428</div></div>
+<div class="ttc" id="anamespacefarm__ng_html_ab1ba3ac58871ae436e4c3b4cc56bde05"><div class="ttname"><a href="namespacefarm__ng.html#ab1ba3ac58871ae436e4c3b4cc56bde05">farm_ng::defaultLogger</a></div><div class="ttdeci">StreamLogger &amp; defaultLogger()</div><div class="ttdef"><b>Definition:</b> logger.h:150</div></div>
+<div class="ttc" id="anamespacefarm__ng_1_1details_html_a994e10ebe5373b404f49877be02a571f"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#a994e10ebe5373b404f49877be02a571f">farm_ng::details::insertKeyValueInMap</a></div><div class="ttdeci">auto insertKeyValueInMap(TMapLike &amp;map, TKey const &amp;key, TValue const &amp;value, char const *container_cstr, char const *key_cstr, char const *value_cstr, std::string const &amp;file, int line, std::string const &amp;func, std::string const &amp;str)</div><div class="ttdef"><b>Definition:</b> logger.h:495</div></div>
+<div class="ttc" id="anamespacefarm__ng_1_1details_html_ac368ae2ef8278ead7959d082add4f962"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#ac368ae2ef8278ead7959d082add4f962">farm_ng::details::unwrapImpl</a></div><div class="ttdeci">auto unwrapImpl(TWrapper &amp;wrapper, char const *wrapper_cstr, ::farm_ng::ErrorDetail detail) -&gt; decltype(*wrapper)</div><div class="ttdef"><b>Definition:</b> logger.h:551</div></div>
+<div class="ttc" id="anamespacefarm__ng_1_1details_html_a3880c4851ec9d41408e9f36841830c0b"><div class="ttname"><a href="namespacefarm__ng_1_1details.html#a3880c4851ec9d41408e9f36841830c0b">farm_ng::details::checkedAtContiguousContainer</a></div><div class="ttdeci">auto checkedAtContiguousContainer(TContainer &amp;container, size_t index, char const *container_cstr, char const *index_cstr, std::string const &amp;file, int line, std::string const &amp;func, std::string const &amp;str) -&gt; decltype(container[index])</div><div class="ttdef"><b>Definition:</b> logger.h:436</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

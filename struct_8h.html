@@ -114,9 +114,9 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="struct_8h__dep__incl.png" border="0" usemap="#_2home_2runner_2work_2farm-ng-core_2farm-ng-core_2cpp_2farm__ng_2core_2struct_2struct_8hdep" alt=""/></div>
 <map name="_2home_2runner_2work_2farm-ng-core_2farm-ng-core_2cpp_2farm__ng_2core_2struct_2struct_8hdep" id="_2home_2runner_2work_2farm-ng-core_2farm-ng-core_2cpp_2farm__ng_2core_2struct_2struct_8hdep">
-<area shape="rect" title=" " alt="" coords="118,5,298,76"/>
-<area shape="rect" href="proto__conv_2struct_2conv__test_8cpp.html" title=" " alt="" coords="5,124,200,195"/>
-<area shape="rect" href="struct__test_8cpp.html" title=" " alt="" coords="225,124,405,195"/>
+<area shape="rect" title=" " alt="" coords="137,5,317,76"/>
+<area shape="rect" href="conv__impl__macro__test_8cpp.html" title=" " alt="" coords="5,124,225,209"/>
+<area shape="rect" href="struct__test_8cpp.html" title=" " alt="" coords="249,131,429,202"/>
 </map>
 </div>
 </div>
@@ -124,15 +124,15 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a946271249cce20cd119151a1c70a396d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_8h.html#a946271249cce20cd119151a1c70a396d">FARM_STRUCT_DETAIL_FROM_SEQ</a>(StructName,  num_fields,  field_seq)</td></tr>
-<tr class="separator:a946271249cce20cd119151a1c70a396d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaaff37f937931a973bb53d29bdac2ae"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_8h.html#adaaff37f937931a973bb53d29bdac2ae">FARM_STRUCT</a>(StructName,  tuple_of_fields)</td></tr>
-<tr class="memdesc:adaaff37f937931a973bb53d29bdac2ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes in a struct name and a tuple of fields and generates a struct.  <a href="struct_8h.html#adaaff37f937931a973bb53d29bdac2ae">More...</a><br /></td></tr>
-<tr class="separator:adaaff37f937931a973bb53d29bdac2ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e964e7c9ea79159f20e1ec38d451640"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_8h.html#a1e964e7c9ea79159f20e1ec38d451640">FARM_STRUCT_DETAIL_FROM_SEQ</a>(Struct_Name_,  Num_Fields_,  Field_Seq_)</td></tr>
+<tr class="separator:a1e964e7c9ea79159f20e1ec38d451640"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb5da09284463c9a65291ba1769dee38"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_8h.html#aeb5da09284463c9a65291ba1769dee38">FARM_STRUCT</a>(Struct_Name_,  Tuple_Of_Fields_)</td></tr>
+<tr class="memdesc:aeb5da09284463c9a65291ba1769dee38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes in a struct name and a tuple of fields and generates a struct.  <a href="struct_8h.html#aeb5da09284463c9a65291ba1769dee38">More...</a><br /></td></tr>
+<tr class="separator:aeb5da09284463c9a65291ba1769dee38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="adaaff37f937931a973bb53d29bdac2ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adaaff37f937931a973bb53d29bdac2ae">&#9670;&nbsp;</a></span>FARM_STRUCT</h2>
+<a id="aeb5da09284463c9a65291ba1769dee38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb5da09284463c9a65291ba1769dee38">&#9670;&nbsp;</a></span>FARM_STRUCT</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -141,13 +141,13 @@ Macros</h2></td></tr>
           <td class="memname">#define FARM_STRUCT</td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname">StructName, </td>
+          <td class="paramname">Struct_Name_, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname">tuple_of_fields&#160;</td>
+          <td class="paramname">Tuple_Of_Fields_&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -156,17 +156,17 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="struct_8h.html#a946271249cce20cd119151a1c70a396d">FARM_STRUCT_DETAIL_FROM_SEQ</a>(                   \</div>
-<div class="line">      StructName,                                \</div>
-<div class="line">      FARM_PP_TUPLE_SIZE(tuple_of_fields),       \</div>
-<div class="line">      <a class="code" href="macro__lib_8h.html#a966cab727ef562ab80c760d28098b28b">FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE</a>(tuple_of_fields))</div>
+<b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="struct_8h.html#a1e964e7c9ea79159f20e1ec38d451640">FARM_STRUCT_DETAIL_FROM_SEQ</a>(                      \</div>
+<div class="line">      Struct_Name_,                                 \</div>
+<div class="line">      FARM_PP_TUPLE_SIZE(Tuple_Of_Fields_),         \</div>
+<div class="line">      <a class="code" href="macro__lib_8h.html#af0043179047616a5a65fffcbd1bcf9a8">FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE</a>(Tuple_Of_Fields_))</div>
 </div><!-- fragment -->
 <p>Takes in a struct name and a tuple of fields and generates a struct. </p>
 
 </div>
 </div>
-<a id="a946271249cce20cd119151a1c70a396d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a946271249cce20cd119151a1c70a396d">&#9670;&nbsp;</a></span>FARM_STRUCT_DETAIL_FROM_SEQ</h2>
+<a id="a1e964e7c9ea79159f20e1ec38d451640"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e964e7c9ea79159f20e1ec38d451640">&#9670;&nbsp;</a></span>FARM_STRUCT_DETAIL_FROM_SEQ</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -175,19 +175,19 @@ Macros</h2></td></tr>
           <td class="memname">#define FARM_STRUCT_DETAIL_FROM_SEQ</td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname">StructName, </td>
+          <td class="paramname">Struct_Name_, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname">num_fields, </td>
+          <td class="paramname">Num_Fields_, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname">field_seq&#160;</td>
+          <td class="paramname">Field_Seq_&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -196,16 +196,16 @@ Macros</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">  <span class="keyword">struct </span>StructName {                                                  \</div>
-<div class="line">    FARM_STRUCT_DETAILS_BASE(StructName, num_fields, field_seq)        \</div>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keyword">struct </span>Struct_Name_ {                                                    \</div>
+<div class="line">    FARM_STRUCT_DETAILS_BASE(Num_Fields_, Field_Seq_)                      \</div>
 <div class="line">  }</div>
 </div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="astruct_8h_html_a946271249cce20cd119151a1c70a396d"><div class="ttname"><a href="struct_8h.html#a946271249cce20cd119151a1c70a396d">FARM_STRUCT_DETAIL_FROM_SEQ</a></div><div class="ttdeci">#define FARM_STRUCT_DETAIL_FROM_SEQ(StructName, num_fields, field_seq)</div><div class="ttdef"><b>Definition:</b> struct.h:27</div></div>
-<div class="ttc" id="amacro__lib_8h_html_a966cab727ef562ab80c760d28098b28b"><div class="ttname"><a href="macro__lib_8h.html#a966cab727ef562ab80c760d28098b28b">FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE</a></div><div class="ttdeci">#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_entities)</div><div class="ttdef"><b>Definition:</b> macro_lib.h:45</div></div>
+<div class="ttc" id="astruct_8h_html_a1e964e7c9ea79159f20e1ec38d451640"><div class="ttname"><a href="struct_8h.html#a1e964e7c9ea79159f20e1ec38d451640">FARM_STRUCT_DETAIL_FROM_SEQ</a></div><div class="ttdeci">#define FARM_STRUCT_DETAIL_FROM_SEQ(Struct_Name_, Num_Fields_, Field_Seq_)</div><div class="ttdef"><b>Definition:</b> struct.h:27</div></div>
+<div class="ttc" id="amacro__lib_8h_html_af0043179047616a5a65fffcbd1bcf9a8"><div class="ttname"><a href="macro__lib_8h.html#af0043179047616a5a65fffcbd1bcf9a8">FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE</a></div><div class="ttdeci">#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Entities_)</div><div class="ttdef"><b>Definition:</b> macro_lib.h:45</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

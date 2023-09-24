@@ -12,9 +12,9 @@
 <area shape="rect" id="node7" href="$common_8h.html" title=" " alt="" coords="3569,732,3802,788"/>
 <area shape="rect" id="node16" href="$expected_8h.html" title=" " alt="" coords="3376,599,3566,669"/>
 <area shape="rect" id="node18" href="$expected__test_8cpp.html" title=" " alt="" coords="3826,725,4017,795"/>
-<area shape="rect" id="node20" href="$misc_2proto_2conv_8cpp.html" title=" " alt="" coords="2678,851,2858,921"/>
+<area shape="rect" id="node20" href="$misc_2proto_2conv_8cpp.html" title=" " alt="" coords="2614,851,2794,921"/>
 <area shape="rect" id="node21" href="$misc_2proto_2conv__test_8cpp.html" title=" " alt="" coords="3649,851,3829,921"/>
-<area shape="rect" id="node23" href="$proto__conv_2struct_2conv_8h.html" title=" " alt="" coords="2946,725,3126,795"/>
+<area shape="rect" id="node23" href="$struct_2conv__impl__macro_8ipp.html" title=" " alt="" coords="2882,725,3126,795"/>
 <area shape="rect" id="node24" href="$proto__reader__writer_8h.html" title=" " alt="" coords="842,725,1052,795"/>
 <area shape="rect" id="node25" href="$proto__reader__writer__test_8cpp.html" title=" " alt="" coords="816,851,1030,921"/>
 <area shape="rect" id="node26" href="$format__test_8cpp.html" title=" " alt="" coords="944,599,1134,669"/>
@@ -41,7 +41,7 @@
 <area shape="rect" id="node14" href="$lie_2lie__group_8h.html" title=" " alt="" coords="3868,977,4063,1033"/>
 <area shape="rect" id="node15" href="$imu__model_8h.html" title=" " alt="" coords="4088,969,4268,1040"/>
 <area shape="rect" id="node17" href="$expected_8cpp.html" title=" " alt="" coords="3354,725,3545,795"/>
-<area shape="rect" id="node19" href="$misc_2proto_2conv_8h.html" title=" " alt="" coords="2742,725,2922,795"/>
+<area shape="rect" id="node19" href="$misc_2proto_2conv_8h.html" title=" " alt="" coords="2678,725,2858,795"/>
 <area shape="rect" id="node22" href="$shared_8h.html" title=" " alt="" coords="3150,725,3330,795"/>
 <area shape="rect" id="node30" href="$logger__define__debug__variant__test_8cpp.html" title=" " alt="" coords="4144,717,4358,803"/>
 <area shape="rect" id="node31" href="$logger__define__info__variant__test_8cpp.html" title=" " alt="" coords="4382,717,4581,803"/>

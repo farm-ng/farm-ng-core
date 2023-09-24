@@ -1,52 +1,52 @@
 <map id="/home/runner/work/farm&#45;ng&#45;core/farm&#45;ng&#45;core/cpp/farm_ng/core/misc/conversions.h" name="/home/runner/work/farm&#45;ng&#45;core/farm&#45;ng&#45;core/cpp/farm_ng/core/misc/conversions.h">
-<area shape="rect" id="node1" title=" " alt="" coords="1348,5,1528,76"/>
-<area shape="rect" id="node2" title=" " alt="" coords="444,623,547,650"/>
-<area shape="rect" id="node3" href="$logger_8h.html" title=" " alt="" coords="1878,437,2038,479"/>
-<area shape="rect" id="node32" href="$point_8h.html" title=" " alt="" coords="1386,124,1565,151"/>
-<area shape="rect" id="node37" href="$se3_8h.html" title=" " alt="" coords="1161,124,1288,151"/>
-<area shape="rect" id="node4" href="$farm__ng_2core_2enum_2enum_8h.html" title=" " alt="" coords="1513,534,1715,561"/>
-<area shape="rect" id="node19" href="$format_8h.html" title=" " alt="" coords="2163,705,2323,747"/>
-<area shape="rect" id="node27" title=" " alt="" coords="2044,527,2208,568"/>
-<area shape="rect" id="node28" title=" " alt="" coords="2232,527,2396,568"/>
-<area shape="rect" id="node29" title=" " alt="" coords="2421,534,2487,561"/>
-<area shape="rect" id="node30" title=" " alt="" coords="1739,534,1830,561"/>
-<area shape="rect" id="node31" title=" " alt="" coords="1854,534,1969,561"/>
-<area shape="rect" id="node5" href="$enum__without__iostream_8h.html" title=" " alt="" coords="1168,616,1359,657"/>
-<area shape="rect" id="node17" title=" " alt="" coords="1529,623,1601,650"/>
-<area shape="rect" id="node18" title=" " alt="" coords="1625,623,1701,650"/>
-<area shape="rect" id="node6" href="$enum__details_8h.html" title=" " alt="" coords="936,705,1119,747"/>
-<area shape="rect" id="node7" title=" " alt="" coords="1582,795,1753,836"/>
-<area shape="rect" id="node8" title=" " alt="" coords="1777,795,1941,836"/>
-<area shape="rect" id="node9" title=" " alt="" coords="1321,795,1557,836"/>
-<area shape="rect" id="node10" title=" " alt="" coords="5,795,169,836"/>
-<area shape="rect" id="node11" title=" " alt="" coords="193,795,357,836"/>
-<area shape="rect" id="node12" title=" " alt="" coords="381,795,545,836"/>
-<area shape="rect" id="node13" title=" " alt="" coords="569,795,733,836"/>
-<area shape="rect" id="node14" title=" " alt="" coords="757,795,921,836"/>
-<area shape="rect" id="node15" title=" " alt="" coords="945,795,1109,836"/>
-<area shape="rect" id="node16" title=" " alt="" coords="1133,795,1297,836"/>
-<area shape="rect" id="node20" href="$backtrace_8h.html" title=" " alt="" coords="2070,795,2230,836"/>
-<area shape="rect" id="node21" title=" " alt="" coords="2255,795,2419,836"/>
-<area shape="rect" id="node22" title=" " alt="" coords="2443,802,2532,829"/>
-<area shape="rect" id="node23" title=" " alt="" coords="2556,802,2661,829"/>
-<area shape="rect" id="node24" title=" " alt="" coords="2686,802,2801,829"/>
-<area shape="rect" id="node25" title=" " alt="" coords="2825,802,2912,829"/>
-<area shape="rect" id="node26" title=" " alt="" coords="1966,802,2046,829"/>
-<area shape="rect" id="node33" href="$utils_8h.html" title=" " alt="" coords="1513,199,1688,225"/>
-<area shape="rect" id="node36" title=" " alt="" coords="848,623,940,650"/>
-<area shape="rect" id="node34" title=" " alt="" coords="1649,273,1760,300"/>
-<area shape="rect" id="node35" title=" " alt="" coords="1533,273,1625,300"/>
-<area shape="rect" id="node38" href="$isometry3_8h.html" title=" " alt="" coords="1051,199,1222,225"/>
-<area shape="rect" id="node39" href="$group__accessors_8h.html" title=" " alt="" coords="1011,348,1182,389"/>
-<area shape="rect" id="node41" href="$impl_2rotation3_8h.html" title=" " alt="" coords="740,355,936,382"/>
-<area shape="rect" id="node45" href="$translation__factor__group__product_8h.html" title=" " alt="" coords="883,437,1078,479"/>
-<area shape="rect" id="node47" href="$lie_2lie__group_8h.html" title=" " alt="" coords="1207,355,1371,382"/>
-<area shape="rect" id="node49" href="$rotation3_8h.html" title=" " alt="" coords="1011,273,1174,300"/>
-<area shape="rect" id="node40" href="$concepts_2lie__group_8h.html" title=" " alt="" coords="1135,527,1285,568"/>
-<area shape="rect" id="node42" href="$quaternion_8h.html" title=" " alt="" coords="643,445,859,471"/>
-<area shape="rect" id="node44" href="$unit__vector_8h.html" title=" " alt="" coords="533,527,692,568"/>
-<area shape="rect" id="node43" href="$vector__space_8h.html" title=" " alt="" coords="716,527,869,568"/>
-<area shape="rect" id="node46" href="$homogeneous_8h.html" title=" " alt="" coords="894,534,1110,561"/>
-<area shape="rect" id="node48" href="$sophus_2common_2enum_8h.html" title=" " alt="" coords="1255,445,1437,471"/>
-<area shape="rect" id="node50" href="$orthogonal_8h.html" title=" " alt="" coords="507,355,702,382"/>
+<area shape="rect" id="node1" title=" " alt="" coords="921,5,1101,76"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,623,108,650"/>
+<area shape="rect" id="node3" href="$logger_8h.html" title=" " alt="" coords="1585,437,1745,479"/>
+<area shape="rect" id="node32" href="$point_8h.html" title=" " alt="" coords="973,124,1151,151"/>
+<area shape="rect" id="node37" href="$se3_8h.html" title=" " alt="" coords="748,124,875,151"/>
+<area shape="rect" id="node4" href="$farm__ng_2core_2enum_2enum_8h.html" title=" " alt="" coords="1099,534,1302,561"/>
+<area shape="rect" id="node16" href="$format_8h.html" title=" " alt="" coords="1669,705,1829,747"/>
+<area shape="rect" id="node24" title=" " alt="" coords="1703,527,1867,568"/>
+<area shape="rect" id="node25" title=" " alt="" coords="1891,527,2055,568"/>
+<area shape="rect" id="node26" title=" " alt="" coords="2079,534,2146,561"/>
+<area shape="rect" id="node27" title=" " alt="" coords="2170,534,2261,561"/>
+<area shape="rect" id="node28" title=" " alt="" coords="2285,534,2359,561"/>
+<area shape="rect" id="node29" title=" " alt="" coords="1326,534,1390,561"/>
+<area shape="rect" id="node30" title=" " alt="" coords="1414,534,1489,561"/>
+<area shape="rect" id="node31" title=" " alt="" coords="1513,534,1627,561"/>
+<area shape="rect" id="node5" href="$enum__without__iostream_8h.html" title=" " alt="" coords="776,616,967,657"/>
+<area shape="rect" id="node14" title=" " alt="" coords="1115,623,1187,650"/>
+<area shape="rect" id="node15" title=" " alt="" coords="1212,623,1288,650"/>
+<area shape="rect" id="node6" href="$enum__details_8h.html" title=" " alt="" coords="737,705,920,747"/>
+<area shape="rect" id="node7" title=" " alt="" coords="1269,795,1439,836"/>
+<area shape="rect" id="node8" title=" " alt="" coords="1080,795,1244,836"/>
+<area shape="rect" id="node9" title=" " alt="" coords="444,795,680,836"/>
+<area shape="rect" id="node10" title=" " alt="" coords="704,795,868,836"/>
+<area shape="rect" id="node11" title=" " alt="" coords="892,795,1056,836"/>
+<area shape="rect" id="node12" title=" " alt="" coords="68,795,232,836"/>
+<area shape="rect" id="node13" title=" " alt="" coords="256,795,420,836"/>
+<area shape="rect" id="node17" href="$backtrace_8h.html" title=" " alt="" coords="1463,795,1623,836"/>
+<area shape="rect" id="node18" title=" " alt="" coords="1648,795,1812,836"/>
+<area shape="rect" id="node19" title=" " alt="" coords="1836,802,1925,829"/>
+<area shape="rect" id="node20" title=" " alt="" coords="1949,802,2055,829"/>
+<area shape="rect" id="node21" title=" " alt="" coords="2079,802,2194,829"/>
+<area shape="rect" id="node22" title=" " alt="" coords="2219,802,2305,829"/>
+<area shape="rect" id="node23" title=" " alt="" coords="2330,802,2410,829"/>
+<area shape="rect" id="node33" href="$utils_8h.html" title=" " alt="" coords="1100,199,1275,225"/>
+<area shape="rect" id="node36" title=" " alt="" coords="587,623,679,650"/>
+<area shape="rect" id="node34" title=" " alt="" coords="1116,273,1227,300"/>
+<area shape="rect" id="node35" title=" " alt="" coords="1251,273,1343,300"/>
+<area shape="rect" id="node38" href="$isometry3_8h.html" title=" " alt="" coords="626,199,797,225"/>
+<area shape="rect" id="node39" href="$group__accessors_8h.html" title=" " alt="" coords="854,348,1025,389"/>
+<area shape="rect" id="node41" href="$impl_2rotation3_8h.html" title=" " alt="" coords="445,355,641,382"/>
+<area shape="rect" id="node45" href="$translation__factor__group__product_8h.html" title=" " alt="" coords="230,437,425,479"/>
+<area shape="rect" id="node47" href="$lie_2lie__group_8h.html" title=" " alt="" coords="665,355,829,382"/>
+<area shape="rect" id="node49" href="$rotation3_8h.html" title=" " alt="" coords="581,273,743,300"/>
+<area shape="rect" id="node40" href="$concepts_2lie__group_8h.html" title=" " alt="" coords="696,527,847,568"/>
+<area shape="rect" id="node42" href="$quaternion_8h.html" title=" " alt="" coords="449,445,665,471"/>
+<area shape="rect" id="node44" href="$unit__vector_8h.html" title=" " alt="" coords="95,527,253,568"/>
+<area shape="rect" id="node43" href="$vector__space_8h.html" title=" " alt="" coords="519,527,672,568"/>
+<area shape="rect" id="node46" href="$homogeneous_8h.html" title=" " alt="" coords="278,534,494,561"/>
+<area shape="rect" id="node48" href="$sophus_2common_2enum_8h.html" title=" " alt="" coords="791,445,973,471"/>
+<area shape="rect" id="node50" href="$orthogonal_8h.html" title=" " alt="" coords="63,355,258,382"/>
 </map>

@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('macro__lib_8h_source.html',''); initRe
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &lt;farm_pp/preprocessor/seq/for_each_i.hpp&gt;</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &lt;farm_pp/preprocessor/tuple/to_seq.hpp&gt;</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">// Given an entity, which might be a tuple, return a sequence containing a</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">// Given an Entity, which might be a tuple, return a sequence containing a</span></div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">// single tuple.</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">// Examples:</span></div>
@@ -121,8 +121,8 @@ $(document).ready(function(){initNavTree('macro__lib_8h_source.html',''); initRe
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">// Input:  (A)</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">// Output: (((A))</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="macro__lib_8h.html#ad8c045f81208e21cb86c2308c1cfb777">   35</a></span>&#160;<span class="preprocessor">#define FARM_MACROLIB_DETAILS_MAKE_TUPLE(dummy1, dummy2, entity) \</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">  ((FARM_PP_REMOVE_PARENS(entity)))</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="macro__lib_8h.html#aa3b2bda8a441043a4264480aeff11042">   35</a></span>&#160;<span class="preprocessor">#define FARM_MACROLIB_DETAILS_MAKE_TUPLE(D1_, D2_, Entity_) \</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">  ((FARM_PP_REMOVE_PARENS(Entity_)))</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">// Given a tuple of entities, which might be tuples, return a sequence of</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">// tuples.</span></div>
@@ -131,11 +131,11 @@ $(document).ready(function(){initNavTree('macro__lib_8h_source.html',''); initRe
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">// Input:  (A, (B,2) , C)</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">// Output: ((A))((B,2))((C))</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="macro__lib_8h.html#a966cab727ef562ab80c760d28098b28b">   45</a></span>&#160;<span class="preprocessor">#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_entities) \</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">  FARM_PP_SEQ_FOR_EACH(                                           \</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">      FARM_MACROLIB_DETAILS_MAKE_TUPLE,                           \</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">      _,                                                          \</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">      FARM_PP_TUPLE_TO_SEQ(tuple_of_entities))</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="macro__lib_8h.html#af0043179047616a5a65fffcbd1bcf9a8">   45</a></span>&#160;<span class="preprocessor">#define FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Entities_) \</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">  FARM_PP_SEQ_FOR_EACH(                                            \</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">      FARM_MACROLIB_DETAILS_MAKE_TUPLE,                            \</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">      _,                                                           \</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">      FARM_PP_TUPLE_TO_SEQ(Tuple_Of_Entities_))</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

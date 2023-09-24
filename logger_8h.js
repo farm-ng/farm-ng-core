@@ -1,6 +1,7 @@
 var logger_8h =
 [
     [ "StreamLogger", "classfarm__ng_1_1_stream_logger.html", "classfarm__ng_1_1_stream_logger" ],
+    [ "DiskLogging", "structfarm__ng_1_1_stream_logger_1_1_disk_logging.html", "structfarm__ng_1_1_stream_logger_1_1_disk_logging" ],
     [ "LogClock", "structfarm__ng_1_1_stream_logger_1_1_log_clock.html", "structfarm__ng_1_1_stream_logger_1_1_log_clock" ],
     [ "CheckNear", "structfarm__ng_1_1details_1_1_check_near.html", null ],
     [ "CheckNear< TT, std::enable_if_t< std::is_arithmetic_v< TT >, void > >", "structfarm__ng_1_1details_1_1_check_near_3_01_t_t_00_01std_1_1enable__if__t_3_01std_1_1is__arith017fa716e541913aaa43294e80fbce56.html", null ],

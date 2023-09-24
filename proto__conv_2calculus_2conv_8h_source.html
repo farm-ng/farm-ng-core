@@ -107,15 +107,20 @@ $(document).ready(function(){initNavTree('proto__conv_2calculus_2conv_8h_source.
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="traits_8h.html">farm_ng/core/proto_conv/traits.h</a>&quot;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="region_8h.html">sophus/calculus/region.h</a>&quot;</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefarm__ng.html">farm_ng</a> {</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#include &lt;deque&gt;</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::RegionI</a>, core::proto::RegionI32);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::RegionF32</a>, <a class="code" href="namespacesophus.html#aeb352220cf951e391e06a5d27d2bbda7">core::proto::RegionF32</a>);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::RegionF64</a>, <a class="code" href="namespacesophus.html#a7e50b528367cd7b341d25ce225d736da">core::proto::RegionF64</a>);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::Region2F64</a>, <a class="code" href="namespacesophus.html#ad9a39a7b8b9322b73097a04f59eae2e8">core::proto::Region2F64</a>);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacefarm__ng.html">farm_ng</a> {</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::RegionI</a>, core::proto::RegionI32);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::RegionF32</a>, <a class="code" href="namespacesophus.html#aeb352220cf951e391e06a5d27d2bbda7">core::proto::RegionF32</a>);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::RegionF64</a>, <a class="code" href="namespacesophus.html#a7e50b528367cd7b341d25ce225d736da">core::proto::RegionF64</a>);</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}  <span class="comment">// namespace farm_ng</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(<a class="code" href="classsophus_1_1_region.html">sophus::Region2F64</a>, <a class="code" href="namespacesophus.html#ad9a39a7b8b9322b73097a04f59eae2e8">core::proto::Region2F64</a>);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<a class="code" href="namespacefarm__ng.html#af3190b010532986da337f6720009197c">FARM_PROTO_CONV_TRAIT</a>(</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    std::deque&lt;sophus::Region2F64&gt;, core::proto::RepeatedG0Region2F64);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;}  <span class="comment">// namespace farm_ng</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="anamespacefarm__ng_html"><div class="ttname"><a href="namespacefarm__ng.html">farm_ng</a></div><div class="ttdef"><b>Definition:</b> backtrace.cpp:102</div></div>

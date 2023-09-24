@@ -113,17 +113,17 @@ $(document).ready(function(){initNavTree('struct_8h_source.html',''); initResiza
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">// This intermediate macro exists since the conversion from a list to a sequence</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">// is likely somewhat expensive, so we want to do it once and reuse it.</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="struct_8h.html#a946271249cce20cd119151a1c70a396d">   27</a></span>&#160;<span class="preprocessor">#define FARM_STRUCT_DETAIL_FROM_SEQ(StructName, num_fields, field_seq) \</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">  struct StructName {                                                  \</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">    FARM_STRUCT_DETAILS_BASE(StructName, num_fields, field_seq)        \</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="struct_8h.html#a1e964e7c9ea79159f20e1ec38d451640">   27</a></span>&#160;<span class="preprocessor">#define FARM_STRUCT_DETAIL_FROM_SEQ(Struct_Name_, Num_Fields_, Field_Seq_) \</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">  struct Struct_Name_ {                                                    \</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">    FARM_STRUCT_DETAILS_BASE(Num_Fields_, Field_Seq_)                      \</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">  }</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">/// Takes in a struct name and a tuple of fields and generates a struct.</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="struct_8h.html#adaaff37f937931a973bb53d29bdac2ae">   33</a></span>&#160;<span class="comment"></span><span class="preprocessor">#define FARM_STRUCT(StructName, tuple_of_fields) \</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">  FARM_STRUCT_DETAIL_FROM_SEQ(                   \</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">      StructName,                                \</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">      FARM_PP_TUPLE_SIZE(tuple_of_fields),       \</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(tuple_of_fields))</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="struct_8h.html#aeb5da09284463c9a65291ba1769dee38">   33</a></span>&#160;<span class="comment"></span><span class="preprocessor">#define FARM_STRUCT(Struct_Name_, Tuple_Of_Fields_) \</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">  FARM_STRUCT_DETAIL_FROM_SEQ(                      \</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">      Struct_Name_,                                 \</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">      FARM_PP_TUPLE_SIZE(Tuple_Of_Fields_),         \</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">      FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Fields_))</span></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="abase_8h_html"><div class="ttname"><a href="base_8h.html">base.h</a></div></div>

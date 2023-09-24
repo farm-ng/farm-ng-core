@@ -1,0 +1,118 @@
+//    Copyright 2022, farm-ng inc.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+syntax = "proto3";
+
+import "farm_ng/core/color.proto";
+import "farm_ng/core/calculus.proto";
+import "farm_ng/core/std.proto";
+
+package farm_ng.core.plotting.proto;
+
+// WARNING: This proto API is experimental and subject to change.
+
+message CurveResetPredicate {
+  double clear_x_smaller_than = 1;
+  bool shall_clear = 2;
+}
+
+// Represents ((x, y), (x, y), ...)
+message XyPairsF64 {
+  bytes data = 1;
+  int64 num_pairs = 2;
+}
+
+// Represents ((x, v0, v1, v2), (x, v0, v1, v2), ...)
+message XVecTupleF64 {
+  bytes data = 1;
+  int64 num_tuples = 2;
+}
+
+// Represents ((x, v0, v1, v2, v0_conf, v1_conf, v2_conf), (x, v0, v1, v2,
+// v0_conf, v1_conf, v2_conf), ...)
+message XVecConvTupleF64 {
+  bytes data = 1;
+  int64 num_tuples = 2;
+}
+
+message LineType { string variant_name = 1; }
+
+message Curve {
+  core.proto.Color color = 1;
+  LineType line_type = 2;
+  core.proto.FileSystemPath path = 3;
+  CurveResetPredicate reset = 4;
+  XyPairsF64 x_y_pairs = 5;
+};
+
+message Vec3Curve {
+  repeated core.proto.Color color = 1;
+  LineType line_type = 2;
+  core.proto.FileSystemPath path = 3;
+  CurveResetPredicate reset = 4;
+  XVecTupleF64 x_vec_pairs = 5;
+};
+
+message Vec3CurveWithConfInterval {
+  repeated core.proto.Color color = 1;
+  repeated core.proto.Color conf_color = 2;
+  LineType line_type = 3;
+  core.proto.FileSystemPath path = 4;
+  CurveResetPredicate reset = 5;
+  XVecConvTupleF64 x_vec_conf_tuples = 6;
+};
+
+message ColoredRect {
+  core.proto.Color color = 1;
+  core.proto.Region2F64 region = 2;
+}
+
+message RepeatedG0ColoredRect { repeated ColoredRect value = 1; }
+
+message RectPlot {
+  core.proto.FileSystemPath path = 1;
+  RepeatedG0ColoredRect colored_rects = 2;
+  CurveResetPredicate reset = 3;
+}
+
+message XRange {
+  core.proto.FileSystemPath path = 1;
+  core.proto.RegionF64 range = 2;
+}
+
+message YRange {
+  core.proto.FileSystemPath path = 1;
+  core.proto.RegionF64 range = 2;
+}
+
+message Message {
+  oneof variant {
+    Curve curve = 1;
+    Vec3Curve vec3_curve = 2;
+    Vec3CurveWithConfInterval vec3_conf_curve = 3;
+    RectPlot rects = 4;
+    XRange x_range = 5;
+    YRange y_range = 6;
+  }
+}
+
+message Messages { repeated Message messages = 1; }
+
+message PlottingRequest {}
+
+message PlottingReply {}
+
+service PlottingWidget {
+  rpc send(Messages) returns (PlottingReply) {}
+}

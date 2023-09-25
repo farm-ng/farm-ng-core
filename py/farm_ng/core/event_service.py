@@ -37,12 +37,12 @@ from farm_ng.core.stamp import (
 )
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.empty_pb2 import Empty
-from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
 
 if TYPE_CHECKING:
     from farm_ng.core.timestamp_pb2 import Timestamp
     from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 from .event_service_metrics import EventServiceHealthMetrics
 
@@ -151,30 +151,16 @@ class EventServiceGrpc:
 
     def add_request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""
-        if not type(handler) == Callable:
-            msg = "handler must be a callable"
-            raise TypeError(msg)
 
         params = inspect.signature(handler).parameters
-        params_list = list(params.values())
 
         if len(params) not in (1, 2):
-            msg = "handler must have 1 or 2 parameters"
-            raise TypeError(msg)
-
-        if len(params) == 1:
-            if not params_list[0].annotation == RequestReplyRequest:
-                msg = "handler must have a RequestReplyRequest parameter"
-                raise TypeError(msg)
+            msg = "Request/reply handler must have one or two parameters"
+            raise ValueError(
+                msg,
+            )
 
         if len(params) == 2:  # noqa: PLR2004
-            if not params_list[0].annotation == Event:
-                msg = "handler must have an Event parameter"
-                raise TypeError(msg)
-            if not issubclass(params_list[1].annotation, Message):
-                msg = "handler must have a Message parameter"
-                raise TypeError(msg)
-
             self._decode_request_reply_handler_message = True
 
         # is safe to set the handler

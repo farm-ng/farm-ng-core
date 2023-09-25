@@ -1,8 +1,9 @@
 on:
   push:
     branches:
-      - farm-ng-core-docs
       - main
+      - farm-ng-core-docs
+      - api-reference
 
   workflow_dispatch:
 
@@ -30,6 +31,7 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          deploy_key: ${{ secrets.TO_PUSH_TO_API_CORE }}
+          external_repository: farm-ng/core-api
           publish_dir: docs/api_reference/html
-          publish_branch: api
+          force_orphan: true

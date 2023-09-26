@@ -4,6 +4,7 @@ import argparse
 import json
 import struct
 import sys
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Generator, cast
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
 # public symbols
 
 __all__ = [
+    "build_events_dict",
     "event_has_message",
     "EventsFileReader",
     "EventLogPosition",
@@ -84,6 +86,23 @@ def payload_to_protobuf(event: Event, payload: bytes) -> Message:
     message: Message = message_cls()
     message.ParseFromString(payload)
     return message
+
+
+def build_events_dict(
+    events_index: list[EventLogPosition],
+) -> dict[str, list[EventLogPosition]]:
+    """Build a dictionary of lists of events, where the key is the path of the event.
+
+    Args:
+        events_index (list[EventLogPosition]): List of events from a log file
+
+    Returns:
+        dict[str, list[EventLogPosition]]: Dictionary of lists of events
+    """
+    events_dict: dict[str, list[EventLogPosition]] = defaultdict(list)
+    for event_index in events_index:
+        events_dict[f"/{event_index.event.uri.path}"].append(event_index)
+    return events_dict
 
 
 @dataclass

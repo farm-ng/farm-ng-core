@@ -147,7 +147,7 @@ class EventServiceGrpc:
     @request_reply_handler.setter
     def request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""
-        self._request_reply_handler = handler
+        self.add_request_reply_handler(handler)
 
     def add_request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""

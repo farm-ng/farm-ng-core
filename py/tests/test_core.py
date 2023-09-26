@@ -7,6 +7,7 @@ from farm_ng.core import event_pb2, timestamp_pb2, uri_pb2
 from farm_ng.core.events_file_reader import (
     EventLogPosition,
     EventsFileReader,
+    build_events_dict,
     event_has_message,
     proto_from_json_file,
 )
@@ -266,6 +267,23 @@ class TestEventsReader:
                     assert _message.stamp == i
 
         assert reader.close()
+
+    def test_build_events_dict(self, log_base: Path, reader_log_file: Path) -> None:
+        num_events = 10
+        with EventsFileWriter(file_base=log_base) as writer:
+            for i in range(num_events):
+                time_stamp = timestamp_pb2.Timestamp(stamp=i)
+                writer.write(path="hello", message=time_stamp)
+                writer.write(path="world", message=time_stamp)
+                writer.write(path="hello/world", message=time_stamp)
+
+        with EventsFileReader(reader_log_file) as reader:
+            assert reader.is_open()
+            events_dict = build_events_dict(reader.get_index())
+            assert len(events_dict) == 3
+            assert len(events_dict["/hello"]) == num_events
+            assert len(events_dict["/world"]) == num_events
+            assert len(events_dict["/hello/world"]) == num_events
 
 
 class TestEventsJson:

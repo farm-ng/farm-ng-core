@@ -274,16 +274,19 @@ class EventClient:
         path: str,
         message: Message,
         timestamps: list[Timestamp] | None = None,
-    ) -> RequestReplyReply:
+        decode: bool = False,
+    ) -> RequestReplyReply | Message:
         """Sends a request and waits for a reply.
 
         Args:
             path (str): the path of the request.
             message (Message): the message to send.
             timestamps (list[Timestamp], optional): the timestamps to add to the event.
+                Defaults to None.
+            decode (bool, optional): if True, the payload will be decoded. Defaults to False.
 
         Returns:
-            ReqRepReply: the reply.
+            ReqRepReply: the request reply with the event and the payload or the decoded message.
         """
         # try to connect to the server, if it fails return an emmpty response
         if not await self._try_connect():
@@ -322,7 +325,13 @@ class EventClient:
         reply.event.timestamps.append(
             get_monotonic_now(semantics=StampSemantics.CLIENT_RECEIVE),
         )
-        return reply
+
+        # decode the payload if requested
+        reply_or_message: RequestReplyReply | Message = reply
+        if decode:
+            reply_or_message = payload_to_protobuf(reply.event, reply.payload)
+
+        return reply_or_message
 
 
 async def test_subscribe(client: EventClient, uri: Uri):

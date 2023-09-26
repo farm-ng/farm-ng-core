@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import inspect
 import logging
 import time
 from dataclasses import dataclass
@@ -112,6 +113,9 @@ class EventServiceGrpc:
         # the request/reply handler
         self._request_reply_handler: Callable | None = None
 
+        # NOTE: experimental
+        self._decode_request_reply_handler_message: bool = False
+
         # add the service to the asyncio server
         event_service_pb2_grpc.add_EventServiceServicer_to_server(self, server)
 
@@ -143,6 +147,23 @@ class EventServiceGrpc:
     @request_reply_handler.setter
     def request_reply_handler(self, handler: Callable) -> None:
         """Sets the request/reply handler."""
+        self._request_reply_handler = handler
+
+    def add_request_reply_handler(self, handler: Callable) -> None:
+        """Sets the request/reply handler."""
+
+        params = inspect.signature(handler).parameters
+
+        if len(params) not in (1, 2):
+            msg = "Request/reply handler must have one or two parameters"
+            raise ValueError(
+                msg,
+            )
+
+        if len(params) == 2:  # noqa: PLR2004
+            self._decode_request_reply_handler_message = True
+
+        # is safe to set the handler
         self._request_reply_handler = handler
 
     @property
@@ -283,13 +304,24 @@ class EventServiceGrpc:
         # adds the timestamps to the event as it passes through the service
         recv_stamp = get_monotonic_now(StampSemantics.SERVICE_RECEIVE)
         request.event.timestamps.append(recv_stamp)
+
+        # metadata to return with the reply
         event = Event()
         event.CopyFrom(request.event)
         event.uri.path = "/request" + event.uri.path
 
         reply_message: Message
         if self._request_reply_handler is not None:
-            reply_message = await self._request_reply_handler(request)
+            # decode the requested message to satisfy the handler signature
+            if self._decode_request_reply_handler_message:
+                message = payload_to_protobuf(request.event, request.payload)
+                reply_message = await self._request_reply_handler(
+                    request.event,
+                    message,
+                )
+            else:
+                reply_message = await self._request_reply_handler(request)
+
             if reply_message is None:
                 self.logger.error(
                     "Request invalid, please check your request channel and packet %s",

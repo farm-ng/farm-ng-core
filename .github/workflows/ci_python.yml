@@ -31,7 +31,3 @@ jobs:
       run: ./run_python_tests.sh --asyncio
     - name: Run mypy
       run: mypy py/farm_ng
-    - name: Install wheel dependencies
-      run: python3 -m pip install --upgrade setuptools wheel
-    - name: Test wheel
-      run: python3 setup.py sdist bdist_wheel

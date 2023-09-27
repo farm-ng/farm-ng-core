@@ -52,7 +52,7 @@ auto fromProt<core::plotting::proto::LineType>(
     core::plotting::proto::LineType const& proto)
     -> Expected<plotting::LineType> {
   plotting::LineType line_type;
-  SOPHUS_ASSERT_OR_ERROR(trySetFromString(line_type, proto.variant_name()));
+  FARM_TRY_ASSERT(trySetFromString(line_type, proto.variant_name()));
   return line_type;
 }
 
@@ -69,7 +69,7 @@ auto fromProt<core::plotting::proto::XyPairsF64>(
     core::plotting::proto::XyPairsF64 const& proto)
     -> Expected<std::deque<Eigen::Vector2d>> {
   size_t len = proto.num_pairs();
-  FARM_ASSERT_OR_ERROR(
+  FARM_TRY_ASSERT(
       2 * len * sizeof(double) == proto.data().size(),
       "{} != {}",
       2 * len * sizeof(double),
@@ -95,7 +95,7 @@ auto fromProt<core::plotting::proto::XVecTupleF64>(
     core::plotting::proto::XVecTupleF64 const& proto)
     -> Expected<std::deque<Eigen::Vector4d>> {
   size_t len = proto.num_tuples();
-  FARM_ASSERT_OR_ERROR(
+  FARM_TRY_ASSERT(
       4 * len * sizeof(double) == proto.data().size(),
       "{} != {}",
       4 * len * sizeof(double),
@@ -121,7 +121,7 @@ auto fromProt<core::plotting::proto::XVecConvTupleF64>(
     core::plotting::proto::XVecConvTupleF64 const& proto)
     -> Expected<std::deque<plotting::Vec7d>> {
   size_t len = proto.num_tuples();
-  FARM_ASSERT_OR_ERROR(
+  FARM_TRY_ASSERT(
       7 * len * sizeof(double) == proto.data().size(),
       "{} != {}",
       7 * len * sizeof(double),

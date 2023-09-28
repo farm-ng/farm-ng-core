@@ -62,7 +62,7 @@ ext_modules = [
         ],
         define_macros=[("VERSION_INFO", __version__)],
         extra_compile_args=[
-            # "-fconcepts",
+            "-fconcepts",
             "-Wall",
             "-Wextra",
             "-Werror",

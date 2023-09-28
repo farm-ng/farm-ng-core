@@ -6,16 +6,15 @@ set -e # exit on error
 brew install --verbose \
     assimp \
     boost \
-    ccache \
     catch2 \
+    ccache \
     ceres-solver \
     cli11 \
     eigen \
-    expected \
     ffmpeg \
     fmt \
-    glog \
     glew \
+    glog \
     grpc \
     libjpeg \
     libpng \
@@ -28,4 +27,5 @@ brew install --verbose \
     openssl \
     pre-commit \
     protobuf \
+    tl-expected \
     zstd

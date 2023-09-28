@@ -25,7 +25,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install GCC on macOS
       if: matrix.os == 'macos-latest'
-      run: brew install gcc
+      run: |
+        brew install gcc
+        echo "CC=$(brew --prefix gcc)/bin/gcc-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')" >> $GITHUB_ENV
+        echo "CXX=$(brew --prefix gcc)/bin/g++-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')" >> $GITHUB_ENV
     - name: Run install_deps_mac.sh for macOS
       if: matrix.os == 'macos-latest'
       run: |

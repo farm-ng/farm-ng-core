@@ -25,9 +25,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Clang for macOS
       if: matrix.os == 'macos-latest'
-      run: |
-        brew install llvm
-        brew install protobuf
+      run: brew install llvm
     - name: Run install_deps_mac.sh for macOS
       if: matrix.os == 'macos-latest'
       run: |

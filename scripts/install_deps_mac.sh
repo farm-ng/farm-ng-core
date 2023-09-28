@@ -10,6 +10,7 @@ brew install --verbose \
     ffmpeg \
     glew \
     glog \
+    grpc \
     libjpeg \
     libpng \
     libtiff \
@@ -19,4 +20,5 @@ brew install --verbose \
     openexr \
     openssl \
     pre-commit \
+    protobuf \
     zstd

@@ -27,7 +27,7 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         # Install GCC on macOS
-        brew install gcc
+        brew install gcc@11
         export "CC=$(brew --prefix gcc)/bin/gcc-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
         export "CXX=$(brew --prefix gcc)/bin/g++-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
         # Run install_deps_mac.sh for macOS

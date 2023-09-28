@@ -33,7 +33,10 @@ jobs:
         ./scripts/install_deps_mac.sh
     - name: Configure CMake with GCC for macOS
       if: matrix.os == 'macos-latest'
-      run: cmake -S . -B build -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_CXX_STANDARD=20
+      run: |
+        export CC=/usr/local/bin/gcc-11
+        export CXX=/usr/local/bin/g++-11
+        cmake -S . -B build -D CMAKE_C_COMPILER=$CC -D CMAKE_CXX_COMPILER=$CXX -D CMAKE_CXX_STANDARD=20
     - name: Install dependencies
       run: pip3 install -e .[dev]
     - name: Run sequential tests

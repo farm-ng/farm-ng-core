@@ -23,10 +23,17 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Clang
+    - name: Install Clang for macOS
       if: matrix.os == 'macos-latest'
-      run: brew install llvm
-    - name: Configure CMake with Clang (macOS only)
+      run: |
+        brew install llvm
+        brew install protobuf
+    - name: Run install_deps_mac.sh for macOS
+      if: matrix.os == 'macos-latest'
+      run: |
+        chmod +x scripts/install_deps_mac.sh
+        ./scripts/install_deps_mac.sh
+    - name: Configure CMake with Clang for macOS
       if: matrix.os == 'macos-latest'
       run: cmake -S . -B build -D CMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++
     - name: Install dependencies

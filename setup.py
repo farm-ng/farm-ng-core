@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from farm_ng.package.commands import (
@@ -13,6 +14,10 @@ __version__ = "0.1.0"
 
 PROTO_ROOT: str = "protos"
 PACKAGE_ROOT: str = "py"
+
+# Set environment variables to specify the GCC compiler
+os.environ["CC"] = "gcc"
+os.environ["CXX"] = "g++"
 
 BuildProtosDevelop.user_options.append(("proto-root=", None, PROTO_ROOT))
 BuildProtosDevelop.user_options.append(("package-root=", None, PACKAGE_ROOT))

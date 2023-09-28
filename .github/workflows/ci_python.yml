@@ -28,8 +28,10 @@ jobs:
       run: |
         # Install GCC on macOS
         brew install gcc@11
-        export "CC=$(brew --prefix gcc)/bin/gcc-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
-        export "CXX=$(brew --prefix gcc)/bin/g++-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
+        # export "CC=$(brew --prefix gcc)/bin/gcc-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
+        # export "CXX=$(brew --prefix gcc)/bin/g++-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
+        export CC=/usr/local/bin/gcc-11
+        export CXX=/usr/local/bin/g++-11
         # Run install_deps_mac.sh for macOS
         chmod +x scripts/install_deps_mac.sh
         ./scripts/install_deps_mac.sh

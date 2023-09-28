@@ -33,7 +33,7 @@ jobs:
         ./scripts/install_deps_mac.sh
     - name: Configure CMake with Clang for macOS
       if: matrix.os == 'macos-latest'
-      run: cmake -S . -B build -D CMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++ -DCMAKE_PREFIX_PATH=cpp/thirdparty/fmt
+      run: cmake -S . -B build -D CMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang -D CMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++
     - name: Install dependencies
       run: pip3 install -e .[dev]
     - name: Run sequential tests

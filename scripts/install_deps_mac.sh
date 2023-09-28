@@ -8,6 +8,7 @@ brew install --verbose \
     catch2 \
     ccache \
     ffmpeg \
+    fmt \
     glew \
     glog \
     grpc \

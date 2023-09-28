@@ -34,7 +34,7 @@ jobs:
     - name: Configure CMake with GCC for macOS
       if: matrix.os == 'macos-latest'
       run: |
-        cmake -S . -B build -D CMAKE_C_COMPILER=/usr/local/bin/gcc-11 -D CMAKE_CXX_COMPILER=/usr/local/bin/g++-11
+        cmake -S . -B build -D CMAKE_C_COMPILER=/usr/local/bin/gcc-11 -D CMAKE_CXX_COMPILER=/usr/local/bin/g++-11 -DCMAKE_CXX_FLAGS="-std=c++17"
     - name: Install dependencies
       run: pip3 install -e .[dev]
     - name: Run sequential tests

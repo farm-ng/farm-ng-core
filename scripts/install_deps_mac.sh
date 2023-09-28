@@ -5,18 +5,24 @@ set -e # exit on error
 
 brew install --verbose \
     assimp \
-    catch2 \
+    boost \
     ccache \
+    catch2 \
+    ceres-solver \
+    cli11 \
+    eigen \
+    expected \
     ffmpeg \
     fmt \
-    glew \
     glog \
+    glew \
     grpc \
     libjpeg \
     libpng \
     libtiff \
     lz4 \
     ninja \
+    nlohmann_json \
     opencv \
     openexr \
     openssl \

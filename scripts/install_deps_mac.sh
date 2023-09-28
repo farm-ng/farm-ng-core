@@ -21,7 +21,7 @@ brew install --verbose \
     libtiff \
     lz4 \
     ninja \
-    nlohmann_json \
+    nlohmann-json \
     opencv \
     openexr \
     openssl \

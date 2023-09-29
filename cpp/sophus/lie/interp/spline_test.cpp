@@ -132,6 +132,7 @@ struct SplinePropTestSuite {
   }
 };
 
+//! @cond Doxygen_Suppress
 template <concepts::LieGroup TGroup>
 decltype(TGroup::elementExamples())
     const SplinePropTestSuite<TGroup>::kElementExamples =
@@ -146,6 +147,7 @@ template <concepts::LieGroup TGroup>
 decltype(pointExamples<typename TGroup::Scalar, TGroup::kPointDim>())
     const SplinePropTestSuite<TGroup>::kPointExamples =
         pointExamples<Scalar, kPointDim>();
+//! @endcond
 
 TEST(lie_groups, linterpolate_prop_tests) {
   SplinePropTestSuite<Scaling2<double>>::runAllTests("Scaling2");

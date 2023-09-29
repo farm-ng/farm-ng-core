@@ -25,7 +25,9 @@
 
 namespace farm_ng {
 
+/// An error, meant to be used with `Expected`.
 struct Error {
+  /// A list (or stack) of error details.
   std::vector<ErrorDetail> details;
 };
 

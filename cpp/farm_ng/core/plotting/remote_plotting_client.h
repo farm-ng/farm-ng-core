@@ -23,8 +23,10 @@ namespace farm_ng {
 
 static uint64_t const kPlottingComponentDefaultPort = 1980;
 
+/// A plotting component that can be used to plot curves and images.
 class RemotePlottingClient {
  public:
+  /// Parameters for the plotting component.
   struct Params {
     std::string host = "localhost";
     uint32_t port = kPlottingComponentDefaultPort;

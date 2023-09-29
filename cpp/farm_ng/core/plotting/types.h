@@ -24,17 +24,17 @@ namespace farm_ng {
 
 namespace plotting {
 
-// Type of curves:
+/// Type of curves:
 //
-// points:     plot dots along the curve
-// line_strip: plot line segments along the curve
+/// points:     plot dots along the curve
+/// line_strip: plot line segments along the curve
 FARM_ENUM(LineType, (points, line_strip));
 
-// Predicate for resetting a curve. If `clear_x_smaller_than` is set, then
-// points with x coordinate smaller than that value will be cleared from the
-// curve.
-//
-// TODO: Redesign this to be more general and more usable.
+/// Predicate for resetting a curve. If `clear_x_smaller_than` is set, then
+/// points with x coordinate smaller than that value will be cleared from the
+/// curve.
+///
+/// TODO: Redesign this to be more general and more usable.
 struct CurveResetPredicate {
   static CurveResetPredicate replace() {
     return CurveResetPredicate{
@@ -91,6 +91,7 @@ FARM_STRUCT(
      (CurveResetPredicate, reset, {}),
      (std::deque<Vec7d>, x_vec_conf_tuples, {})));
 
+/// A colored rectangle.
 struct ColoredRect {
   // typedefs for FARM_PROTO_CONV_IMPL to work
   static int constexpr kNumFields = 2;

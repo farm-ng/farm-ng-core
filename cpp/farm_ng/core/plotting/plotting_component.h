@@ -24,6 +24,8 @@
 
 namespace farm_ng {
 
+/// A plotting component sink which publishes messages to a remote plotting
+/// service.
 class PlottingComponent {
  public:
   static Shared<PlottingComponent> create(

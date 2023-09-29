@@ -6,3 +6,6 @@ venv
 scripts/venv.tar.gz
 *.so
 Cargo.lock
+docs/api_reference/html/
+docs/api_reference/projects/
+target/

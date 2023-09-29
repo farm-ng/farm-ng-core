@@ -25,10 +25,13 @@
 #include <string>
 
 namespace farm_ng {
+/// Exception thrown when the event log file does not exist.
 class EventLogEof : public std::runtime_error {
  public:
   explicit EventLogEof(std::string const& what) : std::runtime_error(what) {}
 };
+
+/// Exception thrown when the event log file does not exist.
 class EventLogExist : public std::runtime_error {
  public:
   explicit EventLogExist(std::string const& what) : std::runtime_error(what) {}
@@ -36,6 +39,7 @@ class EventLogExist : public std::runtime_error {
 
 class EventLogPos;
 
+/// Position in the event log file (Base class)
 struct EventLogReaderBase {
   virtual ~EventLogReaderBase() {}
 
@@ -51,6 +55,7 @@ struct EventLogReaderBase {
   [[nodiscard]] virtual Expected<Success> reset() noexcept = 0;
 };
 
+/// Position in the event log file.
 class EventLogPos {
  public:
   EventLogPos(
@@ -110,6 +115,7 @@ class EventLogReader {
   std::shared_ptr<EventLogReaderBase> impl_;
 };
 
+/// Compare two EventLogPos by their timestamp.
 struct EventTimeCompareClockAndSemantics {
   std::string clock_name;
   std::string semantics;

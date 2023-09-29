@@ -215,6 +215,7 @@ struct InterpolatePropTestSuite {
   }
 };
 
+//! @cond Doxygen_Suppress
 template <
     template <class>
     class TGenericGroup,
@@ -241,6 +242,7 @@ template <
 decltype(pointExamples<typename TGroup::Scalar, TGroup::kPointDim>()) const
     InterpolatePropTestSuite<TGenericGroup, TScalar, TGroup>::kPointExamples =
         pointExamples<Scalar, kPointDim>();
+//! @endcond
 
 TEST(lie_groups, linterpolate_prop_tests) {
   InterpolatePropTestSuite<Translation2, double>::runAllTests("Translation2");

@@ -28,8 +28,10 @@ namespace farm_ng {
 /// The configuration of an ``Input`` class.
 class InputConfig {
  public:
+  /// Default constructor, takes its `max_queue_length`.
   explicit InputConfig(size_t max_queue_length = 0);
 
+  /// The maximum queue length of the input.
   size_t max_queue_length;
 };
 

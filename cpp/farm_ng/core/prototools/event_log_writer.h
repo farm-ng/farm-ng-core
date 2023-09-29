@@ -41,6 +41,8 @@ class EventLogWriter {
       google::protobuf::Message const& message,
       std::vector<core::proto::Timestamp> const& timestamps =
           std::vector<core::proto::Timestamp>()) noexcept;
+
+  /// Writes an incoming protobuf in the log file
   void write(
       std::string const& path,
       google::protobuf::Message const& message,

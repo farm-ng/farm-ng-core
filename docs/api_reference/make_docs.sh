@@ -13,6 +13,7 @@ cd ..
 
 # Fail if undocumented (cpp, farm-ng-core)
 doxygen doxyfile_cpp_farm_ng_warn_as_error
+rm -rf html
 
 # Generate doxygen docs
 doxygen doxyfile

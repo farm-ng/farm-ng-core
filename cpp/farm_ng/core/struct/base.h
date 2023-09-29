@@ -22,82 +22,83 @@
 #include <farm_pp/preprocessor/seq/pop_front.hpp>
 #include <farm_pp/preprocessor/tuple/elem.hpp>
 
-// Given a triplet such as (Type, name, init), return a field declaration.
-//
-// ${triplet}
-//
-// => ${triplet}[0] ${triplet}[1] ${triplet}[2]
-//
-// Example:
-//
-// Input:  (Type0, name0, {init0})
-// Output: Type name {init};
-//
+/// Given a triplet such as (Type, name, init), return a field declaration.
+///
+/// ${triplet}
+///
+/// => ${triplet}[0] ${triplet}[1] ${triplet}[2]
+///
+/// Example:
+///
+/// Input:  (Type0, name0, {init0})
+/// Output: Type name {init};
+///
 #define FARM_STRUCT_DETAILS_FIELD_DECLARATION( \
     Dummy1_, Dummy2_, Type_Name_Init_)         \
   FARM_PP_TUPLE_ELEM(0, Type_Name_Init_)       \
   FARM_PP_TUPLE_ELEM(1, Type_Name_Init_) FARM_PP_TUPLE_ELEM(2, Type_Name_Init_);
 
-// Given a sequence of triplets, create field declarations for
-// each triplet.
-//
-// Example:
-//
-// Input:  ((Type0, name0, init0)) ((Type1, name1, init1)) ...
-// Output: Type0 name0 {init0}; Type1 name1 {init1}; ...
+/// Given a sequence of triplets, create field declarations for
+/// each triplet.
+///
+/// Example:
+///
+/// Input:  ((Type0, name0, init0)) ((Type1, name1, init1)) ...
+/// Output: Type0 name0 {init0}; Type1 name1 {init1}; ...
 #define FARM_STRUCT_DETAILS_FIELD_DECLARATION_LOOP(Field_Seq_) \
   FARM_PP_SEQ_FOR_EACH(FARM_STRUCT_DETAILS_FIELD_DECLARATION, _, Field_Seq_)
 
-// Given a triplet such as (Type, name, init), return the name as a string
-// leading with a comma.
-//
-// ${triplet}
-//
-// => , "${triplet}[1]"
-//
-// Example:
-//
-// Input:  (Type0, name0, {init0})
-// Output: , "name0"
+/// Given a triplet such as (Type, name, init), return the name as a string
+/// leading with a comma.
+///
+/// ${triplet}
+///
+/// => , "${triplet}[1]"
+///
+/// Example:
+///
+/// Input:  (Type0, name0, {init0})
+/// Output: , "name0"
 #define FARM_STRUCT_DETAILS_FIELD_NAME(Dummy1_, Dummy2_, Type_Name_Init_) \
   , FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, Type_Name_Init_))
 
-// Given a sequence of triplets, create a comma separated list of field name
-// strings.
-//
-// Example:
-//
-// Input:  ((Type0, name0, init0)) ((Type1, name1, init1)) ... Output: ,
-// Output: name0, name1 ...
+/// Given a sequence of triplets, create a comma separated list of field name
+/// strings.
+///
+/// Example:
+///
+/// Input:  ((Type0, name0, init0)) ((Type1, name1, init1)) ... Output: ,
+/// Output: name0, name1 ...
 #define FARM_STRUCT_DETAILS_FIELD_NAME_LOOP(Field_Seq_)                     \
   FARM_PP_STRINGIZE(FARM_PP_TUPLE_ELEM(1, FARM_PP_SEQ_ELEM(0, Field_Seq_))) \
   FARM_PP_SEQ_FOR_EACH(                                                     \
       FARM_STRUCT_DETAILS_FIELD_NAME, _, FARM_PP_SEQ_POP_FRONT(Field_Seq_))
 
-// Given a triplet such as (Type, name, init), return the type.
-//
-// ${triplet}
-//
-// => ${triplet}[0]
-//
-// Example:
-//
-// Input:  (Type0, name0, {init0})
-// Output: , Type
+/// Given a triplet such as (Type, name, init), return the type.
+///
+/// ${triplet}
+///
+/// => ${triplet}[0]
+///
+/// Example:
+///
+/// Input:  (Type0, name0, {init0})
+/// Output: , Type
 #define FARM_STRUCT_DETAILS_FIELD_TYPE(Dummy1_, Dummy2_, Type_Name_Init_) \
   , FARM_PP_TUPLE_ELEM(0, Type_Name_Init_)
 
-// Given a sequence of triplets, create a comma separated list of field types.
-//
-// Example:
-//
-// Input: ((Type0, name0, init0)) ((Type1, name1, init1)) ...
-// Output: , Type0 , Type1 ...
+/// Given a sequence of triplets, create a comma separated list of field types.
+///
+/// Example:
+///
+/// Input: ((Type0, name0, init0)) ((Type1, name1, init1)) ...
+/// Output: , Type0 , Type1 ...
 #define FARM_STRUCT_DETAILS_FIELD_TYPE_LOOP(Field_Seq_)  \
   FARM_PP_TUPLE_ELEM(0, FARM_PP_SEQ_ELEM(0, Field_Seq_)) \
   FARM_PP_SEQ_FOR_EACH(                                  \
       FARM_STRUCT_DETAILS_FIELD_TYPE, _, FARM_PP_SEQ_POP_FRONT(Field_Seq_))
 
+/// Implementation details for FARM_STRUCT.
 #define FARM_STRUCT_DETAILS_BASE(Num_Fields_, Field_Seq_)                   \
   static int constexpr kNumFields = Num_Fields_;                            \
   static std::array<std::string_view, kNumFields> constexpr kFieldNames = { \

@@ -29,9 +29,10 @@ FARM_PROTO_CONV_TRAIT(sophus::AnyImage<>, core::proto::DynImage);
 Expected<sophus::IntensityImage<>> intensityImageFromProto(
     core::proto::DynImage const& proto);
 
-/// Converts a sophus::IntensityImage<> to a proto.
+/// Associates a proto type to a sophus::IntensityImage<>.
 template <>
 struct ToProtoTrait<sophus::IntensityImage<>> {
+  /// proto type
   using ProtoType = core::proto::DynImage;
 };
 

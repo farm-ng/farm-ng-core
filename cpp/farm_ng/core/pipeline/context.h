@@ -18,9 +18,6 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
-// #include <boost/asio/executor_work_guard.hpp>
-// #include <boost/asio/io_context.hpp>
-// #include <boost/asio/io_context_strand.hpp>
 
 #include <iostream>
 #include <set>
@@ -38,11 +35,12 @@ class Output;
 /// Contains the execution state context.
 class Context {
  public:
-  // using WorkGuard =
-  // boost::asio::executor_work_guard<boost::asio::io_context::executor_type>;
+  /// boost::asio::io_service::work
   using WorkGuard = boost::asio::io_service::work;
-  // boost::asio::io_contex
+  /// The IO context type.
   using IoContext = boost::asio::io_service;
+  /// See:
+  /// https://www.boost.org/doc/libs/1_60_0/doc/html/boost_asio/overview/core/strands.html
   using Strand = Context::IoContext::strand;
 
   /// Default constructor of a context.
@@ -57,8 +55,8 @@ class Context {
   /// Run the `io_context`.
   void run();
 
-  // Restart the context and run, to be used when context has stopped
-  // i.e. when all posted jobs are complete and no workguard.
+  /// Restart the context and run, to be used when context has stopped
+  /// i.e. when all posted jobs are complete and no workguard.
   void restartAndRun();
 
   /// clear the work for advanced use cases where you want to execute a finite

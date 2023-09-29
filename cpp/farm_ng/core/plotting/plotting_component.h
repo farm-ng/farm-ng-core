@@ -28,11 +28,15 @@ namespace farm_ng {
 /// service.
 class PlottingComponent {
  public:
+  /// Creates a plotting component.
   static Shared<PlottingComponent> create(
       Context const& ctx, RemotePlottingClient::Params const& params);
   virtual ~PlottingComponent() = default;
 
+  /// Connect must be called before the component is run.
   virtual void connect() = 0;
+
+  /// Returns the input channel for messages to be plotted.
   virtual Input<std::vector<plotting::Message>>& inMessages() = 0;
 };
 

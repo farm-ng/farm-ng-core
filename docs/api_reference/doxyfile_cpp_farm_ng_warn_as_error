@@ -1,8 +1,6 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "farm-ng-core"
-INPUT                  = ../../cpp/farm_ng/core/enum \
-                         ../../cpp/farm_ng/core/logging \
-                         ../../cpp/farm_ng/core/misc
+INPUT                  = ../../cpp/farm_ng/core
 FILE_PATTERNS          = *.h \
                          *.hpp \
                          *.ipp
@@ -11,9 +9,9 @@ RECURSIVE              = YES
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 WARN_AS_ERROR          = YES
-WARNINGS              = YES
-WARN_IF_UNDOCUMENTED  = YES
-WARN_IF_DOC_ERROR     = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
 EXPAND_ONLY_PREDEF     = NO
 SKIP_FUNCTION_MACROS   = NO
 AUTOLINK_SUPPORT       = YES

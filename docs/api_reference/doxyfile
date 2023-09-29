@@ -1,18 +1,21 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "farm-ng-core"
 INPUT                  = ../../cpp/farm_ng \
-                         ../../cpp/sophus \
-                         ../../py/farm_ng
+                         ../../cpp/sophus
+FILE_PATTERNS          = *.h \
+                         *.hpp \
+                         *.ipp \
+                         *.proto
 EXCLUDE_PATTERNS       = "*/sympy/*"
 RECURSIVE              = YES
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
-EXTRACT_ALL          = YES
+EXTRACT_ALL            = YES
 WARN_AS_ERROR          = YES
-WARNINGS              = YES
-WARN_IF_UNDOCUMENTED  = YES
-WARN_IF_DOC_ERROR     = YES
-WARN_NO_PARAMDOC      = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
 EXPAND_ONLY_PREDEF     = NO
 SKIP_FUNCTION_MACROS   = NO
 AUTOLINK_SUPPORT       = YES

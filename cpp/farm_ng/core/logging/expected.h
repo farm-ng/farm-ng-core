@@ -98,7 +98,7 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
   }                                                         \
   Type var = ::std::move(*maybe##var);
 
-#define FARM_ASSERT_OR_ERROR(condition, ...)                             \
+#define FARM_TRY_ASSERT(condition, ...)                                  \
   if (!(condition)) {                                                    \
     return FARM_UNEXPECTED(                                              \
         "bool({}) not true.\n{}", #condition, FARM_FORMAT(__VA_ARGS__)); \

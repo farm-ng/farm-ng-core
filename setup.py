@@ -18,7 +18,7 @@ platform_cxx_flags = []
 
 if sys.platform.startswith("darwin"):
     print("Running on macOS")
-    platform_cxx_flags = ["-mmacosx-version-min=10.15"]
+    platform_cxx_flags = ["-std=gnu++17", "-fconcepts", "-mmacosx-version-min=11"]
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
 
 elif sys.platform.startswith("linux"):

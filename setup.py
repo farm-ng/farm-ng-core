@@ -19,7 +19,7 @@ platform_cxx_flags = []
 if sys.platform.startswith("darwin"):
     print("Running on macOS")
     platform_cxx_flags = ["-std=c++20", "-stdlib=libc++", "-mmacosx-version-min=10.15"]
-    os.environ["MACOSX_DEPLOYMENT_TARGET"] = 10.15
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.15"
 
 elif sys.platform.startswith("linux"):
     print("Running on Linux")

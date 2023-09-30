@@ -17,9 +17,7 @@ platform_cxx_flags = []
 
 if sys.platform.startswith("darwin"):
     print("Running on macOS")
-    platform_cxx_flags = [
-        "-std=c++20",
-    ]
+    platform_cxx_flags = ["-std=c++20", "-stdlib=libc++"]
 elif sys.platform.startswith("linux"):
     print("Running on Linux")
     platform_cxx_flags = [

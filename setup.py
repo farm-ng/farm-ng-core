@@ -85,6 +85,7 @@ ext_modules = [
             "-Wall",
             "-Wextra",
             "-Werror",
+            "-Wno-unknown-warning-option",
             "-Wno-unused-parameter",
             "-Wno-missing-field-initializers",
             "-Wno-unused-but-set-variable",

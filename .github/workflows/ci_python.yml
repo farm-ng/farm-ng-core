@@ -23,20 +23,6 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Setup and Configure for macOS
-      if: matrix.os == 'macos-latest'
-      run: |
-        # Install GCC on macOS
-        brew install gcc@11
-        # export "CC=$(brew --prefix gcc)/bin/gcc-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
-        # export "CXX=$(brew --prefix gcc)/bin/g++-$(brew info --json=v1 gcc | jq -r '.[0].installed[0].version')"
-        export CC=/usr/local/bin/gcc-11
-        export CXX=/usr/local/bin/g++-11
-        # Run install_deps_mac.sh for macOS
-        chmod +x scripts/install_deps_mac.sh
-        ./scripts/install_deps_mac.sh
-        # Configure CMake with GCC for macOS
-        cmake -S . -B build -D CMAKE_C_COMPILER=$CC -D CMAKE_CXX_COMPILER=$CXX -DCMAKE_CXX_FLAGS="-std=c++17"
     - name: Install dependencies
       run: pip3 install -e .[dev]
     - name: Run sequential tests

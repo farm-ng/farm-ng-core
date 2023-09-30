@@ -1,4 +1,4 @@
-import os
+import sys
 from pathlib import Path
 
 from farm_ng.package.commands import (
@@ -12,12 +12,26 @@ from setuptools import setup
 
 __version__ = "0.1.0"
 
+
+platform_cxx_flags = []
+
+if sys.platform.startswith("darwin"):
+    print("Running on macOS")
+    platform_cxx_flags = [
+        "-std=c++20",
+    ]
+elif sys.platform.startswith("linux"):
+    print("Running on Linux")
+    platform_cxx_flags = [
+        "-std=gnu++17",
+        "-fconcepts",
+    ]
+else:
+    print("Running on another operating system")
+
 PROTO_ROOT: str = "protos"
 PACKAGE_ROOT: str = "py"
 
-# Set environment variables to specify the GCC compiler
-os.environ["CC"] = "gcc"
-os.environ["CXX"] = "g++"
 
 BuildProtosDevelop.user_options.append(("proto-root=", None, PROTO_ROOT))
 BuildProtosDevelop.user_options.append(("package-root=", None, PACKAGE_ROOT))
@@ -67,12 +81,11 @@ ext_modules = [
         ],
         define_macros=[("VERSION_INFO", __version__)],
         extra_compile_args=[
-            "-fconcepts",
+            *platform_cxx_flags,
             "-Wall",
             "-Wextra",
             "-Werror",
             "-Wno-unused-parameter",
-            "-std=gnu++17",
             "-Wno-missing-field-initializers",
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",

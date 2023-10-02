@@ -25,14 +25,18 @@ FARM_PROTO_CONV_TRAIT(sophus::ImageLayout, core::proto::ImageLayout);
 FARM_PROTO_CONV_TRAIT(sophus::PixelFormat, core::proto::PixelFormat);
 FARM_PROTO_CONV_TRAIT(sophus::AnyImage<>, core::proto::DynImage);
 
+/// Converts core::proto::DynImage to a sophus::IntensityImage.
 Expected<sophus::IntensityImage<>> intensityImageFromProto(
     core::proto::DynImage const& proto);
 
+/// Associates a proto type to a sophus::IntensityImage<>.
 template <>
 struct ToProtoTrait<sophus::IntensityImage<>> {
+  /// proto type
   using ProtoType = core::proto::DynImage;
 };
 
+/// Converts a sophus::IntensityImage<> to a proto.
 template <>
 auto toProt<sophus::IntensityImage<>>(sophus::IntensityImage<> const& cpp)
     -> core::proto::DynImage;

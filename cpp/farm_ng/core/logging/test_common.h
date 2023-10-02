@@ -20,6 +20,7 @@
 
 namespace farm_ng::testing {
 
+/// Captures stdout and stderr.
 class CaptureStdErr {
  public:
   CaptureStdErr() {
@@ -28,6 +29,7 @@ class CaptureStdErr {
   }
   ~CaptureStdErr() { std::cerr.rdbuf(orig_std_err_buffer_); }
 
+  /// Returns the captured output.
   std::string buffer() const { return buffer_.str(); }
 
  private:

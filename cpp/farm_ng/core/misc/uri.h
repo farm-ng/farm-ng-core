@@ -18,6 +18,8 @@
 
 namespace farm_ng {
 
+/// Uri is a Uniform Resource Identifier.
+///
 /// https://en.wikipedia.org/w/index.php?title=Uniform_Resource_Identifier&oldid=1072892451#Syntax
 struct Uri {
   Uri() {}
@@ -51,6 +53,7 @@ struct Uri {
   /// For instance: '?in=input_channel_name`.
   std::string query;
 
+  /// Lexicographical comparison of uri.
   friend inline bool operator<(Uri const& lhs, Uri const& rhs) {
     return lhs.string() < rhs.string();
   }

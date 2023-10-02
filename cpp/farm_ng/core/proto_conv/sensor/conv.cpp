@@ -30,7 +30,7 @@ auto fromProt<core::proto::CameraModel>(core::proto::CameraModel const& proto)
     return params;
   };
   sophus::CameraDistortionType model = sophus::CameraDistortionType::pinhole;
-  SOPHUS_ASSERT_OR_ERROR(
+  FARM_TRY_ASSERT(
       trySetFromString(model, proto.distortion_type()),
       "distortion type not supported: {}",
       proto.distortion_type());

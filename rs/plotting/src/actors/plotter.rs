@@ -77,7 +77,7 @@ pub struct PlotterActor {
 }
 
 impl
-    ActorFacade<
+FromNewWithState<
         PlotterProp,
         PlotterInbound,
         PlotterState,

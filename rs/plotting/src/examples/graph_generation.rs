@@ -3,7 +3,7 @@ pub use hollywood::compute::Context;
 pub use hollywood::core::*;
 
 // needed for actor macro
-pub use hollywood::core::{Actor, ActorFacade, DefaultRunner};
+pub use hollywood::core::{Actor, FromNewWithState, DefaultRunner};
 
 use crate::actors::plotter::PlottingPackets;
 use crate::graphs::scalar_curve::NamedScalarCurve;

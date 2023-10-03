@@ -32,8 +32,8 @@ pub struct GrpcSourceOutbound {
 }
 
 #[derive(Clone, Debug, Default)]
-struct GrpcSourceProp {
-    port: u32,
+pub struct GrpcSourceProp {
+    pub port: u32,
 }
 
 impl Value for GrpcSourceProp {}
@@ -44,7 +44,7 @@ pub struct GrpcSourceActor {
 }
 
 impl
-    ActorFacade<
+FromNewWithState<
         GrpcSourceProp,
         NullInbound,
         NullState,

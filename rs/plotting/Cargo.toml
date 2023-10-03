@@ -10,7 +10,9 @@ eframe = "0.22"
 prost = "0.12"
 tokio = { version = "1", features = ["full"] }
 tonic = "0.10"
-hollywood = "0.2.1"
+#hollywood = "0.2.1"
+hollywood = {path = "../../../hollywood"}
+
 async-trait = "0.1.51"
 
 [build-dependencies]

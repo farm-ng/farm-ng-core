@@ -25,6 +25,14 @@
 #include <random>
 #include <type_traits>
 
+#ifdef __GNUC__
+#define TION __PRETTY_FUNCTION__
+#elif (_MSC_VER >= 1310)
+#define TION __FUNCTION__
+#else
+#define TION "unknown"
+#endif
+
 // from <farm_ng/core/logging/format.h>cd
 #define SOPHUS_FORMAT(...) FARM_FORMAT(__VA_ARGS__)
 

@@ -23,25 +23,18 @@ namespace farm_ng {
 
 static uint64_t const kPlottingComponentDefaultPort = 1980;
 
-/// A plotting component that can be used to plot curves and images.
 class RemotePlottingClient {
  public:
-  /// Parameters for the plotting component.
   struct Params {
-    /// The host of the plotting service.
     std::string host = "localhost";
-    /// The port of the plotting service.
     uint32_t port = kPlottingComponentDefaultPort;
-    /// The rate limit in Hz.
     double rate_limit_hz = 2.0;
   };
 
   virtual ~RemotePlottingClient() = default;
 
-  /// Creates a plotting component.
   static Shared<RemotePlottingClient> createAndConnect(Params const& params);
 
-  /// Returns the input channel for messages to be plotted.
   virtual void onMessages(std::vector<plotting::Message> const& messages) = 0;
 };
 

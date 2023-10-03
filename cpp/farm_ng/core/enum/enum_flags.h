@@ -27,7 +27,6 @@
 
 #include <ostream>
 
-/// Adds ostream overloads for the enum flags.
 #define FARM_ENUMFLAGS_OSTREAM_OVERLOAD(NAME)                \
   namespace enum_wrapper_ {                                  \
   inline auto operator<<(std::ostream &os, NAME##Impl value) \
@@ -37,14 +36,13 @@
   }                                                          \
   }  // namespace enum_wrapper_
 
-/// Convenience marco which defines the enum flags plus alias and adds the
-/// ostream overload.
+// Convenience marco which defines the enum flags plus alias and adds the
+// ostream overload.
 #define FARM_ENUMFLAGS(EnumName, UINT_TYPE, ...)                    \
   FARM_ENUMFLAGS_WITHOUT_OSTREAM(EnumName, UINT_TYPE, __VA_ARGS__); \
   FARM_ENUMFLAGS_OSTREAM_OVERLOAD(EnumName)
 
-/// Convenience marco which defines the enum flags and adds the ostream
-/// overload.
+// Convenience marco which defines the enum flags and adds the ostream overload.
 #define FARM_ENUMFLAGS_DEF(EnumName, UINT_TYPE, ...)                    \
   FARM_ENUMFLAGS_WITHOUT_OSTREAM_DEF(EnumName, UINT_TYPE, __VA_ARGS__); \
   FARM_ENUMFLAGS_OSTREAM_OVERLOAD(EnumName)

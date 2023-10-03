@@ -153,12 +153,10 @@ struct DivisionRingTestSuite {
   }
 };
 
-//! @cond Doxygen_Suppress
 template <concepts::DivisionRingConcept TRing>
 decltype(TRing::Impl::paramsExamples())
     const DivisionRingTestSuite<TRing>::kParamsExamples =
         TRing::Impl::paramsExamples();
-//! @endcond
 
 }  // namespace test
 }  // namespace sophus

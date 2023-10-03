@@ -39,7 +39,6 @@ concept StampedValue = requires(TType m) {
   { getStamp<TType>(m) } -> sophus::concepts::ConvertibleTo<double>;
 };
 
-/// Interpolate between two values.
 template <class TType>
 auto interpolate(
     TType const& foo_from_bar, TType const& foo_from_daz, double p = 0.5)
@@ -52,22 +51,18 @@ concept InterpolativeValue = StampedValue<TType> &&
   { interpolate<TType>(m, m, p) } -> sophus::concepts::ConvertibleTo<TType>;
 };
 
-/// New type to specify maximal allowed time gap for interpolation.
+// New type to specify maximal allowed time gap for interpolation.
 struct MaxGap {
-  /// Construct from double.
   explicit MaxGap(double time_duration) : time_duration(time_duration) {}
 
-  /// Maximal allowed time gap for interpolation.
   double time_duration;
 };
 
-/// New type to specify nearness to consider two values near in timeseries (e.g.
-/// to skip interpolation calculation).
+// New type to specify nearness to consider two values near in timeseries (e.g.
+// to skip interpolation calculation).
 struct NearnessThreshold {
-  /// Construct from double.
   explicit NearnessThreshold(double time_thr) : time_thr(time_thr) {}
 
-  /// Nearness threshold.
   double time_thr;
 };
 
@@ -86,11 +81,8 @@ struct NearnessThreshold {
 template <time_series::StampedValue TValueWithStamp>
 class TimeSeries {
  public:
-  /// ValueWithStamp is a StampedValue.
   using ValueWithStamp = TValueWithStamp;
-  /// Container type.
   using Container = std::deque<ValueWithStamp>;
-  /// ConstIterator type.
   using ConstIterator = typename Container::const_iterator;
 
   /// Returns true if there are no Values in series.
@@ -153,15 +145,11 @@ class TimeSeries {
                                      : *it_greatest_lower_bound;
   }
 
-  /// Bounds used in findBounds.
   struct Bounds {
-    /// Largest lower bound.
     ValueWithStamp largest_lower_bound;
-    /// Smallest upper bound.
     ValueWithStamp smallest_upper_bound;
   };
 
-  /// Find bounds for query_stamp.
   Expected<Bounds> findBounds(double query_stamp) const {
     auto it_smallest_upper_bound = findSmallestUpperBound(query_stamp);
     if (it_smallest_upper_bound == cbegin() &&
@@ -254,39 +242,23 @@ class TimeSeries {
     return this->interpolatedValueImpl(
         query_stamp, maximal_time_gap.time_duration);
   }
-  /// Returns first value in series.
-  ///
-  /// Precondition: series is not empty.
+
   ValueWithStamp const& front() const { return time_ordered_series_.front(); }
 
-  /// Returns last value in series.
-  ///
-  /// Precondition: series is not empty.
   ValueWithStamp const& back() const { return time_ordered_series_.back(); }
 
-  /// Removes all values from series.
   void clear() { return time_ordered_series_.clear(); }
 
-  /// Removes first value from series.
-  ///
-  /// Precondition: series is not empty.
   void pop_front() { return time_ordered_series_.pop_front(); }
 
-  /// Removes last value from series.
-  ///
-  /// Precondition: series is not empty.
   void pop_back() { return time_ordered_series_.pop_back(); }
 
-  /// begin of series.
+  // begin of series.
   ConstIterator begin() const { return time_ordered_series_.begin(); }
-
-  /// begin of series.
   ConstIterator cbegin() const { return time_ordered_series_.cbegin(); }
 
-  /// end of series.
+  // end of series.
   ConstIterator end() const { return time_ordered_series_.end(); }
-
-  /// end of series.
   ConstIterator cend() const { return time_ordered_series_.cend(); }
 
  private:

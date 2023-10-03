@@ -472,7 +472,6 @@ struct LieGroupPropTestSuite {
   }
 };
 
-//! @cond Doxygen_Suppress
 template <concepts::LieGroup TGroup>
 decltype(TGroup::elementExamples())
     const LieGroupPropTestSuite<TGroup>::kElementExamples =
@@ -487,7 +486,6 @@ template <concepts::LieGroup TGroup>
 decltype(pointExamples<typename TGroup::Scalar, TGroup::kPointDim>())
     const LieGroupPropTestSuite<TGroup>::kPointExamples =
         pointExamples<Scalar, kPointDim>();
-//! @endcond
 
 // using namespace sophus;
 

@@ -67,13 +67,9 @@ class StopwatchSingleton {
 
   /// Container for statistics on stopwatch timers.
   struct StopwatchStats {
-    /// Mean time of timer.
     double mean;
-    /// Minimum time of timer.
     double min;
-    /// Maximum time of timer.
     double max;
-    /// Number of times timer was called.
     int num;
   };
 

@@ -24,25 +24,22 @@ namespace farm_ng {
 
 namespace plotting {
 
-/// Type of curves:
+// Type of curves:
 //
-/// points:     plot dots along the curve
-/// line_strip: plot line segments along the curve
+// points:     plot dots along the curve
+// line_strip: plot line segments along the curve
 FARM_ENUM(LineType, (points, line_strip));
 
-/// Predicate for resetting a curve. If `clear_x_smaller_than` is set, then
-/// points with x coordinate smaller than that value will be cleared from the
-/// curve.
-///
-/// TODO: Redesign this to be more general and more usable.
+// Predicate for resetting a curve. If `clear_x_smaller_than` is set, then
+// points with x coordinate smaller than that value will be cleared from the
+// curve.
+//
+// TODO: Redesign this to be more general and more usable.
 struct CurveResetPredicate {
-  /// Returns a predicate that does reset the curve.
   static CurveResetPredicate replace() {
     return CurveResetPredicate{
         .clear_x_smaller_than = std::numeric_limits<double>::max()};
   }
-
-  /// Condition for clearing part of the curve.
   std::optional<double> clear_x_smaller_than = std::nullopt;
 };
 
@@ -94,40 +91,30 @@ FARM_STRUCT(
      (CurveResetPredicate, reset, {}),
      (std::deque<Vec7d>, x_vec_conf_tuples, {})));
 
-/// A colored rectangle.
 struct ColoredRect {
-  /// Number of fields (for FARM_PROTO_CONV_IMPL to work)
+  // typedefs for FARM_PROTO_CONV_IMPL to work
   static int constexpr kNumFields = 2;
-
-  /// Tuple of field names (for FARM_PROTO_CONV_IMPL to work)
   static std::array<std::string_view, kNumFields> constexpr kFieldNames = {
       "color", "region"};
-
-  /// Tuple of field types (for FARM_PROTO_CONV_IMPL to work)
   using FieldTypes = std::tuple<sophus::Region2F64, sophus::Color>;
   static_assert(
       std::tuple_size_v<FieldTypes> == kNumFields,
       "Tuple size mismatch. Make sure to update kNumFields and kFieldNames when"
       " adding/modifying fields.");
 
-  /// Vertical Line
   static ColoredRect xLine(
       sophus::Color const& color,
       double x,
       sophus::RegionF64 const& y_range,
       double thickness = 0.01);
 
-  /// Horizontal line
   static ColoredRect yLine(
       sophus::Color const& color,
       double y,
       sophus::RegionF64 const& x_range,
       double thickness = 0.01);
 
-  /// Color of the rectangle.
   sophus::Color color{};
-
-  /// Region the rectangle describes.
   sophus::Region2F64 region = sophus::Region2F64::empty();
 };
 

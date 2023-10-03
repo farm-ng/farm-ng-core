@@ -25,43 +25,34 @@
 #include <string>
 
 namespace farm_ng {
-
-/// Exception thrown when the event log file does not exist.
+class EventLogEof : public std::runtime_error {
+ public:
+  explicit EventLogEof(std::string const& what) : std::runtime_error(what) {}
+};
 class EventLogExist : public std::runtime_error {
  public:
-  /// From error message string.
   explicit EventLogExist(std::string const& what) : std::runtime_error(what) {}
 };
 
 class EventLogPos;
 
-/// Position in the event log file (Base class)
 struct EventLogReaderBase {
   virtual ~EventLogReaderBase() {}
 
   virtual Expected<std::pair<core::proto::Event, std::streampos>>
-
-  /// Implementation detail of readNextEvent.
   readNextEventImpl(std::string* payload) noexcept = 0;
 
-  /// Returns an index of all the events contained in the file.
   virtual std::vector<EventLogPos>& index() = 0;
 
-  /// reads payload for event at pos
-  [[nodiscard]] virtual auto readPayload(
+  virtual auto readPayload(
       core::proto::Event const& event, std::streampos pos) noexcept
       -> Expected<std::string> = 0;
 
-  /// Resets the reader to the beginning of the file.
   [[nodiscard]] virtual Expected<Success> reset() noexcept = 0;
 };
 
-/// Position in the event log file.
 class EventLogPos {
  public:
-  /// Create a new EventLogPos.
-  ///
-  /// A reference to the EventLogReader is stored in a weak_ptr.
   EventLogPos(
       core::proto::Event event,
       std::streampos pos,
@@ -70,10 +61,7 @@ class EventLogPos {
         pos_(pos),
         reader_weak_ptr_(reader_impl.sharedPtr()) {}
 
-  /// Returns the event.
   core::proto::Event const& event() const;
-
-  /// Returns the payload.
   Expected<std::string> readPayload() const;
 
  private:
@@ -98,20 +86,20 @@ class EventLogReader {
   static Expected<EventLogReader> fromPath(
       std::filesystem::path const& log_path) noexcept;
 
-  /// This function returns error if the end of file is reached or a message
-  /// can not be decoded (typically due to an interrupted process).
+  // This function throws EventLogEof if the end of file is reached or a message
+  // can not be decoded (typically due to an interrupted process).
   Expected<EventLogPos> readNextEvent(std::string* payload = nullptr) noexcept;
 
-  /// Returns an index of all the events contained in the file.  This function
-  /// caches the index, so its only computed once; the index requires seeking
-  /// through the entire file and decoding the events.  It should be fast as
-  /// payloads are skipped with seekg and not decoded.
+  // Returns an index of all the events contained in the file.  This function
+  // caches the index, so its only computed once; the index requires seeking
+  // through the entire file and decoding the events.  It should be fast as
+  // payloads are skipped with seekg and not decoded.
   std::vector<EventLogPos> const& getIndex() noexcept;
 
   /// Returns the path including the fileaname
   [[nodiscard]] std::filesystem::path getPath() const noexcept;
 
-  /// Reset the reader to the beginning of the file
+  /// Reset the writer to the beginning of the file
   [[nodiscard]] Expected<Success> reset() noexcept;
 
  private:
@@ -122,17 +110,12 @@ class EventLogReader {
   std::shared_ptr<EventLogReaderBase> impl_;
 };
 
-/// Compare two EventLogPos by their timestamp.
 struct EventTimeCompareClockAndSemantics {
-  /// The clock_name and semantics to use for comparison.
   std::string clock_name;
-
-  /// meaning of that clock / type of timestamp
   std::string semantics;
-
-  /// precondition:
-  ///    lhs and rhs both contain a stamp from the target clock_name and
-  ///    semantics.
+  // precondition:
+  //    lhs and rhs both contain a stamp from the target clock_name and
+  //    semantics.
   bool operator()(EventLogPos const& lhs, EventLogPos const& rhs) const;
 };
 

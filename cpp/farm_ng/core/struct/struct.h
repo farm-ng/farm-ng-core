@@ -17,14 +17,13 @@
 #include "farm_ng/core/struct/base.h"
 #include "farm_ng/core/struct/macro_lib.h"
 
-/// Takes in a struct name and a sequence of fields and generates a struct.
-///
-/// This is an implementation details. User shall call FARM_STRUCT(StructName,
-/// ((Type0, name0, init0), ...))); instead;
-///
-/// This intermediate macro exists since the conversion from a list to a
-/// sequence is likely somewhat expensive, so we want to do it once and reuse
-/// it.
+// Takes in a struct name and a sequence of fields and generates a struct.
+//
+// This is an implementation details. User shall call FARM_STRUCT(StructName,
+// ((Type0, name0, init0), ...))); instead;
+//
+// This intermediate macro exists since the conversion from a list to a sequence
+// is likely somewhat expensive, so we want to do it once and reuse it.
 #define FARM_STRUCT_DETAIL_FROM_SEQ(Struct_Name_, Num_Fields_, Field_Seq_) \
   struct Struct_Name_ {                                                    \
     FARM_STRUCT_DETAILS_BASE(Num_Fields_, Field_Seq_)                      \

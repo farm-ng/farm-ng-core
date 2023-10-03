@@ -40,53 +40,44 @@ FARM_ENUM(
 
 std::string stringFromLogLevel(LogLevel level);
 
-/// A logger that writes to std::cerr (and optionally to a file).
+// A logger that writes to std::cerr (and optionally to a file).
 class StreamLogger {
  public:
-  /// Details of the disk logging implementation.
   struct DiskLogging {
-    /// if log_dir_!=nullopt, then logging to a file is enabled.
+    // if log_dir_!=nullopt, then logging to a file is enabled.
     std::optional<std::filesystem::path> log_dir;
-    /// The file stream to write to.
     std::ofstream log_file_stream;
-    /// Mutex guarding the file stream.
     std::mutex log_file_mutex;
   };
 
-  /// The header format is a {fmt}-style format string that may include the
-  ///  named arguments {level}, {text}, {file}, {line}, {function}, {time}.
+  // The header format is a {fmt}-style format string that may include the
+  //  named arguments {level}, {text}, {file}, {line}, {function}, {time}.
   void setHeaderFormat(std::string const& str);
-
-  /// Get the current header format.
   std::string getHeaderFormat() const;
 
-  /// Set the runtime log level
+  // Set the runtime log level
   void setLogLevel(LogLevel level);
-
-  /// Get the current runtime log level
   LogLevel getLogLevel();
 
-  /// Set the directory where log files are written to. A file named
-  /// "text.log" will be created in this directory.
-  ///
-  /// If the directory does not exist, or is not writable, false is returned.
+  // Set the directory where log files are written to. A file named
+  // "text.log" will be created in this directory.
+  //
+  // If the directory does not exist, or is not writable, false is returned.
   bool trySetLogDir(std::filesystem::path const& path) noexcept;
 
-  /// Get the directory where log files are written to. Returns nullopt if no
-  /// directory has been set.
+  // Get the directory where log files are written to. Returns nullopt if no
+  // directory has been set.
   std::optional<std::filesystem::path> getLogDir() const noexcept;
 
-  /// A type-erased generator of timestamp strings
+  // A type-erased generator of timestamp strings
   struct LogClock {
-    /// Generate a timestamp string
     std::function<std::string()> now;
   };
 
-  /// Set the clock used to produce timestamps
+  // Set the clock used to produce timestamps
   void setLogClock(LogClock log_clock);
 
-  /// Generic logging function. Use the FARM_* macros instead.
-  template <class... TT>
+  template <typename... TT>
   inline void log(
       LogLevel log_level,
       std::string const& header_text,
@@ -125,7 +116,6 @@ class StreamLogger {
     }
   }
 
-  /// Log function. Use the FARM_* macros instead.
   void log(
       LogLevel log_level,
       std::string const& header_text,
@@ -434,14 +424,9 @@ struct CheckNear<TT, std::enable_if_t<std::is_arithmetic_v<TT>, void>> {
       FARM_FORMAT(__VA_ARGS__))
 
 namespace farm_ng {
-
-/// Expected error stack trace line
 struct ErrorDetail {
-  /// File where the error occurred
   std::string file;
-  /// Line where the error occurred
   int line;
-  /// Error message
   std::string msg;
 };
 

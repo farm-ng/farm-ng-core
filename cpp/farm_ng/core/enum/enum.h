@@ -28,7 +28,6 @@
 #include <istream>
 #include <ostream>
 
-/// Adds ostream overloads for the enum.
 #define FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)                     \
   namespace enum_wrapper_ {                                       \
   inline auto operator<<(std::ostream &os, EnumName##Impl value)  \
@@ -47,13 +46,13 @@
   }                                                               \
   }  // namespace enum_wrapper_
 
-/// Convenience marco which defines the enum plus alias and adds the ostream
-/// overload.
+// Convenience marco which defines the enum plus alias and adds the ostream
+// overload.
 #define FARM_ENUM(EnumName, ...)                     \
   FARM_ENUM_WITHOUT_IOSTREAM(EnumName, __VA_ARGS__); \
   FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)
 
-/// Convenience marco which defines the enum and adds the ostream overload.
+// Convenience marco which defines the enum and adds the ostream overload.
 #define FARM_ENUM_DEF(EnumName, ...)                     \
   FARM_ENUM_WITHOUT_IOSTREAM_DEF(EnumName, __VA_ARGS__); \
   FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)

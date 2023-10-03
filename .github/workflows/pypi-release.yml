@@ -3,34 +3,23 @@ name: PyPI Release
 on:
   release:
     types: [published]
-  pull_request:
-    branches:
-      - main
 
 jobs:
   pypi:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: ['3.8']
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: "recursive"
     - uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: python3 -m pip install --upgrade pybind11 setuptools wheel
+      run: python3 -m pip install --upgrade setuptools wheel
     - name: Compile project
       run: python3 -m pip install -e .
     - name: Build distribution package
       run: python3 setup.py sdist bdist_wheel
-    - name: Publish distribution 📦 to PyPI, if release
+    - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
         password: ${{ secrets.pypi_password_farm_ng_core }}
-      if: github.event_name == 'release' && github.event.action == 'published'

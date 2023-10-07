@@ -1,5 +1,5 @@
 [package]
-name = "remote_plot"
+name = "plotting"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,7 +9,17 @@ clap = { version = "4", features = ["derive"] }
 eframe = "0.22"
 prost = "0.12"
 tokio = { version = "1", features = ["full"] }
-tonic = "0.10"
+tonic = "0.10.2"
+hollywood = "0.2.2"
+
+async-trait = "0.1.51"
 
 [build-dependencies]
 tonic-build = "0.10"
+
+
+[[bin]]
+name = "plotting_service"
+
+[[bin]]
+name = "plotter_example"

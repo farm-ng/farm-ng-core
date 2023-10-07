@@ -28,13 +28,12 @@ int main(int argc, char* argv[]) {
 
   pool->start(8);
 
-  plotting::Curve sin_graph;
-  sin_graph.path = "trig0/sin";
-  sin_graph.color = sophus::Color::neonRed();
-
-  plotting::Curve cos_graph;
-  cos_graph.path = "trig0/cos";
-  cos_graph.color = sophus::Color::neonGreen();
+  plotting::Vec3Curve trig_graph;
+  trig_graph.path = "trig/ {sin,cos,tan}";
+  trig_graph.color = {
+      sophus::Color::neonRed(),
+      sophus::Color::neonGreen(),
+      sophus::Color::neonBlue()};
 
   plotting::Curve sawtooth;
   sawtooth.path = "trig1/sawtooth";
@@ -58,21 +57,21 @@ int main(int argc, char* argv[]) {
   while (true) {
     double sin_x = std::sin(x);
     double cos_x = std::cos(x);
+    double tan_x = std::clamp(std::tan(x), -1.0, 1.0);
+
     double sawtooth_x = x - std::floor(x / (2.0 * M_PI)) * (2.0 * M_PI);
 
-    sin_graph.x_y_pairs.clear();
-    cos_graph.x_y_pairs.clear();
+    trig_graph.x_vec_pairs.clear();
     sawtooth.x_y_pairs.clear();
     timestamps.colored_rects.clear();
 
-    sin_graph.x_y_pairs.push_back({x, sin_x});
-    cos_graph.x_y_pairs.push_back({x, cos_x});
+    trig_graph.x_vec_pairs.push_back(Eigen::Vector4d(x, sin_x, cos_x, tan_x));
+
     sawtooth.x_y_pairs.push_back({x, sawtooth_x});
 
     messages.clear();
 
-    messages.push_back(sin_graph);
-    messages.push_back(cos_graph);
+    messages.push_back(trig_graph);
     messages.push_back(sawtooth);
 
     x_range0.range = {x - 2.0 * M_PI, x};
@@ -94,8 +93,7 @@ int main(int argc, char* argv[]) {
     plotting->inMessages().send(messages);
 
     x += 0.01;
-    sin_graph.reset.clear_x_smaller_than = x - 2.0 * M_PI;
-    cos_graph.reset.clear_x_smaller_than = x - 2.0 * M_PI;
+    trig_graph.reset.clear_x_smaller_than = x - 2.0 * M_PI;
     sawtooth.reset.clear_x_smaller_than = x - 2.0 * M_PI;
     timestamps.reset.clear_x_smaller_than = x - 2.0 * M_PI;
     std::this_thread::sleep_for(std::chrono::milliseconds(5));

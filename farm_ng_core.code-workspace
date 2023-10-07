@@ -87,6 +87,14 @@
 			"variant": "cpp",
 			"__nullptr": "cpp"
 		},
-		"workbench.colorTheme": "GitHub Dark High Contrast"
+		"workbench.colorTheme": "GitHub Dark High Contrast",
+		"cSpell.words": [
+			"linalg",
+			"proto",
+			"protos"
+		],
+		"rust-analyzer.linkedProjects": [
+			"./rs/plotting/Cargo.toml"
+		]
 	}
 }

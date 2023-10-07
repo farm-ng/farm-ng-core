@@ -1,5 +1,5 @@
 [workspace]
-
+resolver = "2"
 members = [
-    "rs/remote_plot",
+    "rs/plotting",
 ]

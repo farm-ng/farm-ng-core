@@ -14,3 +14,5 @@ pub mod farm_ng {
         }
     }
 }
+
+pub mod proto;

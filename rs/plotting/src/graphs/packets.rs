@@ -1,7 +1,5 @@
-
-
 use super::{
-    common::{Color, LineType, ResetPredicate},
+    common::{Bounds, Color, LineType, ResetPredicate},
     scalar_curve::{NamedScalarCurve, ScalarCurve},
     vec3_curve::{NamedVec3Curve, Vec3Curve},
 };
@@ -20,6 +18,7 @@ impl PlottingPacket {
         color: Color,
         (x, y): (f64, f64),
         history_length: f64,
+        bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedScalarCurve {
             plot_name: plot.into(),
@@ -31,6 +30,7 @@ impl PlottingPacket {
                 clear_x_smaller_than: ResetPredicate {
                     clear_x_smaller_than: Some(x - history_length),
                 },
+                bounds,
             },
         };
 
@@ -41,6 +41,7 @@ impl PlottingPacket {
         (plot, graph): (S, S),
         (x, y): (f64, (f64, f64, f64)),
         history_length: f64,
+        bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedVec3Curve {
             plot_name: plot.into(),
@@ -52,6 +53,7 @@ impl PlottingPacket {
                 clear_x_smaller_than: ResetPredicate {
                     clear_x_smaller_than: Some(x - history_length),
                 },
+                bounds,
             },
         };
 

@@ -1,11 +1,14 @@
 use crate::graphs::common::{Color, LineType, ResetPredicate};
 
-#[derive(Clone, Debug, Default)]
+use super::common::Bounds;
+
+#[derive(Clone, Debug)]
 pub struct ScalarCurve {
     pub data: Vec<(f64, f64)>,
     pub color: Color,
     pub curve_type: LineType,
     pub clear_x_smaller_than: ResetPredicate,
+    pub bounds: Bounds,
 }
 
 impl ScalarCurve {
@@ -14,12 +17,14 @@ impl ScalarCurve {
         color: Color,
         curve_type: LineType,
         f: ResetPredicate,
+        bounds: Bounds,
     ) -> Self {
         ScalarCurve {
             data,
             color,
             curve_type,
             clear_x_smaller_than: f,
+            bounds,
         }
     }
 
@@ -52,7 +57,7 @@ impl ScalarCurve {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct NamedScalarCurve {
     pub plot_name: String,
     pub graph_name: String,

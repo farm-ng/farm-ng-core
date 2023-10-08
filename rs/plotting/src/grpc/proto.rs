@@ -1,6 +1,6 @@
 use std::mem::size_of;
 
-use crate::graphs::common::{LineType, ResetPredicate};
+use crate::graphs::common::{Bounds, LineType, OrdinateBounds, ResetPredicate};
 use crate::graphs::packets::{PlottingPacket, PlottingPackets};
 use crate::graphs::scalar_curve::{NamedScalarCurve, ScalarCurve};
 use crate::graphs::vec3_curve::{NamedVec3Curve, Vec3Curve};
@@ -89,6 +89,18 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                             clear_x_smaller_than: reset_predicate_from_proto(
                                 proto_curve.reset.unwrap(),
                             ),
+                            bounds: Bounds {
+                                x_bounds: OrdinateBounds {
+                                    largest: 0.0,
+                                    len: 100.0,
+                                    data_driven: true,
+                                },
+                                y_bounds: OrdinateBounds {
+                                    largest: 0.0,
+                                    len: 100.0,
+                                    data_driven: true,
+                                },
+                            },
                         },
                     }));
                 }
@@ -143,6 +155,18 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                             clear_x_smaller_than: reset_predicate_from_proto(
                                 proto_curve3.reset.unwrap(),
                             ),
+                            bounds: Bounds {
+                                x_bounds: OrdinateBounds {
+                                    largest: 0.0,
+                                    len: 100.0,
+                                    data_driven: true,
+                                },
+                                y_bounds: OrdinateBounds {
+                                    largest: 0.0,
+                                    len: 100.0,
+                                    data_driven: true,
+                                },
+                            },
                         },
                     }));
                 }

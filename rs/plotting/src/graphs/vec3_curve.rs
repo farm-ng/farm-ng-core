@@ -1,11 +1,14 @@
 use crate::graphs::common::{Color, LineType, ResetPredicate};
 
-#[derive(Clone, Debug, Default)]
+use super::common::Bounds;
+
+#[derive(Clone, Debug)]
 pub struct Vec3Curve {
     pub data: Vec<(f64, (f64, f64, f64))>,
     pub color: [Color; 3],
     pub curve_type: LineType,
     pub clear_x_smaller_than: ResetPredicate,
+    pub bounds: Bounds,
 }
 
 impl Vec3Curve {
@@ -14,12 +17,14 @@ impl Vec3Curve {
         color: [Color; 3],
         curve_type: LineType,
         f: ResetPredicate,
+        bounds: Bounds,
     ) -> Self {
         Vec3Curve {
             data,
             color,
             curve_type,
             clear_x_smaller_than: f,
+            bounds,
         }
     }
 
@@ -52,7 +57,7 @@ impl Vec3Curve {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct NamedVec3Curve {
     pub plot_name: String,
     pub graph_name: String,

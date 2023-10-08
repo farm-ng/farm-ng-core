@@ -44,6 +44,34 @@ impl Color {
     }
 }
 
+#[derive(Clone, Debug, Copy)]
+pub struct RegionF64 {
+    pub min: f64,
+    pub max: f64,
+}
+#[derive(Clone, Debug, Copy)]
+pub struct OrdinateBounds {
+    pub largest: f64,
+    pub len: f64,
+    pub data_driven: bool,
+}
+
+impl OrdinateBounds {
+    pub fn from_len_and_max(len: f64, max: Option<f64>) -> Self {
+        OrdinateBounds {
+            largest: max.unwrap_or_default(),
+            len,
+            data_driven: max.is_none(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Copy)]
+pub struct Bounds {
+    pub x_bounds: OrdinateBounds,
+    pub y_bounds: OrdinateBounds,
+}
+
 #[derive(Clone, Debug, Default)]
 pub enum LineType {
     #[default]

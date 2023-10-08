@@ -1,10 +1,14 @@
+use std::ops::RangeInclusive;
+
 use eframe::egui;
+
 use hollywood::compute::pipeline::CancelRequest;
 
-use crate::graphs::scalar_curve::ScalarCurve;
-use crate::graphs::vec3_curve::Vec3Curve;
-
+use crate::graphs::common::{Bounds, Color};
 use crate::graphs::packets::{PlottingPacket, PlottingPackets};
+use crate::graphs::scalar_curve::ScalarCurve;
+use crate::graphs::vec3_conf_curve::Vec3ConfCurve;
+use crate::graphs::vec3_curve::Vec3Curve;
 
 /// This is the gui app of the plotting service.
 pub struct PlotterGuiState {
@@ -13,10 +17,9 @@ pub struct PlotterGuiState {
 
     /// holds a collection of plots indexed by plot_name
     pub plots: std::collections::BTreeMap<String, Plot>,
-    toggle_plot: std::collections::BTreeMap<String, bool>,
     selected_plot: String,
 
-    show_axis: [bool; 3],
+    first_plot_received: bool,
 }
 
 impl From<crate::graphs::common::Color> for egui::Color32 {
@@ -34,20 +37,23 @@ impl From<crate::graphs::common::Color> for egui::Color32 {
 pub enum GraphType {
     Scalar(ScalarCurve),
     Vec3(Vec3Curve),
+    Vec3Conf(Vec3ConfCurve),
 }
 
 #[derive(Clone, Debug)]
 pub struct CurveStruct {
     pub curve: GraphType,
-    pub toggle: bool,
+    pub show_graph: bool,
 }
 
 /// a single plot is a collection of curves, indexed by curve_name
 #[derive(Clone, Debug)]
 pub struct Plot {
     pub curves: std::collections::BTreeMap<String, CurveStruct>,
-    pub x_range: Option<(f64, f64)>,
-    pub y_range: Option<(f64, f64)>,
+    pub bounds: Bounds,
+    pub show_plot: bool,
+    pub mouse_nav: bool,
+    pub show_axis: [bool; 3],
 }
 
 impl PlotterGuiState {
@@ -59,9 +65,8 @@ impl PlotterGuiState {
             receiver,
             cancel_requester,
             plots: std::collections::BTreeMap::new(),
-            toggle_plot: std::collections::BTreeMap::new(),
-            show_axis: [true; 3],
             selected_plot: String::new(),
+            first_plot_received: false,
         }
     }
 }
@@ -84,9 +89,12 @@ impl eframe::App for PlotterGuiState {
 
                         let plot = self.plots.entry(plot_name.clone()).or_insert(Plot {
                             curves: std::collections::BTreeMap::new(),
-                            x_range: None,
-                            y_range: None,
+                            bounds: new_value.scalar_curve.bounds,
+                            show_plot: !self.first_plot_received,
+                            mouse_nav: false,
+                            show_axis: [true, true, true],
                         });
+                        self.first_plot_received = true;
                         plot.curves
                             .entry(curve_name.clone())
                             .and_modify(|curve_struct| match &mut curve_struct.curve {
@@ -99,13 +107,12 @@ impl eframe::App for PlotterGuiState {
                                     );
                                 }
                                 GraphType::Vec3(_g) => {}
+                                GraphType::Vec3Conf(_) => {}
                             })
                             .or_insert(CurveStruct {
-                                curve: GraphType::Scalar(new_value.scalar_curve),
-                                toggle: true,
+                                curve: GraphType::Scalar(new_value.scalar_curve.clone()),
+                                show_graph: true,
                             });
-
-                        self.toggle_plot.insert(plot_name, true);
                     }
 
                     PlottingPacket::Vec3Curve(new_value) => {
@@ -114,9 +121,12 @@ impl eframe::App for PlotterGuiState {
 
                         let plot = self.plots.entry(plot_name.clone()).or_insert(Plot {
                             curves: std::collections::BTreeMap::new(),
-                            x_range: None,
-                            y_range: None,
+                            bounds: new_value.scalar_curve.bounds,
+                            show_plot: !self.first_plot_received,
+                            mouse_nav: false,
+                            show_axis: [true, true, true],
                         });
+                        self.first_plot_received = true;
                         plot.curves
                             .entry(curve_name.clone())
                             .and_modify(|curve_struct| match &mut curve_struct.curve {
@@ -129,13 +139,44 @@ impl eframe::App for PlotterGuiState {
                                         new_value.scalar_curve.clear_x_smaller_than.clone(),
                                     );
                                 }
+                                GraphType::Vec3Conf(_) => {}
                             })
                             .or_insert(CurveStruct {
-                                curve: GraphType::Vec3(new_value.scalar_curve),
-                                toggle: true,
+                                curve: GraphType::Vec3(new_value.scalar_curve.clone()),
+                                show_graph: true,
                             });
+                    }
 
-                        self.toggle_plot.insert(plot_name, true);
+                    PlottingPacket::Vec3ConfCurve(new_value) => {
+                        let plot_name = new_value.plot_name.clone();
+                        let curve_name = new_value.graph_name.clone();
+
+                        let plot = self.plots.entry(plot_name.clone()).or_insert(Plot {
+                            curves: std::collections::BTreeMap::new(),
+                            bounds: new_value.scalar_curve.bounds,
+                            show_plot: !self.first_plot_received,
+                            mouse_nav: false,
+                            show_axis: [true, true, true],
+                        });
+                        self.first_plot_received = true;
+                        plot.curves
+                            .entry(curve_name.clone())
+                            .and_modify(|curve_struct| match &mut curve_struct.curve {
+                                GraphType::Scalar(_s) => {}
+                                GraphType::Vec3(_) => {}
+                                GraphType::Vec3Conf(g) => {
+                                    g.append(
+                                        new_value.scalar_curve.data.clone(),
+                                        new_value.scalar_curve.color,
+                                        new_value.scalar_curve.conf_color,
+                                        new_value.scalar_curve.clear_x_smaller_than.clone(),
+                                    );
+                                }
+                            })
+                            .or_insert(CurveStruct {
+                                curve: GraphType::Vec3Conf(new_value.scalar_curve.clone()),
+                                show_graph: true,
+                            });
                     }
                 }
             }
@@ -143,9 +184,9 @@ impl eframe::App for PlotterGuiState {
 
         egui::SidePanel::left("toggles").show(ctx, |ui| {
             {
-                for (plot_name, checked) in &mut self.toggle_plot {
+                for (plot_name, plot) in &mut self.plots {
                     ui.horizontal(|ui| {
-                        ui.checkbox(checked, "");
+                        ui.checkbox(&mut plot.show_plot, "");
                         if ui
                             .add(egui::SelectableLabel::new(
                                 plot_name == &self.selected_plot,
@@ -165,25 +206,54 @@ impl eframe::App for PlotterGuiState {
                 if &self.selected_plot != plot_name {
                     continue;
                 }
-                ui.label(plot_name);
+                ui.label(format!("Graphs in '{}' plot", plot_name));
+
                 for (curve_name, curve) in &mut plot.curves {
-                    ui.checkbox(&mut curve.toggle, curve_name);
+                    ui.checkbox(&mut curve.show_graph, curve_name);
+                }
+
+                ui.separator();
+
+                ui.add_enabled_ui(!plot.mouse_nav, |ui| {
+                    ui.label(format!("X-Bounds of '{}' plot", plot_name));
+
+                    ui.horizontal_wrapped(|ui| {
+                        ui.label("width");
+                        ui.add(egui::DragValue::new(&mut plot.bounds.x_bounds.len));
+                        ui.add_enabled_ui(!plot.bounds.x_bounds.data_driven, |ui| {
+                            ui.label("x-max");
+                            ui.add(egui::DragValue::new(&mut plot.bounds.x_bounds.max_x));
+                        });
+                        ui.checkbox(&mut plot.bounds.x_bounds.data_driven, "data-driven");
+                    });
+                    ui.separator();
+
+                    ui.label(format!("Y-Bounds of '{}' plot", plot_name));
+
+                    ui.horizontal_wrapped(|ui| {
+                        ui.label("height");
+                        ui.add(egui::DragValue::new(&mut plot.bounds.y_bounds.height));
+                        ui.label("offset");
+                        ui.add(egui::DragValue::new(&mut plot.bounds.y_bounds.offset));
+                        ui.checkbox(&mut plot.bounds.y_bounds.data_driven, "data-driven");
+                    });
+                });
+                ui.checkbox(&mut plot.mouse_nav, "mouse nav");
+
+                ui.separator();
+
+                // Toggle axes
+                {
+                    for i in 0..3 {
+                        let axis = &mut plot.show_axis[i];
+                        ui.toggle_value(axis, format!("show axis-{}", i));
+                    }
                 }
             }
-
             ui.separator();
 
-            // Toggle axes
-            {
-                for i in 0..3 {
-                    let axis = &mut self.show_axis[i];
-                    ui.toggle_value(axis, format!("show axis-{}", i));
-                }
-
-                if ui.add(egui::Button::new("reset")).clicked() {
-                    self.plots = std::collections::BTreeMap::new();
-                    self.toggle_plot = std::collections::BTreeMap::new();
-                }
+            if ui.add(egui::Button::new("reset")).clicked() {
+                self.plots = std::collections::BTreeMap::new();
             }
         });
 
@@ -191,7 +261,7 @@ impl eframe::App for PlotterGuiState {
             // 1. Get the available height
             let h = ui.available_height();
 
-            let num_checked = self.toggle_plot.values().filter(|x| **x).count();
+            let num_checked = self.plots.values().filter(|x| x.show_plot).count();
 
             // 2.Calculate the height per plot
             let height_per_plot = (h / num_checked as f32).floor();
@@ -199,42 +269,64 @@ impl eframe::App for PlotterGuiState {
             // 3. Plot each plot to the ui
 
             for (plot_name, plot_data) in &mut self.plots {
-                if !self.toggle_plot[plot_name] {
+                if !plot_data.show_plot {
                     continue;
                 }
-                egui::plot::Plot::new(plot_name)
+                egui_plot::Plot::new(plot_name)
                     .height(height_per_plot)
-                    .legend(
-                        egui::plot::Legend::default()
-                            .position(egui::widgets::plot::Corner::LeftTop),
-                    )
+                    .legend(egui_plot::Legend::default().position(egui_plot::Corner::LeftTop))
                     .auto_bounds_x()
                     .auto_bounds_y()
                     .show(ui, |plot_ui| {
+                        let mut data_driven_max_x = -std::f64::INFINITY;
+                        let mut data_driven_min_y = std::f64::INFINITY;
+                        let mut data_driven_max_y = -std::f64::INFINITY;
+
+                        if plot_ui.response().double_clicked() {
+                            plot_data.mouse_nav = false;
+                            self.selected_plot = plot_name.clone();
+                        } else if plot_ui.response().clicked() || plot_ui.response().dragged() {
+                            plot_data.mouse_nav = true;
+                            self.selected_plot = plot_name.clone();
+                        }
+
                         for (curve_name, graph_data) in &mut plot_data.curves {
-                            if !graph_data.toggle {
+                            if !graph_data.show_graph {
                                 continue;
                             }
+
                             match &graph_data.curve {
                                 GraphType::Scalar(g) => {
                                     let mut points = vec![];
 
                                     for (x, y) in &g.data {
-                                        points.push(egui::plot::PlotPoint::new(*x, *y));
+                                        if x > &data_driven_max_x {
+                                            data_driven_max_x = *x;
+                                        }
+
+                                        if y < &data_driven_min_y {
+                                            data_driven_min_y = *y;
+                                        }
+
+                                        if y > &data_driven_max_y {
+                                            data_driven_max_y = *y;
+                                        }
+
+                                        points.push(egui_plot::PlotPoint::new(*x, *y));
                                     }
-                                    let plot_points = egui::plot::PlotPoints::Owned(points);
+                                    let plot_points = egui_plot::PlotPoints::Owned(points);
 
                                     match g.curve_type {
                                         crate::graphs::common::LineType::LineStrip => {
                                             plot_ui.line(
-                                                egui::plot::Line::new(plot_points)
+                                                egui_plot::Line::new(plot_points)
                                                     .color(g.color)
                                                     .name(curve_name),
                                             );
                                         }
                                         crate::graphs::common::LineType::Points => {
                                             plot_ui.points(
-                                                egui::plot::Points::new(plot_points)
+                                                egui_plot::Points::new(plot_points)
                                                     .color(g.color)
                                                     .name(curve_name),
                                             );
@@ -242,50 +334,147 @@ impl eframe::App for PlotterGuiState {
                                     }
                                 }
                                 GraphType::Vec3(g) => {
-                                    let mut points = vec![];
-                                    points.push(vec![]);
-                                    points.push(vec![]);
-                                    points.push(vec![]);
+                                    let mut points = vec![vec![], vec![], vec![]];
 
                                     for (x, y) in &g.data {
-                                        points[0].push(egui::plot::PlotPoint::new(*x, y.0));
-                                        points[1].push(egui::plot::PlotPoint::new(*x, y.1));
-                                        points[2].push(egui::plot::PlotPoint::new(*x, y.2));
+                                        if x > &data_driven_max_x {
+                                            data_driven_max_x = *x;
+                                        }
+
+                                        let min_vec_y = y.0.min(y.1.min(y.2));
+                                        if min_vec_y < data_driven_min_y {
+                                            data_driven_min_y = min_vec_y;
+                                        }
+
+                                        let max_vec_y = y.0.max(y.1.max(y.2));
+                                        if max_vec_y > data_driven_max_y {
+                                            data_driven_max_y = max_vec_y;
+                                        }
+
+                                        points[0].push(egui_plot::PlotPoint::new(*x, y.0));
+                                        points[1].push(egui_plot::PlotPoint::new(*x, y.1));
+                                        points[2].push(egui_plot::PlotPoint::new(*x, y.2));
                                     }
 
                                     match g.curve_type {
                                         crate::graphs::common::LineType::LineStrip => {
-                                            for i in 0..3 {
-                                                let plot_points = egui::plot::PlotPoints::Owned(
-                                                    points[i].clone(),
-                                                );
-                                                plot_ui.line(
-                                                    egui::plot::Line::new(plot_points)
-                                                        .color(g.color[i])
-                                                        .name(format!("{}-{}", curve_name, i)),
-                                                );
+                                            for (i, p) in points.iter().enumerate().take(3) {
+                                                if plot_data.show_axis[i] {
+                                                    let plot_points =
+                                                        egui_plot::PlotPoints::Owned(p.clone());
+                                                    plot_ui.line(
+                                                        egui_plot::Line::new(plot_points)
+                                                            .color(g.color[i])
+                                                            .name(format!("{}-{}", curve_name, i)),
+                                                    );
+                                                }
                                             }
                                         }
                                         crate::graphs::common::LineType::Points => {
-                                            for i in 0..3 {
-                                                let plot_points = egui::plot::PlotPoints::Owned(
-                                                    points[i].clone(),
-                                                );
-                                                plot_ui.line(
-                                                    egui::plot::Line::new(plot_points)
-                                                        .color(g.color[i])
-                                                        .name(format!("{}-{}", curve_name, i)),
-                                                );
+                                            for (i, p) in points.iter().enumerate().take(3) {
+                                                if plot_data.show_axis[i] {
+                                                    let plot_points =
+                                                        egui_plot::PlotPoints::Owned(p.clone());
+                                                    plot_ui.line(
+                                                        egui_plot::Line::new(plot_points)
+                                                            .color(g.color[i])
+                                                            .name(format!("{}-{}", curve_name, i)),
+                                                    );
+                                                }
                                             }
                                         }
                                     }
                                 }
+                                GraphType::Vec3Conf(g) => {
+                                    let mut points = vec![vec![], vec![], vec![]];
+                                    let mut up_points = vec![vec![], vec![], vec![]];
+                                    let mut down_points = vec![vec![], vec![], vec![]];
+
+                                    for (x, y, e) in &g.data {
+                                        if x > &data_driven_max_x {
+                                            data_driven_max_x = *x;
+                                        }
+
+                                        let min_vec_y = y.0.min(y.1.min(y.2));
+                                        let max_vec_y = y.0.max(y.1.max(y.2));
+                                        if min_vec_y < data_driven_min_y {
+                                            data_driven_min_y = min_vec_y;
+                                        }
+                                        if max_vec_y > data_driven_max_y {
+                                            data_driven_max_y = max_vec_y;
+                                        }
+
+                                        points[0].push(egui_plot::PlotPoint::new(*x, y.0));
+                                        points[1].push(egui_plot::PlotPoint::new(*x, y.1));
+                                        points[2].push(egui_plot::PlotPoint::new(*x, y.2));
+
+                                        up_points[0].push(egui_plot::PlotPoint::new(*x, y.0 + e.1));
+                                        up_points[1].push(egui_plot::PlotPoint::new(*x, y.1 + e.1));
+                                        up_points[2].push(egui_plot::PlotPoint::new(*x, y.2 + e.2));
+
+                                        down_points[0]
+                                            .push(egui_plot::PlotPoint::new(*x, y.0 - e.0));
+                                        down_points[1]
+                                            .push(egui_plot::PlotPoint::new(*x, y.1 - e.1));
+                                        down_points[2]
+                                            .push(egui_plot::PlotPoint::new(*x, y.2 - e.2));
+                                    }
+
+                                    let mut plot_points = |points:Vec<Vec<egui_plot::PlotPoint>>, color:[Color;3]|{
+                                        for (i, p) in points.iter().enumerate().take(3) {
+                                            if plot_data.show_axis[i] {
+                                                let plot_points =
+                                                    egui_plot::PlotPoints::Owned(p.clone());
+                                                plot_ui.line(
+                                                    egui_plot::Line::new(plot_points)
+                                                        .color(color[i])
+                                                        .name(format!("{}-{}", curve_name, i)),
+                                                );
+                                            }
+                                        }
+                                    };
+
+                                    plot_points(points, g.color);
+                                    plot_points(up_points, g.conf_color);
+                                    plot_points(down_points, g.conf_color);
+
+                                }
                             }
+                        }
+                        if !plot_data.mouse_nav {
+                            let max_x = if plot_data.bounds.x_bounds.data_driven {
+                                data_driven_max_x
+                            } else {
+                                plot_data.bounds.x_bounds.max_x
+                            };
+
+                            let height = if plot_data.bounds.y_bounds.data_driven {
+                             data_driven_max_y - data_driven_min_y
+                            } else {
+                                plot_data.bounds.y_bounds.height
+                            };
+                            let offset = if plot_data.bounds.y_bounds.data_driven {
+                                0.5*(data_driven_max_y + data_driven_min_y)
+                               } else {
+                                   plot_data.bounds.y_bounds.offset
+                               };
+
+                            plot_ui.set_plot_bounds(egui_plot::PlotBounds::from_min_max(
+                                [
+                                    max_x - plot_data.bounds.x_bounds.len,
+                                    plot_data.bounds.y_bounds.offset - 0.5 * height,
+                                ],
+                                [max_x, plot_data.bounds.y_bounds.offset + 0.5 * height],
+                            ));
+                            plot_data.bounds.x_bounds.max_x = max_x;
+                            plot_data.bounds.y_bounds.height = height;
+                            plot_data.bounds.y_bounds.offset = offset;
+
                         }
                     });
             }
         });
 
-        ctx.request_repaint_after(std::time::Duration::from_secs_f64(0.1));
+        ctx.request_repaint_after(std::time::Duration::from_secs_f64(0.01));
     }
 }

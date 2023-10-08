@@ -9,11 +9,8 @@ use hollywood::core::*;
 use hollywood::macros::actor_inputs;
 use tokio::select;
 
-#[derive(Clone, Debug)]
-#[derive(Default)]
+#[derive(Clone, Debug, Default)]
 pub struct PlotterProp {}
-
-
 
 /// Inbound message for the Plotter actor.
 #[derive(Clone, Debug)]

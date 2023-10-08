@@ -137,8 +137,10 @@ impl ActorNode for ActiveGrpcSourceNodeImpl {
             .add_service(PlottingWidgetServer::new(server))
             .serve(address.parse().unwrap());
         match server_future.await {
-            Ok(_) =>{}
-            Err(e) =>{panic!("{}", e);}
+            Ok(_) => {}
+            Err(e) => {
+                panic!("{}", e);
+            }
         }
     }
 }

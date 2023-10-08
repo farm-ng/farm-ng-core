@@ -3,6 +3,7 @@ pub use hollywood::core::*;
 use hollywood::macros::*;
 
 use plotting::actors::plotter::{run_on_main_thread, PlotterActor, PlotterProp, PlotterState};
+use plotting::graphs::common::{Bounds, XCoordinateBounds, YCoordinateBounds};
 use plotting::graphs::packets::PlottingPacket;
 use plotting::graphs::packets::PlottingPackets;
 
@@ -37,25 +38,54 @@ impl OnMessage for GraphGeneratorMessage {
     ) {
         match &self {
             GraphGeneratorMessage::ClockTick(time_in_seconds) => {
-                let mut packets = vec![];
-                packets.push(PlottingPacket::append_to_curve(
-                    ("graph", "sin"),
-                    plotting::graphs::common::Color::red(),
-                    (*time_in_seconds, time_in_seconds.sin()),
-                    10.0,
-                ));
-                packets.push(PlottingPacket::append_to_vec3_curve(
-                    ("graph2", "sins"),
-                    (
-                        *time_in_seconds,
-                        (
-                            time_in_seconds.cos(),
-                            (2.0 * time_in_seconds).cos(),
-                            (3.0 * time_in_seconds).cos(),
-                        ),
+                let packets = vec![
+                    PlottingPacket::append_to_curve(
+                        ("trig0", "sin"),
+                        plotting::graphs::common::Color::red(),
+                        (*time_in_seconds, time_in_seconds.sin()),
+                        1000.0,
+                        Bounds {
+                            x_bounds: XCoordinateBounds::from_len_and_max(2.0, None),
+                            y_bounds: YCoordinateBounds::symmetric_from_height(Some(2.0)),
+                        },
                     ),
-                    10.0,
-                ));
+                    PlottingPacket::append_to_vec3_curve(
+                        ("trig1", "sin/cos/tan"),
+                        (
+                            *time_in_seconds,
+                            (
+                                time_in_seconds.sin(),
+                                time_in_seconds.cos(),
+                                time_in_seconds.tan(),
+                            ),
+                        ),
+                        1000.0,
+                        Bounds {
+                            x_bounds: XCoordinateBounds::from_len_and_max(2.0, None),
+                            y_bounds: YCoordinateBounds::symmetric_from_height(Some(2.0)),
+                        },
+                    ),
+                    PlottingPacket::append_to_vec3_conf_curve(
+                        ("trig2", "sin/cos/tan"),
+                        (
+                            *time_in_seconds,
+                            (
+                                time_in_seconds.sin(),
+                                time_in_seconds.cos(),
+                                time_in_seconds.tan(),
+                            ),
+                            (
+                               0.1*time_in_seconds.sin().abs(),
+                               0.1*time_in_seconds.sin().abs(),
+                               0.1*time_in_seconds.sin().abs(),
+                            )                       ),
+                        1000.0,
+                        Bounds {
+                            x_bounds: XCoordinateBounds::from_len_and_max(2.0, None),
+                            y_bounds: YCoordinateBounds::symmetric_from_height(Some(2.0)),
+                        },
+                    ),
+                ];
                 outbound.packets.send(packets);
             }
         }

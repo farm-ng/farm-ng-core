@@ -45,8 +45,12 @@ FARM_PROTO_CONV_TRAIT(plotting::Vec3Curve, core::plotting::proto::Vec3Curve);
 FARM_PROTO_CONV_TRAIT(
     plotting::Vec3CurveWithConfInterval,
     core::plotting::proto::Vec3CurveWithConfInterval);
-FARM_PROTO_CONV_TRAIT(plotting::XRange, core::plotting::proto::XRange);
-FARM_PROTO_CONV_TRAIT(plotting::YRange, core::plotting::proto::YRange);
+
+FARM_PROTO_CONV_TRAIT(
+    plotting::XCoordinateBounds, core::plotting::proto::XCoordinateBounds);
+FARM_PROTO_CONV_TRAIT(
+    plotting::YCoordinateBounds, core::plotting::proto::YCoordinateBounds);
+FARM_PROTO_CONV_TRAIT(plotting::Bounds, core::plotting::proto::Bounds);
 FARM_PROTO_CONV_TRAIT(plotting::Message, core::plotting::proto::Message);
 FARM_PROTO_CONV_TRAIT(
     std::vector<plotting::Message>, core::plotting::proto::Messages);

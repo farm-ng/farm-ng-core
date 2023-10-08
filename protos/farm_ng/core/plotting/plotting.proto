@@ -46,31 +46,49 @@ message XVecConvTupleF64 {
   int64 num_tuples = 2;
 }
 
+message XCoordinateBounds {
+  core.proto.OptionalG0Double max_x = 1;
+  double len = 2;
+}
+
+
+message YCoordinateBounds {
+  core.proto.OptionalG0Double height = 1;
+  double offset = 2;
+}
+
+message Bounds {
+  XCoordinateBounds x_bounds = 1;
+  YCoordinateBounds y_bounds = 2;
+}
+
 message LineType { string variant_name = 1; }
 
 message Curve {
-  core.proto.Color color = 1;
-  LineType line_type = 2;
-  core.proto.FileSystemPath path = 3;
-  CurveResetPredicate reset = 4;
-  XyPairsF64 x_y_pairs = 5;
-};
-
-message Vec3Curve {
-  repeated core.proto.Color color = 1;
-  LineType line_type = 2;
-  core.proto.FileSystemPath path = 3;
-  CurveResetPredicate reset = 4;
-  XVecTupleF64 x_vec_pairs = 5;
-};
-
-message Vec3CurveWithConfInterval {
-  repeated core.proto.Color color = 1;
-  repeated core.proto.Color conf_color = 2;
+  Bounds bounds = 1;
+  core.proto.Color color = 2;
   LineType line_type = 3;
   core.proto.FileSystemPath path = 4;
   CurveResetPredicate reset = 5;
-  XVecConvTupleF64 x_vec_conf_tuples = 6;
+  XyPairsF64 x_y_pairs = 6;
+};
+
+message Vec3Curve {
+  Bounds bounds = 1;
+  repeated core.proto.Color color = 2;
+  LineType line_type = 3;
+  core.proto.FileSystemPath path = 4;
+  CurveResetPredicate reset = 5;
+  XVecTupleF64 x_vec_pairs = 6;
+};
+
+message Vec3CurveWithConfInterval {
+  Bounds bounds = 1;
+  repeated core.proto.Color color = 2;
+  repeated core.proto.Color conf_color = 3;
+  core.proto.FileSystemPath path = 5;
+  CurveResetPredicate reset = 6;
+  XVecConvTupleF64 x_vec_conf_tuples = 7;
 };
 
 message ColoredRect {
@@ -81,19 +99,10 @@ message ColoredRect {
 message RepeatedG0ColoredRect { repeated ColoredRect value = 1; }
 
 message RectPlot {
-  core.proto.FileSystemPath path = 1;
+  Bounds bounds = 1;
   RepeatedG0ColoredRect colored_rects = 2;
-  CurveResetPredicate reset = 3;
-}
-
-message XRange {
-  core.proto.FileSystemPath path = 1;
-  core.proto.RegionF64 range = 2;
-}
-
-message YRange {
-  core.proto.FileSystemPath path = 1;
-  core.proto.RegionF64 range = 2;
+  core.proto.FileSystemPath path = 3;
+  CurveResetPredicate reset = 4;
 }
 
 message Message {
@@ -102,8 +111,6 @@ message Message {
     Vec3Curve vec3_curve = 2;
     Vec3CurveWithConfInterval vec3_conf_curve = 3;
     RectPlot rects = 4;
-    XRange x_range = 5;
-    YRange y_range = 6;
   }
 }
 

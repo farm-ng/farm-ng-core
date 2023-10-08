@@ -46,11 +46,24 @@ struct CurveResetPredicate {
   std::optional<double> clear_x_smaller_than = std::nullopt;
 };
 
+FARM_STRUCT(
+    XCoordinateBounds,
+    ((std::optional<double>, max_x, {std::nullopt}), (double, len, {100.0})));
+
+FARM_STRUCT(
+    YCoordinateBounds,
+    ((std::optional<double>, height, {std::nullopt}), (double, offset, {0.0})));
+
+FARM_STRUCT(
+    Bounds,
+    ((XCoordinateBounds, x_bounds, {}), (YCoordinateBounds, y_bounds, {})));
+
 // Append to an existing curve in a given plot (or add new one if it does not
 // exist already), with path being "plot_name/curve_name".
 FARM_STRUCT(
     Curve,
-    ((sophus::Color, color, {}),
+    ((Bounds, bounds, {}),
+     (sophus::Color, color, {}),
      (LineType, line_type, {LineType::line_strip}),
      (std::filesystem::path, path, {}),
      (CurveResetPredicate, reset, {}),
@@ -74,7 +87,8 @@ ColorArray3 constexpr kDefaultConfColorArray3 = {
 // for each curve, and the remaining components are the y coordinates.
 FARM_STRUCT(
     Vec3Curve,
-    ((ColorArray3, color, {kDefaultColorArray3}),
+    ((Bounds, bounds, {}),
+     (ColorArray3, color, {kDefaultColorArray3}),
      (LineType, line_type, {LineType::line_strip}),
      (std::filesystem::path, path, {}),
      (CurveResetPredicate, reset, {}),
@@ -87,9 +101,9 @@ using Vec7d = Eigen::Matrix<double, 7, 1>;
 // standard deviation).
 FARM_STRUCT(
     Vec3CurveWithConfInterval,
-    ((ColorArray3, color, {kDefaultColorArray3}),
+    ((Bounds, bounds, {}),
+     (ColorArray3, color, {kDefaultColorArray3}),
      (ColorArray3, conf_color, {kDefaultConfColorArray3}),
-     (LineType, line_type, {LineType::line_strip}),
      (std::filesystem::path, path, {}),
      (CurveResetPredicate, reset, {}),
      (std::deque<Vec7d>, x_vec_conf_tuples, {})));
@@ -133,26 +147,13 @@ struct ColoredRect {
 
 FARM_STRUCT(
     RectPlot,
-    ((std::filesystem::path, path, {}),
+    ((Bounds, bounds, {}),
      (std::deque<ColoredRect>, colored_rects, {}),
+     (std::filesystem::path, path, {}),
      (CurveResetPredicate, reset, {})));
 
-FARM_STRUCT(
-    XRange,
-    ((sophus::RegionF64, range, {sophus::RegionF64::empty()}),
-     (std::filesystem::path, path, {})));
-FARM_STRUCT(
-    YRange,
-    ((sophus::RegionF64, range, {sophus::RegionF64::empty()}),
-     (std::filesystem::path, path, {})));
-
-using Message = std::variant<
-    RectPlot,
-    Curve,
-    Vec3Curve,
-    Vec3CurveWithConfInterval,
-    XRange,
-    YRange>;
+using Message =
+    std::variant<RectPlot, Curve, Vec3Curve, Vec3CurveWithConfInterval>;
 
 }  // namespace plotting
 

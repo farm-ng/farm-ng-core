@@ -151,17 +151,17 @@ FARM_CONV_IMPL_REPEATED(
 FARM_PROTO_CONV_IMPL(
     plotting::RectPlot,
     core::plotting::proto::RectPlot,
-    (path, colored_rects, reset));
+    (bounds, colored_rects, path, reset));
 
 FARM_PROTO_CONV_IMPL(
     plotting::Curve,
     core::plotting::proto::Curve,
-    (color, line_type, path, reset, x_y_pairs));
+    (bounds, color, line_type, path, reset, x_y_pairs));
 
 FARM_PROTO_CONV_IMPL_FN(
     plotting::Vec3Curve,
     core::plotting::proto::Vec3Curve,
-    ((color, SKIP), line_type, path, reset, x_vec_pairs),
+    (bounds, (color, SKIP), line_type, path, reset, x_vec_pairs),
     [](plotting::Vec3Curve&& s, core::plotting::proto::Vec3Curve const& proto)
         -> Expected<plotting::Vec3Curve> {
       if (proto.color_size() != 3) {
@@ -183,12 +183,7 @@ FARM_PROTO_CONV_IMPL_FN(
 FARM_PROTO_CONV_IMPL_FN(
     plotting::Vec3CurveWithConfInterval,
     core::plotting::proto::Vec3CurveWithConfInterval,
-    ((color, SKIP),
-     (conf_color, SKIP),
-     line_type,
-     path,
-     reset,
-     x_vec_conf_tuples),
+    (bounds, (color, SKIP), (conf_color, SKIP), path, reset, x_vec_conf_tuples),
     [](plotting::Vec3CurveWithConfInterval&& s,
        core::plotting::proto::Vec3CurveWithConfInterval const& proto)
         -> Expected<plotting::Vec3CurveWithConfInterval> {
@@ -219,10 +214,17 @@ FARM_PROTO_CONV_IMPL_FN(
     });
 
 FARM_PROTO_CONV_IMPL(
-    plotting::XRange, core::plotting::proto::XRange, (range, path));
+    plotting::XCoordinateBounds,
+    core::plotting::proto::XCoordinateBounds,
+    (max_x, len));
 
 FARM_PROTO_CONV_IMPL(
-    plotting::YRange, core::plotting::proto::YRange, (range, path));
+    plotting::YCoordinateBounds,
+    core::plotting::proto::YCoordinateBounds,
+    (height, offset));
+
+FARM_PROTO_CONV_IMPL(
+    plotting::Bounds, core::plotting::proto::Bounds, (x_bounds, y_bounds));
 
 template <>
 auto fromProt<core::plotting::proto::Message>(
@@ -249,16 +251,6 @@ auto fromProt<core::plotting::proto::Message>(
     msg = m;
     return msg;
   }
-  if (proto.has_x_range()) {
-    FARM_TRY(auto, m, fromProt(proto.x_range()));
-    msg = m;
-    return msg;
-  }
-  if (proto.has_y_range()) {
-    FARM_TRY(auto, m, fromProt(proto.y_range()));
-    msg = m;
-    return msg;
-  }
   return msg;
 }
 
@@ -275,9 +267,7 @@ auto toProt<plotting::Message>(plotting::Message const& v)
       },
       [&](plotting::Vec3CurveWithConfInterval const& v) {
         *proto.mutable_vec3_conf_curve() = toProt(v);
-      },
-      [&](plotting::XRange const& v) { *proto.mutable_x_range() = toProt(v); },
-      [&](plotting::YRange const& v) { *proto.mutable_y_range() = toProt(v); });
+      });
   return proto;
 }
 

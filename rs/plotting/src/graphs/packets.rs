@@ -1,9 +1,8 @@
-
-
 use super::{
-    common::{Color, LineType, ResetPredicate},
+    common::{Bounds, Color, LineType, ResetPredicate},
     scalar_curve::{NamedScalarCurve, ScalarCurve},
     vec3_curve::{NamedVec3Curve, Vec3Curve},
+    vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve},
 };
 
 #[derive(Clone, Debug)]
@@ -11,6 +10,7 @@ pub enum PlottingPacket {
     /// a float value
     ScalarCurve(NamedScalarCurve),
     Vec3Curve(NamedVec3Curve),
+    Vec3ConfCurve(NamedVec3ConfCurve),
 }
 pub type PlottingPackets = Vec<PlottingPacket>;
 
@@ -20,6 +20,7 @@ impl PlottingPacket {
         color: Color,
         (x, y): (f64, f64),
         history_length: f64,
+        bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedScalarCurve {
             plot_name: plot.into(),
@@ -31,6 +32,7 @@ impl PlottingPacket {
                 clear_x_smaller_than: ResetPredicate {
                     clear_x_smaller_than: Some(x - history_length),
                 },
+                bounds,
             },
         };
 
@@ -41,6 +43,7 @@ impl PlottingPacket {
         (plot, graph): (S, S),
         (x, y): (f64, (f64, f64, f64)),
         history_length: f64,
+        bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedVec3Curve {
             plot_name: plot.into(),
@@ -52,9 +55,33 @@ impl PlottingPacket {
                 clear_x_smaller_than: ResetPredicate {
                     clear_x_smaller_than: Some(x - history_length),
                 },
+                bounds,
             },
         };
 
         PlottingPacket::Vec3Curve(curve)
+    }
+
+    pub fn append_to_vec3_conf_curve<S: Into<String>>(
+        (plot, graph): (S, S),
+        (x, y, y_epsilon): (f64, (f64, f64, f64),(f64, f64, f64)),
+        history_length: f64,
+        bounds: Bounds,
+    ) -> PlottingPacket {
+        let curve = NamedVec3ConfCurve {
+            plot_name: plot.into(),
+            graph_name: graph.into(),
+            scalar_curve: Vec3ConfCurve {
+                data: vec![(x, y, y_epsilon)],
+                color: [Color::red(), Color::green(), Color::blue()],
+                conf_color: [Color::dark_red(), Color::dark_green(), Color::dark_blue()],
+                clear_x_smaller_than: ResetPredicate {
+                    clear_x_smaller_than: Some(x - history_length),
+                },
+                bounds,
+            },
+        };
+
+        PlottingPacket::Vec3ConfCurve(curve)
     }
 }

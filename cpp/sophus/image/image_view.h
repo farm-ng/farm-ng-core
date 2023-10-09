@@ -94,6 +94,7 @@ struct ImageView {
   [[nodiscard]] auto sizeBytes() const -> size_t {
     return layout().sizeBytes();
   }
+  [[nodiscard]] auto pixelSize() const -> size_t { return sizeof(Pixel); }
 
   /// Returns true if u is in [0, width).
   [[nodiscard]] auto colInBounds(int u) const -> bool {

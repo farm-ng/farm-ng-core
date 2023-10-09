@@ -48,3 +48,13 @@ message Pose {
 message PoseTree {
   repeated Pose poses = 1;
 }
+
+// A named sequence of poses, typically representing a trajectory
+message PoseTrack {
+  // Name of the track
+  string name = 1;
+  // The ordered sequence of poses in the track
+  repeated Pose poses = 2;
+  // Spacing in meters / radians between poses
+  double spacing = 3;
+}

@@ -2,6 +2,7 @@ use super::{
     common::{Bounds, Color, LineType, ResetPredicate},
     scalar_curve::{NamedScalarCurve, ScalarCurve},
     vec3_curve::{NamedVec3Curve, Vec3Curve},
+    vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve},
 };
 
 #[derive(Clone, Debug)]
@@ -9,6 +10,7 @@ pub enum PlottingPacket {
     /// a float value
     ScalarCurve(NamedScalarCurve),
     Vec3Curve(NamedVec3Curve),
+    Vec3ConfCurve(NamedVec3ConfCurve),
 }
 pub type PlottingPackets = Vec<PlottingPacket>;
 

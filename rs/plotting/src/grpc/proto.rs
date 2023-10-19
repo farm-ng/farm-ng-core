@@ -4,6 +4,8 @@ use crate::graphs::common::{Bounds, LineType, OrdinateBounds, ResetPredicate};
 use crate::graphs::packets::{PlottingPacket, PlottingPackets};
 use crate::graphs::scalar_curve::{NamedScalarCurve, ScalarCurve};
 use crate::graphs::vec3_curve::{NamedVec3Curve, Vec3Curve};
+use crate::graphs::vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve};
+
 use crate::grpc::farm_ng::core::plotting::proto;
 use crate::grpc::farm_ng::core::plotting::proto::CurveResetPredicate;
 use crate::grpc::proto::proto::Messages;
@@ -170,8 +172,99 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                         },
                     }));
                 }
-                crate::grpc::farm_ng::core::plotting::proto::message::Variant::Vec3ConfCurve(_) => {
-                    todo!()
+                crate::grpc::farm_ng::core::plotting::proto::message::Variant::Vec3ConfCurve(
+                    proto_curve3,
+                ) => {
+                    let path: String = proto_curve3.path.unwrap().path_string;
+                    let tokens = path.split('/').collect::<Vec<&str>>();
+                    assert_eq!(
+                        tokens.len(),
+                        2,
+                        "path must be of the form `plot_name/curve_name`, got '{}'",
+                        path
+                    );
+                    let plot_name = tokens[0];
+                    let curve_name = tokens[1];
+
+                    // Convert bytes to (f64,f64) using f64::from_ne_bytes
+                    let pairs_as_f64: Vec<(f64, (f64, f64, f64), (f64, f64, f64))> = proto_curve3
+                        .x_vec_conf_tuples
+                        .unwrap()
+                        .data
+                        .chunks_exact(size_of::<f64>() * 7)
+                        .map(|b| {
+                            (
+                                f64::from_ne_bytes(b[0..size_of::<f64>()].try_into().unwrap()),
+                                (
+                                    f64::from_ne_bytes(
+                                        b[size_of::<f64>()..2 * size_of::<f64>()]
+                                            .try_into()
+                                            .unwrap(),
+                                    ),
+                                    f64::from_ne_bytes(
+                                        b[2 * size_of::<f64>()..3 * size_of::<f64>()]
+                                            .try_into()
+                                            .unwrap(),
+                                    ),
+                                    f64::from_ne_bytes(
+                                        b[3 * size_of::<f64>()..4 * size_of::<f64>()]
+                                            .try_into()
+                                            .unwrap(),
+                                    ),
+                                ),
+                                (
+                                    f64::from_ne_bytes(
+                                        b[4 * size_of::<f64>()..5 * size_of::<f64>()]
+                                            .try_into()
+                                            .unwrap(),
+                                    ),
+                                    f64::from_ne_bytes(
+                                        b[5 * size_of::<f64>()..6 * size_of::<f64>()]
+                                            .try_into()
+                                            .unwrap(),
+                                    ),
+                                    f64::from_ne_bytes(
+                                        b[6 * size_of::<f64>()..7 * size_of::<f64>()]
+                                            .try_into()
+                                            .unwrap(),
+                                    ),
+                                ),
+                            )
+                        })
+                        .collect();
+                    let mut v: Vec<(f64, [f64; 3], [f64; 3])> = Vec::new();
+
+                    for (x, y, z) in pairs_as_f64.clone() {
+                        v.push((x, [y.0, y.1, y.2], [z.0, z.1, z.2]));
+                    }
+                    let cs = colors_from_proto(proto_curve3.color);
+                    let cs_conf = colors_from_proto(proto_curve3.conf_color);
+
+                    p.push(PlottingPacket::Vec3ConfCurve(NamedVec3ConfCurve {
+                        plot_name: plot_name.to_owned(),
+                        graph_name: curve_name.to_owned(),
+                        scalar_curve: Vec3ConfCurve {
+                            data: pairs_as_f64.clone(),
+                            color: cs,
+                            conf_color: cs_conf,
+                            curve_type: line_type_from_proto(proto_curve3.line_type.unwrap()),
+                            clear_x_smaller_than: reset_predicate_from_proto(
+                                proto_curve3.reset.unwrap(),
+                            ),
+                            bounds: Bounds {
+                                x_bounds: OrdinateBounds {
+                                    largest: 0.0,
+                                    len: 100.0,
+                                    data_driven: true,
+                                },
+                                y_bounds: OrdinateBounds {
+                                    largest: 0.0,
+                                    len: 100.0,
+                                    data_driven: true,
+                                },
+                            },
+                        },
+                    }));
                 }
                 crate::grpc::farm_ng::core::plotting::proto::message::Variant::Rects(_) => {}
                 crate::grpc::farm_ng::core::plotting::proto::message::Variant::XRange(_) => {}

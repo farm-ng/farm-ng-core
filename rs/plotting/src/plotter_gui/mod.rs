@@ -7,6 +7,7 @@ use hollywood::compute::pipeline::CancelRequest;
 use crate::graphs::common::Bounds;
 use crate::graphs::packets::{PlottingPacket, PlottingPackets};
 use crate::graphs::scalar_curve::ScalarCurve;
+use crate::graphs::vec3_conf_curve::Vec3ConfCurve;
 use crate::graphs::vec3_curve::Vec3Curve;
 
 /// This is the gui app of the plotting service.
@@ -36,6 +37,7 @@ impl From<crate::graphs::common::Color> for egui::Color32 {
 pub enum GraphType {
     Scalar(ScalarCurve),
     Vec3(Vec3Curve),
+    Vec3Conf(Vec3ConfCurve),
 }
 
 #[derive(Clone, Debug)]
@@ -105,6 +107,7 @@ impl eframe::App for PlotterGuiState {
                                     );
                                 }
                                 GraphType::Vec3(_g) => {}
+                                GraphType::Vec3Conf(_) => {}
                             })
                             .or_insert(CurveStruct {
                                 curve: GraphType::Scalar(new_value.scalar_curve.clone()),
@@ -136,9 +139,43 @@ impl eframe::App for PlotterGuiState {
                                         new_value.scalar_curve.clear_x_smaller_than.clone(),
                                     );
                                 }
+                                GraphType::Vec3Conf(_) => {}
                             })
                             .or_insert(CurveStruct {
                                 curve: GraphType::Vec3(new_value.scalar_curve.clone()),
+                                show_graph: true,
+                            });
+                    }
+
+                    PlottingPacket::Vec3ConfCurve(new_value) => {
+                        let plot_name = new_value.plot_name.clone();
+                        let curve_name = new_value.graph_name.clone();
+
+                        let plot = self.plots.entry(plot_name.clone()).or_insert(Plot {
+                            curves: std::collections::BTreeMap::new(),
+                            bounds: new_value.scalar_curve.bounds,
+                            show_plot: !self.first_plot_received,
+                            mouse_nav: false,
+                            show_axis: [true, true, true],
+                        });
+                        self.first_plot_received = true;
+                        plot.curves
+                            .entry(curve_name.clone())
+                            .and_modify(|curve_struct| match &mut curve_struct.curve {
+                                GraphType::Scalar(_s) => {}
+                                GraphType::Vec3(_) => {}
+                                GraphType::Vec3Conf(g) => {
+                                    g.append(
+                                        new_value.scalar_curve.data.clone(),
+                                        new_value.scalar_curve.color,
+                                        new_value.scalar_curve.conf_color,
+                                        new_value.scalar_curve.curve_type.clone(),
+                                        new_value.scalar_curve.clear_x_smaller_than.clone(),
+                                    );
+                                }
+                            })
+                            .or_insert(CurveStruct {
+                                curve: GraphType::Vec3Conf(new_value.scalar_curve.clone()),
                                 show_graph: true,
                             });
                     }
@@ -317,6 +354,66 @@ impl eframe::App for PlotterGuiState {
                                         points[0].push(egui_plot::PlotPoint::new(*x, y.0));
                                         points[1].push(egui_plot::PlotPoint::new(*x, y.1));
                                         points[2].push(egui_plot::PlotPoint::new(*x, y.2));
+                                    }
+
+                                    match g.curve_type {
+                                        crate::graphs::common::LineType::LineStrip => {
+                                            for (i, p) in points.iter().enumerate().take(3) {
+                                                if plot_data.show_axis[i] {
+                                                    let plot_points =
+                                                        egui_plot::PlotPoints::Owned(p.clone());
+                                                    plot_ui.line(
+                                                        egui_plot::Line::new(plot_points)
+                                                            .color(g.color[i])
+                                                            .name(format!("{}-{}", curve_name, i)),
+                                                    );
+                                                }
+                                            }
+                                        }
+                                        crate::graphs::common::LineType::Points => {
+                                            for (i, p) in points.iter().enumerate().take(3) {
+                                                if plot_data.show_axis[i] {
+                                                    let plot_points =
+                                                        egui_plot::PlotPoints::Owned(p.clone());
+                                                    plot_ui.line(
+                                                        egui_plot::Line::new(plot_points)
+                                                            .color(g.color[i])
+                                                            .name(format!("{}-{}", curve_name, i)),
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                GraphType::Vec3Conf(g) => {
+                                    let mut points = vec![vec![], vec![], vec![]];
+                                    let mut up_points = vec![vec![], vec![], vec![]];
+                                    let mut down_points = vec![vec![], vec![], vec![]];
+
+                                    for (x, y, e) in &g.data {
+                                        if x > &data_driven_largest_x {
+                                            data_driven_largest_x = *x;
+                                        }
+
+                                        let max_y = (y.0 + e.0).max((y.1 + e.1).max(y.2 + e.2));
+                                        if max_y > data_driven_largest_y {
+                                            data_driven_largest_y = max_y;
+                                        }
+
+                                        points[0].push(egui_plot::PlotPoint::new(*x, y.0));
+                                        points[1].push(egui_plot::PlotPoint::new(*x, y.1));
+                                        points[2].push(egui_plot::PlotPoint::new(*x, y.2));
+
+                                        up_points[0].push(egui_plot::PlotPoint::new(*x, y.0 + e.1));
+                                        up_points[1].push(egui_plot::PlotPoint::new(*x, y.1 + e.1));
+                                        up_points[2].push(egui_plot::PlotPoint::new(*x, y.2 + e.2));
+
+                                        down_points[0]
+                                            .push(egui_plot::PlotPoint::new(*x, y.0 - e.0));
+                                        down_points[1]
+                                            .push(egui_plot::PlotPoint::new(*x, y.1 - e.1));
+                                        down_points[2]
+                                            .push(egui_plot::PlotPoint::new(*x, y.2 - e.2));
                                     }
 
                                     match g.curve_type {

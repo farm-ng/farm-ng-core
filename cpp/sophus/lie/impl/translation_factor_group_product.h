@@ -233,7 +233,7 @@ class TranslationFactorGroupProduct {
     mat.setZero();
     mat.template topLeftCorner<kPointDim, kAmbientDim>() =
         compactMatrix(params);
-    mat(kPointDim, kPointDim) = 1.0;
+    mat(kPointDim, kPointDim) = TScalar(1.0);
     return mat;
   }
 

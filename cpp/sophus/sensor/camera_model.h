@@ -86,7 +86,7 @@ class CameraModelT {
   using Proj = TProj;
   static int constexpr kNumDistortionParams = Distortion::kNumDistortionParams;
   static int constexpr kNumParams = Distortion::kNumParams;
-  static constexpr const std::string_view kProjectionModel =
+  static std::string_view constexpr const kProjectionModel =
       Distortion::kProjectionModel;
 
   using PointCamera = Eigen::Matrix<TScalar, 3, 1>;
@@ -353,9 +353,16 @@ class CameraModel {
   CameraModel()
       : model_(PinholeModel({0, 0}, Eigen::Vector4d(1.0, 1.0, 0.0, 0.0))) {}
 
-  /// Constructs camera model from `frame_name` and concrete projection model.
-  template <class TTransformModelT>
-  CameraModel(TTransformModelT model) : model_(model) {}
+  CameraModel(CameraModel const& model) = default;
+
+  CameraModel& operator=(CameraModel const& model) = default;
+
+  /// Constructs camera model from `CameraDistortionVariant`.
+  template <class TScalar, class TDistortion, class TProj>
+  CameraModel(CameraModelT<TScalar, TDistortion, TProj> const& cam)
+      : model_(cam) {}
+
+  CameraModel(CameraDistortionVariant const& variant) : model_(variant) {}
 
   /// Constructs camera model from `frame_name`, `image_size`, `projection_type`
   /// flag and `params` vector.

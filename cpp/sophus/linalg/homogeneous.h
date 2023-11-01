@@ -30,7 +30,7 @@ auto proj(Eigen::MatrixBase<TPoint> const& p)
 template <class TPoint>
 auto unproj(
     Eigen::MatrixBase<TPoint> const& p,
-    const typename TPoint::Scalar& z = typename TPoint::Scalar(1.0))
+    typename TPoint::Scalar const& z = typename TPoint::Scalar(1.0))
     -> Eigen::Vector<typename TPoint::Scalar, TPoint::RowsAtCompileTime + 1> {
   using Scalar = typename TPoint::Scalar;
   static_assert(TPoint::ColsAtCompileTime == 1, "p must be a column-vector");

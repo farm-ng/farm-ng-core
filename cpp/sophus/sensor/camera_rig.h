@@ -22,4 +22,6 @@ struct RigidCamera {
   sophus::SE3d rig_from_camera;
 };
 
+using MultiCameraRig = std::vector<RigidCamera>;
+
 }  // namespace sophus

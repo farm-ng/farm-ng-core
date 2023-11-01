@@ -19,7 +19,7 @@ class BrownConradyTransform {
  public:
   static int constexpr kNumDistortionParams = 8;
   static int constexpr kNumParams = kNumDistortionParams + 4;
-  static constexpr const std::string_view kProjectionModel =
+  static std::string_view constexpr const kProjectionModel =
       "BrownConrady: fx, fy, cx, cy, k1, k2, p1, p2, k3, k4, k5, k6";
 
   template <class TScalar>
@@ -52,11 +52,11 @@ class BrownConradyTransform {
     auto r2 = x * x + y * y;
     auto r4 = r2 * r2;
     auto r6 = r4 * r2;
-    auto a1 = 2 * x * y;
-    auto a2 = r2 + 2 * x * x;
-    auto a3 = r2 + 2 * y * y;
-    auto cdist = 1 + k[0] * r2 + k[1] * r4 + k[4] * r6;
-    auto icdist2 = 1. / (1 + k[5] * r2 + k[6] * r4 + k[7] * r6);
+    auto a1 = 2.0 * x * y;
+    auto a2 = r2 + 2.0 * x * x;
+    auto a3 = r2 + 2.0 * y * y;
+    auto cdist = 1.0 + k[0] * r2 + k[1] * r4 + k[4] * r6;
+    auto icdist2 = 1.0 / (1.0 + k[5] * r2 + k[6] * r4 + k[7] * r6);
     auto xd0 = x * cdist * icdist2 + k[2] * a1 + k[3] * a2;
     auto yd0 = y * cdist * icdist2 + k[2] * a3 + k[3] * a1;
 

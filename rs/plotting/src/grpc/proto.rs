@@ -1,17 +1,17 @@
 use std::mem::size_of;
 
 use crate::graphs::common::{
-    Bounds, LineType, ResetPredicate, XCoordinateBounds, YCoordinateBounds,
+    Bounds, ClearCondition, LineType, XCoordinateBounds, YCoordinateBounds,
 };
 use crate::graphs::packets::{PlottingPacket, PlottingPackets};
-use crate::graphs::scalar_curve::{NamedScalarCurve, ScalarCurve};
-use crate::graphs::vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve};
-use crate::graphs::vec3_curve::{NamedVec3Curve, Vec3Curve};
+use crate::graphs::scalar_curve::{NamedScalarCurve, ScalarCurve, ScalarCurveStyle};
+use crate::graphs::vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve, Vec3ConfCurveStyle};
+use crate::graphs::vec3_curve::{NamedVec3Curve, Vec3Curve, Vec3CurveStyle};
 
 use crate::grpc::farm_ng::core::plotting::proto;
-use crate::grpc::farm_ng::core::plotting::proto::CurveResetPredicate;
-use crate::grpc::proto::proto::Messages;
 use crate::grpc::farm_ng::core::proto::OptionalG0Double;
+use crate::grpc::proto::proto::Messages;
+use std::collections::VecDeque;
 
 pub fn color_from_proto(
     proto: crate::grpc::farm_ng::core::proto::Color,
@@ -41,14 +41,9 @@ pub fn line_type_from_proto(proto: proto::LineType) -> LineType {
     LineType::Points
 }
 
-pub fn reset_predicate_from_proto(proto: CurveResetPredicate) -> ResetPredicate {
-    if !proto.shall_clear {
-        return ResetPredicate {
-            clear_x_smaller_than: None,
-        };
-    }
-    ResetPredicate {
-        clear_x_smaller_than: Some(proto.clear_x_smaller_than),
+pub fn clear_cond_from_proto(proto: proto::ClearCondition) -> ClearCondition {
+    ClearCondition {
+        max_x_range: proto.max_x_range,
     }
 }
 
@@ -96,7 +91,7 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                     let plot_name = tokens[0];
                     let curve_name = tokens[1];
 
-                    let pairs_as_f64: Vec<(f64, f64)> = proto_curve
+                    let pairs_as_f64: VecDeque<(f64, f64)> = proto_curve
                         .x_y_pairs
                         .unwrap()
                         .data
@@ -114,11 +109,11 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                         graph_name: curve_name.to_owned(),
                         scalar_curve: ScalarCurve {
                             data: pairs_as_f64,
-                            color: color_from_proto(proto_curve.color.unwrap()),
-                            curve_type: line_type_from_proto(proto_curve.line_type.unwrap()),
-                            clear_x_smaller_than: reset_predicate_from_proto(
-                                proto_curve.reset.unwrap(),
-                            ),
+                            style: ScalarCurveStyle {
+                                color: color_from_proto(proto_curve.color.unwrap()),
+                                line_type: line_type_from_proto(proto_curve.line_type.unwrap()),
+                            },
+                            clear_cond: clear_cond_from_proto(proto_curve.clear_cond.unwrap()),
                             bounds: bound_from_proto(proto_curve.bounds.unwrap()),
                         },
                     }));
@@ -137,7 +132,7 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                     let plot_name = tokens[0];
                     let curve_name = tokens[1];
 
-                    let pairs_as_f64: Vec<(f64, (f64, f64, f64))> = proto_curve3
+                    let pairs_as_f64: VecDeque<(f64, (f64, f64, f64))> = proto_curve3
                         .x_vec_pairs
                         .unwrap()
                         .data
@@ -169,11 +164,11 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                         graph_name: curve_name.to_owned(),
                         scalar_curve: Vec3Curve {
                             data: pairs_as_f64,
-                            color: cs,
-                            curve_type: line_type_from_proto(proto_curve3.line_type.unwrap()),
-                            clear_x_smaller_than: reset_predicate_from_proto(
-                                proto_curve3.reset.unwrap(),
-                            ),
+                            style: Vec3CurveStyle {
+                                color: cs,
+                                line_type: line_type_from_proto(proto_curve3.line_type.unwrap()),
+                            },
+                            clear_cond: clear_cond_from_proto(proto_curve3.clear_cond.unwrap()),
                             bounds: bound_from_proto(proto_curve3.bounds.unwrap()),
                         },
                     }));
@@ -193,56 +188,55 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                     let curve_name = tokens[1];
 
                     // Convert bytes to (f64,f64) using f64::from_ne_bytes
-                    let pairs_as_f64: Vec<(f64, (f64, f64, f64), (f64, f64, f64))> = proto_curve3
-                        .x_vec_conf_tuples
-                        .unwrap()
-                        .data
-                        .chunks_exact(size_of::<f64>() * 7)
-                        .map(|b| {
-                            (
-                                f64::from_ne_bytes(b[0..size_of::<f64>()].try_into().unwrap()),
+                    let pairs_as_f64: VecDeque<(f64, ((f64, f64, f64), (f64, f64, f64)))> =
+                        proto_curve3
+                            .x_vec_conf_tuples
+                            .unwrap()
+                            .data
+                            .chunks_exact(size_of::<f64>() * 7)
+                            .map(|b| {
                                 (
-                                    f64::from_ne_bytes(
-                                        b[size_of::<f64>()..2 * size_of::<f64>()]
-                                            .try_into()
-                                            .unwrap(),
+                                    f64::from_ne_bytes(b[0..size_of::<f64>()].try_into().unwrap()),
+                                    (
+                                        (
+                                            f64::from_ne_bytes(
+                                                b[size_of::<f64>()..2 * size_of::<f64>()]
+                                                    .try_into()
+                                                    .unwrap(),
+                                            ),
+                                            f64::from_ne_bytes(
+                                                b[2 * size_of::<f64>()..3 * size_of::<f64>()]
+                                                    .try_into()
+                                                    .unwrap(),
+                                            ),
+                                            f64::from_ne_bytes(
+                                                b[3 * size_of::<f64>()..4 * size_of::<f64>()]
+                                                    .try_into()
+                                                    .unwrap(),
+                                            ),
+                                        ),
+                                        (
+                                            f64::from_ne_bytes(
+                                                b[4 * size_of::<f64>()..5 * size_of::<f64>()]
+                                                    .try_into()
+                                                    .unwrap(),
+                                            ),
+                                            f64::from_ne_bytes(
+                                                b[5 * size_of::<f64>()..6 * size_of::<f64>()]
+                                                    .try_into()
+                                                    .unwrap(),
+                                            ),
+                                            f64::from_ne_bytes(
+                                                b[6 * size_of::<f64>()..7 * size_of::<f64>()]
+                                                    .try_into()
+                                                    .unwrap(),
+                                            ),
+                                        ),
                                     ),
-                                    f64::from_ne_bytes(
-                                        b[2 * size_of::<f64>()..3 * size_of::<f64>()]
-                                            .try_into()
-                                            .unwrap(),
-                                    ),
-                                    f64::from_ne_bytes(
-                                        b[3 * size_of::<f64>()..4 * size_of::<f64>()]
-                                            .try_into()
-                                            .unwrap(),
-                                    ),
-                                ),
-                                (
-                                    f64::from_ne_bytes(
-                                        b[4 * size_of::<f64>()..5 * size_of::<f64>()]
-                                            .try_into()
-                                            .unwrap(),
-                                    ),
-                                    f64::from_ne_bytes(
-                                        b[5 * size_of::<f64>()..6 * size_of::<f64>()]
-                                            .try_into()
-                                            .unwrap(),
-                                    ),
-                                    f64::from_ne_bytes(
-                                        b[6 * size_of::<f64>()..7 * size_of::<f64>()]
-                                            .try_into()
-                                            .unwrap(),
-                                    ),
-                                ),
-                            )
-                        })
-                        .collect();
-                    let mut v: Vec<(f64, [f64; 3], [f64; 3])> = Vec::new();
+                                )
+                            })
+                            .collect();
 
-                    for (x, y, z) in pairs_as_f64.clone() {
-                        v.push((x, [y.0, y.1, y.2], [z.0, z.1, z.2]));
-                    }
                     let cs = colors_from_proto(proto_curve3.color);
                     let cs_conf = colors_from_proto(proto_curve3.conf_color);
 
@@ -251,11 +245,11 @@ pub fn from_proto(m: Messages) -> PlottingPackets {
                         graph_name: curve_name.to_owned(),
                         scalar_curve: Vec3ConfCurve {
                             data: pairs_as_f64.clone(),
-                            color: cs,
-                            conf_color: cs_conf,
-                            clear_x_smaller_than: reset_predicate_from_proto(
-                                proto_curve3.reset.unwrap(),
-                            ),
+                            style: Vec3ConfCurveStyle {
+                                color: cs,
+                                conf_color: cs_conf,
+                            },
+                            clear_cond: clear_cond_from_proto(proto_curve3.clear_cond.unwrap()),
                             bounds: bound_from_proto(proto_curve3.bounds.unwrap()),
                         },
                     }));

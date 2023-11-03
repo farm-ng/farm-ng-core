@@ -22,9 +22,8 @@ package farm_ng.core.plotting.proto;
 
 // WARNING: This proto API is experimental and subject to change.
 
-message CurveResetPredicate {
-  double clear_x_smaller_than = 1;
-  bool shall_clear = 2;
+message ClearCondition {
+  double max_x_range = 1;
 }
 
 // Represents ((x, y), (x, y), ...)
@@ -66,29 +65,29 @@ message LineType { string variant_name = 1; }
 
 message Curve {
   Bounds bounds = 1;
-  core.proto.Color color = 2;
-  LineType line_type = 3;
-  core.proto.FileSystemPath path = 4;
-  CurveResetPredicate reset = 5;
+  ClearCondition clear_cond = 2;
+  core.proto.Color color = 3;
+  LineType line_type = 4;
+  core.proto.FileSystemPath path = 5;
   XyPairsF64 x_y_pairs = 6;
 };
 
 message Vec3Curve {
   Bounds bounds = 1;
-  repeated core.proto.Color color = 2;
-  LineType line_type = 3;
-  core.proto.FileSystemPath path = 4;
-  CurveResetPredicate reset = 5;
+  ClearCondition clear_cond = 2;
+  repeated core.proto.Color color = 3;
+  LineType line_type = 4;
+  core.proto.FileSystemPath path = 5;
   XVecTupleF64 x_vec_pairs = 6;
 };
 
 message Vec3CurveWithConfInterval {
-  Bounds bounds = 1;
-  repeated core.proto.Color color = 2;
-  repeated core.proto.Color conf_color = 3;
+  ClearCondition clear_cond = 1;
+  Bounds bounds = 2;
+  repeated core.proto.Color color = 3;
+  repeated core.proto.Color conf_color = 4;
   core.proto.FileSystemPath path = 5;
-  CurveResetPredicate reset = 6;
-  XVecConvTupleF64 x_vec_conf_tuples = 7;
+  XVecConvTupleF64 x_vec_conf_tuples = 6;
 };
 
 message ColoredRect {
@@ -100,9 +99,9 @@ message RepeatedG0ColoredRect { repeated ColoredRect value = 1; }
 
 message RectPlot {
   Bounds bounds = 1;
-  RepeatedG0ColoredRect colored_rects = 2;
-  core.proto.FileSystemPath path = 3;
-  CurveResetPredicate reset = 4;
+  ClearCondition clear_cond = 2;
+  RepeatedG0ColoredRect colored_rects = 3;
+  core.proto.FileSystemPath path = 4;
 }
 
 message Message {

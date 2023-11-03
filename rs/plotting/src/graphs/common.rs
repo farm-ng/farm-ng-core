@@ -43,7 +43,7 @@ impl Color {
         }
     }
 
-    pub fn  dark_green() -> Self {
+    pub fn dark_green() -> Self {
         Color {
             r: 0.0,
             g: 0.5,
@@ -52,7 +52,7 @@ impl Color {
         }
     }
 
-    pub fn  dark_blue() -> Self {
+    pub fn dark_blue() -> Self {
         Color {
             r: 0.0,
             g: 0.0,
@@ -125,14 +125,55 @@ pub struct Bounds {
     pub y_bounds: YCoordinateBounds,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub enum LineType {
     #[default]
     LineStrip,
     Points,
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct ResetPredicate {
-    pub clear_x_smaller_than: Option<f64>,
+#[derive(Copy, Clone, Debug)]
+pub struct ClearCondition {
+    pub max_x_range: f64,
+}
+
+impl ClearCondition {
+    pub fn new() -> Self {
+        ClearCondition { max_x_range: 0.0 }
+    }
+
+    pub fn append() -> Self {
+        ClearCondition {
+            max_x_range: 10000.0,
+        }
+    }
+}
+
+pub trait CurveTrait<DataChunk, Style> {
+    fn mut_tuples(&mut self) -> &mut std::collections::VecDeque<(f64, DataChunk)>;
+
+    fn append(
+        &mut self,
+        clear_cond: ClearCondition,
+        mut new_tuples: std::collections::VecDeque<(f64, DataChunk)>,
+        style: Style,
+    ) {
+        self.drain_filter(clear_cond);
+
+        self.mut_tuples().append(&mut new_tuples);
+
+        self.assign_style(style);
+    }
+
+    fn assign_style(&mut self, meta: Style);
+
+    fn drain_filter(&mut self, pred: ClearCondition) {
+        let max_x = self
+            .mut_tuples()
+            .iter()
+            .fold(std::f64::MIN, |max, p| max.max(p.0));
+
+        self.mut_tuples()
+            .retain(|pair| max_x - pair.0 <= pred.max_x_range);
+    }
 }

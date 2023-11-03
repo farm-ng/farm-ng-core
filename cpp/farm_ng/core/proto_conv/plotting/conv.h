@@ -22,7 +22,7 @@
 namespace farm_ng {
 
 FARM_PROTO_CONV_TRAIT(
-    plotting::CurveResetPredicate, core::plotting::proto::CurveResetPredicate);
+    plotting::ClearCondition, core::plotting::proto::ClearCondition);
 FARM_PROTO_CONV_TRAIT(plotting::LineType, core::plotting::proto::LineType);
 FARM_PROTO_CONV_TRAIT(
     plotting::ColoredRect, core::plotting::proto::ColoredRect);

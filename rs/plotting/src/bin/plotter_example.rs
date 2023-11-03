@@ -3,10 +3,14 @@ pub use hollywood::core::*;
 use hollywood::macros::*;
 
 use plotting::actors::plotter::{run_on_main_thread, PlotterActor, PlotterProp, PlotterState};
-use plotting::graphs::common::{Bounds, XCoordinateBounds, YCoordinateBounds};
+use plotting::graphs::common::{Bounds,Color, LineType,XCoordinateBounds, YCoordinateBounds};
 use plotting::graphs::packets::PlottingPacket;
 use plotting::graphs::packets::PlottingPackets;
 
+
+use plotting::graphs::scalar_curve::{ ScalarCurveStyle};
+use plotting::graphs::vec3_conf_curve::{ Vec3ConfCurveStyle};
+use plotting::graphs::vec3_curve::{Vec3CurveStyle};
 /// The GraphGenerator actor.
 ///
 #[actor(GraphGeneratorMessage)]
@@ -41,9 +45,11 @@ impl OnMessage for GraphGeneratorMessage {
                 let packets = vec![
                     PlottingPacket::append_to_curve(
                         ("trig0", "sin"),
-                        plotting::graphs::common::Color::red(),
                         (*time_in_seconds, time_in_seconds.sin()),
-                        1000.0,
+                        ScalarCurveStyle{
+                         color:   plotting::graphs::common::Color::red(),
+                           line_type: LineType::default(),
+                        },
                         Bounds {
                             x_bounds: XCoordinateBounds::from_len_and_max(2.0, None),
                             y_bounds: YCoordinateBounds::symmetric_from_height(Some(2.0)),
@@ -59,7 +65,10 @@ impl OnMessage for GraphGeneratorMessage {
                                 time_in_seconds.tan(),
                             ),
                         ),
-                        1000.0,
+                        Vec3CurveStyle {
+                            color: [Color::red(), Color::green(), Color::blue()],
+                            line_type: LineType::default(),
+                        },
                         Bounds {
                             x_bounds: XCoordinateBounds::from_len_and_max(2.0, None),
                             y_bounds: YCoordinateBounds::symmetric_from_height(Some(2.0)),
@@ -69,7 +78,7 @@ impl OnMessage for GraphGeneratorMessage {
                         ("trig2", "sin/cos/tan"),
                         (
                             *time_in_seconds,
-                            (
+                           ( (
                                 time_in_seconds.sin(),
                                 time_in_seconds.cos(),
                                 time_in_seconds.tan(),
@@ -78,8 +87,11 @@ impl OnMessage for GraphGeneratorMessage {
                                0.1*time_in_seconds.sin().abs(),
                                0.1*time_in_seconds.sin().abs(),
                                0.1*time_in_seconds.sin().abs(),
-                            )                       ),
-                        1000.0,
+                            )                       )),
+                           Vec3ConfCurveStyle {
+                                color: [Color::red(), Color::green(), Color::blue()],
+                                conf_color: [Color::dark_red(), Color::dark_green(), Color::dark_blue()],
+                            },
                         Bounds {
                             x_bounds: XCoordinateBounds::from_len_and_max(2.0, None),
                             y_bounds: YCoordinateBounds::symmetric_from_height(Some(2.0)),

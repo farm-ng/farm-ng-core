@@ -1,8 +1,8 @@
 use super::{
-    common::{Bounds, Color, LineType, ResetPredicate},
-    scalar_curve::{NamedScalarCurve, ScalarCurve},
-    vec3_curve::{NamedVec3Curve, Vec3Curve},
-    vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve},
+    common::{Bounds, ClearCondition, Color, LineType},
+    scalar_curve::{NamedScalarCurve, ScalarCurve, ScalarCurveStyle},
+    vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve, Vec3ConfCurveStyle},
+    vec3_curve::{NamedVec3Curve, Vec3Curve, Vec3CurveStyle},
 };
 
 #[derive(Clone, Debug)]
@@ -17,21 +17,17 @@ pub type PlottingPackets = Vec<PlottingPacket>;
 impl PlottingPacket {
     pub fn append_to_curve<S: Into<String>>(
         (plot, graph): (S, S),
-        color: Color,
         (x, y): (f64, f64),
-        history_length: f64,
+        style: ScalarCurveStyle ,
         bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedScalarCurve {
             plot_name: plot.into(),
             graph_name: graph.into(),
             scalar_curve: ScalarCurve {
-                data: vec![(x, y)],
-                color,
-                curve_type: LineType::default(),
-                clear_x_smaller_than: ResetPredicate {
-                    clear_x_smaller_than: Some(x - history_length),
-                },
+                data: vec![(x, y)].into(),
+                style,
+                clear_cond: ClearCondition::append(),
                 bounds,
             },
         };
@@ -42,19 +38,16 @@ impl PlottingPacket {
     pub fn append_to_vec3_curve<S: Into<String>>(
         (plot, graph): (S, S),
         (x, y): (f64, (f64, f64, f64)),
-        history_length: f64,
+        style: Vec3CurveStyle,
         bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedVec3Curve {
             plot_name: plot.into(),
             graph_name: graph.into(),
             scalar_curve: Vec3Curve {
-                data: vec![(x, y)],
-                color: [Color::red(), Color::green(), Color::blue()],
-                curve_type: LineType::default(),
-                clear_x_smaller_than: ResetPredicate {
-                    clear_x_smaller_than: Some(x - history_length),
-                },
+                data: vec![(x, y)].into(),
+                style,
+                clear_cond: ClearCondition::append(),
                 bounds,
             },
         };
@@ -64,20 +57,18 @@ impl PlottingPacket {
 
     pub fn append_to_vec3_conf_curve<S: Into<String>>(
         (plot, graph): (S, S),
-        (x, y, y_epsilon): (f64, (f64, f64, f64),(f64, f64, f64)),
-        history_length: f64,
+        (x, y): (f64, ((f64, f64, f64), (f64, f64, f64))),
+        style: Vec3ConfCurveStyle,
         bounds: Bounds,
     ) -> PlottingPacket {
         let curve = NamedVec3ConfCurve {
             plot_name: plot.into(),
             graph_name: graph.into(),
             scalar_curve: Vec3ConfCurve {
-                data: vec![(x, y, y_epsilon)],
-                color: [Color::red(), Color::green(), Color::blue()],
-                conf_color: [Color::dark_red(), Color::dark_green(), Color::dark_blue()],
-                clear_x_smaller_than: ResetPredicate {
-                    clear_x_smaller_than: Some(x - history_length),
-                },
+                data: vec![(x, y)].into(),
+                style,
+                clear_cond: ClearCondition::append(),
+
                 bounds,
             },
         };

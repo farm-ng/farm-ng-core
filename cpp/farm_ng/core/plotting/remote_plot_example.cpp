@@ -101,9 +101,6 @@ int main(int argc, char* argv[]) {
     plotting->inMessages().send(messages);
 
     x += 0.01;
-    trig_graph.reset.clear_x_smaller_than = x - 2.0 * M_PI;
-    sawtooth.reset.clear_x_smaller_than = x - 2.0 * M_PI;
-    conf_trig_graph.reset.clear_x_smaller_than = x - 2.0 * M_PI;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
   }

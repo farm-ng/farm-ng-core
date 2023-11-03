@@ -25,25 +25,19 @@
 namespace farm_ng {
 
 template <>
-auto fromProt<core::plotting::proto::CurveResetPredicate>(
-    core::plotting::proto::CurveResetPredicate const& proto)
-    -> Expected<plotting::CurveResetPredicate> {
-  plotting::CurveResetPredicate predicate;
-  predicate.clear_x_smaller_than =
-      proto.shall_clear() ? std::optional<double>(proto.clear_x_smaller_than())
-                          : std::optional<double>();
+auto fromProt<core::plotting::proto::ClearCondition>(
+    core::plotting::proto::ClearCondition const& proto)
+    -> Expected<plotting::ClearCondition> {
+  plotting::ClearCondition predicate;
+  predicate.max_x_range = proto.max_x_range();
   return predicate;
 }
 
 template <>
-auto toProt<plotting::CurveResetPredicate>(
-    plotting::CurveResetPredicate const& v)
-    -> core::plotting::proto::CurveResetPredicate {
-  core::plotting::proto::CurveResetPredicate proto;
-  proto.set_shall_clear(bool(v.clear_x_smaller_than));
-  if (v.clear_x_smaller_than) {
-    proto.set_clear_x_smaller_than(v.clear_x_smaller_than.value());
-  }
+auto toProt<plotting::ClearCondition>(plotting::ClearCondition const& v)
+    -> core::plotting::proto::ClearCondition {
+  core::plotting::proto::ClearCondition proto;
+  proto.set_max_x_range(v.max_x_range);
   return proto;
 }
 
@@ -151,17 +145,17 @@ FARM_CONV_IMPL_REPEATED(
 FARM_PROTO_CONV_IMPL(
     plotting::RectPlot,
     core::plotting::proto::RectPlot,
-    (bounds, colored_rects, path, reset));
+    (bounds, clear_cond, colored_rects, path));
 
 FARM_PROTO_CONV_IMPL(
     plotting::Curve,
     core::plotting::proto::Curve,
-    (bounds, color, line_type, path, reset, x_y_pairs));
+    (bounds, clear_cond, color, line_type, path, x_y_pairs));
 
 FARM_PROTO_CONV_IMPL_FN(
     plotting::Vec3Curve,
     core::plotting::proto::Vec3Curve,
-    (bounds, (color, SKIP), line_type, path, reset, x_vec_pairs),
+    (bounds, clear_cond, (color, SKIP), line_type, path, x_vec_pairs),
     [](plotting::Vec3Curve&& s, core::plotting::proto::Vec3Curve const& proto)
         -> Expected<plotting::Vec3Curve> {
       if (proto.color_size() != 3) {
@@ -183,7 +177,12 @@ FARM_PROTO_CONV_IMPL_FN(
 FARM_PROTO_CONV_IMPL_FN(
     plotting::Vec3CurveWithConfInterval,
     core::plotting::proto::Vec3CurveWithConfInterval,
-    (bounds, (color, SKIP), (conf_color, SKIP), path, reset, x_vec_conf_tuples),
+    (bounds,
+     clear_cond,
+     (color, SKIP),
+     (conf_color, SKIP),
+     path,
+     x_vec_conf_tuples),
     [](plotting::Vec3CurveWithConfInterval&& s,
        core::plotting::proto::Vec3CurveWithConfInterval const& proto)
         -> Expected<plotting::Vec3CurveWithConfInterval> {

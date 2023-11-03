@@ -30,21 +30,17 @@ namespace plotting {
 /// line_strip: plot line segments along the curve
 FARM_ENUM(LineType, (points, line_strip));
 
-/// Predicate for resetting a curve. If `clear_x_smaller_than` is set, then
-/// points with x coordinate smaller than that value will be cleared from the
-/// curve.
+/// Condition for clear some or all curve data
 ///
-/// TODO: Redesign this to be more general and more usable.
-struct CurveResetPredicate {
-  /// Returns a predicate that does reset the curve.
-  static CurveResetPredicate replace() {
-    return CurveResetPredicate{
-        .clear_x_smaller_than = std::numeric_limits<double>::max()};
-  }
+/// Note: The predicate is applied before new data is added hence if e.g.
+/// we have a curve struct with `curve.max_x_range == 0` pre-exiting data is
+/// erased from the plot and then filled with `curve.x_y_pairs`.
 
-  /// Condition for clearing part of the curve.
-  std::optional<double> clear_x_smaller_than = std::nullopt;
+struct ClearCondition {
+  double max_x_range = 10000.0;
 };
+
+inline ClearCondition addNew() { return ClearCondition{.max_x_range = 0}; }
 
 FARM_STRUCT(
     XCoordinateBounds,
@@ -63,10 +59,10 @@ FARM_STRUCT(
 FARM_STRUCT(
     Curve,
     ((Bounds, bounds, {}),
+     (ClearCondition, clear_cond, {}),
      (sophus::Color, color, {}),
      (LineType, line_type, {LineType::line_strip}),
      (std::filesystem::path, path, {}),
-     (CurveResetPredicate, reset, {}),
      (std::deque<Eigen::Vector2d>, x_y_pairs, {})));
 
 // No commas allowed in macro arguments, so we need to define this here.
@@ -88,10 +84,10 @@ ColorArray3 constexpr kDefaultConfColorArray3 = {
 FARM_STRUCT(
     Vec3Curve,
     ((Bounds, bounds, {}),
+     (ClearCondition, clear_cond, {}),
      (ColorArray3, color, {kDefaultColorArray3}),
      (LineType, line_type, {LineType::line_strip}),
      (std::filesystem::path, path, {}),
-     (CurveResetPredicate, reset, {}),
      (std::deque<Eigen::Vector4d>, x_vec_pairs, {})));
 
 using Vec7d = Eigen::Matrix<double, 7, 1>;
@@ -102,10 +98,10 @@ using Vec7d = Eigen::Matrix<double, 7, 1>;
 FARM_STRUCT(
     Vec3CurveWithConfInterval,
     ((Bounds, bounds, {}),
+     (ClearCondition, clear_cond, {}),
      (ColorArray3, color, {kDefaultColorArray3}),
      (ColorArray3, conf_color, {kDefaultConfColorArray3}),
      (std::filesystem::path, path, {}),
-     (CurveResetPredicate, reset, {}),
      (std::deque<Vec7d>, x_vec_conf_tuples, {})));
 
 /// A colored rectangle.
@@ -148,9 +144,9 @@ struct ColoredRect {
 FARM_STRUCT(
     RectPlot,
     ((Bounds, bounds, {}),
+     (ClearCondition, clear_cond, {}),
      (std::deque<ColoredRect>, colored_rects, {}),
-     (std::filesystem::path, path, {}),
-     (CurveResetPredicate, reset, {})));
+     (std::filesystem::path, path, {})));
 
 using Message =
     std::variant<RectPlot, Curve, Vec3Curve, Vec3CurveWithConfInterval>;

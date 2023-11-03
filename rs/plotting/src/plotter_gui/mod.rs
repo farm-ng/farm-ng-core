@@ -4,7 +4,7 @@ use eframe::egui;
 
 use hollywood::compute::pipeline::CancelRequest;
 
-use crate::graphs::common::{Bounds, Color};
+use crate::graphs::common::{Bounds, Color, CurveTrait};
 use crate::graphs::packets::{PlottingPacket, PlottingPackets};
 use crate::graphs::scalar_curve::ScalarCurve;
 use crate::graphs::vec3_conf_curve::Vec3ConfCurve;
@@ -100,10 +100,9 @@ impl eframe::App for PlotterGuiState {
                             .and_modify(|curve_struct| match &mut curve_struct.curve {
                                 GraphType::Scalar(g) => {
                                     g.append(
+                                        new_value.scalar_curve.clear_cond,
                                         new_value.scalar_curve.data.clone(),
-                                        new_value.scalar_curve.color,
-                                        new_value.scalar_curve.curve_type.clone(),
-                                        new_value.scalar_curve.clear_x_smaller_than.clone(),
+                                        new_value.scalar_curve.style,
                                     );
                                 }
                                 GraphType::Vec3(_g) => {}
@@ -133,10 +132,9 @@ impl eframe::App for PlotterGuiState {
                                 GraphType::Scalar(_s) => {}
                                 GraphType::Vec3(g) => {
                                     g.append(
+                                        new_value.scalar_curve.clear_cond,
                                         new_value.scalar_curve.data.clone(),
-                                        new_value.scalar_curve.color,
-                                        new_value.scalar_curve.curve_type.clone(),
-                                        new_value.scalar_curve.clear_x_smaller_than.clone(),
+                                        new_value.scalar_curve.style,
                                     );
                                 }
                                 GraphType::Vec3Conf(_) => {}
@@ -166,10 +164,9 @@ impl eframe::App for PlotterGuiState {
                                 GraphType::Vec3(_) => {}
                                 GraphType::Vec3Conf(g) => {
                                     g.append(
+                                        new_value.scalar_curve.clear_cond,
                                         new_value.scalar_curve.data.clone(),
-                                        new_value.scalar_curve.color,
-                                        new_value.scalar_curve.conf_color,
-                                        new_value.scalar_curve.clear_x_smaller_than.clone(),
+                                        new_value.scalar_curve.style,
                                     );
                                 }
                             })
@@ -316,18 +313,18 @@ impl eframe::App for PlotterGuiState {
                                     }
                                     let plot_points = egui_plot::PlotPoints::Owned(points);
 
-                                    match g.curve_type {
+                                    match g.style.line_type {
                                         crate::graphs::common::LineType::LineStrip => {
                                             plot_ui.line(
                                                 egui_plot::Line::new(plot_points)
-                                                    .color(g.color)
+                                                    .color(g.style.color)
                                                     .name(curve_name),
                                             );
                                         }
                                         crate::graphs::common::LineType::Points => {
                                             plot_ui.points(
                                                 egui_plot::Points::new(plot_points)
-                                                    .color(g.color)
+                                                    .color(g.style.color)
                                                     .name(curve_name),
                                             );
                                         }
@@ -356,7 +353,7 @@ impl eframe::App for PlotterGuiState {
                                         points[2].push(egui_plot::PlotPoint::new(*x, y.2));
                                     }
 
-                                    match g.curve_type {
+                                    match g.style.line_type {
                                         crate::graphs::common::LineType::LineStrip => {
                                             for (i, p) in points.iter().enumerate().take(3) {
                                                 if plot_data.show_axis[i] {
@@ -364,7 +361,7 @@ impl eframe::App for PlotterGuiState {
                                                         egui_plot::PlotPoints::Owned(p.clone());
                                                     plot_ui.line(
                                                         egui_plot::Line::new(plot_points)
-                                                            .color(g.color[i])
+                                                            .color(g.style.color[i])
                                                             .name(format!("{}-{}", curve_name, i)),
                                                     );
                                                 }
@@ -377,7 +374,7 @@ impl eframe::App for PlotterGuiState {
                                                         egui_plot::PlotPoints::Owned(p.clone());
                                                     plot_ui.line(
                                                         egui_plot::Line::new(plot_points)
-                                                            .color(g.color[i])
+                                                            .color(g.style.color[i])
                                                             .name(format!("{}-{}", curve_name, i)),
                                                     );
                                                 }
@@ -390,7 +387,7 @@ impl eframe::App for PlotterGuiState {
                                     let mut up_points = vec![vec![], vec![], vec![]];
                                     let mut down_points = vec![vec![], vec![], vec![]];
 
-                                    for (x, y, e) in &g.data {
+                                    for (x, (y, e)) in &g.data {
                                         if x > &data_driven_max_x {
                                             data_driven_max_x = *x;
                                         }
@@ -434,9 +431,9 @@ impl eframe::App for PlotterGuiState {
                                         }
                                     };
 
-                                    plot_points(points, g.color);
-                                    plot_points(up_points, g.conf_color);
-                                    plot_points(down_points, g.conf_color);
+                                    plot_points(points, g.style.color);
+                                    plot_points(up_points, g.style.conf_color);
+                                    plot_points(down_points, g.style.conf_color);
 
                                 }
                             }

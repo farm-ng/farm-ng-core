@@ -1,59 +1,45 @@
-use crate::graphs::common::{Color, LineType, ResetPredicate};
+use crate::graphs::common::{ClearCondition, Color, CurveTrait, LineType};
 
 use super::common::Bounds;
+use std::collections::VecDeque;
+
+#[derive(Copy, Clone, Debug)]
+pub struct ScalarCurveStyle {
+    pub color: Color,
+    pub line_type: LineType,
+}
 
 #[derive(Clone, Debug)]
 pub struct ScalarCurve {
-    pub data: Vec<(f64, f64)>,
-    pub color: Color,
-    pub curve_type: LineType,
-    pub clear_x_smaller_than: ResetPredicate,
+    pub data: VecDeque<(f64, f64)>,
+    pub style: ScalarCurveStyle,
+    pub clear_cond: ClearCondition,
     pub bounds: Bounds,
 }
 
 impl ScalarCurve {
     pub fn new(
-        data: Vec<(f64, f64)>,
+        data: VecDeque<(f64, f64)>,
         color: Color,
-        curve_type: LineType,
-        f: ResetPredicate,
+        line_type: LineType,
         bounds: Bounds,
     ) -> Self {
         ScalarCurve {
             data,
-            color,
-            curve_type,
-            clear_x_smaller_than: f,
+            style: ScalarCurveStyle { color, line_type },
+            clear_cond: ClearCondition::new(),
             bounds,
         }
     }
+}
 
-    pub fn append(
-        &mut self,
-        mut pairs_as_f64: Vec<(f64, f64)>,
-        color: Color,
-        curve_type: LineType,
-        clear_x_smaller_than: ResetPredicate,
-    ) {
-        self.drain_filter(clear_x_smaller_than);
-
-        self.data.append(&mut pairs_as_f64);
-        self.color = color;
-        self.curve_type = curve_type;
+impl CurveTrait<f64, ScalarCurveStyle> for ScalarCurve {
+    fn mut_tuples(&mut self) -> &mut std::collections::VecDeque<(f64, f64)> {
+        &mut self.data
     }
 
-    fn drain_filter(&mut self, pred: ResetPredicate) {
-        if pred.clear_x_smaller_than.is_none() {
-            return;
-        }
-        let mut i = 0;
-        while i < self.data.len() {
-            if self.data[i].0 < pred.clear_x_smaller_than.unwrap() {
-                self.data.remove(i);
-            } else {
-                i += 1;
-            }
-        }
+    fn assign_style(&mut self, style: ScalarCurveStyle) {
+        self.style = style;
     }
 }
 

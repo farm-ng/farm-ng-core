@@ -25,6 +25,7 @@
 #include <random>
 #include <type_traits>
 
+// \cond HIDDEN_SYMBOLS
 // from <farm_ng/core/logging/format.h>cd
 #define SOPHUS_FORMAT(...) FARM_FORMAT(__VA_ARGS__)
 
@@ -46,6 +47,7 @@
 // from <farm_ng/core/logging/expected.h>
 #define SOPHUS_TRY(...) FARM_TRY(__VA_ARGS__)
 #define SOPHUS_UNEXPECTED(...) FARM_UNEXPECTED(__VA_ARGS__)
+// \endcond
 
 namespace sophus {
 
@@ -60,42 +62,56 @@ using ::farm_ng::Success;
 
 struct UninitTag {};
 
+/// Small epsilon variable template.
 template <class TScalar>
 TScalar const kEpsilon = TScalar(1e-10);
 
+/// Small epsilon float specialization
 template <>
 inline float const kEpsilon<float> = float(1e-5);
 
 static float const kEpsilonF32 = kEpsilon<float>;
 static float const kEpsilonF64 = kEpsilon<double>;
 
+/// Slightly larger than kEpsilon.
 template <class TScalar>
 TScalar const kEpsilonPlus =
     kEpsilon<TScalar>*(TScalar(1.) + kEpsilon<TScalar>);
 
 using std::sqrt;
+
+/// Small value significantly larger than kEpsilon.
 template <class TScalar>
 TScalar const kEpsilonSqrt = TScalar(1e-5);
 
+/// kEpsilonSqrt specialization for float.
 template <>
 inline float const kEpsilonSqrt<float> = float(3.16227766e-3);
 
 static float const kEpsilonSqrtF32 = kEpsilonSqrt<float>;
 static float const kEpsilonSqrtF64 = kEpsilonSqrt<double>;
 
+/// PI constant template,
 template <class TScalar>
 TScalar const kPi = TScalar(3.141592653589793238462643383279502884);
+
+/// PI specialization for float.
 float const kPiF32 = kPi<float>;
+
+/// PI specialization for double.
 double const kPiF64 = kPi<double>;
 
+/// Trait for std::uniform_random_bit_generator
 template <class TGenerator>
 struct IsUniformRandomBitGenerator {
+  /// true flag
   static bool const kValue =
       std::is_unsigned<typename TGenerator::result_type>::value &&
       std::is_unsigned<decltype(TGenerator::min())>::value &&
       std::is_unsigned<decltype(TGenerator::max())>::value;
 };
 
+/// True is TGenerator is a std::uniform_random_bit_generator.
 template <class TGenerator>
 bool constexpr kIsUniformRandomBitGeneratorV =
     IsUniformRandomBitGenerator<TGenerator>::kValue;

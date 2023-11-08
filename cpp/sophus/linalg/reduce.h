@@ -22,16 +22,20 @@ namespace concepts {
 
 namespace details {
 
+/// Reduction class template.
 template <class TScalar>
 class Reduce {
  public:
+  /// Aggregate
   using Aggregate = TScalar;
 
+  /// Unary reduction operator
   template <class TReduce, class TFunc>
   static void implUnary(TScalar const& s, TReduce& reduce, TFunc const& f) {
     f(s, reduce);
   }
 
+  /// Binary reduction operator
   template <class TReduce, class TFunc>
   static void implBinary(
       TScalar const& a, TScalar const& b, TReduce& reduce, TFunc const& f) {
@@ -39,9 +43,11 @@ class Reduce {
   }
 };
 
+/// Reduction specialization over Eigen matrices
 template <::sophus::concepts::EigenDenseType TT>
 class Reduce<TT> {
  public:
+  /// Unary reduction operator
   template <class TReduce, class TFunc>
   static void implUnary(TT const& v, TReduce& reduce, TFunc const& f) {
     for (int r = 0; r < v.rows(); ++r) {
@@ -51,6 +57,7 @@ class Reduce<TT> {
     }
   }
 
+  /// Binary reduction operator
   template <class TReduce, class TFunc>
   static void implBinary(
       TT const& a, TT const& b, TReduce& reduce, TFunc const& f) {

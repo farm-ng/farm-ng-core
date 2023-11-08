@@ -35,11 +35,12 @@ FARM_ENUM(LineType, (points, line_strip));
 /// Note: The predicate is applied before new data is added hence if e.g.
 /// we have a curve struct with `curve.max_x_range == 0` pre-exiting data is
 /// erased from the plot and then filled with `curve.x_y_pairs`.
-
 struct ClearCondition {
+  /// Maximal range of x values of graph. Here, x_range = max(X) - min(X).
   double max_x_range = 10000.0;
 };
 
+/// Creates clear condition for new curve. All preexisting data will be cleared.
 inline ClearCondition addNew() { return ClearCondition{.max_x_range = 0}; }
 
 FARM_STRUCT(

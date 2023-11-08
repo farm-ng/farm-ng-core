@@ -156,7 +156,7 @@ class Isometry3
     return Quaternion<Scalar>::fromParams(this->params_.template head<4>());
   }
 
-  auto setUnitQuaternion(Quaternion<Scalar> const& z) const -> void {
+  auto setUnitQuaternion(Quaternion<Scalar> const& z) -> void {
     this->setRotation(Rotation::fromUnitQuaternion(z));
   }
 

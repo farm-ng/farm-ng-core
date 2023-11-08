@@ -126,7 +126,7 @@ class Isometry2
     return this->rotation().unitComplex();
   }
 
-  auto setUnitComplex(Complex<Scalar> const& z) const -> void {
+  auto setUnitComplex(Complex<Scalar> const& z) -> void {
     this->setRotation(Rotation::fromUnitComplex(z));
   }
 

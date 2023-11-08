@@ -121,6 +121,11 @@ class Quaternion {
     return q;
   }
 
+  static auto from(Scalar real, Eigen::Vector<Scalar, 3> const& imag)
+      -> Quaternion {
+    return fromParams(Params(imag[0], imag[1], imag[2], real));
+  }
+
   static auto zero() -> Quaternion {
     return Quaternion::fromParams(Impl::zero());
   }

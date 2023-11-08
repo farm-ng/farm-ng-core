@@ -2,7 +2,8 @@ DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "farm-ng-core"
 INPUT                  = ../../cpp/farm_ng/core \
                          ../../cpp/sophus/common/ \
-                         ../../cpp/sophus/linalg/
+                         ../../cpp/sophus/linalg/ \
+                         ../../cpp/sophus/calculus/
 FILE_PATTERNS          = *.h \
                          *.hpp \
                          *.ipp

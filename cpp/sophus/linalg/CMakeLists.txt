@@ -9,7 +9,6 @@ set(sophus_linalg_src_prefixes
     cast
     homogeneous
     orthogonal
-    point_traits
     reduce
     vector_space
     vector_space_traits

@@ -43,7 +43,7 @@ using Region4F64 = Region4<double>;
 /// A region is a closed interval [a, b] with a being the lower bound (=min) and
 /// b being the upper bound (=max).
 ///
-/// Here, the bounds a, b sre either both  scalars (e.g. floats, doubles)
+/// Here, the bounds a, b are either both  scalars (e.g. floats, doubles)
 /// or fixed length vectors/arrays (such as Eigen::Vector3f or Eigen::Array2d).
 ///
 /// Special case for integer numbers:
@@ -53,14 +53,20 @@ using Region4F64 = Region4<double>;
 template <concepts::PointType TPoint>
 class Region {
  public:
-  static bool constexpr kIsInteger = PointTraits<TPoint>::kIsInteger;
+  /// Vector space over which the interval/region is defined.
   using Point = TPoint;
+  /// Scalar type.
   using Scalar = typename PointTraits<TPoint>::Scalar;
+  /// Is Scalar an integer?
+  static bool constexpr kIsInteger = PointTraits<TPoint>::kIsInteger;
 
+  /// Number of rows.
   static int constexpr kRows = PointTraits<TPoint>::kRows;
+  /// Number of columns.
   static int constexpr kCols = PointTraits<TPoint>::kCols;
   static_assert(kRows >= 1);
   static_assert(kCols >= 1);
+  /// Number of dimensions.
   static int constexpr kDim = kRows * kCols;
 
   /// Creates an uninitialized region.
@@ -127,8 +133,12 @@ class Region {
     this->extend(p2);
   }
 
+  /// Creates region over a 2-dimensional vector space by providing
+  /// component-wise intervals:
+  ///  - interval segment along X
+  ///  - interval segment along Y
   template <class TScalar>
-  requires(kDim == 2) static auto createPerAxis(
+  static auto createPerAxis(
       Region<TScalar> const& segment_x,
       Region<TScalar> const& segment_y) noexcept -> Region2<TScalar> {
     auto region = Region<TPoint>::uninitialized();
@@ -137,8 +147,13 @@ class Region {
     return region;
   }
 
+  /// Creates region over a 3-dimensional vector space by providing
+  /// component-wise intervals:
+  ///  - interval segment along X
+  ///  - interval segment along Y
+  ///  - interval segment along Z
   template <class TScalar>
-  requires(kDim == 3) static auto createPerAxis(
+  static auto createPerAxis(
       Region<TScalar> const& segment_x,
       Region<TScalar> const& segment_y,
       Region<TScalar> const& segment_z) noexcept -> Region2<TScalar> {
@@ -149,17 +164,23 @@ class Region {
     return region;
   }
 
+  /// Creates region over a 4-dimensional vector space by providing
+  /// component-wise intervals:
+  ///  - interval segment along dimension 0
+  ///  - interval segment along dimension 1
+  ///  - interval segment along dimension 2
+  ///  - interval segment along dimension 3
   template <class TScalar>
-  requires(kDim == 4) static auto createPerAxis(
-      Region<TScalar> const& segment_x,
-      Region<TScalar> const& segment_y,
-      Region<TScalar> const& segment_z,
-      Region<TScalar> const& segment_w) noexcept -> Region2<TScalar> {
+  static auto createPerAxis(
+      Region<TScalar> const& segment_0,
+      Region<TScalar> const& segment_1,
+      Region<TScalar> const& segment_2,
+      Region<TScalar> const& segment_3) noexcept -> Region2<TScalar> {
     auto region = Region<TPoint>::uninitialized();
-    region.setElem(segment_x, 0);
-    region.setElem(segment_y, 1);
-    region.setElem(segment_z, 2);
-    region.setElem(segment_w, 3);
+    region.setElem(segment_0, 0);
+    region.setElem(segment_1, 1);
+    region.setElem(segment_2, 2);
+    region.setElem(segment_3, 3);
     return region;
   }
 
@@ -279,6 +300,17 @@ class Region {
     return Region<TPoint>::fromMinMax(min_max_[0] + p, min_max_[1] + p);
   }
 
+  /// Cast from current TPoint to other TOtherPoint:
+  ///
+  /// Supported cases:
+  ///
+  /// - floating point to floating point (e.g. double to float)
+  /// - integer to integer (e.g. int16 to int64)
+  /// - integer to float
+  ///    * example: [2, 5] -> [1.5, 5.5]
+  ///
+  /// Note: floating point to integer is not supported and shall not compile.
+  ///       Use either encloseCast or roundCast.
   template <class TOtherPoint>
   auto cast() const noexcept -> Region<TOtherPoint> {
     if (isEmpty()) {

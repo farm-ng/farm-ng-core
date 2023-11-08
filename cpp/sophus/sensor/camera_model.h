@@ -357,11 +357,10 @@ class CameraModel {
 
   CameraModel& operator=(CameraModel const& model) = default;
 
-  /// Constructs camera model from `CameraDistortionVariant`.
   template <class TScalar, class TDistortion, class TProj>
   CameraModel(CameraModelT<TScalar, TDistortion, TProj> const& cam)
       : model_(cam) {}
-
+  /// Constructs camera model from `CameraDistortionVariant`.
   CameraModel(CameraDistortionVariant const& variant) : model_(variant) {}
 
   /// Constructs camera model from `frame_name`, `image_size`, `projection_type`

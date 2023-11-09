@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build sdist
-        run: pipx run build --sdist
+        run: python3 setup.py sdist bdist_wheel
       - uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz

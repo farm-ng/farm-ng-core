@@ -3,7 +3,8 @@ PROJECT_NAME           = "farm-ng-core"
 INPUT                  = ../../cpp/farm_ng/core \
                          ../../cpp/sophus/common/ \
                          ../../cpp/sophus/linalg/ \
-                         ../../cpp/sophus/calculus/
+                         ../../cpp/sophus/calculus/ \
+                         ../../cpp/sophus/manifold
 FILE_PATTERNS          = *.h \
                          *.hpp \
                          *.ipp

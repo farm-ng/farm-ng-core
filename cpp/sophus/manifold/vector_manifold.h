@@ -14,43 +14,60 @@
 
 namespace sophus {
 
+/// A n-dimensional vector is a trivial example of a manifold.
+///
 template <class TScalar, int kDim>
 struct VectorManifold {
+  /// scalar type
   using Scalar = TScalar;
+  /// DOF equals kDim
   static int constexpr kDof = kDim;
+  /// kNumParams equals kDim
   static int constexpr kNumParams = kDim;
 
+  /// A vector is trivially represented as itself.
   using Params = Eigen::Vector<TScalar, kDim>;
+  /// The tangent vector is trivially represented as itself.
   using Tangent = Params;
 
   VectorManifold() { vec.setZero(); }
 
+  /// Constructs manifold given vector input
   VectorManifold(Params const& vec) : vec(vec) {}
 
+  /// ominus operator is just vector addition
   auto oplus(Tangent const& a) const -> VectorManifold {
     return VectorManifold(this->vec + a);
   }
 
+  /// ominus operator is just vector subtraction
   auto ominus(VectorManifold const& other) const -> Tangent {
     return this->vec - other.params();
   }
 
+  /// Construct using params.
   static auto fromParams(Params const& params) -> VectorManifold {
     return VectorManifold(params);
   }
 
+  /// Set state using params.
   auto setParams(Params const& params) -> void { vec = params; }
 
+  /// Get params, which is just the vector itself.
   auto params() const -> Params const& { return vec; }
 
+  /// cost access to params pointer
   auto ptr() const -> Scalar const* { return vec.data(); }
 
+  /// unsafe mutable access to params pointer
   auto unsafeMutPtr() -> Scalar* { return vec.data(); }
 
+  /// Examples
   static auto tangentExamples() -> std::vector<Tangent> {
     return pointExamples<Scalar, kDim>();
   }
 
+  /// Average a set of vectors.
   template <concepts::Range TSequenceContainer>
   static auto average(TSequenceContainer const& range)
       -> std::optional<VectorManifold> {
@@ -64,6 +81,7 @@ struct VectorManifold {
     return VectorManifold(params / len);
   }
 
+  /// Vector / n-tuple
   Params vec;
 };
 

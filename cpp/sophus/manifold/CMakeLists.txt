@@ -10,6 +10,7 @@ set(sophus_manifold_src_prefixes
     product_manifold
     quaternion
     unit_vector
+    vector_manifold
 )
 
 set(sophus_manifold_h)

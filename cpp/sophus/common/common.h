@@ -25,7 +25,7 @@
 #include <random>
 #include <type_traits>
 
-// \cond HIDDEN_SYMBOLS
+// BEGIN(exclude from doxygen) \cond HIDDEN_SYMBOLS
 // from <farm_ng/core/logging/format.h>cd
 #define SOPHUS_FORMAT(...) FARM_FORMAT(__VA_ARGS__)
 
@@ -47,7 +47,7 @@
 // from <farm_ng/core/logging/expected.h>
 #define SOPHUS_TRY(...) FARM_TRY(__VA_ARGS__)
 #define SOPHUS_UNEXPECTED(...) FARM_UNEXPECTED(__VA_ARGS__)
-// \endcond
+// END(exclude from doxygen) \endcond
 
 namespace sophus {
 

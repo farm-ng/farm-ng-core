@@ -38,18 +38,18 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
-  #build_sdist:
-  #  needs: [build_wheels]
-  #  name: Build source distribution
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - run: ls -la
-  #    - uses: actions/checkout@v4
-  #    - name: Build sdist
-  #      run: pipx run build --sdist --wheel
-  #    - uses: actions/upload-artifact@v3
-  #      with:
-  #        path: dist/*.tar.gz
+  build_sdist:
+    needs: [build_wheels]
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - run: ls -la
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        run: pipx run build --sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
 
   upload_pypi:
     needs: [build_wheels]

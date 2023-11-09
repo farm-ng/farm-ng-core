@@ -16,14 +16,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        # python-version: ['3.8']
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: "recursive"
-      #- uses: actions/setup-python@v4
-      #  with:
-      #    python-version: ${{ matrix.python-version }}
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
       - name: Install dependencies
         run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
       - name: Build wheels
@@ -33,7 +34,7 @@ jobs:
           CIBW_SKIP: "pp* *-musllinux_*"
           # configure cibuildwheel to build native archs ('auto'), and some
           # emulated ones
-          CIBW_ARCHS_LINUX: auto # aarch64
+          CIBW_ARCHS_LINUX: auto aarch64
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl

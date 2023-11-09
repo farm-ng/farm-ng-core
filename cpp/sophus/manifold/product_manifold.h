@@ -14,40 +14,55 @@ namespace sophus {
 
 // Credit: @bogdan at http://stackoverflow.com/q/37373602/6367128
 template <int... Ds>
-constexpr std::array<int, sizeof...(Ds)> cumulativeSum() {
+std::array<int, sizeof...(Ds)> constexpr cumulativeSum() {
   int v = 0;
   return {{v += Ds...}};
 }
 
+/// A direct product of manifolds.
+///
+/// Note: A product manifold only fulfills the concepts::BaseManifold concept,
+///       but not the concepts::Manifold concept.
 template <concepts::Manifold... TSubManifold>
 class ProductManifold {
  public:
+  /// Itself.
   using Self = ProductManifold<TSubManifold...>;
 
+  /// Tuple containing sub-manifold.
   using Tuple = std::tuple<TSubManifold...>;
+  /// tuple of scalars - one for each sub-manifold
   using Scalars = std::tuple<typename TSubManifold::Scalar...>;
 
-  static constexpr size_t kNumManifolds = sizeof...(TSubManifold);
-  static constexpr std::array<int, kNumManifolds> kManifoldSizes = {
+  /// number of sub-manifold
+  static size_t constexpr kNumManifolds = sizeof...(TSubManifold);
+  /// Array of DOFs, one for each sub-manifold.
+  static std::array<int, kNumManifolds> constexpr kManifoldSizes = {
       {TSubManifold::kDof...}};
-  static constexpr std::array<int, kNumManifolds + 1> kManifoldStarts =
+  /// Starting index of each sub-manifold tangent - wrt. the stacked tangent
+  /// vector of the whole product manifold.
+  static std::array<int, kNumManifolds + 1> constexpr kManifoldStarts =
       cumulativeSum<0, TSubManifold::kDof...>();
 
+  /// scalar type
   using Scalar = typename std::tuple_element<0, Scalars>::type;
 
-  static constexpr size_t kNumParams = [](auto const&... sizes) {
+  /// total number of parameters, hence the sum over all kNumParams for each
+  /// sub-manifold.
+  static size_t constexpr kNumParams = [](auto const&... sizes) {
     size_t sum = 0;
     (..., (sum += sizes));
     return sum;
   }(TSubManifold::kNumParams...);
 
-  static constexpr size_t kDof = [](auto const&... sizes) {
+  /// The total DOF, hence the sum over all kDof for each sub-manifold.
+  static size_t constexpr kDof = [](auto const&... sizes) {
     size_t sum = 0;
     (..., (sum += sizes));
     return sum;
   }(TSubManifold::kDof...);
 
-  // Return ith diagonal block of matrix representing covariance or similar.
+  /// Return ith diagonal block of matrix representing covariance or similar.
   template <size_t i, class Derived>
   static auto subBlock(Eigen::MatrixBase<Derived> const& mat) {
     return mat
@@ -56,27 +71,33 @@ class ProductManifold {
         .eval();
   }
 
+  /// Stacked tangent vector of the whole product manifold.
   using Tangent = Eigen::Vector<Scalar, kDof>;
 
   ProductManifold() = default;
+
+  /// Copy constructor
   ProductManifold(ProductManifold const&) = default;
+  /// Copy assignment
   ProductManifold& operator=(ProductManifold const&) = default;
 
+  /// Construct product manifold by providing all sub-manifolds as args.
   ProductManifold(TSubManifold const&... manifolds)
       : manifolds_(manifolds...) {}
 
-  // Return ith sub-manifold
+  /// Return ith sub-manifold
   template <size_t i>
   auto& subManifold() {
     return std::get<i>(manifolds_);
   }
 
-  // Return ith sub-manifold
+  /// Return ith sub-manifold
   template <size_t i>
   auto const& subManifold() const {
     return std::get<i>(manifolds_);
   }
 
+  /// oplus manifold operator
   auto oplus(Tangent const& tangent) const -> Self {
     Self result = *this;
     oplusImpl(
@@ -88,6 +109,7 @@ class ProductManifold {
     return result;
   }
 
+  /// ominus manifold operator
   auto ominus(Self const& other) const -> Tangent {
     Tangent tangent;
 
@@ -101,6 +123,7 @@ class ProductManifold {
     return tangent;
   }
 
+  /// example of tangent vectors
   static auto tangentExamples() -> std::vector<Tangent> {
     std::vector<Tangent> out;
     Tangent t;
@@ -109,6 +132,7 @@ class ProductManifold {
     return out;
   }
 
+  /// average over a set of input product manifold elements
   template <size_t kArrayLen>
   static std::optional<ProductManifold<TSubManifold...>> average(
       std::array<ProductManifold<TSubManifold...>, kArrayLen> const& range) {
@@ -169,15 +193,15 @@ class ProductManifold {
 
   template <size_t i>
   static auto getBlock(Tangent& tangent) {
-    constexpr size_t offset = kManifoldStarts[i];
-    constexpr size_t size = kManifoldSizes[i];
+    size_t constexpr offset = kManifoldStarts[i];
+    size_t constexpr size = kManifoldSizes[i];
     return tangent.template segment<size>(offset);
   }
 
   template <size_t i>
   static auto getBlock(Tangent const& tangent) {
-    constexpr size_t offset = kManifoldStarts[i];
-    constexpr size_t size = kManifoldSizes[i];
+    size_t constexpr offset = kManifoldStarts[i];
+    size_t constexpr size = kManifoldSizes[i];
     return tangent.template segment<size>(offset);
   }
 

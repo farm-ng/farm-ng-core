@@ -37,8 +37,11 @@ jobs:
       env:
         # Disable building PyPy wheels on all platforms
         CIBW_SKIP: "pp* *-musllinux_*"
-    - name: Build distribution package
-      run: python3 setup.py sdist bdist_wheel
+        # configure cibuildwheel to build native archs ('auto'), and some
+        # emulated ones
+        CIBW_ARCHS_LINUX: auto aarch64
+    #- name: Build distribution package
+    #  run: python3 setup.py sdist bdist_wheel
     - name: Publish distribution 📦 to PyPI, if release
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

@@ -43,9 +43,10 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
+      - run: ls -la
       - uses: actions/checkout@v4
       - name: Build sdist
-        run: python3 setup.py sdist bdist_wheel
+        run: pipx run build --sdist
       - uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz

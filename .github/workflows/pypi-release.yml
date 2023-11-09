@@ -27,6 +27,11 @@ jobs:
       run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
     #- name: Compile project
     #  run: python3 -m pip install -e .
+    - name: Set up QEMU
+      if: runner.os == 'Linux'
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: all
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.16.2
       env:

@@ -13,16 +13,25 @@
 namespace sophus {
 namespace test {
 
+/// Property tests for Manifolds (e.g. sophus::GroupManifold<...>,
+/// sophus::UnitVector, ...)
 template <concepts::Manifold TManifold>
 struct ManifoldPropTestSuite {
+  /// the manifold
   using Manifold = TManifold;
+  /// the underlying scalar
   using Scalar = typename Manifold::Scalar;
+  /// degrees of freedom - dimensionality of tangent space
   static int constexpr kDof = Manifold::kDof;
+  /// @brief  number of parameters
   static int constexpr kNumParams = Manifold::kNumParams;
 
+  /// tangent type
   using Tangent = Eigen::Vector<Scalar, kDof>;
+  /// internal parametrization
   using Params = Eigen::Vector<Scalar, kNumParams>;
 
+  /// test oplus/ominus properties
   static void oplusOMinusRoundTripTest(std::string manifold_name) {
     auto params_examples = Manifold::paramsExamples();
     auto tangent_examples = Manifold::tangentExamples();
@@ -48,6 +57,7 @@ struct ManifoldPropTestSuite {
     }
   }
 
+  /// all tests
   static void runAllTests(std::string manifold_name) {
     oplusOMinusRoundTripTest(manifold_name);
   }

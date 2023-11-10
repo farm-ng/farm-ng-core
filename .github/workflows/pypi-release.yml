@@ -17,49 +17,29 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: "recursive"
+      # NOTE: enable later to build for aaarch64
+      # NOTE: this is not working yet, because of grpcio dependency
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
+        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.3.1
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
+          # NOTE: this is required to build grpcio safely
+          CIBW_BEFORE_BUILD: pip install -U grpcio==1.56.2 grpcio-tools==1.56.2
           CIBW_BUILD: "cp38-*"
           # Disable building PyPy wheels on all platforms
           CIBW_SKIP: "pp* *-musllinux_*"
           # configure cibuildwheel to build native archs ('auto'), and some
           # emulated ones
-          CIBW_ARCHS_LINUX: auto
+          CIBW_ARCHS_LINUX: aarch64 # auto
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
-
-  build_aarch64:
-    name: Build aarch64 wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-20.04]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: "recursive"
-      # NOTE: enable later to build for aaarch64
-      # NOTE: this is not working yet, because of grpcio dependency
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      - name: Install dependencies
-        run: python3 -m pip install --upgrade pybind11 setuptools wheel build
-      - name: Compile project
-        run: python3 -m pip install -e .
-      - name: Build distribution package
-        run: python3 -m build --wheel
-        #run: python3 setup.py sdist bdist_wheel
-      - uses: actions/upload-artifact@v3
-        with:
-          path: dist/*.tar.gz
 
   build_sdist:
     name: Build source distribution
@@ -73,7 +53,7 @@ jobs:
           path: dist/*.tar.gz
 
   upload_pypi:
-    needs: [build_wheels, build_aarch64, build_sdist]
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:

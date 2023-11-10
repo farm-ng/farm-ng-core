@@ -51,7 +51,7 @@ jobs:
         with:
           python-version: "3.8"
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pybind11 setuptools wheel
+        run: python3 -m pip install --upgrade pybind11 setuptools wheel build
       - name: Compile project
         run: python3 -m pip install -e .
       - name: Build distribution package

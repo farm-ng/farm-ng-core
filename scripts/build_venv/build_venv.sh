@@ -13,4 +13,4 @@ cmake -B build.venv \
     -G Ninja \
     $DIR/.
 
-cmake --build build.venv
+ninja build.venv -j4

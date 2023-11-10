@@ -14,7 +14,14 @@ echo "RELEASE_SHA: $RELEASE_SHA"
 if [[ -z "${RELEASE_PLATFORM}" ]]; then
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     . /etc/lsb-release
-    RELEASE_PLATFORM="${DISTRIB_ID,,}-${DISTRIB_RELEASE}"
+
+    if [[ $(uname -m) == 'aarch64' ]]; then
+      ARCH="arm64"
+    else
+      ARCH="amd64"
+    fi
+
+    RELEASE_PLATFORM="${DISTRIB_ID,,}-${DISTRIB_RELEASE}-${ARCH}"
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ $(uname -m) == 'arm64' ]]; then
       RELEASE_PLATFORM="macos-arm64"

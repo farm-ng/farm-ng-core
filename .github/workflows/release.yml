@@ -36,20 +36,34 @@ jobs:
   build_assets:
     name: Build Release Assets
     needs: create_release
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        include:
+         - runner: ubuntu-20.04
+           os:     ubuntu-20.04
+           arch:   amd64
+         - runner: self-hosted
+           os:     ubuntu-22.04
+           arch:   arm64
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: hendrikmuhs/ccache-action@v1
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.arch }} - ${{ matrix.os }}
 
-      - name: Install system dependencies (Ubuntu)
+      - name: Install system dependencies (Ubuntu 20.04)
         run: ./scripts/install_deps_ubuntu.sh
         if: matrix.os == 'ubuntu-20.04'
+
+
+      - name: Install system dependencies (Ubuntu 22.04)
+        run: ./scripts/install_deps_ubuntu2204.sh
+        if: matrix.os == 'ubuntu-22.04'
+
 
       - name: Install venv dependencies
         run: ./scripts/build_venv/build_venv.sh
@@ -57,7 +71,7 @@ jobs:
       - name: Create Archive For Release
         run: |
            ls
-           tar -czvf venv-${{ matrix.os }}.tar.gz scripts/build_venv/venv/prefix
+           tar -czvf venv-${{ matrix.os }}-${{ matrix.arch }}.tar.gz scripts/build_venv/venv/prefix
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
@@ -65,6 +79,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: venv-${{ matrix.os }}.tar.gz
-          asset_path: venv-${{ matrix.os }}.tar.gz
+          asset_name: venv-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
+          asset_path: venv-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
           asset_content_type: application/x-tar

@@ -29,7 +29,6 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
-          CIBW_BEFORE_BUILD: "pip install grpcio==1.56.2 grpcio-tools==1.56.2"
           CIBW_BUILD: "cp38-*"
           # Disable building PyPy wheels on all platforms
           CIBW_SKIP: "pp* *-musllinux_*"

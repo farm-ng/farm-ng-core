@@ -2,6 +2,8 @@
 requires = [
     "setuptools",
     "farm-ng-package",
-    "pybind11"
+    "pybind11",
+    "grpcio==1.56.2",
+    "grpcio-tools==1.56.2",
 ]
 build-backend = "setuptools.build_meta"

@@ -19,11 +19,11 @@ jobs:
           submodules: "recursive"
       # NOTE: enable later to build for aaarch64
       # NOTE: this is not working yet, because of grpcio dependency
-      #- name: Set up QEMU
-      #  if: runner.os == 'Linux'
-      #  uses: docker/setup-qemu-action@v3
-      #  with:
-      #    platforms: all
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
       - name: Install dependencies
         run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
       - name: Build wheels
@@ -33,7 +33,7 @@ jobs:
           CIBW_SKIP: "pp* *-musllinux_*"
           # configure cibuildwheel to build native archs ('auto'), and some
           # emulated ones
-          CIBW_ARCHS_LINUX: auto # aarch64
+          CIBW_ARCHS_LINUX: auto aarch64
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl

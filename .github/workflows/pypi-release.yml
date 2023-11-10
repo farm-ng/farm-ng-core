@@ -25,7 +25,7 @@ jobs:
         with:
           platforms: arm64
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
+        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2 grpcio==1.56.2 grpcio-tools==1.56.2
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
@@ -34,7 +34,7 @@ jobs:
           CIBW_SKIP: "pp* *-musllinux_*"
           # configure cibuildwheel to build native archs ('auto'), and some
           # emulated ones
-          CIBW_ARCHS_LINUX: auto aarch64
+          CIBW_ARCHS_LINUX: aarch64 # auto
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl

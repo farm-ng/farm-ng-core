@@ -23,7 +23,7 @@ jobs:
         with:
           platforms: all
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.3.1
+        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:

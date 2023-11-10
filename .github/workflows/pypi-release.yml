@@ -31,7 +31,7 @@ jobs:
         env:
           CIBW_MANYLINUX_AARCH64_IMAGE: "quay.io/pypa/manylinux_2_28_aarch64"
           # NOTE: this is required to build grpcio safely
-          CIBW_BEFORE_BUILD: pip install -U grpcio==1.56.2 grpcio-tools==1.56.2
+          #CIBW_BEFORE_BUILD: pip install -U grpcio==1.56.2 grpcio-tools==1.56.2
           CIBW_BUILD: "cp38-*"
           # Disable building PyPy wheels on all platforms
           CIBW_SKIP: "pp* *-musllinux_*"

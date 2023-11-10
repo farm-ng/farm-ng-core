@@ -17,6 +17,32 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: "recursive"
+      - name: Install dependencies
+        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_BUILD: "cp38-*"
+          # Disable building PyPy wheels on all platforms
+          CIBW_SKIP: "pp* *-musllinux_*"
+          # configure cibuildwheel to build native archs ('auto'), and some
+          # emulated ones
+          CIBW_ARCHS_LINUX: auto
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_aarch64:
+    name: Build aarch64 wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
       # NOTE: enable later to build for aaarch64
       # NOTE: this is not working yet, because of grpcio dependency
       - name: Set up QEMU
@@ -24,23 +50,16 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pybind11 setuptools wheel cibuildwheel==2.16.2
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
-        env:
-          CIBW_MANYLINUX_AARCH64_IMAGE: quay.io/pypa/manylinux_2_17_aarch64
-          # NOTE: this is required to build grpcio safely
-          CIBW_BEFORE_BUILD: pip install -U grpcio==1.56.2 grpcio-tools==1.56.2
-          CIBW_BUILD: "cp38-*"
-          # Disable building PyPy wheels on all platforms
-          CIBW_SKIP: "pp* *-musllinux_*"
-          # configure cibuildwheel to build native archs ('auto'), and some
-          # emulated ones
-          CIBW_ARCHS_LINUX: aarch64 # auto
+        run: python3 -m pip install --upgrade pybind11 setuptools wheel
+      - name: Compile project
+        run: python3 -m pip install -e .
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          path: dist/*.tar.gz
 
   build_sdist:
     name: Build source distribution
@@ -54,7 +73,7 @@ jobs:
           path: dist/*.tar.gz
 
   upload_pypi:
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_aarch64, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:

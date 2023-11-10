@@ -36,7 +36,9 @@ jobs:
       with:
         submodules: "recursive"
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ matrix.compiler }} - ${{ matrix.os }} - asan_ ${{ matrix.asan }}
     - name: Install dependencies (Ubuntu)
       working-directory: ./scripts
       run: |

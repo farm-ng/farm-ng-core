@@ -29,6 +29,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
+          CIBW_BUILD: "cp38-*"
           # Disable building PyPy wheels on all platforms
           CIBW_SKIP: "pp* *-musllinux_*"
           # configure cibuildwheel to build native archs ('auto'), and some

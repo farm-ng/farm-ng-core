@@ -155,6 +155,7 @@ class UnitVectorImpl {
     Tangent tail = params.template tail<kDof>();
     Scalar theta = tail.norm();
 
+    using std::abs;
     if (abs(theta) < kEpsilon<Scalar>) {
       return atan2(Scalar(0.0), x) * kUnitX;
     }
@@ -165,6 +166,7 @@ class UnitVectorImpl {
   static auto sinc(Scalar x) -> Scalar {
     using std::abs;
     using std::sin;
+
     if (abs(x) < kEpsilon<Scalar>) {
       return 1.0 - (1.0 / 6.0) * (x * x);
     }

@@ -60,8 +60,8 @@ class Rotation2Impl {
 
   static auto areParamsValid(Params const& unit_complex)
       -> sophus::Expected<Success> {
-    static const Scalar kThr = kEpsilon<Scalar>;
-    const Scalar squared_norm = unit_complex.squaredNorm();
+    static Scalar const kThr = kEpsilon<Scalar>;
+    Scalar const squared_norm = unit_complex.squaredNorm();
     using std::abs;
     if (!(abs(squared_norm - 1.0) <= kThr)) {
       return SOPHUS_UNEXPECTED(
@@ -203,6 +203,8 @@ class Rotation2Impl {
     Scalar halftheta_by_tan_of_halftheta;
 
     Scalar real_minus_one = z.x() - Scalar(1.);
+    using std::abs;
+
     if (abs(real_minus_one) < kEpsilon<Scalar>) {
       halftheta_by_tan_of_halftheta =
           Scalar(1.) - Scalar(1. / 12) * theta[0] * theta[0];

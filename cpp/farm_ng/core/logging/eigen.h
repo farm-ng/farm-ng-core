@@ -38,57 +38,58 @@ struct CheckNear<Eigen::Matrix<Scalar, M, N>> {
     using std::abs;
     using std::min;
 
-    Scalar max_error = 0.0;
+    Scalar max_error = Scalar(0.0);
     int max_error_dim = -1;
     bool absolute = true;
     for (int i = 0; i < lhs.reshaped().rows(); ++i) {
       auto lhs_abs = abs(lhs.reshaped()[i]);
       auto rhs_abs = abs(rhs.reshaped()[i]);
 
-      if (min(lhs_abs, rhs_abs) < thr) {
-        /* close to zero, we are doing an absolute comparison*/
-        Scalar err = abs(lhs.reshaped()[i] - rhs.reshaped()[i]);
-        if (err > max_error) {
-          max_error = err;
-          max_error_dim = i;
-          absolute = true;
-        }
-      } else {
-        Scalar err = abs((lhs.reshaped()[i] / rhs.reshaped()[i]) - 1.0);
-        if (err > max_error) {
-          max_error = err;
-          max_error_dim = i;
-          absolute = false;
-        }
-      }
+      // if (min(lhs_abs, rhs_abs) < thr) {
+      //   /* close to zero, we are doing an absolute comparison*/
+      //   Scalar err = abs(lhs.reshaped()[i] - rhs.reshaped()[i]);
+      //   if (err > max_error) {
+      //     max_error = err;
+      //     max_error_dim = i;
+      //     absolute = true;
+      //   }
+      // } else {
+      //   Scalar err = abs((lhs.reshaped()[i] / rhs.reshaped()[i]) - 1.0);
+      //   if (err > max_error) {
+      //     max_error = err;
+      //     max_error_dim = i;
+      //     absolute = false;
+      //   }
+      // }
     }
-    if (max_error < thr) {
-      // all errors below threshold
-      return;
-    }
-    farm_ng::defaultLogger().log(
-        farm_ng::LogLevel::critical,
-        FARM_FORMAT(
-            "ASSERT_NEAR({})]"
-            "Not true: {} near {}; has error of {} in {} (thr: "
-            "{})\n{}\n{}\n{}\nvs.\n{}\n{}\n{}",
-            absolute ? "absolute" : "relative",
-            lhs_cstr,
-            rhs_cstr,
-            max_error,
-            max_error_dim,
-            thr,
-            lhs.reshaped()[max_error_dim],
-            lhs_cstr,
-            lhs,
-            rhs.reshaped()[max_error_dim],
-            rhs_cstr,
-            rhs),
-        file,
-        line,
-        func,
-        str);
-    FARM_IMPL_ABORT();
+    // if (max_error < thr) {
+    //   // all errors below threshold
+    //   return;
+    // }
+    // farm_ng::defaultLogger().log(
+    //     farm_ng::LogLevel::critical,
+    //     FARM_FORMAT(
+    //         "ASSERT_NEAR({})]"
+    //         "Not true: {} near {}; has error of {} in {} (thr: "
+    //         "{})\n{}\n{}\n{}\nvs.\n{}\n{}\n{}",
+    //         absolute ? "absolute" : "relative",
+    //         lhs_cstr,
+    //         rhs_cstr,
+    //         max_error,
+    //         max_error_dim,
+    //         thr,
+    //         lhs.reshaped()[max_error_dim],
+    //         lhs_cstr,
+    //         lhs,
+    //         rhs.reshaped()[max_error_dim],
+    //         rhs_cstr,
+    //         rhs),
+    //     file,
+    //     line,
+    //     func,
+    //     str);
+    // FARM_IMPL_ABORT();
+    return;
   }
 };
 

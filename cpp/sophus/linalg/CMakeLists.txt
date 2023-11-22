@@ -6,6 +6,7 @@ sophus_linalg
 ]]
 
 set(sophus_linalg_src_prefixes
+    batch
     cast
     homogeneous
     orthogonal
@@ -29,11 +30,9 @@ farm_ng_add_library(sophus_linalg
 
 target_link_libraries(sophus_linalg INTERFACE sophus_common sophus_concept)
 
-if(${BUILD_SOPHUS_TESTS})
-  foreach(test_basename ${sophus_linalg_src_prefixes})
-    farm_ng_add_test(${test_basename}
-                          PARENT_LIBRARY sophus_linalg
-                          LINK_LIBRARIES sophus_linalg
-                          LABELS small)
-  endforeach()
-endif()
+foreach(test_basename ${sophus_linalg_src_prefixes})
+  farm_ng_add_test(${test_basename}
+                        PARENT_LIBRARY sophus_linalg
+                        LINK_LIBRARIES sophus_linalg
+                        LABELS small)
+endforeach()

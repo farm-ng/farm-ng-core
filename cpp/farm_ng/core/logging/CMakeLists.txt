@@ -11,7 +11,7 @@ farm_ng_add_library(farm_ng_core_logging
   NAMESPACE farm_ng_core
   INCLUDE_DIR ../../..
   HEADERS
-    eigen.h
+    check_near.h
     expected.h
     format.h
     trace_debug_log.h
@@ -31,7 +31,10 @@ target_link_libraries(farm_ng_core_logging PUBLIC
   pthread
 )
 
+find_package(Eigen3 3.4.0 REQUIRED)
+
 foreach(test_basename
+    check_near
     expected
     format
     logger
@@ -40,6 +43,6 @@ foreach(test_basename
     logger_define_info_variant)
   farm_ng_add_test(${test_basename}
                     PARENT_LIBRARY farm_ng_core_logging
-                    LINK_LIBRARIES farm_ng_core_logging
+                    LINK_LIBRARIES farm_ng_core_logging Eigen3::Eigen
                     LABELS small)
 endforeach()

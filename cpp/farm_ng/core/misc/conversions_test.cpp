@@ -14,6 +14,8 @@
 
 #include "farm_ng/core/misc/conversions.h"
 
+#include "farm_ng/core/logging/check_near.h"
+
 #include <gtest/gtest.h>
 
 #include <random>

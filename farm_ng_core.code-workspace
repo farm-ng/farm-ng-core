@@ -85,7 +85,8 @@
 			"typeinfo": "cpp",
 			"valarray": "cpp",
 			"variant": "cpp",
-			"__nullptr": "cpp"
+			"__nullptr": "cpp",
+			"mprealsupport": "cpp"
 		},
 		"workbench.colorTheme": "GitHub Dark High Contrast",
 		"cSpell.words": [

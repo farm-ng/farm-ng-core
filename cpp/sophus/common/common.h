@@ -13,7 +13,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <farm_ng/core/logging/eigen.h>
+#include <farm_ng/core/logging/check_near.h>
 #include <farm_ng/core/logging/expected.h>
 #include <farm_ng/core/logging/format.h>
 #include <farm_ng/core/logging/logger.h>

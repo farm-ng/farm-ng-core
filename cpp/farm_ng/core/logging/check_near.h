@@ -35,15 +35,16 @@ inline double relativeCloseness(double x, double y) {
   double abs_diff = std::abs(x - y);
   double rel_diff = abs_diff / std::max(std::abs(x), std::abs(y));
 
-  // We are "rel_diff" from the c-faq reference. However, instead of just
+  // We are using "rel_diff" from the c-faq reference. However, instead of just
   // checking for x==0 and y==0, we perform the minimum over `rel_diff` and
   // `abs_diff`. This is to avoid surprises when there are two small numbers
   // with opposite sign.
   //  E.g. for x=0.001 and y=-0.001 we have abs_diff = 0.002, but rel_diff
-  //  = 2.0.
+  //  = 2.0, hence relativeCloseness(0.001, -0.001) = 0.002.
   return std::min(abs_diff, rel_diff);
 }
 
+namespace details {
 template <class TPoint, class TPoint2, class TEnabler = void>
 struct CheckNear;
 
@@ -161,50 +162,61 @@ inline Expected<Success> checkRelativeNear(
     TScalar2 rhs,
     char const* rhs_cstr,
     double thr) {
+  if (!((thr >= 0.0) && (thr <= 1.0))) {
+    FARM_WARN(
+        "FARM_ASSERT_NEAR: The threshold shall be in [0.0, 1.0], but we got "
+        "`{}`.",
+        thr);
+  }
   return CheckNear<TScalar, TScalar2>::check(
       true, lhs, lhs_cstr, rhs, rhs_cstr, thr);
 }
-
+}  // namespace details
 }  // namespace farm_ng
 
 /// If it is false that `lhs` is near `rhs` according to threshold `thr`, print
 /// formatted error message and then panic.
 ///
 /// `lhs` and `rhs` are near, if relativeCloseness(lhs, rhs) < thr.
-#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)                     \
-  do {                                                           \
-    Expected<Success> status =                                   \
-        ::farm_ng::checkRelativeNear(lhs, #lhs, rhs, #rhs, thr); \
-    if (!status) {                                               \
-      FARM_PANIC(                                                \
-          "FARM_ASSERT_NEAR failed: {}\n"                        \
-          "Not true: `{}` near {}; (thr: {})\n"                  \
-          "{}",                                                  \
-          #lhs,                                                  \
-          #rhs,                                                  \
-          #thr,                                                  \
-          status.error(),                                        \
-          FARM_FORMAT(__VA_ARGS__));                             \
-    }                                                            \
+///
+/// The threshold `thr` shall be in [0.0, 1.0].
+///
+/// A threshold ~0.0 implies that lhs is near rhs, and ~1.0 implies the lhs is
+/// NOT near rhs.
+#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)                              \
+  do {                                                                    \
+    Expected<Success> status =                                            \
+        ::farm_ng::details::checkRelativeNear(lhs, #lhs, rhs, #rhs, thr); \
+    if (!status) {                                                        \
+      FARM_PANIC(                                                         \
+          "FARM_ASSERT_NEAR failed: {}\n"                                 \
+          "Not true: `{}` near {}; (thr: {})\n"                           \
+          "{}",                                                           \
+          #lhs,                                                           \
+          #rhs,                                                           \
+          #thr,                                                           \
+          status.error(),                                                 \
+          FARM_FORMAT(__VA_ARGS__));                                      \
+    }                                                                     \
   } while (false)
 
 /// If it is false that `lhs` is near `rhs` according to threshold
 /// `thr`, print formatted error message and then panic.
 ///
 /// `lhs` and `rhs` are near, if std::abs(lhs - rhs) < thr.
-#define FARM_ASSERT_ABS_NEAR(lhs, rhs, thr, ...)            \
-  do {                                                      \
-    Expected<Success> status =                              \
-        ::farm_ng::checkAbsNear(lhs, #lhs, rhs, #rhs, thr); \
-    if (!status) {                                          \
-      FARM_PANIC(                                           \
-          "FARM_ASSERT_ABS_NEAR failed: {}\n"               \
-          "Not true: `{}` near {}; (thr: {})\n"             \
-          "{}",                                             \
-          #lhs,                                             \
-          #rhs,                                             \
-          #thr,                                             \
-          status.error(),                                   \
-          FARM_FORMAT(__VA_ARGS__));                        \
-    }                                                       \
+#define FARM_ASSERT_ABS_NEAR(lhs, rhs, thr, ...)                     \
+  do {                                                               \
+    Expected<Success> status =                                       \
+        ::farm_ng::details::checkAbsNear(lhs, #lhs, rhs, #rhs, thr); \
+    if (!status) {                                                   \
+      FARM_PANIC(                                                    \
+          "FARM_ASSERT_ABS_NEAR failed: {}\n"                        \
+          "Not true: `{}` near {}; (thr: {})\n"                      \
+          "{}",                                                      \
+          #lhs,                                                      \
+          #rhs,                                                      \
+          #thr,                                                      \
+          status.error(),                                            \
+          FARM_FORMAT(__VA_ARGS__));                                 \
+    }                                                                \
   } while (false)

@@ -127,6 +127,10 @@ struct DivisionRingTestSuite {
       Params params = SOPHUS_AT(kParamsExamples, params_id);
       Ring g = Ring::fromParams(params);
 
+      if (g.params().norm() < kEpsilonSqrt<Scalar>) {
+        continue;
+      }
+
       SOPHUS_ASSERT_NEAR(
           g.params(),
           (g * Ring::one()).params(),

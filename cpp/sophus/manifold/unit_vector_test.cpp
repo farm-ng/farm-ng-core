@@ -30,14 +30,14 @@ TEST(unitvec, copy3) {
   auto a = UnitVector3<double>::fromUnitVector({1.0, 0.0, 0.0});
   auto b = UnitVector3<double>::fromUnitVector({0.0, 1.0, 0.0});
   UnitVector3<double> c = a;
-  SOPHUS_ASSERT_NEAR(a.vector(), c.vector(), kEpsilonF64);
+  SOPHUS_ASSERT_WITHIN_REL(a.vector(), c.vector(), kEpsilonF64);
 
   c = UnitVector3<double>(b);
-  SOPHUS_ASSERT_NEAR(b.vector(), c.vector(), kEpsilonF64);
+  SOPHUS_ASSERT_WITHIN_REL(b.vector(), c.vector(), kEpsilonF64);
 
   auto d = (a = b);
-  SOPHUS_ASSERT_NEAR(d.vector(), a.vector(), kEpsilonF64);
-  SOPHUS_ASSERT_NEAR(d.vector(), b.vector(), kEpsilonF64);
+  SOPHUS_ASSERT_WITHIN_REL(d.vector(), a.vector(), kEpsilonF64);
+  SOPHUS_ASSERT_WITHIN_REL(d.vector(), b.vector(), kEpsilonF64);
 }
 
 TEST(unitvec, manifold_prop_tests) {
@@ -70,18 +70,18 @@ TEST(unitvec, manifold_prop_tests) {
 
 //       // Check that the resulting rotation can take ``from`` into a vector
 //       // collinear with ``to``
-//       SOPHUS_ASSERT_NEAR(
+//       SOPHUS_ASSERT_WITHIN_REL(
 //           point_to.cross(to_rot_from * point_from).norm(), 0.0, kEpsilonF64);
-//       SOPHUS_ASSERT_NEAR(
+//       SOPHUS_ASSERT_WITHIN_REL(
 //           point_to.cross(to_rot_from2 * point_from).norm(), 0.0,
 //           kEpsilonF64);
 
 //       // And the reverse as a sanity check
-//       SOPHUS_ASSERT_NEAR(
+//       SOPHUS_ASSERT_WITHIN_REL(
 //           point_from.cross(to_rot_from.inverse() * point_to).norm(),
 //           0.0,
 //           kEpsilonF64);
-//       SOPHUS_ASSERT_NEAR(
+//       SOPHUS_ASSERT_WITHIN_REL(
 //           point_from.cross(to_rot_from2.inverse() * point_to).norm(),
 //           0.0,
 //           kEpsilonF64);

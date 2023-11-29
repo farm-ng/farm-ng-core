@@ -31,7 +31,7 @@ void runTranslationAccessorTests() {
   for (int i = 0; i < k_point_dim; ++i) {
     p[i] = 0.1 * i;
   }
-  SOPHUS_ASSERT_NEAR(TGroup(p).translation(), p, kEpsilon<Scalar>);
+  SOPHUS_ASSERT_WITHIN_REL(TGroup(p).translation(), p, kEpsilon<Scalar>);
 
   Eigen::Vector<Scalar, k_point_dim> q;
   for (int i = 0; i < k_point_dim; ++i) {
@@ -40,7 +40,7 @@ void runTranslationAccessorTests() {
   TGroup q2;
   q2.translation() = q;
 
-  SOPHUS_ASSERT_NEAR(q2.translation(), q, kEpsilon<Scalar>);
+  SOPHUS_ASSERT_WITHIN_REL(q2.translation(), q, kEpsilon<Scalar>);
 }
 
 template <concepts::accessors::Rotation TGroup>
@@ -52,7 +52,7 @@ void runRotationAccessorTests() {
       sophus::Rotation2<Scalar> rot = SOPHUS_AT(kElems, g_id);
 
       TGroup g = TGroup::fromRotationMatrix(rot.matrix());
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           g.rotationMatrix(), rot.matrix(), kEpsilonSqrt<Scalar>);
     }
   } else if constexpr (TGroup::kPointDim == 3) {
@@ -62,7 +62,7 @@ void runRotationAccessorTests() {
       sophus::Rotation3<Scalar> rot = SOPHUS_AT(kElems, g_id);
 
       TGroup g = TGroup::fromRotationMatrix(rot.matrix());
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           g.rotationMatrix(), rot.matrix(), kEpsilonSqrt<Scalar>);
     }
   }
@@ -72,9 +72,9 @@ template <concepts::accessors::TxTy TGroup>
 void runTxTyTests() {
   {
     auto g = TGroup::fromTx(0.7);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().x(), 0.7, kEpsilon<typename TGroup::Scalar>);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().y(),
         0.0,
         kEpsilon<typename TGroup::Scalar>,
@@ -83,13 +83,13 @@ void runTxTyTests() {
   }
   {
     auto g = TGroup::fromTy(-0.9);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().y(),
         -0.9,
         kEpsilon<typename TGroup::Scalar>,
         "{}",
         g.translation());
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().x(),
         0.0,
         kEpsilon<typename TGroup::Scalar>,
@@ -102,7 +102,7 @@ template <concepts::accessors::TxTyTz TGroup>
 void runTxTyTzTests() {
   {
     auto g = TGroup::fromTx(0.7);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().x(), 0.7, kEpsilon<typename TGroup::Scalar>);
     SOPHUS_ASSERT_LE(
         g.translation().template tail<2>().norm(),
@@ -110,19 +110,19 @@ void runTxTyTzTests() {
   }
   {
     auto g = TGroup::fromTy(-0.9);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().y(),
         -0.9,
         kEpsilon<typename TGroup::Scalar>,
         "{}",
         g.translation());
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().x(),
         0.0,
         kEpsilon<typename TGroup::Scalar>,
         "{}",
         g.translation());
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().z(),
         0.0,
         kEpsilon<typename TGroup::Scalar>,
@@ -131,7 +131,7 @@ void runTxTyTzTests() {
   }
   {
     auto g = TGroup::fromTz(0.9);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         g.translation().z(),
         0.9,
         kEpsilon<typename TGroup::Scalar>,
@@ -152,7 +152,7 @@ void runIsometryAccessorTests() {
       sophus::Isometry2<Scalar> iso = SOPHUS_AT(kElems, g_id);
 
       TGroup rot_g = TGroup::fromRotationMatrix(iso.rotationMatrix());
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           rot_g.rotationMatrix(), iso.rotationMatrix(), kEpsilon<Scalar>);
     }
   } else if constexpr (TGroup::kPointDim == 3) {
@@ -162,7 +162,7 @@ void runIsometryAccessorTests() {
       sophus::Isometry3<Scalar> iso = SOPHUS_AT(kElems, g_id);
 
       TGroup rot_g = TGroup::fromRotationMatrix(iso.rotationMatrix());
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           rot_g.rotationMatrix(), iso.rotationMatrix(), kEpsilon<Scalar>);
     }
   }
@@ -181,11 +181,11 @@ void runSpiralSimilarityAccessorTests() {
       double scale = spiral_sim.scale();
 
       TGroup scale_g = TGroup::fromScale(scale);
-      SOPHUS_ASSERT_NEAR(scale_g.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g.scale(), scale, kEpsilon<Scalar>);
 
       TGroup scale_g2;
       scale_g2.setScale(spiral_sim.scale());
-      SOPHUS_ASSERT_NEAR(scale_g2.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g2.scale(), scale, kEpsilon<Scalar>);
     }
   } else if constexpr (TGroup::kPointDim == 3) {
     auto kElems = sophus::SpiralSimilarity3<Scalar>::elementExamples();
@@ -195,11 +195,11 @@ void runSpiralSimilarityAccessorTests() {
       double scale = spiral_sim.scale();
 
       TGroup scale_g = TGroup::fromScale(scale);
-      SOPHUS_ASSERT_NEAR(scale_g.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g.scale(), scale, kEpsilon<Scalar>);
 
       TGroup scale_g2;
       scale_g2.setScale(spiral_sim.scale());
-      SOPHUS_ASSERT_NEAR(scale_g2.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g2.scale(), scale, kEpsilon<Scalar>);
     }
   }
 }
@@ -215,11 +215,11 @@ void runSimilarityAccessorTests() {
       double scale = sim.scale();
 
       TGroup scale_g = TGroup::fromScale(scale);
-      SOPHUS_ASSERT_NEAR(scale_g.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g.scale(), scale, kEpsilon<Scalar>);
 
       TGroup scale_g2;
       scale_g2.setScale(sim.scale());
-      SOPHUS_ASSERT_NEAR(scale_g2.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g2.scale(), scale, kEpsilon<Scalar>);
     }
   } else if constexpr (TGroup::kPointDim == 3) {
     auto kElems = sophus::Similarity3<Scalar>::elementExamples();
@@ -229,11 +229,11 @@ void runSimilarityAccessorTests() {
       double scale = sim.scale();
 
       TGroup scale_g = TGroup::fromScale(scale);
-      SOPHUS_ASSERT_NEAR(scale_g.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g.scale(), scale, kEpsilon<Scalar>);
 
       TGroup scale_g2;
       scale_g2.setScale(sim.scale());
-      SOPHUS_ASSERT_NEAR(scale_g2.scale(), scale, kEpsilon<Scalar>);
+      SOPHUS_ASSERT_WITHIN_REL(scale_g2.scale(), scale, kEpsilon<Scalar>);
     }
   }
 }

@@ -49,7 +49,7 @@ struct LieGroupPropTestSuite {
         Group g = SOPHUS_AT(kElementExamples, g_id);
         Point o;
         o.setZero();
-        SOPHUS_ASSERT_NEAR(g * o, o, kEpsilon<Scalar>);
+        SOPHUS_ASSERT_WITHIN_REL(g * o, o, kEpsilon<Scalar>);
       }
     } else {
       size_t num_preserves = 0;
@@ -76,7 +76,8 @@ struct LieGroupPropTestSuite {
           p[d] = 1.0;
           UnitVector<Scalar, kPointDim> e =
               UnitVector<Scalar, kPointDim>::fromUnitVector(p);
-          SOPHUS_ASSERT_NEAR((g * e).params(), e.params(), kEpsilon<Scalar>);
+          SOPHUS_ASSERT_WITHIN_REL(
+              (g * e).params(), e.params(), kEpsilon<Scalar>);
         }
       }
     } else {
@@ -112,7 +113,8 @@ struct LieGroupPropTestSuite {
           }
           UnitVector<Scalar, kPointDim> d =
               UnitVector<Scalar, kPointDim>::fromVectorAndNormalize(p);
-          SOPHUS_ASSERT_NEAR((g * d).params(), d.params(), kEpsilon<Scalar>);
+          SOPHUS_ASSERT_WITHIN_REL(
+              (g * d).params(), d.params(), kEpsilon<Scalar>);
         }
       }
     } else {
@@ -145,7 +147,7 @@ struct LieGroupPropTestSuite {
       auto matrix_before = g.compactMatrix();
       auto matrix_after = Group::exp(g.log()).compactMatrix();
 
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           matrix_before,
           matrix_after,
           kEpsilonSqrt<Scalar>,
@@ -160,7 +162,7 @@ struct LieGroupPropTestSuite {
       Group exp_inverse = Group::exp(tangent).inverse();
       Group exp_neg_tangent = Group::exp(-tangent);
 
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           exp_inverse.compactMatrix(),
           exp_neg_tangent.compactMatrix(),
           0.001,
@@ -176,7 +178,7 @@ struct LieGroupPropTestSuite {
       Tangent omega = SOPHUS_AT(kTangentExamples, i);
       Matrix exp_x = Group::exp(omega).matrix();
       Matrix expmap_hat_x = (Group::hat(omega)).exp();
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           exp_x, expmap_hat_x, 0.003, "expmap(hat(x)) - exp(x) case: %", i);
     }
   }
@@ -192,7 +194,7 @@ struct LieGroupPropTestSuite {
         Tangent mat_adj_x = mat_adj * x;
         Tangent mat_adj_x2 =
             Group::vee(mat * Group::hat(x) * g.inverse().matrix());
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             mat_adj_x,
             mat_adj_x2,
             10 * kEpsilonSqrt<Scalar>,
@@ -223,7 +225,7 @@ struct LieGroupPropTestSuite {
         Tangent ad_a_b = ad_a * b;
         Tangent lie_bracket_a_b = Group::vee(
             Group::hat(a) * Group::hat(b) - Group::hat(b) * Group::hat(a));
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             ad_a_b,
             lie_bracket_a_b,
             10 * kEpsilonSqrt<Scalar>,
@@ -248,7 +250,7 @@ struct LieGroupPropTestSuite {
                   },
                   b);
 
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               ad_a,
               num_diff_ad_a,
               10 * kEpsilonSqrt<Scalar>,
@@ -261,7 +263,7 @@ struct LieGroupPropTestSuite {
   static auto hatTests(std::string group_name) -> void {
     for (size_t i = 0; i < kTangentExamples.size(); ++i) {
       Tangent tangent = SOPHUS_AT(kTangentExamples, i);
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           tangent,
           Group::vee(Group::hat(tangent)),
           kEpsilonSqrt<Scalar>,
@@ -282,7 +284,7 @@ struct LieGroupPropTestSuite {
 
           Group left_hugging = (g1 * g2) * g3;
           Group right_hugging = g1 * (g2 * g3);
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               left_hugging.compactMatrix(),
               right_hugging.compactMatrix(),
               10.0 * kEpsilonSqrt<Scalar>,
@@ -305,7 +307,7 @@ struct LieGroupPropTestSuite {
         Group daz_from_foo_transform_2 =
             (foo_from_bar_transform * bar_from_daz_transform).inverse();
 
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             daz_from_foo_transform_1.compactMatrix(),
             daz_from_foo_transform_2.compactMatrix(),
             10 * kEpsilonSqrt<Scalar>,
@@ -326,7 +328,7 @@ struct LieGroupPropTestSuite {
             g.compactMatrix() * Group::toAmbient(point_in);
         Point out_point_from_action = g * point_in;
 
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             out_point_from_matrix,
             out_point_from_action,
             kEpsilonSqrt<Scalar>,
@@ -342,7 +344,7 @@ struct LieGroupPropTestSuite {
             g.compactMatrix());
 
         Point in_point_through_inverse = g.inverse() * out_point_from_matrix;
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             point_in,
             in_point_through_inverse,
             10.0 * kEpsilonSqrt<Scalar>,
@@ -374,7 +376,7 @@ struct LieGroupPropTestSuite {
       //           },
       //           a);
 
-      //   SOPHUS_ASSERT_NEAR(
+      //   SOPHUS_ASSERT_WITHIN_REL(
       //       d,
       //       j_num,
       //       10.0 * kEpsilonSqrt<Scalar>,
@@ -392,7 +394,7 @@ struct LieGroupPropTestSuite {
                 return p;
               },
               o);
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           j,
           j_num,
           10.0 * kEpsilonSqrt<Scalar>,
@@ -412,7 +414,7 @@ struct LieGroupPropTestSuite {
                 },
                 o);
 
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             j,
             j_num,
             10.0 * kEpsilonSqrt<Scalar>,
@@ -433,7 +435,7 @@ struct LieGroupPropTestSuite {
                 },
                 o);
 
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             j,
             j_num,
             10.0 * kEpsilonSqrt<Scalar>,
@@ -449,7 +451,7 @@ struct LieGroupPropTestSuite {
         Eigen::Matrix<Scalar, kDof, kDof> j_exp =
             Eigen::Matrix<Scalar, kDof, kDof>::Identity();
 
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             j,
             j_exp,
             10.0 * kEpsilonSqrt<Scalar>,
@@ -597,7 +599,7 @@ decltype(pointExamples<typename TGroup::Scalar, TGroup::kPointDim>())
 
 // //     G product = g1 * g2;
 // //     g1 *= g2;
-// //     SOPHUS_ASSERT_NEAR(
+// //     SOPHUS_ASSERT_WITHIN_REL(
 // //         g1.matrix(), product.matrix(), small_eps, "Product case: %", i);
 // //   }
 // //   return passed;
@@ -630,7 +632,7 @@ decltype(pointExamples<typename TGroup::Scalar, TGroup::kPointDim>())
 // //       Transformation hatj = Group::hat(tangent_vec_[j]);
 
 // //       Tangent tangent2 = Group::vee(hati * hatj - hatj * hati);
-// //       SOPHUS_ASSERT_NEAR(
+// //       SOPHUS_ASSERT_WITHIN_REL(
 // //           passed,
 // //           tangent1,
 // //           tangent2,

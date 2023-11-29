@@ -120,7 +120,7 @@ auto rotation3FromNormal(
   }
   TScalar det = basis_foo.determinant();
   // sanity check
-  SOPHUS_ASSERT_NEAR(
+  SOPHUS_ASSERT_WITHIN_REL(
       det,
       TScalar(1),
       kEpsilon<TScalar>,

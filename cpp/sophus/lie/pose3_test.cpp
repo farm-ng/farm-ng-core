@@ -63,7 +63,7 @@ TEST(robot_velocity, unit_tests) {
       world_from_robot_at_t0.evolve(0.2).aFromB(), "world", "robot_at_t2");
   world_from_robot_at_t2.tangentInB() = uniform_egocentric_velocity;
 
-  FARM_ASSERT_NEAR(
+  FARM_ASSERT_WITHIN_REL(
       world_from_robot_at_t1.evolve(0.1).aFromB().compactMatrix(),
       world_from_robot_at_t2.aFromB().compactMatrix(),
       0.1,

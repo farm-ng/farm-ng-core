@@ -27,7 +27,7 @@ auto test2dGeometry() -> bool {
         rotation2FromNormal(normal_in_foo);
     Eigen::Vector2<TScalar> result_normal_foo =
         normalFromRotation2(foo_rotation_plane);
-    SOPHUS_ASSERT_NEAR(normal_in_foo, result_normal_foo, eps, "");
+    SOPHUS_ASSERT_WITHIN_REL(normal_in_foo, result_normal_foo, eps, "");
   }
 
   for (int i = 0; i < 20; ++i) {
@@ -39,9 +39,9 @@ auto test2dGeometry() -> bool {
     sophus::Isometry2<TScalar> foo_from_plane = isometryFromLine(line_in_foo);
     Eigen::Hyperplane<TScalar, 2> result_plane_foo =
         lineFromIsometry(foo_from_plane);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         line_in_foo.normal().eval(), result_plane_foo.normal().eval(), eps, "");
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         line_in_foo.offset(), result_plane_foo.offset(), eps, "");
   }
 
@@ -51,9 +51,9 @@ auto test2dGeometry() -> bool {
     Eigen::Hyperplane<TScalar, 2> line_in_foo = lineFromIsometry(foo_from_line);
     Isometry2<TScalar> t2_foo_line = isometryFromLine(line_in_foo);
     Eigen::Hyperplane<TScalar, 2> line2_foo = lineFromIsometry(t2_foo_line);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         line_in_foo.normal().eval(), line2_foo.normal().eval(), eps, "");
-    SOPHUS_ASSERT_NEAR(line_in_foo.offset(), line2_foo.offset(), eps, "");
+    SOPHUS_ASSERT_WITHIN_REL(line_in_foo.offset(), line2_foo.offset(), eps, "");
   }
 
   return passed;
@@ -68,22 +68,24 @@ auto test3dGeometry() -> bool {
       Eigen::Vector3<TScalar>(1, 2, 0).normalized();
   Eigen::Matrix3<TScalar> foo_rotation_plane =
       rotation3FromNormal(normal_in_foo);
-  SOPHUS_ASSERT_NEAR(normal_in_foo, foo_rotation_plane.col(2).eval(), eps, "");
+  SOPHUS_ASSERT_WITHIN_REL(
+      normal_in_foo, foo_rotation_plane.col(2).eval(), eps, "");
   // Just testing that the function normalizes the input normal and hint
   // direction correctly:
   Eigen::Matrix3<TScalar> r2_foo_plane =
       rotation3FromNormal((TScalar(0.9) * normal_in_foo).eval());
-  SOPHUS_ASSERT_NEAR(normal_in_foo, r2_foo_plane.col(2).eval(), eps, "");
+  SOPHUS_ASSERT_WITHIN_REL(normal_in_foo, r2_foo_plane.col(2).eval(), eps, "");
   Eigen::Matrix3<TScalar> r3_foo_plane = rotation3FromNormal(
       normal_in_foo,
       Eigen::Vector3<TScalar>(TScalar(0.9), TScalar(0), TScalar(0)),
       Eigen::Vector3<TScalar>(TScalar(0), TScalar(1.1), TScalar(0)));
-  SOPHUS_ASSERT_NEAR(normal_in_foo, r3_foo_plane.col(2).eval(), eps, "");
+  SOPHUS_ASSERT_WITHIN_REL(normal_in_foo, r3_foo_plane.col(2).eval(), eps, "");
 
   normal_in_foo = Eigen::Vector3<TScalar>(1, 0, 0);
   foo_rotation_plane = rotation3FromNormal(normal_in_foo);
-  SOPHUS_ASSERT_NEAR(normal_in_foo, foo_rotation_plane.col(2).eval(), eps, "");
-  SOPHUS_ASSERT_NEAR(
+  SOPHUS_ASSERT_WITHIN_REL(
+      normal_in_foo, foo_rotation_plane.col(2).eval(), eps, "");
+  SOPHUS_ASSERT_WITHIN_REL(
       Eigen::Vector3<TScalar>(0, 1, 0),
       foo_rotation_plane.col(1).eval(),
       eps,
@@ -91,8 +93,9 @@ auto test3dGeometry() -> bool {
 
   normal_in_foo = Eigen::Vector3<TScalar>(0, 1, 0);
   foo_rotation_plane = rotation3FromNormal(normal_in_foo);
-  SOPHUS_ASSERT_NEAR(normal_in_foo, foo_rotation_plane.col(2).eval(), eps, "");
-  SOPHUS_ASSERT_NEAR(
+  SOPHUS_ASSERT_WITHIN_REL(
+      normal_in_foo, foo_rotation_plane.col(2).eval(), eps, "");
+  SOPHUS_ASSERT_WITHIN_REL(
       Eigen::Vector3<TScalar>(1, 0, 0),
       foo_rotation_plane.col(0).eval(),
       eps,
@@ -106,7 +109,7 @@ auto test3dGeometry() -> bool {
         rotation3FromPlane(normal_in_foo);
     Eigen::Vector3<TScalar> result_normal_foo =
         normalFromRotation3(foo_rotation_plane);
-    SOPHUS_ASSERT_NEAR(normal_in_foo, result_normal_foo, eps, "");
+    SOPHUS_ASSERT_WITHIN_REL(normal_in_foo, result_normal_foo, eps, "");
   }
 
   for (int i = 0; i < 20; ++i) {
@@ -118,12 +121,12 @@ auto test3dGeometry() -> bool {
     sophus::Isometry3<TScalar> foo_from_plane = isometryFromPlane(plane_in_foo);
     Eigen::Hyperplane<TScalar, 3> result_plane_foo =
         planeFromIsometry(foo_from_plane);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         plane_in_foo.normal().eval(),
         result_plane_foo.normal().eval(),
         eps,
         "");
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         plane_in_foo.offset(), result_plane_foo.offset(), eps, "");
   }
 
@@ -134,9 +137,10 @@ auto test3dGeometry() -> bool {
         planeFromIsometry(foo_from_plane);
     Isometry3<TScalar> t2_foo_plane = isometryFromPlane(plane_in_foo);
     Eigen::Hyperplane<TScalar, 3> plane2_foo = planeFromIsometry(t2_foo_plane);
-    SOPHUS_ASSERT_NEAR(
+    SOPHUS_ASSERT_WITHIN_REL(
         plane_in_foo.normal().eval(), plane2_foo.normal().eval(), eps, "");
-    SOPHUS_ASSERT_NEAR(plane_in_foo.offset(), plane2_foo.offset(), eps, "");
+    SOPHUS_ASSERT_WITHIN_REL(
+        plane_in_foo.offset(), plane2_foo.offset(), eps, "");
   }
 
   return passed;

@@ -79,7 +79,7 @@ TEST(camera_model, projection_round_trip) {
       for (double d : {0.1, 0.5, 1.0, 1.1, 3.0, 15.0}) {
         Eigen::Vector3d point_in_camera =
             camera_model.camUnproj(pixel_image, d);
-        SOPHUS_ASSERT_NEAR(d, point_in_camera.z(), kEps);
+        SOPHUS_ASSERT_WITHIN_REL(d, point_in_camera.z(), kEps);
 
         Eigen::Vector2d pixel_image2 = camera_model.camProj(point_in_camera);
 
@@ -103,11 +103,11 @@ TEST(camera_model, projection_round_trip) {
         for (int j = 0; j < 6; ++j) {
           for (int i = 0; i < 2; ++i) {
             if (std::abs(numeric_dx(i, j)) < 1e-3) {
-              SOPHUS_ASSERT_NEAR(dx, numeric_dx, 1e-2);
+              SOPHUS_ASSERT_WITHIN_REL(dx, numeric_dx, 1e-2);
             } else {
               double ratio = dx(i, j) / numeric_dx(i, j);
 
-              SOPHUS_ASSERT_NEAR(
+              SOPHUS_ASSERT_WITHIN_REL(
                   ratio, 1.0, 1e-2, "{} vs. {}", dx(i, j), numeric_dx(i, j));
             }
           }
@@ -117,11 +117,11 @@ TEST(camera_model, projection_round_trip) {
       Eigen::Vector2d ab_in_z1plane = camera_model.undistort(pixel_image);
       Eigen::Vector2d ab_in_z1plane2 =
           interpolate(unwarp_table, pixel_image.cast<float>()).cast<double>();
-      SOPHUS_ASSERT_NEAR(ab_in_z1plane, ab_in_z1plane2, kEps);
+      SOPHUS_ASSERT_WITHIN_REL(ab_in_z1plane, ab_in_z1plane2, kEps);
 
       Eigen::Vector2d pixel_in_image = camera_model.distort(ab_in_z1plane);
 
-      SOPHUS_ASSERT_NEAR(pixel_image, pixel_in_image, kEps);
+      SOPHUS_ASSERT_WITHIN_REL(pixel_image, pixel_in_image, kEps);
 
       Eigen::Matrix2d dx = camera_model.dxDistort(ab_in_z1plane);
 
@@ -137,7 +137,7 @@ TEST(camera_model, projection_round_trip) {
       //     ab_in_z1plane,
       //     dx);
 
-      SOPHUS_ASSERT_NEAR(dx, dx_num, kEps);
+      SOPHUS_ASSERT_WITHIN_REL(dx, dx_num, kEps);
     }
   }
 
@@ -194,11 +194,11 @@ TEST(camera_model, projection_round_trip) {
           for (int j = 0; j < 6; ++j) {
             for (int i = 0; i < 2; ++i) {
               if (std::abs(num_dx(i, j)) < 1e-3) {
-                SOPHUS_ASSERT_NEAR(dx, num_dx, 1e-2);
+                SOPHUS_ASSERT_WITHIN_REL(dx, num_dx, 1e-2);
               } else {
                 double ratio = dx(i, j) / num_dx(i, j);
 
-                SOPHUS_ASSERT_NEAR(
+                SOPHUS_ASSERT_WITHIN_REL(
                     ratio, 1.0, 1e-2, "{} vs. {}", dx(i, j), num_dx(i, j));
               }
             }
@@ -220,11 +220,11 @@ TEST(camera_model, projection_round_trip) {
             for (int j = 0; j < 3; ++j) {
               for (int i = 0; i < 2; ++i) {
                 if (std::abs(num_dx(i, j)) < 1e-3) {
-                  SOPHUS_ASSERT_NEAR(dx, num_dx, 1e-2);
+                  SOPHUS_ASSERT_WITHIN_REL(dx, num_dx, 1e-2);
                 } else {
                   double ratio = dx(i, j) / num_dx(i, j);
 
-                  SOPHUS_ASSERT_NEAR(
+                  SOPHUS_ASSERT_WITHIN_REL(
                       ratio, 1.0, 1e-2, "{} vs. {}", dx(i, j), num_dx(i, j));
                 }
               }

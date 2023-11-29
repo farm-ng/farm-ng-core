@@ -70,7 +70,7 @@ struct SplinePropTestSuite {
         Group t = spline.parentFromSpline(0.0, 1.0);
         Group t2 = spline.parentFromSpline(1.0, 0.0);
 
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             t.matrix(), t2.matrix(), 10 * sqrt_eps, "parent_T_spline");
 
         Matrix dt_parent_from_spline = spline.dtParentFromSpline(0.0, 0.5);
@@ -79,7 +79,7 @@ struct SplinePropTestSuite {
               return spline.parentFromSpline(0.0, u_bar).matrix();
             },
             0.5);
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             dt_parent_from_spline,
             dt_parent_from_spline2,
             100 * sqrt_eps,
@@ -91,7 +91,7 @@ struct SplinePropTestSuite {
               return spline.dtParentFromSpline(0.0, u_bar).matrix();
             },
             0.5);
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             dt2_parent_from_spline,
             dt2_parent_from_spline2,
             20 * sqrt_eps,
@@ -109,7 +109,7 @@ struct SplinePropTestSuite {
                 return spline.parentFromSpline(t_bar).matrix();
               },
               t);
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               dt_parent_from_spline,
               dt_parent_from_spline2,
               80 * sqrt_eps,
@@ -121,7 +121,7 @@ struct SplinePropTestSuite {
                 return spline.dtParentFromSpline(t_bar).matrix();
               },
               t);
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               dt2_parent_from_spline,
               dt2_parent_from_spline2,
               20 * sqrt_eps,

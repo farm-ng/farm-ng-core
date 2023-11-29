@@ -13,19 +13,19 @@
 using namespace sophus;
 
 TEST(check_near, unit) {
-  SOPHUS_ASSERT_NEAR(
+  SOPHUS_ASSERT_WITHIN_REL(
       Eigen::Vector3d(1.0, 2.0, 0.0),
       Eigen::Vector3d(1.0, 2.0, 0.0),
       0.0000001);
   ASSERT_DEATH(
       {
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             Eigen::Vector3d(1.0, 2.0, 0.001),
             Eigen::Vector3d(1.0, 2.0, 0.0),
             0.00001);
       },
-      "ASSERT_NEAR");
-  SOPHUS_ASSERT_NEAR(
+      "ASSERT_WITHIN_REL");
+  SOPHUS_ASSERT_WITHIN_REL(
       Eigen::Vector3d(1.0, 2.0, 999.001),
       Eigen::Vector3d(1.0, 2.0, 999.0),
       0.0001);

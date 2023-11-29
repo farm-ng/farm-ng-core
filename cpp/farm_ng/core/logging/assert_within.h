@@ -24,11 +24,11 @@ namespace farm_ng {
 ///
 /// It outputs:  min(|x-y|, |x-y| / max(|x|, |y|))
 ///
-/// The output it between 0.0 and 2.0:
+/// The output is between 0.0 and 2.0:
 ///
 ///  * x and y are close             => ~0.0
 ///  * x and y are NOT close and
-///    - |x| and |y| NOT are close   => ~1.0
+///    - |x| and |y| are NOT close   => ~1.0
 ///    - |x| and |y| are close       => ~2.0
 inline double relativeCloseness(double x, double y) {
   // https://c-faq.com/fp/fpequal.html
@@ -164,8 +164,8 @@ inline Expected<Success> checkRelativeNear(
     double thr) {
   if (!((thr >= 0.0) && (thr <= 1.0))) {
     FARM_WARN(
-        "FARM_ASSERT_NEAR: The threshold shall be in [0.0, 1.0], but we got "
-        "`{}`.",
+        "The threshold of the WITHIN_REL macro shall be in [0.0, 1.0], but we "
+        "got `{}`.",
         thr);
   }
   return CheckNear<TScalar, TScalar2>::check(
@@ -183,13 +183,13 @@ inline Expected<Success> checkRelativeNear(
 ///
 /// A threshold ~0.0 implies that lhs is near rhs, and ~1.0 implies the lhs is
 /// NOT near rhs.
-#define FARM_ASSERT_NEAR(lhs, rhs, thr, ...)                              \
+#define FARM_ASSERT_WITHIN_REL(lhs, rhs, thr, ...)                        \
   do {                                                                    \
     Expected<Success> status =                                            \
         ::farm_ng::details::checkRelativeNear(lhs, #lhs, rhs, #rhs, thr); \
     if (!status) {                                                        \
       FARM_PANIC(                                                         \
-          "FARM_ASSERT_NEAR failed: {}\n"                                 \
+          "FARM_ASSERT_WITHIN_REL failed: {}\n"                           \
           "Not true: `{}` near {}; (thr: {})\n"                           \
           "{}",                                                           \
           #lhs,                                                           \
@@ -204,13 +204,13 @@ inline Expected<Success> checkRelativeNear(
 /// `thr`, print formatted error message and then panic.
 ///
 /// `lhs` and `rhs` are near, if std::abs(lhs - rhs) < thr.
-#define FARM_ASSERT_ABS_NEAR(lhs, rhs, thr, ...)                     \
+#define FARM_ASSERT_WITHIN_ABS(lhs, rhs, thr, ...)                   \
   do {                                                               \
     Expected<Success> status =                                       \
         ::farm_ng::details::checkAbsNear(lhs, #lhs, rhs, #rhs, thr); \
     if (!status) {                                                   \
       FARM_PANIC(                                                    \
-          "FARM_ASSERT_ABS_NEAR failed: {}\n"                        \
+          "FARM_ASSERT_WITHIN_ABS failed: {}\n"                      \
           "Not true: `{}` near {}; (thr: {})\n"                      \
           "{}",                                                      \
           #lhs,                                                      \

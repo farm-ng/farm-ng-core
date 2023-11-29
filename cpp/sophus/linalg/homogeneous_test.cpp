@@ -20,7 +20,7 @@ void unprojProjRountripTest() {
     Eigen::Vector<TScalar, kDim + 1> hpoint = unproj(in_point);
     Eigen::Vector<TScalar, kDim> out_point = proj(hpoint);
 
-    SOPHUS_ASSERT_NEAR(in_point, out_point, 0.001);
+    SOPHUS_ASSERT_WITHIN_REL(in_point, out_point, 0.001);
   }
 }
 

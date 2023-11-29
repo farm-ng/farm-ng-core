@@ -13,7 +13,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <farm_ng/core/logging/check_near.h>
+#include <farm_ng/core/logging/assert_within.h>
 #include <farm_ng/core/logging/expected.h>
 #include <farm_ng/core/logging/format.h>
 #include <farm_ng/core/logging/logger.h>
@@ -37,7 +37,7 @@
 #define SOPHUS_ASSERT_LE(...) FARM_ASSERT_LE(__VA_ARGS__)
 #define SOPHUS_ASSERT_LT(...) FARM_ASSERT_LT(__VA_ARGS__)
 #define SOPHUS_ASSERT_NE(...) FARM_ASSERT_NE(__VA_ARGS__)
-#define SOPHUS_ASSERT_NEAR(...) FARM_ASSERT_NEAR(__VA_ARGS__)
+#define SOPHUS_ASSERT_WITHIN_REL(...) FARM_ASSERT_WITHIN_REL(__VA_ARGS__)
 #define SOPHUS_AT(...) FARM_AT(__VA_ARGS__)
 #define SOPHUS_INFO(...) FARM_INFO(__VA_ARGS__)
 #define SOPHUS_PANIC(...) FARM_PANIC(__VA_ARGS__)

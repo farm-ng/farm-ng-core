@@ -11,7 +11,7 @@ farm_ng_add_library(farm_ng_core_logging
   NAMESPACE farm_ng_core
   INCLUDE_DIR ../../..
   HEADERS
-    check_near.h
+    assert_within.h
     expected.h
     format.h
     trace_debug_log.h
@@ -34,7 +34,7 @@ target_link_libraries(farm_ng_core_logging PUBLIC
 find_package(Eigen3 3.4.0 REQUIRED)
 
 foreach(test_basename
-    check_near
+    assert_within
     expected
     format
     logger

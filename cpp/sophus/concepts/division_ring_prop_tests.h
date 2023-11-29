@@ -39,7 +39,7 @@ struct DivisionRingTestSuite {
           Ring left_hugging = (g1 * g2) * g3;
           Ring right_hugging = g1 * (g2 * g3);
 
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               left_hugging.params(),
               right_hugging.params(),
               10.0 * kEpsilonSqrt<Scalar>,
@@ -67,7 +67,7 @@ struct DivisionRingTestSuite {
           Ring left_hugging = g1 * g2;
           Ring right_hugging = g2 * g1;
 
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               left_hugging.params(),
               right_hugging.params(),
               kEpsilonSqrt<Scalar>,
@@ -111,7 +111,7 @@ struct DivisionRingTestSuite {
       Params params = SOPHUS_AT(kParamsExamples, params_id);
       Ring g = Ring::fromParams(params);
 
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           g.params(),
           (g + Ring::zero()).params(),
           kEpsilonSqrt<Scalar>,
@@ -131,7 +131,7 @@ struct DivisionRingTestSuite {
         continue;
       }
 
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           g.params(),
           (g * Ring::one()).params(),
           kEpsilonSqrt<Scalar>,
@@ -139,7 +139,7 @@ struct DivisionRingTestSuite {
           ring_name,
           params_id);
 
-      SOPHUS_ASSERT_NEAR(
+      SOPHUS_ASSERT_WITHIN_REL(
           (g * g.inverse()).params(),
           Ring::one().params(),
           kEpsilonSqrt<Scalar>,

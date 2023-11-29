@@ -31,7 +31,7 @@ TEST(group_manifold, unit) {
     auto g2 = g1.oplus(t);
 
     Eigen::Vector<double, 6> t_proof = g2.ominus(g1);
-    FARM_ASSERT_NEAR(t, t_proof, 0.001);
+    FARM_ASSERT_WITHIN_REL(t, t_proof, 0.001);
   }
 
   {
@@ -40,6 +40,6 @@ TEST(group_manifold, unit) {
     auto g2 = g1.oplus(t);
 
     Eigen::Vector<double, 6> t_proof = g2.ominus(g1);
-    FARM_ASSERT_NEAR(t, t_proof, 0.001);
+    FARM_ASSERT_WITHIN_REL(t, t_proof, 0.001);
   }
 }

@@ -60,10 +60,10 @@ struct InterpolatePropTestSuite {
 
         // Test boundary conditions ``alpha=0`` and ``alpha=1``.
         Group foo_t_quiz = interpolate(foo_from_bar, foo_from_daz, Scalar(0));
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             foo_t_quiz.matrix(), foo_from_bar.matrix(), sqrt_eps, "");
         foo_t_quiz = interpolate(foo_from_bar, foo_from_daz, Scalar(1));
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             foo_t_quiz.matrix(), foo_from_daz.matrix(), 10.0 * sqrt_eps, "");
       }
     }
@@ -97,7 +97,7 @@ struct InterpolatePropTestSuite {
                 dash_from_foo * foo_from_bar,
                 dash_from_foo * foo_from_daz,
                 alpha);
-            SOPHUS_ASSERT_NEAR(
+            SOPHUS_ASSERT_WITHIN_REL(
                 dash_t_quiz.matrix(),
                 (dash_from_foo * foo_t_quiz).matrix(),
                 500 * sqrt_eps,
@@ -110,7 +110,7 @@ struct InterpolatePropTestSuite {
           // == interp(foo_from_bar.inverse(),dash_T_foo.inverse())
           Group quiz_t_foo = interpolate(
               foo_from_bar.inverse(), foo_from_daz.inverse(), alpha);
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               quiz_t_foo.inverse().matrix(),
               foo_t_quiz.matrix(),
               500.0 * sqrt_eps,
@@ -144,7 +144,7 @@ struct InterpolatePropTestSuite {
                 bar_from_foo * foo_from_dash,
                 baz_from_foo * foo_from_dash,
                 alpha);
-            SOPHUS_ASSERT_NEAR(
+            SOPHUS_ASSERT_WITHIN_REL(
                 quiz_t_dash.matrix(),
                 (quiz_t_foo * foo_from_dash).matrix(),
                 500 * sqrt_eps,
@@ -179,7 +179,7 @@ struct InterpolatePropTestSuite {
             transpose(foo_from_daz.log()),
             "");
         if (foo_t_average) {
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               foo_t_quiz.matrix(),
               foo_t_average->matrix(),
               100.0 * sqrt_eps,
@@ -201,7 +201,7 @@ struct InterpolatePropTestSuite {
             transpose(foo_t_iaverage->log()),
             "");
         if (foo_t_iaverage) {
-          SOPHUS_ASSERT_NEAR(
+          SOPHUS_ASSERT_WITHIN_REL(
               foo_t_quiz.matrix(),
               foo_t_iaverage->matrix(),
               100 * sqrt_eps,

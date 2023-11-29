@@ -287,11 +287,11 @@ TEST(interpolative_time_series, regression) {
         interpolated.world_from_foo.compactMatrix());
 
     static double const kEps = sophus::kEpsilonF32;
-    FARM_ASSERT_NEAR(interpolated.t, value.t, kEps);
-    FARM_ASSERT_NEAR(
+    FARM_ASSERT_WITHIN_REL(interpolated.t, value.t, kEps);
+    FARM_ASSERT_WITHIN_REL(
         interpolated.angular_velocity, value.angular_velocity, 0.01);
     static double const kAngularThrDeg = 0.01;
-    FARM_ASSERT_NEAR(
+    FARM_ASSERT_WITHIN_REL(
         degFromRad(
             (interpolated.world_from_foo * value.world_from_foo.inverse())
                 .log()[0]),

@@ -43,7 +43,8 @@ TEST(imu_model, smoke) {
       accel_model.acceleroMeasurement(imu_acc),
       imu_model.acceleroMeasurement(imu_acc));
 
-  SOPHUS_ASSERT_NEAR(vel_meas, imu_model.gyroMeasurement(imu_vel), tolerance);
-  SOPHUS_ASSERT_NEAR(
+  SOPHUS_ASSERT_WITHIN_REL(
+      vel_meas, imu_model.gyroMeasurement(imu_vel), tolerance);
+  SOPHUS_ASSERT_WITHIN_REL(
       acc_meas, imu_model.acceleroMeasurement(imu_acc), tolerance);
 }

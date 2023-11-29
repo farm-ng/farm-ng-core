@@ -14,7 +14,7 @@
 
 #include "farm_ng/core/misc/conversions.h"
 
-#include "farm_ng/core/logging/check_near.h"
+#include "farm_ng/core/logging/assert_within.h"
 
 #include <gtest/gtest.h>
 
@@ -23,27 +23,27 @@
 using namespace farm_ng;
 
 TEST(conversions, unit) {
-  FARM_ASSERT_NEAR(inchesFromMeters(1.0), 39.3701, 1e-3);
-  FARM_ASSERT_NEAR(metersFromInches(1.0), 0.0254, 1e-3);
+  FARM_ASSERT_WITHIN_REL(inchesFromMeters(1.0), 39.3701, 1e-3);
+  FARM_ASSERT_WITHIN_REL(metersFromInches(1.0), 0.0254, 1e-3);
 
-  FARM_ASSERT_NEAR(metersFromFeet(1.0), 0.3048, 1e-3);
-  FARM_ASSERT_NEAR(feetFromMeters(1.0), 3.28084, 1e-3);
+  FARM_ASSERT_WITHIN_REL(metersFromFeet(1.0), 0.3048, 1e-3);
+  FARM_ASSERT_WITHIN_REL(feetFromMeters(1.0), 3.28084, 1e-3);
 
-  FARM_ASSERT_NEAR(degFromRad(1.0), 57.2958, 1e-3);
-  FARM_ASSERT_NEAR(radFromDeg(1.0), 0.0174533, 1e-3);
+  FARM_ASSERT_WITHIN_REL(degFromRad(1.0), 57.2958, 1e-3);
+  FARM_ASSERT_WITHIN_REL(radFromDeg(1.0), 0.0174533, 1e-3);
 
-  FARM_ASSERT_NEAR(degFromRad(M_PI), 180.0, 1e-3);
-  FARM_ASSERT_NEAR(radFromDeg(180.0), M_PI, 1e-3);
+  FARM_ASSERT_WITHIN_REL(degFromRad(M_PI), 180.0, 1e-3);
+  FARM_ASSERT_WITHIN_REL(radFromDeg(180.0), M_PI, 1e-3);
 
-  FARM_ASSERT_NEAR(radFromArcMinute(1.0), 0.000290888, 1e-3);
-  FARM_ASSERT_NEAR(arcMinuteFromRad(1.0), 3437.75, 1e-3);
+  FARM_ASSERT_WITHIN_REL(radFromArcMinute(1.0), 0.000290888, 1e-3);
+  FARM_ASSERT_WITHIN_REL(arcMinuteFromRad(1.0), 3437.75, 1e-3);
 }
 
 TEST(conversions, roundtrip) {
   for (double x = -10; x < 10; x += 0.1) {
-    FARM_ASSERT_NEAR(inchesFromMeters(metersFromInches(x)), x, 1e-6);
-    FARM_ASSERT_NEAR(metersFromInches(inchesFromMeters(x)), x, 1e-6);
-    FARM_ASSERT_NEAR(degFromRad(radFromDeg(x)), x, 1e-6);
-    FARM_ASSERT_NEAR(radFromArcMinute(arcMinuteFromRad(x)), x, 1e-6);
+    FARM_ASSERT_WITHIN_REL(inchesFromMeters(metersFromInches(x)), x, 1e-6);
+    FARM_ASSERT_WITHIN_REL(metersFromInches(inchesFromMeters(x)), x, 1e-6);
+    FARM_ASSERT_WITHIN_REL(degFromRad(radFromDeg(x)), x, 1e-6);
+    FARM_ASSERT_WITHIN_REL(radFromArcMinute(arcMinuteFromRad(x)), x, 1e-6);
   }
 }

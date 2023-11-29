@@ -12,7 +12,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "farm_ng/core/logging/check_near.h"
+#include "farm_ng/core/logging/assert_within.h"
 
 #include <gtest/gtest.h>
 
@@ -35,46 +35,46 @@ TEST(relativeCloseness, unit) {  // NOLINT
 }
 
 TEST(assert_near, check_near_for_floating_Test) {  // NOLINT
-  char const* const msg_header = "FARM_ASSERT_NEAR failed";
-  char const* const abs_msg_header = "FARM_ASSERT_ABS_NEAR failed";
+  char const* const msg_header = "FARM_ASSERT_WITHIN_REL failed";
+  char const* const abs_msg_header = "FARM_ASSERT_WITHIN_ABS failed";
 
-  FARM_ASSERT_NEAR(0.0, 0.0, 0.0);
-  FARM_ASSERT_ABS_NEAR(0.0, 0.0, 0.0);
+  FARM_ASSERT_WITHIN_REL(0.0, 0.0, 0.0);
+  FARM_ASSERT_WITHIN_ABS(0.0, 0.0, 0.0);
 
-  FARM_ASSERT_NEAR(1.0, 1.01, 0.03);
-  FARM_ASSERT_ABS_NEAR(1.0, 1.01, 0.03);
+  FARM_ASSERT_WITHIN_REL(1.0, 1.01, 0.03);
+  FARM_ASSERT_WITHIN_ABS(1.0, 1.01, 0.03);
 
-  FARM_ASSERT_NEAR(999999.0, 999999.9f, 0.001);
+  FARM_ASSERT_WITHIN_REL(999999.0, 999999.9f, 0.001);
   ASSERT_DEATH(
-      { FARM_ASSERT_NEAR(999999.0, 999999.9, 0.00000001); }, msg_header);
-  FARM_ASSERT_ABS_NEAR(999999.0, 999999.9f, 1.0);
+      { FARM_ASSERT_WITHIN_REL(999999.0, 999999.9, 0.00000001); }, msg_header);
+  FARM_ASSERT_WITHIN_ABS(999999.0, 999999.9f, 1.0);
   ASSERT_DEATH(
-      { FARM_ASSERT_ABS_NEAR(999999.0, 999999.9f, 0.1); }, abs_msg_header);
+      { FARM_ASSERT_WITHIN_ABS(999999.0, 999999.9f, 0.1); }, abs_msg_header);
 
-  FARM_ASSERT_NEAR(0.0, 0.001, 1.0);
-  ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0f, 1.1, 0.001); }, msg_header);
-  FARM_ASSERT_ABS_NEAR(0.0, 0.001, 1.0);
-  FARM_ASSERT_ABS_NEAR(0.0, 0.001, 0.001);
+  FARM_ASSERT_WITHIN_REL(0.0, 0.001, 1.0);
+  ASSERT_DEATH({ FARM_ASSERT_WITHIN_REL(1.0f, 1.1, 0.001); }, msg_header);
+  FARM_ASSERT_WITHIN_ABS(0.0, 0.001, 1.0);
+  FARM_ASSERT_WITHIN_ABS(0.0, 0.001, 0.001);
 
-  FARM_ASSERT_NEAR(
+  FARM_ASSERT_WITHIN_REL(
       std::numeric_limits<double>::epsilon(),
       2 * std::numeric_limits<double>::epsilon(),
       0.5);
-  FARM_ASSERT_ABS_NEAR(
+  FARM_ASSERT_WITHIN_ABS(
       std::numeric_limits<double>::epsilon(),
       2 * std::numeric_limits<double>::epsilon(),
       0.5);
-  FARM_ASSERT_ABS_NEAR(
+  FARM_ASSERT_WITHIN_ABS(
       std::numeric_limits<double>::epsilon(),
       2 * std::numeric_limits<double>::epsilon(),
       std::numeric_limits<double>::epsilon());
 
-  ASSERT_DEATH({ FARM_ASSERT_NEAR(1.0, -1.01, 0.03); }, msg_header);
-  ASSERT_DEATH({ FARM_ASSERT_ABS_NEAR(1.0, -1.01, 0.03); }, abs_msg_header);
+  ASSERT_DEATH({ FARM_ASSERT_WITHIN_REL(1.0, -1.01, 0.03); }, msg_header);
+  ASSERT_DEATH({ FARM_ASSERT_WITHIN_ABS(1.0, -1.01, 0.03); }, abs_msg_header);
 
-  FARM_ASSERT_NEAR(0.0, 0.001, 0.001);
-  FARM_ASSERT_ABS_NEAR(0.0, 0.001, 0.001);
+  FARM_ASSERT_WITHIN_REL(0.0, 0.001, 0.001);
+  FARM_ASSERT_WITHIN_ABS(0.0, 0.001, 0.001);
 
-  FARM_ASSERT_NEAR(-0.0001, +0.0001, 0.0003);
-  FARM_ASSERT_ABS_NEAR(-0.0001, +0.0001, 0.0003);
+  FARM_ASSERT_WITHIN_REL(-0.0001, +0.0001, 0.0003);
+  FARM_ASSERT_WITHIN_ABS(-0.0001, +0.0001, 0.0003);
 }

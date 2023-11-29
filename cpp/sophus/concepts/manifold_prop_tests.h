@@ -35,7 +35,7 @@ struct ManifoldPropTestSuite {
            ++tangent_id) {
         Tangent delta = SOPHUS_AT(tangent_examples, tangent_id);
         Manifold b = a.oplus(delta);
-        SOPHUS_ASSERT_NEAR(
+        SOPHUS_ASSERT_WITHIN_REL(
             a.ominus(b),
             delta,
             kEpsilonF64,

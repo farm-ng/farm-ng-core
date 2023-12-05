@@ -166,8 +166,6 @@ impl PlottingWidget for PlottingService {
 
         let packets = from_proto(proto_messages);
 
-        println!("Got {} messages", packets.len());
-
         self.outbound.as_ref().plotter_message.send(packets);
 
         Ok(tonic::Response::new(PlottingReply {}))

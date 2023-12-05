@@ -140,6 +140,18 @@ class MutImage : public MutImageView<TPixel> {
     return mut_image;
   }
 
+  /// Creates new MutImage given view and unary uv-transform function.
+  ///
+  /// mut_image(u, v) = unary_op(view(u, v), u, v);
+  template <class TOtherPixel, class TUnaryOperationUv>
+  static auto makeFromTransformUv(
+      ImageView<TOtherPixel> view, TUnaryOperationUv const& unary_op)
+      -> MutImage {
+    MutImage mut_image(view.imageSize());
+    mut_image.transformUvFrom(view, unary_op);
+    return mut_image;
+  }
+
   /// Creates new MutImage given two views and binary transform function.
   ///
   /// mut_image(u, v) = binary_op(lhs(u, v), rhs(u, v));

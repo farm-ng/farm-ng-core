@@ -184,6 +184,31 @@ class MutImageView : public ImageView<TPixel> {
     }
   }
 
+  /// Transforms view using unary operation and pixel index.
+  ///
+  /// It assigns result to this.
+  ///
+  /// Preconditions:
+  ///   - this must not be empty.
+  ///   - this->imageSize() == view.imageSize()
+  template <class TOtherPixel, class TUnaryOperationUv>
+  void transformUvFrom(
+      ImageView<TOtherPixel> view, TUnaryOperationUv const& unary_op) const {
+    SOPHUS_ASSERT(!this->isEmpty());
+    SOPHUS_ASSERT_EQ(view.imageSize(), this->imageSize());
+
+    for (int v = 0; v < this->layout_.height(); ++v) {
+      TPixel* mut_p = this->rowPtrMut(v);
+      TOtherPixel const* p = view.rowPtr(v);
+      TOtherPixel const* end_of_row = p + view.layout().width();
+      int u = 0;
+
+      for (; p != end_of_row; ++p, ++mut_p, ++u) {
+        *mut_p = unary_op(*p, u, v);
+      }
+    }
+  }
+
   /// Transforms two views using binary operation and assigns result to this.
   ///
   /// Preconditions:

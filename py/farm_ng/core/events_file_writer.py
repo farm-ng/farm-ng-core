@@ -10,11 +10,11 @@ from farm_ng.core.event_pb2 import Event
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.json_format import MessageToJson
+from google.protobuf.message import Message
 
 if TYPE_CHECKING:
     from farm_ng.core.timestamp_pb2 import Timestamp
     from farm_ng.core.uri_pb2 import Uri
-    from google.protobuf.message import Message
 
 # public symbols
 
@@ -57,7 +57,7 @@ class EventsFileWriter:
         file_base: str | Path,
         extension: str = ".bin",
         max_file_mb: int = 0,
-        header_msgs: list[tuple(str, Message)] | None = None,
+        header_msgs: list[tuple[str, Message]] | None = None,
     ) -> None:
         """Create a new EventsFileWriter.
 
@@ -84,7 +84,7 @@ class EventsFileWriter:
 
         if header_msgs is None:
             header_msgs = []
-        self._header_msgs: list[tuple(str, Message)] = header_msgs
+        self._header_msgs: list[tuple[str, Message]] = header_msgs
 
     def __enter__(self) -> EventsFileWriter:
         """Open the file for writing and return self."""
@@ -142,13 +142,19 @@ class EventsFileWriter:
         self._file_idx += 1
 
     @property
-    def header_msgs(self) -> list[tuple(str, Message)]:
+    def header_msgs(self) -> list[tuple[str, Message]]:
         """Return the list of header messages."""
         return self._header_msgs
 
-    def add_header_msg(self, msg: Message) -> None:
+    def add_header_msg(self, path: str, msg: Message) -> None:
         """Add a header message."""
-        self._header_msgs.append(msg)
+        if not isinstance(path, str):
+            error_msg = f"path must be a string, not {type(path)}"
+            raise TypeError(error_msg)
+        if not isinstance(msg, Message):
+            error_msg = f"msg must be a Message, not {type(msg)}"
+            raise TypeError(error_msg)
+        self._header_msgs.append((path, msg))
 
     def write_header_msgs(self) -> None:
         """Write the header messages to the file, without getting stuck in a loop

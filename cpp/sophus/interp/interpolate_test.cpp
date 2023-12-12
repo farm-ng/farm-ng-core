@@ -6,9 +6,9 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "sophus/lie/interp/interpolate.h"
+#include "sophus/interp/interpolate.h"
 
-#include "sophus/lie/interp/average.h"
+#include "sophus/interp/average.h"
 #include "sophus/lie/scaling_translation.h"
 
 #include <gtest/gtest.h>

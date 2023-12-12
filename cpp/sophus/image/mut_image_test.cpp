@@ -101,3 +101,21 @@ TEST(MutImage, makeFromTransform) {
     }
   }
 }
+
+TEST(MutImage, makeFromTransformUv) {
+  ImageLayout layout = ImageLayout::makeFromSizeAndPitch<float>(
+      {2, 3}, 2 * sizeof(float) + sizeof(float));
+  MutImage<float> one_image(layout);
+  one_image.fill(1.f);
+
+  MutImage3F32 pattern = MutImage3F32::makeFromTransformUv(
+      one_image, [](float value, int u, int v) {
+        return Pixel3F32(value, 0.5f * u, 2.f * v);
+      });
+
+  for (int v = 0; v < 3; ++v) {
+    for (int u = 0; u < 2; ++u) {
+      SOPHUS_ASSERT_EQ(pattern(u, v), Pixel3F32(1.0, 0.5f * u, 2.f * v));
+    }
+  }
+}

@@ -72,6 +72,15 @@ class Image : public ImageView<TPixel> {
     return MutImage<TPixel>::makeFromTransform(view, unary_op);
   }
 
+  /// Creates new Image given view and unary uv-transform function.
+  ///
+  /// image(u, v) = unary_op(view(u, v));
+  template <class TOtherPixel, class TUnaryOperationUv>
+  static auto makeFromTransformUv(
+      ImageView<TOtherPixel> view, TUnaryOperationUv const& unary_op) -> Image {
+    return MutImage<TPixel>::makeFromTransformUv(view, unary_op);
+  }
+
   /// Creates new Image given two views and binary transform function.
   ///
   /// image(u, v) = binary_op(lhs(u, v), rhs(u, v));

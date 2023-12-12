@@ -1,15 +1,20 @@
+from __future__ import annotations
+
 import asyncio
+from typing import TYPE_CHECKING
 
 import pytest
-from farm_ng.core.event_client import EventClient
-from farm_ng.core.event_pb2 import Event
-from farm_ng.core.event_service import EventServiceGrpc
-from farm_ng.core.event_service_pb2 import (
-    RequestReplyRequest,
-)
 from google.protobuf.empty_pb2 import Empty
-from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value, StringValue
+
+if TYPE_CHECKING:
+    from farm_ng.core.event_client import EventClient
+    from farm_ng.core.event_pb2 import Event
+    from farm_ng.core.event_service import EventServiceGrpc
+    from farm_ng.core.event_service_pb2 import (
+        RequestReplyRequest,
+    )
+    from google.protobuf.message import Message
 
 
 class TestEventClient:
@@ -74,7 +79,7 @@ class TestEventClient:
     ) -> None:
         async def request_reply_handler(
             request: RequestReplyRequest,
-        ) -> Message:
+        ) -> Message | None:
             if request.event.uri.path == "/get_foo":
                 return StringValue(value="foo")
             if request.event.uri.path == "/get_bar":

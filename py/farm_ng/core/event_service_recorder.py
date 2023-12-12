@@ -50,6 +50,7 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 if TYPE_CHECKING:
     from farm_ng.core import event_pb2
+    from farm_ng.core.uri_pb2 import Uri
     from google.protobuf.message import Message
 
 __all__ = ["EventServiceRecorder", "RecorderService"]
@@ -153,6 +154,7 @@ class EventServiceRecorder:
         self,
         client: EventClient,
         subscription: SubscribeRequest,
+        header_uris: list[Uri],
     ) -> None:
         """Subscribes to a service and puts the events in the queue.
 
@@ -163,6 +165,14 @@ class EventServiceRecorder:
         event: event_pb2.Event
         payload: bytes
         async for event, payload in client.subscribe(subscription, decode=False):
+            if event.uri in header_uris:
+                # Handle header messages - typically these will be metadata or calibrations
+                # This assumes they are only published once (likely with latching=True),
+                # as we break the subscription after the first header message is received
+                self.logger.info("header received: %s", event)
+                self.header_deque.append((event, payload))
+                self.logger.info("breaking subscription to %s", subscription.uri)
+                break
             try:
                 self.record_queue.put_nowait((event, payload))
             except asyncio.QueueFull:
@@ -206,8 +216,21 @@ class EventServiceRecorder:
                 self.logger.warning("Invalid subscription: %s", query_service_name)
                 continue
             client: EventClient = self.clients[query_service_name]
+            # Build a list of header URIs matching the service_name for this subscription
+            header_uris: list[Uri] = []
+            for header_uri in self.recorder_config.header_uris:
+                header_dict: dict[str, str] = uri_query_to_dict(uri=header_uri)
+                header_service_name: str = header_dict["service_name"]
+                if header_service_name == query_service_name:
+                    header_uris.append(header_uri)
             async_tasks.append(
-                asyncio.create_task(self.subscribe(client, subscription)),
+                asyncio.create_task(
+                    self.subscribe(
+                        client,
+                        subscription,
+                        header_uris,
+                    ),
+                ),
             )
         try:
             await asyncio.gather(*async_tasks)

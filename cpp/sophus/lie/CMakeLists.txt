@@ -46,5 +46,3 @@ foreach(test_basename ${sophus_lie_src_prefixes})
                           LINK_LIBRARIES sophus_lie
                           LABELS small)
 endforeach()
-
-add_subdirectory(interp)

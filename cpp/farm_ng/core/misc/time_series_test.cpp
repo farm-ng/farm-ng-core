@@ -15,7 +15,7 @@
 #include "farm_ng/core/misc/time_series.h"
 
 #include "farm_ng/core/misc/conversions.h"
-#include "sophus/lie/interp/interpolate.h"
+#include "sophus/interp/interpolate.h"
 
 #include <gtest/gtest.h>
 #include <sophus/lie/rotation3.h>

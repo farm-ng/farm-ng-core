@@ -10,11 +10,11 @@ from farm_ng.core.event_pb2 import Event
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.uri import make_proto_uri
 from google.protobuf.json_format import MessageToJson
-from google.protobuf.message import Message
 
 if TYPE_CHECKING:
     from farm_ng.core.timestamp_pb2 import Timestamp
     from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 # public symbols
 
@@ -57,7 +57,7 @@ class EventsFileWriter:
         file_base: str | Path,
         extension: str = ".bin",
         max_file_mb: int = 0,
-        header_msgs: list[tuple[str, Message]] | None = None,
+        header_msgs: list[tuple[Event, bytes]] | None = None,
     ) -> None:
         """Create a new EventsFileWriter.
 
@@ -65,7 +65,7 @@ class EventsFileWriter:
             file_base: Path to and base of file name (without extension) where the events file will be logged.
             extension: Extension of the file to be logged. E.g., '.bin' or '.log'
             max_file_mb: Maximum log size in MB. Logging will roll over to new file when reached. Ignored if <= 0.
-            header_msgs: Tuples of paths & Messages to include in every split of the log file
+            header_msgs: Tuples of events & payloads to include in every split of the log file
         """
         if isinstance(file_base, str):
             file_base = Path(file_base)
@@ -82,9 +82,7 @@ class EventsFileWriter:
         self._max_file_length = int(max(0, max_file_mb) * 1e6)
         self._file_idx: int = 0
 
-        if header_msgs is None:
-            header_msgs = []
-        self._header_msgs: list[tuple[str, Message]] = header_msgs
+        self._header_msgs: list[tuple[Event, bytes]] = header_msgs or []
 
     def __enter__(self) -> EventsFileWriter:
         """Open the file for writing and return self."""
@@ -142,28 +140,43 @@ class EventsFileWriter:
         self._file_idx += 1
 
     @property
-    def header_msgs(self) -> list[tuple[str, Message]]:
-        """Return the list of header messages."""
+    def header_msgs(self) -> list[tuple[Event, bytes]]:
+        """Return the list of header messages.
+        Returns:
+            list[tuple[Event, bytes]]: List of header messages.
+        """
         return self._header_msgs
 
-    def add_header_msg(self, path: str, msg: Message) -> None:
-        """Add a header message."""
-        if not isinstance(path, str):
-            error_msg = f"path must be a string, not {type(path)}"
+    def add_header_msg(self, event: Event, payload: bytes, write: bool = False) -> None:
+        """Add a header message, and optionally writes it to the file.
+        NOTE: Writing to file will fail if the file is not open.
+
+        Args:
+            event: Event to write.
+            payload: Payload to write.
+            write: If True, write the header message to the file. Defaults to False.
+        """
+        if not isinstance(event, Event):
+            error_msg = f"event must be Event, not {type(event)}"
             raise TypeError(error_msg)
-        if not isinstance(msg, Message):
-            error_msg = f"msg must be a Message, not {type(msg)}"
+        if not isinstance(payload, bytes):
+            error_msg = f"payload must be bytes, not {type(payload)}"
             raise TypeError(error_msg)
-        self._header_msgs.append((path, msg))
+        self._header_msgs.append((event, payload))
+        if write:
+            self.write_event_payload(event, payload)
 
     def write_header_msgs(self) -> None:
         """Write the header messages to the file, without getting stuck in a loop
         if the headers are larger than the max file size."""
         true_max_file_length = self.max_file_length
         self._max_file_length = 0
-        for (path, msg) in self.header_msgs:
-            self.write(path=path, message=msg, write_stamps=False)
+        for (event, payload) in self.header_msgs:
+            self.write_event_payload(event, payload)
         self._max_file_length = true_max_file_length
+        if self.file_length > self.max_file_length:
+            msg = f"Header messages are too large to fit in a file of size {self.max_file_length}"
+            raise RuntimeError(msg)
 
     def open(self) -> bool:
         """Open the file for writing. Return True if successful."""

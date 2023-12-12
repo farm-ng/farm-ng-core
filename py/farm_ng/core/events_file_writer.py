@@ -174,7 +174,7 @@ class EventsFileWriter:
         for (event, payload) in self.header_msgs:
             self.write_event_payload(event, payload)
         self._max_file_length = true_max_file_length
-        if self.file_length > self.max_file_length:
+        if self.max_file_length and self.file_length > self.max_file_length:
             msg = f"Header messages are too large to fit in a file of size {self.max_file_length}"
             raise RuntimeError(msg)
 

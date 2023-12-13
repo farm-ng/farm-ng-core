@@ -218,12 +218,12 @@ class TestEventsFileWriter:
                         raise TypeError(msg)
 
                 assert header_count_in_file == header_count
-                if i != file_count - 1:
+                if i == file_count - 1:
+                    assert message_count_in_file > 0
+                else:
+                    assert message_count_in_file > 10
                     # Check that the length is roughly the max file size
                     assert opened_reader.file_length == pytest.approx(
                         max_file_bytes,
                         rel=0.5,
                     )
-                    assert message_count_in_file > 0
-                else:
-                    assert message_count_in_file > 10

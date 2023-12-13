@@ -1,7 +1,9 @@
 import asyncio
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+from farm_ng.core.event_pb2 import Event
 from farm_ng.core.event_service import EventServiceGrpc
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfigList,
@@ -9,8 +11,12 @@ from farm_ng.core.event_service_pb2 import (
 )
 from farm_ng.core.event_service_recorder import EventServiceRecorder, RecorderService
 from farm_ng.core.events_file_reader import EventsFileReader, payload_to_protobuf
+from farm_ng.core.uri import make_proto_uri
 from google.protobuf.message import Message
 from google.protobuf.wrappers_pb2 import Int32Value
+
+if TYPE_CHECKING:
+    from farm_ng.core.uri_pb2 import Uri
 
 
 async def request_reply_handler(
@@ -78,6 +84,67 @@ class TestEventServiceRecorder:
         for event_log in reader.get_index():
             event_message = event_log.read_message()
             assert event_message == message
+
+    @pytest.mark.anyio()
+    async def test_file_headers(
+        self,
+        tmp_path: Path,
+        event_service: EventServiceGrpc,
+        recorder_service: EventServiceRecorder,
+    ) -> None:
+        # reset the counts
+        event_service.reset()
+        event_service.request_reply_handler = request_reply_handler
+
+        # Define some test values
+        header_uri_path: str = "/baz_header"
+        header_count: int = 3
+
+        # Create the header and pass it to EventServiceRecorder
+        for i in range(10, 10 + header_count):
+            message = Int32Value(value=i)
+            payload: bytes = message.SerializeToString()
+            uri: Uri = make_proto_uri(
+                path=header_uri_path,
+                message=message,
+                service_name=event_service.config.name,
+            )
+            event = Event(
+                uri=uri,
+                timestamps=[],
+                payload_length=len(payload),
+                sequence=i,
+            )
+            recorder_service.header_deque.append((event, payload))
+
+        # start the recording
+        file_name = tmp_path / "test_headers"
+        task = asyncio.create_task(
+            recorder_service.subscribe_and_record(file_name),
+        )
+        await asyncio.sleep(0.1)
+
+        # Cancel the recording
+        task.cancel()
+        await asyncio.sleep(0.1)
+
+        file_name_bin = file_name.with_suffix(".0000.bin")
+        assert file_name_bin.exists()
+
+        # read the file
+        reader = EventsFileReader(file_name_bin)
+        assert reader.open()
+
+        # Check the headers
+        logged_headers: int = 0
+        expected_path: str = f"{event_service.config.name}{header_uri_path}"
+        for event_log in reader.get_index():
+            # Check headers - skip any other events
+            if event_log.event.uri.path == expected_path:
+                logged_headers += 1
+                event_message = event_log.read_message()
+                assert isinstance(event_message, Int32Value)
+        assert logged_headers == header_count
 
 
 class TestRecorderService:

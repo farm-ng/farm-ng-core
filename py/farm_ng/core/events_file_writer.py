@@ -82,7 +82,7 @@ class EventsFileWriter:
         self._max_file_length = int(max(0, max_file_mb) * 1e6)
         self._file_idx: int = 0
 
-        self._header_msgs: dict[Uri, tuple[Event, bytes]] = {}
+        self._header_msgs: dict[str, tuple[Event, bytes]] = {}
         for (event, payload) in header_msgs or []:
             self.add_header_msg(event, payload)
 
@@ -142,10 +142,12 @@ class EventsFileWriter:
         self._file_idx += 1
 
     @property
-    def header_msgs(self) -> dict[Uri, tuple[Event, bytes]]:
+    def header_msgs(self) -> dict[str, tuple[Event, bytes]]:
         """Return the list of header messages.
         Returns:
-            dict[Uri, tuple[Event, bytes]]: List of header messages.
+            dict[str, tuple[Event, bytes]]: Dictionary of header messages.
+                key: string representation of the uri
+                value: tuple of event and payload
         """
         return self._header_msgs
 

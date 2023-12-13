@@ -44,7 +44,7 @@ from farm_ng.core.event_service_pb2 import (
 from farm_ng.core.events_file_reader import payload_to_protobuf, proto_from_json_file
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now
-from farm_ng.core.uri import get_host_name, uri_query_to_dict
+from farm_ng.core.uri import get_host_name, uri_query_to_dict, uri_to_string
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
@@ -167,12 +167,8 @@ class EventServiceRecorder:
         async for event, payload in client.subscribe(subscription, decode=False):
             if event.uri in header_uris:
                 # Handle header messages - typically these will be metadata or calibrations
-                # This assumes they are only published once (likely with latching=True),
-                # as we break the subscription after the first header message is received
-                self.logger.info("header received: %s", event)
+                # If this is a duplicate (per URI), the EventsFileWriter will replace the existing message
                 self.header_deque.append((event, payload))
-                self.logger.info("breaking subscription to %s", subscription.uri)
-                break
             try:
                 self.record_queue.put_nowait((event, payload))
             except asyncio.QueueFull:
@@ -301,7 +297,7 @@ class RecorderService:
         self._recorder_task: asyncio.Task | None = None
 
         # For tracking header messages (e.g. metadata, calibrations) to be logged in the recordings
-        self.header_msgs: list[tuple[event_pb2.Event, bytes]] = []
+        self.header_msgs: dict[str, tuple[event_pb2.Event, bytes]] = {}
 
     # public methods
 
@@ -327,7 +323,7 @@ class RecorderService:
         self._recorder = EventServiceRecorder(
             config_name or "record_default",
             config_list,
-            self.header_msgs,
+            list(self.header_msgs.values()),
         )
         self._recorder_task = asyncio.create_task(
             self._recorder.subscribe_and_record(file_base=file_base),
@@ -403,12 +399,13 @@ class RecorderService:
 
     def add_header_msg(self, event: event_pb2.Event, payload: bytes) -> None:
         """Adds a header message to the header_msgs list.
+        If this is a duplicate (per URI), it will replace the existing message.
 
         Args:
             event (event_pb2.Event): the event.
             payload (bytes): the payload.
         """
-        self.header_msgs.append((event, payload))
+        self.header_msgs[uri_to_string(event.uri)] = (event, payload)
         if self._recorder is not None:
             self._event_service.logger.info("Adding header msg to active recording")
             self._recorder.header_deque.append((event, payload))

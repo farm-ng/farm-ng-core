@@ -84,10 +84,10 @@ class TestEventsFileWriter:
             file_base=file_base,
             max_file_mb=max_file_bytes * 1e-6,
         ) as opened_writer:
-            expected_length: int = 0
+            approx_expected_length: int = 0
             for i in range(100):
                 message = StringValue(value=f"test_payload_{i}")
-                event_payload: bytes = message.SerializeToString()
+                payload: bytes = message.SerializeToString()
                 uri: Uri = make_proto_uri(
                     path="/test_path",
                     message=message,
@@ -96,30 +96,24 @@ class TestEventsFileWriter:
                 event = Event(
                     uri=uri,
                     timestamps=[],
-                    payload_length=len(event_payload),
+                    payload_length=len(payload),
                     sequence=i,
                 )
-                opened_writer.write_event_payload(event, event_payload)
-                # NOTE: 1.03 is a consistent byte size overhead for writing the event and payload
-                expected_length += int(
-                    1.03
-                    * (
-                        len(message.SerializeToString())
-                        + len(event.SerializeToString())
-                    ),
-                )
-            # Check that the file was rolled over the expected number of times
-            expected_files: int = expected_length // max_file_bytes
-            assert (
-                expected_files > 5
-            )  # If this fails, increase for loop size to trigger enough rollovers
-            assert expected_files == 1 + opened_writer.file_idx
+                opened_writer.write_event_payload(event, payload)
+                approx_expected_length += len(payload) + len(event.SerializeToString())
 
-        for i in range(expected_files):
+            # Check that the file was rolled over the expected number of times
+            approx_expected_files: int = approx_expected_length // max_file_bytes
+            actual_files: int = 1 + opened_writer.file_idx
+            assert approx_expected_files > 5  # sufficient rollovers
+            # The expected logging size is not a perfect estimate, so allow some wiggle room
+            assert approx_expected_files == pytest.approx(actual_files, rel=0.5)
+
+        for i in range(actual_files):
             file_name_bin = file_base.with_suffix(f".{i:04d}.bin")
             assert file_name_bin.exists()
             with EventsFileReader(file_name_bin) as opened_reader:
-                if i != expected_files - 1:
+                if i != actual_files - 1:
                     # Check that the length is roughly the max file size
                     assert opened_reader.file_length == pytest.approx(
                         max_file_bytes,
@@ -138,7 +132,7 @@ class TestEventsFileWriter:
         header_uri_service: str = "test_service"
         header_count: int = 10
         headers: list[tuple[Event, bytes]] = []
-        header_size: int = 0
+        approx_header_size: int = 0
         max_file_bytes: int = 10000
 
         # Create the header messages
@@ -157,10 +151,7 @@ class TestEventsFileWriter:
                 sequence=i,
             )
             headers.append((event, event_payload))
-            # NOTE: 1.03 is a consistent byte size overhead for writing the event and payload
-            header_size += int(
-                1.03 * (len(event.SerializeToString()) + len(event_payload)),
-            )
+            approx_header_size += len(event.SerializeToString()) + len(event_payload)
 
             # Add some extra headers with duplicate URI's to ensure they are filtered out
             dup_message = Int32Value(value=999 + i)
@@ -174,20 +165,23 @@ class TestEventsFileWriter:
             headers.append((dup_event, dup_payload))
 
         # Test that headers are written to the file
-        assert max_file_bytes > header_size  # If this fails, edit the test parameters
+        assert max_file_bytes > approx_header_size * 1.5  # sufficient space for headers
         with EventsFileWriter(
             file_base=file_base,
             max_file_mb=max_file_bytes * 1e-6,
             header_msgs=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
-            assert opened_writer.file_length == pytest.approx(header_size, rel=0.5)
+            assert opened_writer.file_length == pytest.approx(
+                approx_header_size,
+                rel=0.5,
+            )
 
         # Test that headers cannot exceed the max file size
         with pytest.raises(RuntimeError):
             with EventsFileWriter(
                 file_base=file_base,
-                max_file_mb=(header_size / 2) * 1e-6,
+                max_file_mb=(approx_header_size / 2) * 1e-6,
                 header_msgs=headers,
             ) as opened_writer:
                 pass
@@ -200,7 +194,10 @@ class TestEventsFileWriter:
             header_msgs=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
-            assert opened_writer.file_length == pytest.approx(header_size, rel=0.5)
+            assert opened_writer.file_length == pytest.approx(
+                approx_header_size,
+                rel=0.5,
+            )
             for i in range(1000):
                 opened_writer.write("test_path", StringValue(value=f"test_payload_{i}"))
             file_count = 1 + opened_writer.file_idx

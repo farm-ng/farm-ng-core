@@ -203,12 +203,6 @@ class TestEventsFileWriter:
             file_name_bin = file_base.with_suffix(f".{i:04d}.bin")
             assert file_name_bin.exists()
             with EventsFileReader(file_name_bin) as opened_reader:
-                if i != file_count - 1:
-                    # Check that the length is roughly the max file size
-                    assert opened_reader.file_length == pytest.approx(
-                        max_file_bytes,
-                        rel=0.1,
-                    )
                 for event_log in opened_reader.get_index():
                     message = opened_reader.read_message(event_log)
                     if isinstance(message, StringValue):
@@ -220,4 +214,12 @@ class TestEventsFileWriter:
                         raise TypeError(msg)
 
                 assert header_count_in_file == header_count
-                assert message_count_in_file > 1
+                if i != file_count - 1:
+                    # Check that the length is roughly the max file size
+                    assert opened_reader.file_length == pytest.approx(
+                        max_file_bytes,
+                        rel=0.1,
+                    )
+                    assert message_count_in_file > 0
+                else:
+                    assert message_count_in_file > 10

@@ -105,7 +105,7 @@ class TestEventsFileWriter:
             # Check that the file was rolled over the expected number of times
             approx_expected_files: int = approx_expected_length // max_file_bytes
             actual_files: int = 1 + opened_writer.file_idx
-            assert approx_expected_files > 5  # sufficient rollovers
+            assert approx_expected_files > 5  # sufficient number of rollovers (params)
             # The expected logging size is not a perfect estimate, so allow some wiggle room
             assert approx_expected_files == pytest.approx(actual_files, rel=0.5)
 
@@ -165,7 +165,7 @@ class TestEventsFileWriter:
             headers.append((dup_event, dup_payload))
 
         # Test that headers are written to the file
-        assert max_file_bytes > approx_header_size * 1.5  # sufficient space for headers
+        assert max_file_bytes > approx_header_size * 1.5  # sufficient buffer (params)
         with EventsFileWriter(
             file_base=file_base,
             max_file_mb=max_file_bytes * 1e-6,
@@ -201,9 +201,7 @@ class TestEventsFileWriter:
             for i in range(1000):
                 opened_writer.write("test_path", StringValue(value=f"test_payload_{i}"))
             file_count = 1 + opened_writer.file_idx
-            assert (
-                file_count > 5
-            )  # If this fails, increase for loop size to trigger enough rollovers
+            assert file_count > 5  # sufficient number of rollovers (params)
 
         for i in range(file_count):
             header_count_in_file: int = 0

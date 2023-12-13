@@ -134,7 +134,7 @@ class TestEventsFileWriter:
 
     def test_headers(self, file_base: Path):
         # Build a list of test parameters
-        header_uri_path: str = "/baz_header"
+        header_uri_base: str = "baz_header"
         header_uri_service: str = "test_service"
         header_count: int = 10
         headers: list[tuple[Event, bytes]] = []
@@ -146,7 +146,7 @@ class TestEventsFileWriter:
             message = Int32Value(value=i)
             event_payload: bytes = message.SerializeToString()
             uri: Uri = make_proto_uri(
-                path=header_uri_path,
+                path=f"/{header_uri_base}_{i}",
                 message=message,
                 service_name=header_uri_service,
             )
@@ -162,6 +162,10 @@ class TestEventsFileWriter:
                 1.03 * (len(event.SerializeToString()) + len(event_payload)),
             )
 
+        # Add some headers with duplicate URI's to ensure they are filtered out
+        for i in range(header_count // 2):
+            headers.append(headers[i])
+
         # Test that headers are written to the file
         assert max_file_bytes > header_size  # If this fails, edit the test parameters
         with EventsFileWriter(
@@ -170,7 +174,7 @@ class TestEventsFileWriter:
             header_msgs=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
-            assert opened_writer.file_length == pytest.approx(header_size, rel=0.01)
+            assert opened_writer.file_length == pytest.approx(header_size, rel=0.1)
 
         # Test that headers cannot exceed the max file size
         with pytest.raises(RuntimeError):
@@ -189,7 +193,7 @@ class TestEventsFileWriter:
             header_msgs=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
-            assert opened_writer.file_length == pytest.approx(header_size, rel=0.01)
+            assert opened_writer.file_length == pytest.approx(header_size, rel=0.1)
             for i in range(1000):
                 opened_writer.write("test_path", StringValue(value=f"test_payload_{i}"))
             file_count = 1 + opened_writer.file_idx

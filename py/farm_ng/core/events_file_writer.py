@@ -8,7 +8,7 @@ from typing import IO, TYPE_CHECKING, cast
 # https://github.com/protocolbuffers/protobuf/issues/10372
 from farm_ng.core.event_pb2 import Event
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
-from farm_ng.core.uri import make_proto_uri
+from farm_ng.core.uri import make_proto_uri, uri_to_string
 from google.protobuf.json_format import MessageToJson
 
 if TYPE_CHECKING:
@@ -82,7 +82,9 @@ class EventsFileWriter:
         self._max_file_length = int(max(0, max_file_mb) * 1e6)
         self._file_idx: int = 0
 
-        self._header_msgs: list[tuple[Event, bytes]] = header_msgs or []
+        self._header_msgs: dict[Uri, tuple[Event, bytes]] = {}
+        for (event, payload) in header_msgs or []:
+            self.add_header_msg(event, payload)
 
     def __enter__(self) -> EventsFileWriter:
         """Open the file for writing and return self."""
@@ -140,10 +142,10 @@ class EventsFileWriter:
         self._file_idx += 1
 
     @property
-    def header_msgs(self) -> list[tuple[Event, bytes]]:
+    def header_msgs(self) -> dict[Uri, tuple[Event, bytes]]:
         """Return the list of header messages.
         Returns:
-            list[tuple[Event, bytes]]: List of header messages.
+            dict[Uri, tuple[Event, bytes]]: List of header messages.
         """
         return self._header_msgs
 
@@ -162,7 +164,7 @@ class EventsFileWriter:
         if not isinstance(payload, bytes):
             error_msg = f"payload must be bytes, not {type(payload)}"
             raise TypeError(error_msg)
-        self._header_msgs.append((event, payload))
+        self._header_msgs[uri_to_string(event.uri)] = (event, payload)
         if write:
             self.write_event_payload(event, payload)
 
@@ -171,7 +173,7 @@ class EventsFileWriter:
         if the headers are larger than the max file size."""
         true_max_file_length = self.max_file_length
         self._max_file_length = 0
-        for (event, payload) in self.header_msgs:
+        for (event, payload) in self.header_msgs.values():
             self.write_event_payload(event, payload)
         self._max_file_length = true_max_file_length
         if self.max_file_length and self.file_length > self.max_file_length:

@@ -97,7 +97,7 @@ class TestEventServiceRecorder:
         event_service.request_reply_handler = request_reply_handler
 
         # Define some test values
-        header_uri_path: str = "/baz_header"
+        header_uri_base: str = "baz_header"
         header_count: int = 3
 
         # Create the header and pass it to EventServiceRecorder
@@ -105,7 +105,7 @@ class TestEventServiceRecorder:
             message = Int32Value(value=i)
             payload: bytes = message.SerializeToString()
             uri: Uri = make_proto_uri(
-                path=header_uri_path,
+                path=f"/{header_uri_base}_{i}",
                 message=message,
                 service_name=event_service.config.name,
             )
@@ -137,10 +137,9 @@ class TestEventServiceRecorder:
 
         # Check the headers
         logged_headers: int = 0
-        expected_path: str = f"{event_service.config.name}{header_uri_path}"
         for event_log in reader.get_index():
             # Check headers - skip any other events
-            if event_log.event.uri.path == expected_path:
+            if header_uri_base in event_log.event.uri.path:
                 logged_headers += 1
                 event_message = event_log.read_message()
                 assert isinstance(event_message, Int32Value)

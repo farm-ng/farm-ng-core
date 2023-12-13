@@ -75,9 +75,12 @@ class TestEventServiceRecorder:
         reader = EventsFileReader(file_name_bin)
         assert reader.open()
 
+        received_msg: bool = False
         for event_log in reader.get_index():
             event_message = event_log.read_message()
             assert event_message == message
+            received_msg = True
+        assert received_msg
 
 
 class TestRecorderService:

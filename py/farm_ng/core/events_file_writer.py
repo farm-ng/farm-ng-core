@@ -166,9 +166,11 @@ class EventsFileWriter:
         if not isinstance(payload, bytes):
             error_msg = f"payload must be bytes, not {type(payload)}"
             raise TypeError(error_msg)
-        self._header_msgs[uri_to_string(event.uri)] = (event, payload)
-        if write:
-            self.write_event_payload(event, payload)
+        # Once a header message is written to the file, it cannot be changed
+        if uri_to_string(event.uri) not in self.header_msgs:
+            self._header_msgs[uri_to_string(event.uri)] = (event, payload)
+            if write:
+                self.write_event_payload(event, payload)
 
     def write_header_msgs(self) -> None:
         """Write the header messages to the file, without getting stuck in a loop
@@ -205,9 +207,7 @@ class EventsFileWriter:
 
         if event.payload_length != len(payload):
             msg = f"Payload length mismatch {event.payload_length} != {len(payload)}"
-            raise RuntimeError(
-                msg,
-            )
+            raise RuntimeError(msg)
 
         file_stream = cast(IO, self._file_stream)
 

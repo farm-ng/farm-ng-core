@@ -162,9 +162,16 @@ class TestEventsFileWriter:
                 1.03 * (len(event.SerializeToString()) + len(event_payload)),
             )
 
-        # Add some headers with duplicate URI's to ensure they are filtered out
-        for i in range(header_count // 2):
-            headers.append(headers[i])
+            # Add some extra headers with duplicate URI's to ensure they are filtered out
+            dup_message = Int32Value(value=999 + i)
+            dup_payload: bytes = dup_message.SerializeToString()
+            dup_event = Event(
+                uri=uri,
+                timestamps=[],
+                payload_length=len(dup_payload),
+                sequence=i + header_count,
+            )
+            headers.append((dup_event, dup_payload))
 
         # Test that headers are written to the file
         assert max_file_bytes > header_size  # If this fails, edit the test parameters
@@ -212,6 +219,9 @@ class TestEventsFileWriter:
                     if isinstance(message, StringValue):
                         message_count_in_file += 1
                     elif isinstance(message, Int32Value):
+                        # Test that the duplicate header was filtered out
+                        # And that the headers are in order
+                        assert message.value == header_count_in_file
                         header_count_in_file += 1
                     else:
                         msg = f"Unexpected message type: {type(message)}"

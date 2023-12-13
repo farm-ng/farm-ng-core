@@ -50,7 +50,6 @@ from google.protobuf.wrappers_pb2 import StringValue
 
 if TYPE_CHECKING:
     from farm_ng.core import event_pb2
-    from farm_ng.core.uri_pb2 import Uri
     from google.protobuf.message import Message
 
 __all__ = ["EventServiceRecorder", "RecorderService"]
@@ -154,20 +153,20 @@ class EventServiceRecorder:
         self,
         client: EventClient,
         subscription: SubscribeRequest,
-        header_uris: list[Uri],
+        header_uris: list[str],
     ) -> None:
         """Subscribes to a service and puts the events in the queue.
 
         Args:
             client (EventClient): the client to subscribe to.
             subscription (SubscribeRequest): the subscription request.
+            header_uris (list[str]): the list of URIs (as strings) to consider as header messages.
         """
         event: event_pb2.Event
         payload: bytes
         async for event, payload in client.subscribe(subscription, decode=False):
-            if event.uri in header_uris:
+            if uri_to_string(event.uri) in header_uris:
                 # Handle header messages - typically these will be metadata or calibrations
-                # If this is a duplicate (per URI), the EventsFileWriter will replace the existing message
                 self.header_deque.append((event, payload))
             try:
                 self.record_queue.put_nowait((event, payload))
@@ -213,12 +212,12 @@ class EventServiceRecorder:
                 continue
             client: EventClient = self.clients[query_service_name]
             # Build a list of header URIs matching the service_name for this subscription
-            header_uris: list[Uri] = []
+            header_uris: list[str] = []
             for header_uri in self.recorder_config.header_uris:
                 header_dict: dict[str, str] = uri_query_to_dict(uri=header_uri)
                 header_service_name: str = header_dict["service_name"]
                 if header_service_name == query_service_name:
-                    header_uris.append(header_uri)
+                    header_uris.append(uri_to_string(header_uri))
             async_tasks.append(
                 asyncio.create_task(
                     self.subscribe(

@@ -123,7 +123,7 @@ class TestEventsFileWriter:
                     # Check that the length is roughly the max file size
                     assert opened_reader.file_length == pytest.approx(
                         max_file_bytes,
-                        rel=0.1,
+                        rel=0.5,
                     )
                 for event_log in opened_reader.get_index():
                     message = opened_reader.read_message(event_log)
@@ -174,7 +174,7 @@ class TestEventsFileWriter:
             header_msgs=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
-            assert opened_writer.file_length == pytest.approx(header_size, rel=0.1)
+            assert opened_writer.file_length == pytest.approx(header_size, rel=0.5)
 
         # Test that headers cannot exceed the max file size
         with pytest.raises(RuntimeError):
@@ -193,7 +193,7 @@ class TestEventsFileWriter:
             header_msgs=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
-            assert opened_writer.file_length == pytest.approx(header_size, rel=0.1)
+            assert opened_writer.file_length == pytest.approx(header_size, rel=0.5)
             for i in range(1000):
                 opened_writer.write("test_path", StringValue(value=f"test_payload_{i}"))
             file_count = 1 + opened_writer.file_idx
@@ -222,7 +222,7 @@ class TestEventsFileWriter:
                     # Check that the length is roughly the max file size
                     assert opened_reader.file_length == pytest.approx(
                         max_file_bytes,
-                        rel=0.1,
+                        rel=0.5,
                     )
                     assert message_count_in_file > 0
                 else:

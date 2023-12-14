@@ -339,6 +339,7 @@ class RecorderService:
             finally:
                 del future
                 del recorder_task
+                self._recorder = None
 
         self._recorder_task.add_done_callback(
             lambda f: _safe_done_callback(f, self._recorder_task),

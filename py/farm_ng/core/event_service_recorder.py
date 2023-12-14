@@ -372,11 +372,12 @@ class RecorderService:
             Message: the response message.
         """
         cmd: str = request.event.uri.path
-        config_name: str | None = None
+        extra_arg: str | None = None
         if cmd.count("/") == 1:
-            cmd, config_name = cmd.split("/")
+            cmd, extra_arg = cmd.split("/")
 
         if cmd == "start":
+            config_name: str | None = extra_arg
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event,
                 request.payload,
@@ -387,8 +388,15 @@ class RecorderService:
             return StringValue(value=str(file_base))
         if cmd == "stop":
             await self.stop_recording()
-        elif cmd == "add_header_msg":
-            self._event_service.logger.info("add_header_msg: %s", request.payload)
+        elif cmd == "header":
+            if not extra_arg:
+                msg = "header command requires an argument, e.g. 'header/metadata'"
+                raise ValueError(msg)
+            self._event_service.logger.info(
+                "add_header_msg:\n%s",
+                payload_to_protobuf(request.event, request.payload),
+            )
+            self._event_service.logger.info("with uri:\n%s", request.event.uri)
             self.add_header_msg(request.event, request.payload)
         elif cmd == "clear_headers":
             self._event_service.logger.info("clear_headers")
@@ -407,7 +415,6 @@ class RecorderService:
         """
         self.header_msgs[uri_to_string(event.uri)] = (event, payload)
         if self._recorder is not None:
-            self._event_service.logger.info("Adding header msg to active recording")
             self._recorder.header_deque.append((event, payload))
 
 

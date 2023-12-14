@@ -6,9 +6,10 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "sophus/lie/interp/spline.h"
-
 #include "sophus/calculus/num_diff.h"
+#include "sophus/interp/interpolate.h"
+#include "sophus/interp/spline/bspline.h"
+#include "sophus/interp/spline/group_bspline.h"
 #include "sophus/lie/isometry2.h"
 #include "sophus/lie/isometry3.h"
 #include "sophus/lie/rotation2.h"
@@ -65,7 +66,7 @@ struct SplinePropTestSuite {
           control_poses.push_back(t_world_inter);
         }
 
-        BasisSplineImpl<Group> spline(control_poses, 1.0);
+        CubicLieGroupBSplineImpl<Group> spline(control_poses, 1.0);
 
         Group t = spline.parentFromSpline(0.0, 1.0);
         Group t2 = spline.parentFromSpline(1.0, 0.0);
@@ -149,9 +150,11 @@ decltype(pointExamples<typename TGroup::Scalar, TGroup::kPointDim>())
         pointExamples<Scalar, kPointDim>();
 //! @endcond
 
-TEST(lie_groups, linterpolate_prop_tests) {
+TEST(lie_group_bspline, lie_group_bspline_prop_test) {
   SplinePropTestSuite<Scaling2<double>>::runAllTests("Scaling2");
   SplinePropTestSuite<Scaling3<double>>::runAllTests("Scaling3");
+
+  SplinePropTestSuite<Translation<double, 1>>::runAllTests("Translation1");
 
   SplinePropTestSuite<Translation2<double>>::runAllTests("Translation2");
   SplinePropTestSuite<Translation3<double>>::runAllTests("Translation3");
@@ -171,5 +174,50 @@ TEST(lie_groups, linterpolate_prop_tests) {
       "SpiralSimilarity3");
   SplinePropTestSuite<Similarity2<double>>::runAllTests("Similarity2");
   SplinePropTestSuite<Similarity3<double>>::runAllTests("Similarity3");
+}
+
+TEST(bspline, cartesian_vs_lie_group_bspline) {
+  auto translation_elements = Translation3F64::elementExamples();
+
+  std::vector<Eigen::Vector3d> control_points;
+  for (auto const& t : translation_elements) {
+    control_points.push_back(t.params());
+  }
+
+  double t0 = -2.0;
+  double delta_t = 0.17;
+  CubicLieGroupBSpline<Translation3F64> group_spline(
+      translation_elements, t0, delta_t);
+  CubicBSpline<double, 3> spline(control_points, t0, delta_t);
+
+  SOPHUS_ASSERT_EQ(group_spline.getNumSegments(), spline.getNumSegments());
+  SOPHUS_ASSERT_EQ(group_spline.t0(), spline.t0());
+  SOPHUS_ASSERT_EQ(group_spline.tmax(), spline.tmax());
+
+  for (double t = group_spline.t0(); t < group_spline.tmax(); t += 0.02) {
+    SOPHUS_ASSERT_WITHIN_REL(
+        group_spline.parentFromSpline(t).params(),
+        spline.interpolate(t),
+        0.0001,
+        "");
+
+    for (size_t i = 0; i < translation_elements.size(); ++i) {
+      Eigen::Matrix<double, 3, 3> dx = spline.dxiInterpolate(t, i);
+
+      Eigen::Matrix<double, 3, 3> const num_dx =
+          vectorFieldNumDiff<double, 3, 3>(
+              [&](Eigen::Vector<double, 3> x) -> Eigen::Vector3d {
+                auto control_points_copy = control_points;
+                control_points_copy[i] = x;
+                CubicBSpline<double, 3> spline(
+                    control_points_copy, t0, delta_t);
+                return spline.interpolate(t);
+              },
+              control_points[i],
+              0.001);
+
+      SOPHUS_ASSERT_WITHIN_REL(num_dx, dx, 0.0001, "");
+    }
+  }
 }
 }  // namespace sophus::test

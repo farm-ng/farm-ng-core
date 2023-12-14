@@ -23,6 +23,7 @@ add_subdirectory(linalg)
 add_subdirectory(calculus)
 add_subdirectory(color)
 add_subdirectory(lie)
+add_subdirectory(interp)
 add_subdirectory(geometry)
 add_subdirectory(image)
 add_subdirectory(sensor)
@@ -36,7 +37,8 @@ target_link_libraries(sophus INTERFACE
   sophus_calculus
   sophus_linalg
   sophus_lie
-  sophus_lie_interp
+  sophus_interp
+  sophus_interp_spline
   sophus_geometry
 )
 add_library (Sophus::sophus ALIAS sophus)

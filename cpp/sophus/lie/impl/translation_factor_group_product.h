@@ -296,6 +296,9 @@ class TranslationFactorGroupProduct {
   // for tests
 
   static auto tangentExamples() -> std::vector<Tangent> {
+    if constexpr (FactorGroup::kDof == 0) {
+      return exampleTranslations();
+    }
     std::vector<Tangent> examples;
     for (auto const& group_tangent : FactorGroup::tangentExamples()) {
       for (auto const& translation_tangents : exampleTranslations()) {
@@ -307,6 +310,9 @@ class TranslationFactorGroupProduct {
 
   static auto paramsExamples() -> std::vector<Params> {
     std::vector<Params> examples;
+    if constexpr (FactorGroup::kDof == 0) {
+      return exampleTranslations();
+    }
     for (auto const& factor_group_params : FactorGroup::paramsExamples()) {
       for (auto const& right_params : exampleTranslations()) {
         examples.push_back(params(factor_group_params, right_params));

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "sophus/lie/interp/average.h"
+#include "sophus/interp/average.h"
 #include "sophus/lie/lie_group.h"
 
 namespace sophus {

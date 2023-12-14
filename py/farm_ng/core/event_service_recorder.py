@@ -372,34 +372,38 @@ class RecorderService:
             Message: the response message.
         """
         cmd: str = request.event.uri.path
-        extra_arg: str | None = None
-        if cmd.count("/") == 1:
-            cmd, extra_arg = cmd.split("/")
+        # Ensure path was sent with a leading slash
+        if not cmd.startswith("/"):
+            cmd = "/" + cmd
 
-        if cmd == "start":
-            config_name: str | None = extra_arg
+        if cmd.startswith("/start"):
+            # config_name is the optional part of the path after "/start/"
+            config_name: str | None = cmd[7:] or None
+
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event,
                 request.payload,
             )
-            self._event_service.logger.info("start %s: %s", config_name, config_list)
+            self._event_service.logger.info("/start %s: %s", config_name, config_list)
             file_base = self._data_dir.joinpath(get_file_name_base())
             await self.start_recording(file_base, config_list, config_name)
             return StringValue(value=str(file_base))
-        if cmd == "stop":
+        if cmd == "/stop":
+            self._event_service.logger.info("/stop")
             await self.stop_recording()
-        elif cmd == "header":
-            if not extra_arg:
-                msg = "header command requires an argument, e.g. 'header/metadata'"
+        elif cmd.startswith("/header"):
+            header_detail: str = cmd[8:] or ""
+            if not header_detail:
+                msg = "/header command requires a specifier, e.g. '/header/metadata'"
                 raise ValueError(msg)
             self._event_service.logger.info(
-                "add_header_msg:\n%s",
+                "header:\n%s",
                 payload_to_protobuf(request.event, request.payload),
             )
             self._event_service.logger.info("with uri:\n%s", request.event.uri)
             self.add_header_msg(request.event, request.payload)
-        elif cmd == "clear_headers":
-            self._event_service.logger.info("clear_headers")
+        elif cmd == "/clear_headers":
+            self._event_service.logger.info("/clear_headers")
             self.header_msgs.clear()
             if self._recorder is not None:
                 self._recorder.header_deque.clear()
@@ -446,7 +450,7 @@ def client_start_command(_args):
 
     async def job():
         reply = await EventClient(service_config).request_reply(
-            f"start/{config_name}",
+            f"/start/{config_name}",
             config_list,
         )
         print(payload_to_protobuf(reply.event, reply.payload))
@@ -457,7 +461,7 @@ def client_start_command(_args):
 def client_stop_command(_args):
     config_list, service_config = load_service_config(args)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(EventClient(service_config).request_reply("stop", Empty()))
+    loop.run_until_complete(EventClient(service_config).request_reply("/stop", Empty()))
 
 
 def record_command(_args):

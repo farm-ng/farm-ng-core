@@ -191,8 +191,12 @@ class EventsFileWriter:
                 self.write_event_payload(event, payload)
 
     def write_header_events(self) -> None:
-        """Write the header events to the file, without getting stuck in a loop
-        if the headers are larger than the max file size."""
+        """Write the header events to the file.
+
+        NOTE: If the header events are too large to fit in the file,
+        this will raise a RuntimeError to avoid getting stuck in an infinite loop.
+        """
+
         true_max_file_length = self.max_file_length
         self._max_file_length = 0
         for (event, payload) in self.header_events.values():

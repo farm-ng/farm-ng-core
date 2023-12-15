@@ -440,6 +440,7 @@ class RecorderService:
 
     def add_header_event(self, event: event_pb2.Event, payload: bytes) -> None:
         """Adds a header event to the header_events list.
+
         If this is a duplicate (per URI), it will replace the existing message.
 
         Args:

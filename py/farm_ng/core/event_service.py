@@ -1,6 +1,8 @@
 """
-# Will run an test_service from the config.
-python -m farm_ng.core.event_service --service-config config.json --service-name test_service
+Usage Examples:
+
+Run a test_service from the config:
+$ python -m farm_ng.core.event_service --service-config config.json --service-name test_service
 """
 from __future__ import annotations
 
@@ -265,7 +267,7 @@ class EventServiceGrpc:
         request: SubscribeRequest,
         context: grpc.aio.ServicerContext,
     ) -> AsyncIterator[SubscribeReply]:
-        """Implementation of grpc rpc subscribe"""
+        """Implementation of grpc rpc subscribe."""
 
         if request.uri.path in self._latched_events:
             yield self._latched_events[request.uri.path]

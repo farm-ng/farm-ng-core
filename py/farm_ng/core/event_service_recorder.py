@@ -1,21 +1,26 @@
-"""
-# run the event_service which starts a simple test publisher
-python -m farm_ng.core.event_service
-# run the event_recorder which subscribes to the test publisher and records the events to a file
-python -m farm_ng.core.event_service_recorder record --service-config=config.json --config-name=record_all foo
-# note that the config file has an EventServiceConfig with name "record_all" which subscribes to the test publisher
+"""EventServiceRecorder and RecorderService.
 
-# then try playing back log file:
-python -m farm_ng.core.events_file_reader playback foo.0000.bin
+Run the event_service which starts a simple test publisher:
+$ python -m farm_ng.core.event_service
 
-# or try running the event_service_recorder in service mode:
-# start the service
-python -m farm_ng.core.event_service_recorder service --service-config config.json --service-name recorder
+Run the event_recorder which subscribes to the test publisher and logs the events to a file:
+$ python -m farm_ng.core.event_service_recorder record --service-config=config.json --config-name=record_all foo
 
-# in a separate terminal, start recording
-python -m farm_ng.core.event_service_recorder start --service-config config.json  --service-name recorder
-# then stop recording
-python -m farm_ng.core.event_service_recorder stop --service-config config.json  --service-name recorder
+NOTE: The config file has an EventServiceConfig with name "record_all" which subscribes to the test publisher
+
+Play back the log file:
+$ python -m farm_ng.core.events_file_reader playback foo.0000.bin
+
+Try running the event_service_recorder in service mode.
+
+Start the service:
+$ python -m farm_ng.core.event_service_recorder service --service-config config.json --service-name recorder
+
+In a separate terminal, start recording:
+$ python -m farm_ng.core.event_service_recorder start --service-config config.json  --service-name recorder
+
+Then stop recording.
+$ python -m farm_ng.core.event_service_recorder stop --service-config config.json  --service-name recorder
 """
 from __future__ import annotations
 
@@ -226,10 +231,10 @@ def get_file_name_base() -> str:
 class RecorderService:
     """Service that subscribes to a list of services and records the events to a file.
 
-    This service will record events to a file when it receives a request to start.
-    It will stop recording when it receives a request to stop.
-    It will publish the progress of recording.
-    It will only record one recording at a time.
+    - This service will record events to a file when it receives a request to start.
+    - It will stop recording when it receives a request to stop.
+    - It will publish the progress of recording.
+    - It will only record one recording at a time.
     """
 
     def __init__(self, event_service: EventServiceGrpc) -> None:

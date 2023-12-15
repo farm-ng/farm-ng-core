@@ -18,11 +18,10 @@ from sophus.so3 import Rotation3
 
 
 class Isometry3:
-    """3 dimensional group of rigid body transformations"""
+    """3 dimensional group of rigid body transformations."""
 
     def __init__(self, so3, t):
-        """internally represented by a unit quaternion q and a translation
-        3-vector"""
+        """Internally represented by a unit quaternion q and a translation 3-vector."""
         assert isinstance(so3, Rotation3)
         assert isinstance(t, sympy.Matrix)
         assert t.shape == (3, 1), t.shape
@@ -32,7 +31,7 @@ class Isometry3:
 
     @staticmethod
     def exp(v):
-        """exponential map"""
+        """Exponential map."""
         upsilon = v[0:3, :]
         omega = vector3(v[3], v[4], v[5])
         so3 = Rotation3.exp(omega)
@@ -79,17 +78,15 @@ class Isometry3:
 
     @staticmethod
     def hat(v):
-        """mat_r^6 => mat_r^4x4
-        returns 4x4-matrix representation ``mat_omega``"""
+        """mat_r^6 => mat_r^4x4 returns 4x4-matrix representation ``mat_omega``"""
         upsilon = vector3(v[0], v[1], v[2])
         omega = vector3(v[3], v[4], v[5])
         return Rotation3.hat(omega).row_join(upsilon).col_join(sympy.Matrix.zeros(1, 4))
 
     @staticmethod
     def vee(mat_omega):
-        """mat_r^4x4 => mat_r^6
-        returns 6-vector representation of Lie algebra
-        This is the inverse of the hat-operator"""
+        """mat_r^4x4 => mat_r^6 returns 6-vector representation of Lie algebra This is the inverse of the hat-
+        operator."""
 
         head = vector3(mat_omega[0, 3], mat_omega[1, 3], mat_omega[2, 3])
         tail = Rotation3.vee(mat_omega[0:3, 0:3])
@@ -97,13 +94,12 @@ class Isometry3:
         return upsilon_omega
 
     def matrix(self):
-        """returns matrix representation"""
+        """Returns matrix representation."""
         mat_r = self.so3.matrix()
         return (mat_r.row_join(self.t)).col_join(sympy.Matrix(1, 4, [0, 0, 0, 1]))
 
     def __mul__(self, right):
-        """left-multiplication
-        either rotation concatenation or point-transform"""
+        """Left-multiplication either rotation concatenation or point-transform."""
         if isinstance(right, sympy.Matrix):
             assert right.shape == (3, 1), right.shape
             return self.so3 * right + self.t

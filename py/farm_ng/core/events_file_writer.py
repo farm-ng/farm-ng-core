@@ -7,6 +7,7 @@ from typing import IO, TYPE_CHECKING, cast
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
 from farm_ng.core.event_pb2 import Event
+from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
 from farm_ng.core.uri import make_proto_uri, uri_to_string
 from google.protobuf.json_format import MessageToJson
@@ -151,6 +152,18 @@ class EventsFileWriter:
                 value: tuple of event and payload
         """
         return self._header_events
+
+    @property
+    def header_messages(self) -> list[Message]:
+        """Return the header_events, formatted as a list of protobuf messages.
+
+        Returns:
+            list[Message]: List of header messages.
+        """
+        return [
+            payload_to_protobuf(event, payload)
+            for (event, payload) in self.header_events.values()
+        ]
 
     def add_header_event(
         self,

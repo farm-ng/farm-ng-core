@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from farm_ng.core.uri_pb2 import Uri
+    from google.protobuf.message import Message
 
 
 @pytest.fixture()
@@ -132,6 +133,7 @@ class TestEventsFileWriter:
         header_uri_service: str = "test_service"
         header_count: int = 10
         headers: list[tuple[Event, bytes]] = []
+        header_messages: list[Message] = []
         approx_header_size: int = 0
         max_file_bytes: int = 10000
 
@@ -151,6 +153,7 @@ class TestEventsFileWriter:
                 sequence=i,
             )
             headers.append((event, event_payload))
+            header_messages.append(message)
             approx_header_size += len(event.SerializeToString()) + len(event_payload)
 
             # Add some extra headers with duplicate URI's to ensure they are filtered out
@@ -176,6 +179,7 @@ class TestEventsFileWriter:
                 approx_header_size,
                 rel=0.5,
             )
+            assert opened_writer.header_messages == header_messages
 
         # Test that headers cannot exceed the max file size
         with pytest.raises(RuntimeError):
@@ -202,6 +206,7 @@ class TestEventsFileWriter:
                 opened_writer.write("test_path", StringValue(value=f"test_payload_{i}"))
             file_count = 1 + opened_writer.file_idx
             assert file_count > 5  # sufficient number of rollovers (params)
+            assert opened_writer.header_messages == header_messages
 
         for i in range(file_count):
             header_count_in_file: int = 0

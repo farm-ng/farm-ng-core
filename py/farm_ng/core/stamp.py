@@ -18,8 +18,9 @@ time_source = time
 class StampSemantics:
     """Recommended semantics for timestamp_pb2.Timestamp timestamps.
 
-    Example usage for when a device driver (service) receives a message from a device (e.g., a camera):     stamp =
-    get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
+    Example usage for when a device driver (service) receives a message from a device (e.g., a camera):
+    Usage:
+        stamp = get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
     """
 
     # When a gRPC client receives a message from a gRPC server.

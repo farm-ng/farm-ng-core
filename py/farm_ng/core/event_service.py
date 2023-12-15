@@ -1,6 +1,8 @@
-"""# Will run an test_service from the config.
+"""
+Usage Examples:
 
-python -m farm_ng.core.event_service --service-config config.json --service-name test_service
+Run a test_service from the config:
+$ python -m farm_ng.core.event_service --service-config config.json --service-name test_service
 """
 from __future__ import annotations
 

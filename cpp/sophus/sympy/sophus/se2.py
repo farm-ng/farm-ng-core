@@ -17,17 +17,16 @@ from sophus.so2 import Rotation2
 
 
 class Isometry2:
-    """2 dimensional group of rigid body transformations"""
+    """2 dimensional group of rigid body transformations."""
 
     def __init__(self, so2, t):
-        """internally represented by a unit complex number z and a translation
-        2-vector"""
+        """Internally represented by a unit complex number z and a translation 2-vector."""
         self.so2 = so2
         self.t = t
 
     @staticmethod
     def exp(v):
-        """exponential map"""
+        """Exponential map."""
         theta = v[2]
         so2 = Rotation2.exp(theta)
 
@@ -62,13 +61,12 @@ class Isometry2:
         return Rotation2.hat(theta).row_join(upsilon).col_join(sympy.Matrix.zeros(1, 3))
 
     def matrix(self):
-        """returns matrix representation"""
+        """Returns matrix representation."""
         mat_r = self.so2.matrix()
         return (mat_r.row_join(self.t)).col_join(sympy.Matrix(1, 3, [0, 0, 1]))
 
     def __mul__(self, right):
-        """left-multiplication
-        either rotation concatenation or point-transform"""
+        """Left-multiplication either rotation concatenation or point-transform."""
         if isinstance(right, sympy.Matrix):
             assert right.shape == (2, 1), right.shape
             return self.so2 * right + self.t

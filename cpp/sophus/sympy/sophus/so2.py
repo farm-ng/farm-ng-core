@@ -12,19 +12,19 @@ from sophus.matrix import zero_vector2
 
 
 class Rotation2:
-    """2 dimensional group of orthogonal matrices with determinant 1"""
+    """2 dimensional group of orthogonal matrices with determinant 1."""
 
     def __init__(self, z):
-        """internally represented by a unit complex number z"""
+        """Internally represented by a unit complex number z."""
         self.z = z
 
     @staticmethod
     def exp(theta):
-        """exponential map"""
+        """Exponential map."""
         return Rotation2(Complex(sympy.cos(theta), sympy.sin(theta)))
 
     def log(self):
-        """logarithmic map"""
+        """Logarithmic map."""
         return sympy.atan2(self.z.imag, self.z.real)
 
     def calc_dx_log_this(self):
@@ -44,12 +44,11 @@ class Rotation2:
         return sympy.Matrix([[0, -theta], [theta, 0]])
 
     def matrix(self):
-        """returns matrix representation"""
+        """Returns matrix representation."""
         return sympy.Matrix([[self.z.real, -self.z.imag], [self.z.imag, self.z.real]])
 
     def __mul__(self, right):
-        """left-multiplication
-        either rotation concatenation or point-transform"""
+        """Left-multiplication either rotation concatenation or point-transform."""
         if isinstance(right, sympy.Matrix):
             assert right.shape == (2, 1), right.shape
             return self.matrix() * right

@@ -11,7 +11,7 @@ from sophus.matrix import vector3
 
 
 class AffineCamera:
-    """Affine camera transform"""
+    """Affine camera transform."""
 
     def __init__(self, focal_length, center):
         assert isinstance(focal_length, sympy.Matrix)
@@ -22,7 +22,7 @@ class AffineCamera:
         self.center = center
 
     def pixel_from_z1_plane(self, point_in_camera_z1_plane):
-        """Map point from z1-plane to"""
+        """Map point from z1-plane to."""
         assert isinstance(point_in_camera_z1_plane, sympy.Matrix)
         assert point_in_camera_z1_plane.shape == (
             2,

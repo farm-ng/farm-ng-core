@@ -27,7 +27,7 @@ def translation():
 
 
 class InverseDepth:
-    """Affine camera transform"""
+    """Affine camera transform."""
 
     def __init__(self, ab_and_psi):
         assert isinstance(ab_and_psi, sympy.Matrix)

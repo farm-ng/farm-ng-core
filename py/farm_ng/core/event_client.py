@@ -1,7 +1,5 @@
-"""
-# This will connect to the test_service and print out the messages it receives
-python -m farm_ng.core.event_client --service-config config.json --service-name test_service
-"""
+"""# This will connect to the test_service and print out the messages it receives python -m
+farm_ng.core.event_client --service-config config.json --service-name test_service"""
 from __future__ import annotations
 
 import argparse

@@ -8,23 +8,22 @@ from sophus.quaternion import Quaternion
 
 
 class DualQuaternion:
-    """Dual quaternion class"""
+    """Dual quaternion class."""
 
     def __init__(self, real_q, inf_q):
-        """Dual quaternion consists of a real quaternion, and an infinitesimal
-        quaternion"""
+        """Dual quaternion consists of a real quaternion, and an infinitesimal quaternion."""
         self.real_q = real_q
         self.inf_q = inf_q
 
     def __mul__(self, right):
-        """dual quaternion multiplication"""
+        """Dual quaternion multiplication."""
         return DualQuaternion(
             self.real_q * right.real_q,
             self.real_q * right.inf_q + self.inf_q * right.real_q,
         )
 
     def __truediv__(self, scalar):
-        """scalar division"""
+        """Scalar division."""
         return DualQuaternion(self.real_q / scalar, self.inf_q / scalar)
 
     def __repr__(self):
@@ -37,15 +36,15 @@ class DualQuaternion:
         return self.inf_q[key - 4]
 
     def squared_norm(self):
-        """squared norm when considering the dual quaternion as 8-tuple"""
+        """Squared norm when considering the dual quaternion as 8-tuple."""
         return self.real_q.squared_norm() + self.inf_q.squared_norm()
 
     def conj(self):
-        """dual quaternion conjugate"""
+        """Dual quaternion conjugate."""
         return DualQuaternion(self.real_q.conj(), self.inf_q.conj())
 
     def inv(self):
-        """dual quaternion inverse"""
+        """Dual quaternion inverse."""
         return DualQuaternion(
             self.real_q.inv(), -self.real_q.inv() * self.inf_q * self.real_q.inv()
         )

@@ -12,15 +12,15 @@ from sophus.quaternion import Quaternion
 
 
 class Rotation3:
-    """3 dimensional group of orthogonal matrices with determinant 1"""
+    """3 dimensional group of orthogonal matrices with determinant 1."""
 
     def __init__(self, q):
-        """internally represented by a unit quaternion q"""
+        """Internally represented by a unit quaternion q."""
         self.q = q
 
     @staticmethod
     def exp(v):
-        """exponential map"""
+        """Exponential map."""
         theta_sq = squared_norm(v)
         theta = sympy.sqrt(theta_sq)
         return Rotation3(
@@ -28,7 +28,7 @@ class Rotation3:
         )
 
     def log(self):
-        """logarithmic map"""
+        """Logarithmic map."""
         n = sympy.sqrt(squared_norm(self.q.vec))
         return 2 * sympy.atan(n / self.q.real) / n * self.q.vec
 
@@ -61,9 +61,8 @@ class Rotation3:
 
     @staticmethod
     def vee(mat_omega):
-        """vee-operator
-        It takes the 3x3-matrix representation ``mat_omega`` and maps it to the
-        corresponding vector representation of Lie algebra.
+        """Vee-operator It takes the 3x3-matrix representation ``mat_omega`` and maps it to the corresponding
+        vector representation of Lie algebra.
 
         This is the inverse of the hat-operator, see above.
 
@@ -79,7 +78,7 @@ class Rotation3:
         return v
 
     def matrix(self):
-        """returns matrix representation"""
+        """Returns matrix representation."""
         return sympy.Matrix(
             [
                 [
@@ -101,8 +100,7 @@ class Rotation3:
         )
 
     def __mul__(self, right):
-        """left-multiplication
-        either rotation concatenation or point-transform"""
+        """Left-multiplication either rotation concatenation or point-transform."""
         if isinstance(right, sympy.Matrix):
             assert right.shape == (3, 1), right.shape
             return (self.q * Quaternion(0, right) * self.q.conj()).vec

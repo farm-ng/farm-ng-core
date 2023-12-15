@@ -5,14 +5,14 @@ import sympy
 
 
 class Complex:
-    """Complex class"""
+    """Complex class."""
 
     def __init__(self, real, imag):
         self.real = real
         self.imag = imag
 
     def __mul__(self, right):
-        """complex multiplication"""
+        """Complex multiplication."""
         return Complex(
             self.real * right.real - self.imag * right.imag,
             self.imag * right.real + self.real * right.imag,
@@ -34,15 +34,15 @@ class Complex:
         return self.imag
 
     def squared_norm(self):
-        """squared norm when considering the complex number as tuple"""
+        """Squared norm when considering the complex number as tuple."""
         return self.real**2 + self.imag**2
 
     def conj(self):
-        """complex conjugate"""
+        """Complex conjugate."""
         return Complex(self.real, -self.imag)
 
     def inv(self):
-        """complex inverse"""
+        """Complex inverse."""
         return Complex(
             self.conj().real / self.squared_norm(),
             self.conj().imag / self.squared_norm(),
@@ -75,12 +75,12 @@ class Complex:
 
     @staticmethod
     def da_a_mul_b(_a, b):
-        """derivative of complex multiplication wrt left multiplier a"""
+        """Derivative of complex multiplication wrt left multiplier a."""
         return sympy.Matrix([[b.real, -b.imag], [b.imag, b.real]])
 
     @staticmethod
     def db_a_mul_b(a, _b):
-        """derivative of complex multiplication wrt right multiplicand b"""
+        """Derivative of complex multiplication wrt right multiplicand b."""
         return sympy.Matrix([[a.real, -a.imag], [a.imag, a.real]])
 
 

@@ -15,7 +15,7 @@ init_printing(use_latex="mathjax")
 
 
 class KannalaBrandtTransformCamera:
-    """KannalaBrandt camera transform"""
+    """KannalaBrandt camera transform."""
 
     def __init__(self, focal_length, center, distortion):
         assert isinstance(focal_length, sympy.Matrix)

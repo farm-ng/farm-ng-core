@@ -12,7 +12,7 @@ from sophus.matrix import vector8
 
 
 class BrownConradyCamera:
-    """Brown Conrady camera transform"""
+    """Brown Conrady camera transform."""
 
     def __init__(self, focal_length, center, distortion):
         assert isinstance(focal_length, sympy.Matrix)

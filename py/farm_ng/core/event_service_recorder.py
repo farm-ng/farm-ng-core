@@ -65,13 +65,14 @@ class EventServiceRecorder:
         self,
         service_name: str,
         config_list: EventServiceConfigList,
-        header_msgs: list[tuple[event_pb2.Event, bytes]] | None = None,
+        header_events: list[tuple[event_pb2.Event, bytes]] | None = None,
     ) -> None:
         """Initializes the service.
 
         Args:
             service_name (str): the name of the service.
             config_list (EventServiceConfigList): the configuration data structure.
+            header_events (list[tuple[event_pb2.Event, bytes]], optional): the initial list header events.
         """
         self.service_name: str = service_name
         self.config_list: EventServiceConfigList = config_list
@@ -102,12 +103,12 @@ class EventServiceRecorder:
             maxsize=self.QUEUE_MAX_SIZE,
         )
         self.header_deque: deque[tuple[event_pb2.Event, bytes]] = deque()
-        if header_msgs is not None:
-            for event, payload in header_msgs:
-                self.add_header_msg(event, payload)
+        if header_events is not None:
+            for event, payload in header_events:
+                self.add_header_event(event, payload)
 
-    def add_header_msg(self, event: event_pb2.Event, payload: bytes) -> None:
-        """Add a header message to the header_deque.
+    def add_header_event(self, event: event_pb2.Event, payload: bytes) -> None:
+        """Add a header event to the header_deque.
 
         Args:
             event: Event to add.
@@ -148,16 +149,16 @@ class EventServiceRecorder:
             file_base,
             extension,
             max_file_mb,
-            header_msgs=list(self.header_deque),
+            header_events=list(self.header_deque),
         ) as writer:
             self.header_deque.clear()
             event: event_pb2.Event
             payload: bytes
             while True:
-                # Add any header messages added during recording
+                # Add any header events added during recording
                 while self.header_deque:
                     event, payload = self.header_deque.popleft()
-                    writer.add_header_msg(event, payload, write=True)
+                    writer.add_header_event(event, payload, write=True)
                 # await a new event and payload, and write it to the file
                 event, payload = await self.record_queue.get()
                 event.timestamps.append(
@@ -176,13 +177,13 @@ class EventServiceRecorder:
         Args:
             client (EventClient): the client to subscribe to.
             subscription (SubscribeRequest): the subscription request.
-            header_uris (list[str]): the list of URIs (as strings) to consider as header messages.
+            header_uris (list[str]): the list of URIs (as strings) to consider as header events.
         """
         event: event_pb2.Event
         payload: bytes
         async for event, payload in client.subscribe(subscription, decode=False):
             if uri_to_string(event.uri) in header_uris:
-                # Handle header messages - typically these will be metadata or calibrations
+                # Handle header events - typically these will be metadata or calibrations
                 self.header_deque.append((event, payload))
             try:
                 self.record_queue.put_nowait((event, payload))
@@ -311,8 +312,8 @@ class RecorderService:
         # the recorder task
         self._recorder_task: asyncio.Task | None = None
 
-        # For tracking header messages (e.g. metadata, calibrations) to be logged in the recordings
-        self.header_msgs: dict[str, tuple[event_pb2.Event, bytes]] = {}
+        # For tracking header events (e.g. metadata, calibrations) to be logged in the recordings
+        self.header_events: dict[str, tuple[event_pb2.Event, bytes]] = {}
 
     # public methods
 
@@ -338,7 +339,7 @@ class RecorderService:
         self._recorder = EventServiceRecorder(
             config_name or "record_default",
             config_list,
-            list(self.header_msgs.values()),
+            list(self.header_events.values()),
         )
         self._recorder_task = asyncio.create_task(
             self._recorder.subscribe_and_record(file_base=file_base),
@@ -417,16 +418,16 @@ class RecorderService:
                 payload_to_protobuf(request.event, request.payload),
             )
             self._event_service.logger.info("with uri:\n%s", request.event.uri)
-            self.add_header_msg(request.event, request.payload)
+            self.add_header_event(request.event, request.payload)
         elif cmd == "/clear_headers":
             self._event_service.logger.info("/clear_headers")
-            self.header_msgs.clear()
+            self.header_events.clear()
             if self._recorder is not None:
                 self._recorder.header_deque.clear()
         return Empty()
 
-    def add_header_msg(self, event: event_pb2.Event, payload: bytes) -> None:
-        """Adds a header message to the header_msgs list.
+    def add_header_event(self, event: event_pb2.Event, payload: bytes) -> None:
+        """Adds a header event to the header_events list.
         If this is a duplicate (per URI), it will replace the existing message.
 
         Args:
@@ -439,7 +440,7 @@ class RecorderService:
         if not isinstance(payload, bytes):
             error_msg = f"header payload must be bytes, not {type(payload)}"
             raise TypeError(error_msg)
-        self.header_msgs[uri_to_string(event.uri)] = (event, payload)
+        self.header_events[uri_to_string(event.uri)] = (event, payload)
         if self._recorder is not None:
             self._recorder.header_deque.append((event, payload))
 

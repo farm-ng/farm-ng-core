@@ -135,7 +135,7 @@ class TestEventsFileWriter:
         approx_header_size: int = 0
         max_file_bytes: int = 10000
 
-        # Create the header messages
+        # Create the header events
         for i in range(header_count):
             message = Int32Value(value=i)
             event_payload: bytes = message.SerializeToString()
@@ -169,7 +169,7 @@ class TestEventsFileWriter:
         with EventsFileWriter(
             file_base=file_base,
             max_file_mb=max_file_bytes * 1e-6,
-            header_msgs=headers,
+            header_events=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
             assert opened_writer.file_length == pytest.approx(
@@ -182,7 +182,7 @@ class TestEventsFileWriter:
             with EventsFileWriter(
                 file_base=file_base,
                 max_file_mb=(approx_header_size / 2) * 1e-6,
-                header_msgs=headers,
+                header_events=headers,
             ) as opened_writer:
                 pass
 
@@ -191,7 +191,7 @@ class TestEventsFileWriter:
         with EventsFileWriter(
             file_base=file_base,
             max_file_mb=max_file_bytes * 1e-6,
-            header_msgs=headers,
+            header_events=headers,
         ) as opened_writer:
             assert opened_writer.file_idx == 0
             assert opened_writer.file_length == pytest.approx(

@@ -104,8 +104,6 @@ message EventServiceConfig {
         DEBUG = 10;
     }
     LogLevel log_level = 7;
-    // URIs to treat as headers for the EventServiceRecorder
-    repeated Uri header_uris = 8;
 }
 
 // list of event service configurations

@@ -326,8 +326,30 @@ class RecorderService:
             config_list,
             list(self.header_events.values()),
         )
+        if self._recorder.recorder_config is None:
+            msg = "recorder_config is None"
+            raise ValueError(msg)
+
+        # Handle if the max_file_mb is set in the record_config args
+        # Expectation: single string of "--max-file-mb=500" or "--max-file-mb 500"
+        max_file_mb: int = 0
+        for arg in self._recorder.recorder_config.args:
+            if arg.startswith("--max-file-mb"):
+                try:
+                    eq_arg = arg.replace(" ", "=").strip()
+                    max_file_mb = int(eq_arg.split("=")[1])
+                    self._recorder.logger.info("Setting max_file_mb to %s", max_file_mb)
+                except ValueError:
+                    self._recorder.logger.exception(
+                        "Failed to parse max_file_mb from %s",
+                        eq_arg,
+                    )
+
         self._recorder_task = asyncio.create_task(
-            self._recorder.subscribe_and_record(file_base=file_base),
+            self._recorder.subscribe_and_record(
+                file_base=file_base,
+                max_file_mb=max_file_mb,
+            ),
         )
 
         def _safe_done_callback(

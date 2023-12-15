@@ -144,6 +144,7 @@ class EventsFileWriter:
     @property
     def header_msgs(self) -> dict[str, tuple[Event, bytes]]:
         """Return the list of header messages.
+
         Returns:
             dict[str, tuple[Event, bytes]]: Dictionary of header messages.
                 key: string representation of the uri
@@ -153,18 +154,18 @@ class EventsFileWriter:
 
     def add_header_msg(self, event: Event, payload: bytes, write: bool = False) -> None:
         """Add a header message, and optionally writes it to the file.
-        NOTE: Writing to file will fail if the file is not open.
 
+        NOTE: Writing to file will fail if the file is not open.
         Args:
             event: Event to write.
             payload: Payload to write.
             write: If True, write the header message to the file. Defaults to False.
         """
         if not isinstance(event, Event):
-            error_msg = f"event must be Event, not {type(event)}"
+            error_msg = f"header event must be Event, not {type(event)}"
             raise TypeError(error_msg)
         if not isinstance(payload, bytes):
-            error_msg = f"payload must be bytes, not {type(payload)}"
+            error_msg = f"header payload must be bytes, not {type(payload)}"
             raise TypeError(error_msg)
         # Once a header message is written to the file, it cannot be changed
         if uri_to_string(event.uri) not in self.header_msgs:

@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import grpc
+from farm_ng.core import event_pb2
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service import (
     EventServiceGrpc,
@@ -49,7 +50,6 @@ from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
 if TYPE_CHECKING:
-    from farm_ng.core import event_pb2
     from google.protobuf.message import Message
 
 __all__ = ["EventServiceRecorder", "RecorderService"]
@@ -102,8 +102,24 @@ class EventServiceRecorder:
             maxsize=self.QUEUE_MAX_SIZE,
         )
         self.header_deque: deque[tuple[event_pb2.Event, bytes]] = deque()
-        if header_msgs:
-            self.header_deque.extend(header_msgs)
+        if header_msgs is not None:
+            for event, payload in header_msgs:
+                self.add_header_msg(event, payload)
+
+    def add_header_msg(self, event: event_pb2.Event, payload: bytes) -> None:
+        """Add a header message to the header_deque.
+
+        Args:
+            event: Event to add.
+            payload: Payload to add.
+        """
+        if not isinstance(event, event_pb2.Event):
+            error_msg = f"header event must be Event, not {type(event)}"
+            raise TypeError(error_msg)
+        if not isinstance(payload, bytes):
+            error_msg = f"header payload must be bytes, not {type(payload)}"
+            raise TypeError(error_msg)
+        self.header_deque.append((event, payload))
 
     @property
     def logger(self) -> logging.Logger:
@@ -417,6 +433,12 @@ class RecorderService:
             event (event_pb2.Event): the event.
             payload (bytes): the payload.
         """
+        if not isinstance(event, event_pb2.Event):
+            error_msg = f"header event must be Event, not {type(event)}"
+            raise TypeError(error_msg)
+        if not isinstance(payload, bytes):
+            error_msg = f"header payload must be bytes, not {type(payload)}"
+            raise TypeError(error_msg)
         self.header_msgs[uri_to_string(event.uri)] = (event, payload)
         if self._recorder is not None:
             self._recorder.header_deque.append((event, payload))

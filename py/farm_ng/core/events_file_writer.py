@@ -26,8 +26,7 @@ __all__ = [
 
 
 def proto_to_json_file(file_path: str | Path, proto_message: Message) -> bool:
-    """
-    Write a proto Message to a JSON file. The parent directory of the file must exist.
+    """Write a proto Message to a JSON file. The parent directory of the file must exist.
 
     Args:
         file_path (str | Path): The path to the JSON file to create / overwrite.
@@ -110,22 +109,22 @@ class EventsFileWriter:
 
     @property
     def max_file_length(self) -> int:
-        """Max file length, in bytes"""
+        """Max file length, in bytes."""
         return self._max_file_length
 
     @property
     def file_idx(self) -> int:
-        """Current file number for this logging session"""
+        """Current file number for this logging session."""
         return self._file_idx
 
     @property
     def file_length(self) -> int:
-        """Current file length, in bytes"""
+        """Current file length, in bytes."""
         return self._file_length
 
     @property
     def file_name(self) -> Path:
-        """Current file name for this logging session"""
+        """Current file name for this logging session."""
         return self._file_base.with_suffix(f".{self.file_idx:04}" + self.extension)
 
     def is_open(self) -> bool:
@@ -204,14 +203,20 @@ class EventsFileWriter:
             raise RuntimeError(msg)
 
     def open(self) -> bool:
-        """Open the file for writing. Return True if successful."""
+        """Open the file for writing.
+
+        Return True if successful.
+        """
         self._file_stream = Path(self.file_name).open("wb")
         self._file_length = 0
         self.write_header_events()
         return self.is_open()
 
     def close(self) -> bool:
-        """Close the file. Return True if successful."""
+        """Close the file.
+
+        Return True if successful.
+        """
         if self.is_closed():
             return True
         file_stream = cast(IO, self._file_stream)

@@ -16,10 +16,10 @@ time_source = time
 
 @dataclass
 class StampSemantics:
-    """
-    Recommended semantics for timestamp_pb2.Timestamp timestamps.
+    """Recommended semantics for timestamp_pb2.Timestamp timestamps.
 
     Example usage for when a device driver (service) receives a message from a device (e.g., a camera):
+    Usage:
         stamp = get_monotonic_now(StampSemantics.DRIVER_RECEIVE)
     """
 
@@ -72,8 +72,7 @@ def get_stamp_by_semantics_and_clock_type(
     semantics: str,
     clock_type: str,
 ) -> float | None:
-    """
-    Utility function to get the stamp of a Timestamp by semantics.
+    """Utility function to get the stamp of a Timestamp by semantics.
 
     Args:
         event: farm-ng protobuf event

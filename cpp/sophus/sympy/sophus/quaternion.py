@@ -9,31 +9,31 @@ from sophus.matrix import squared_norm
 
 
 class Quaternion:
-    """Quaternion class"""
+    """Quaternion class."""
 
     def __init__(self, real, vec):
-        """Quaternion consists of a real scalar, and an imaginary 3-vector"""
+        """Quaternion consists of a real scalar, and an imaginary 3-vector."""
         assert isinstance(vec, sympy.Matrix)
         assert vec.shape == (3, 1), vec.shape
         self.real = real
         self.vec = vec
 
     def __mul__(self, right):
-        """quaternion multiplication"""
+        """Quaternion multiplication."""
         return Quaternion(
             self[3] * right[3] - self.vec.dot(right.vec),
             self[3] * right.vec + right[3] * self.vec + self.vec.cross(right.vec),
         )
 
     def __add__(self, right):
-        """quaternion multiplication"""
+        """Quaternion multiplication."""
         return Quaternion(self[3] + right[3], self.vec + right.vec)
 
     def __neg__(self):
         return Quaternion(-self[3], -self.vec)
 
     def __truediv__(self, scalar):
-        """scalar division"""
+        """Scalar division."""
         return Quaternion(self.real / scalar, self.vec / scalar)
 
     def __repr__(self):
@@ -47,15 +47,15 @@ class Quaternion:
         return self.vec[key]
 
     def squared_norm(self):
-        """squared norm when considering the quaternion as 4-tuple"""
+        """Squared norm when considering the quaternion as 4-tuple."""
         return squared_norm(self.vec) + self.real**2
 
     def conj(self):
-        """quaternion conjugate"""
+        """Quaternion conjugate."""
         return Quaternion(self.real, -self.vec)
 
     def inv(self):
-        """quaternion inverse"""
+        """Quaternion inverse."""
         return self.conj() / self.squared_norm()
 
     @staticmethod
@@ -87,7 +87,7 @@ class Quaternion:
 
     @staticmethod
     def da_a_mul_b(_a, b):
-        """derivative of quaternion multiplication wrt left multiplier a"""
+        """Derivative of quaternion multiplication wrt left multiplier a."""
         v0 = b.vec[0]
         v1 = b.vec[1]
         v2 = b.vec[2]
@@ -98,7 +98,7 @@ class Quaternion:
 
     @staticmethod
     def db_a_mul_b(a, _b):
-        """derivative of quaternion multiplication wrt right multiplicand b"""
+        """Derivative of quaternion multiplication wrt right multiplicand b."""
         u0 = a.vec[0]
         u1 = a.vec[1]
         u2 = a.vec[2]

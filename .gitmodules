@@ -7,3 +7,6 @@
 [submodule "third_party/eigen"]
 	path = cpp/thirdparty/eigen
 	url = https://github.com/eigen-mirror/eigen.git
+[submodule "vcpkg"]
+	path = vcpkg
+	url = https://github.com/Microsoft/vcpkg.git

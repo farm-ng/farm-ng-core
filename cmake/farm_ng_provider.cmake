@@ -16,9 +16,9 @@ FetchContent_Declare(
 macro(farm_ng_provide_dependency method package_name)
 
 if("${package_name}" MATCHES "^(GTest|gtest|googletest)$")
-    message("Intercepted find_package(googletest)")
-    FetchContent_MakeAvailable(googletest)
-    set(${package_name}_FOUND TRUE)
+    # message("Intercepted find_package(googletest)")
+    # FetchContent_MakeAvailable(googletest)
+    # set(${package_name}_FOUND TRUE)
 
 # execute_process(
 #     COMMAND some_tool ${package_name} --installdir ${FARM_NG_PROVIDER_INSTALL_DIR}

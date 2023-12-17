@@ -1,13 +1,3 @@
-#[[
-farm_ng_core_enum
-
-Set of macros for compile-time enum introspection / autogeneration of auxiliary
-helper functions.
-
-Depends on third_party/farm_pp.
-
-]]
-
 add_library(farm_ng_core_enum INTERFACE
     enum_flags_without_ostream.h
     enum_flags.h
@@ -21,6 +11,7 @@ target_link_libraries(farm_ng_core_enum INTERFACE farm_ng_core::farm_pp)
 
 file(RELATIVE_PATH include_path_abs ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
+# TODO: Use Filesets?
 target_include_directories(farm_ng_core_enum INTERFACE
 "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/${include_path_abs}>"
 "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")

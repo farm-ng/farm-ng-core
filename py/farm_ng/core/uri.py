@@ -140,8 +140,9 @@ def uri_to_string(uri: uri_pb2.Uri) -> str:
         >>> uri.scheme = "protobuf"
         >>> uri.authority = "farm-ng-1"
         >>> uri.query = "type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto"
+        >>> uri.path = "/stamp_stream"
         >>> uri_to_string(uri)
-        'protobuf://farm-ng-1//?type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto'
+        'protobuf://farm-ng-1//stamp_stream?type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto'
     """
     return f"{uri.scheme}://{uri.authority}/{uri.path}?{uri.query}"
 

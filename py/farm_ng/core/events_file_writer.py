@@ -7,8 +7,9 @@ from typing import IO, TYPE_CHECKING, cast
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
 from farm_ng.core.event_pb2 import Event
+from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now, get_system_clock_now
-from farm_ng.core.uri import make_proto_uri
+from farm_ng.core.uri import make_proto_uri, uri_to_string
 from google.protobuf.json_format import MessageToJson
 
 if TYPE_CHECKING:
@@ -56,6 +57,7 @@ class EventsFileWriter:
         file_base: str | Path,
         extension: str = ".bin",
         max_file_mb: int = 0,
+        header_events: list[tuple[Event, bytes]] | None = None,
     ) -> None:
         """Create a new EventsFileWriter.
 
@@ -63,6 +65,7 @@ class EventsFileWriter:
             file_base: Path to and base of file name (without extension) where the events file will be logged.
             extension: Extension of the file to be logged. E.g., '.bin' or '.log'
             max_file_mb: Maximum log size in MB. Logging will roll over to new file when reached. Ignored if <= 0.
+            header_events: Tuples of events & payloads to include in every split of the log file
         """
         if isinstance(file_base, str):
             file_base = Path(file_base)
@@ -78,6 +81,10 @@ class EventsFileWriter:
 
         self._max_file_length = int(max(0, max_file_mb) * 1e6)
         self._file_idx: int = 0
+
+        self._header_events: dict[str, tuple[Event, bytes]] = {}
+        for (event, payload) in header_events or []:
+            self.add_header_event(event, payload)
 
     def __enter__(self) -> EventsFileWriter:
         """Open the file for writing and return self."""
@@ -134,6 +141,71 @@ class EventsFileWriter:
         """Increment the file index."""
         self._file_idx += 1
 
+    @property
+    def header_events(self) -> dict[str, tuple[Event, bytes]]:
+        """Return the dictionary of header events.
+
+        Returns:
+            dict[str, tuple[Event, bytes]]: Dictionary of header events and payloads.
+                key: string representation of the uri
+                value: tuple of event and payload
+        """
+        return self._header_events
+
+    @property
+    def header_messages(self) -> list[Message]:
+        """Return the header_events, formatted as a list of protobuf messages.
+
+        Returns:
+            list[Message]: List of header messages.
+        """
+        return [
+            payload_to_protobuf(event, payload)
+            for (event, payload) in self.header_events.values()
+        ]
+
+    def add_header_event(
+        self,
+        event: Event,
+        payload: bytes,
+        write: bool = False,
+    ) -> None:
+        """Add a header event, and optionally writes it to the file.
+
+        NOTE: Writing to file will fail if the file is not open.
+        Args:
+            event: Event to write.
+            payload: Payload to write.
+            write: If True, write the header event to the file. Defaults to False.
+        """
+        if not isinstance(event, Event):
+            error_msg = f"header event must be Event, not {type(event)}"
+            raise TypeError(error_msg)
+        if not isinstance(payload, bytes):
+            error_msg = f"header payload must be bytes, not {type(payload)}"
+            raise TypeError(error_msg)
+        # Once a header event is written to the file, it cannot be changed
+        if uri_to_string(event.uri) not in self.header_events:
+            self._header_events[uri_to_string(event.uri)] = (event, payload)
+            if write:
+                self.write_event_payload(event, payload)
+
+    def write_header_events(self) -> None:
+        """Write the header events to the file.
+
+        NOTE: If the header events are too large to fit in the file,
+        this will raise a RuntimeError to avoid getting stuck in an infinite loop.
+        """
+
+        true_max_file_length = self.max_file_length
+        self._max_file_length = 0
+        for (event, payload) in self.header_events.values():
+            self.write_event_payload(event, payload)
+        self._max_file_length = true_max_file_length
+        if self.max_file_length and self.file_length > self.max_file_length:
+            msg = f"Header events are too large to fit in a file of size {self.max_file_length}"
+            raise RuntimeError(msg)
+
     def open(self) -> bool:
         """Open the file for writing.
 
@@ -141,6 +213,7 @@ class EventsFileWriter:
         """
         self._file_stream = Path(self.file_name).open("wb")
         self._file_length = 0
+        self.write_header_events()
         return self.is_open()
 
     def close(self) -> bool:
@@ -162,9 +235,7 @@ class EventsFileWriter:
 
         if event.payload_length != len(payload):
             msg = f"Payload length mismatch {event.payload_length} != {len(payload)}"
-            raise RuntimeError(
-                msg,
-            )
+            raise RuntimeError(msg)
 
         file_stream = cast(IO, self._file_stream)
 

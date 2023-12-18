@@ -28,11 +28,13 @@ import argparse
 import asyncio
 import logging
 import sys
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import grpc
+from farm_ng.core import event_pb2
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service import (
     EventServiceGrpc,
@@ -48,12 +50,11 @@ from farm_ng.core.event_service_pb2 import (
 from farm_ng.core.events_file_reader import payload_to_protobuf, proto_from_json_file
 from farm_ng.core.events_file_writer import EventsFileWriter
 from farm_ng.core.stamp import StampSemantics, get_monotonic_now
-from farm_ng.core.uri import get_host_name, uri_query_to_dict
+from farm_ng.core.uri import get_host_name, uri_query_to_dict, uri_to_string
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
 if TYPE_CHECKING:
-    from farm_ng.core import event_pb2
     from google.protobuf.message import Message
 
 __all__ = ["EventServiceRecorder", "RecorderService"]
@@ -65,12 +66,18 @@ class EventServiceRecorder:
     # the maximum size of the queue
     QUEUE_MAX_SIZE: int = 50
 
-    def __init__(self, service_name: str, config_list: EventServiceConfigList) -> None:
+    def __init__(
+        self,
+        service_name: str,
+        config_list: EventServiceConfigList,
+        header_events: list[tuple[event_pb2.Event, bytes]] | None = None,
+    ) -> None:
         """Initializes the service.
 
         Args:
             service_name (str): the name of the service.
             config_list (EventServiceConfigList): the configuration data structure.
+            header_events (list[tuple[event_pb2.Event, bytes]], optional): the initial list header events.
         """
         self.service_name: str = service_name
         self.config_list: EventServiceConfigList = config_list
@@ -100,6 +107,25 @@ class EventServiceRecorder:
         self.record_queue: asyncio.Queue[tuple[event_pb2.Event, bytes]] = asyncio.Queue(
             maxsize=self.QUEUE_MAX_SIZE,
         )
+        self.header_deque: deque[tuple[event_pb2.Event, bytes]] = deque()
+        if header_events is not None:
+            for event, payload in header_events:
+                self.add_header_event(event, payload)
+
+    def add_header_event(self, event: event_pb2.Event, payload: bytes) -> None:
+        """Add a header event to the header_deque.
+
+        Args:
+            event: Event to add.
+            payload: Payload to add.
+        """
+        if not isinstance(event, event_pb2.Event):
+            error_msg = f"header event must be Event, not {type(event)}"
+            raise TypeError(error_msg)
+        if not isinstance(payload, bytes):
+            error_msg = f"header payload must be bytes, not {type(payload)}"
+            raise TypeError(error_msg)
+        self.header_deque.append((event, payload))
 
     @property
     def logger(self) -> logging.Logger:
@@ -124,10 +150,20 @@ class EventServiceRecorder:
             extension (str, optional): the extension of the file. Defaults to ".bin".
             max_file_mb (int, optional): the maximum size of the file in MB. Defaults to 0.
         """
-        with EventsFileWriter(file_base, extension, max_file_mb) as writer:
+        with EventsFileWriter(
+            file_base,
+            extension,
+            max_file_mb,
+            header_events=list(self.header_deque),
+        ) as writer:
+            self.header_deque.clear()
             event: event_pb2.Event
             payload: bytes
             while True:
+                # Add any header events added during recording
+                while self.header_deque:
+                    event, payload = self.header_deque.popleft()
+                    writer.add_header_event(event, payload, write=True)
                 # await a new event and payload, and write it to the file
                 event, payload = await self.record_queue.get()
                 event.timestamps.append(
@@ -149,6 +185,9 @@ class EventServiceRecorder:
         event: event_pb2.Event
         payload: bytes
         async for event, payload in client.subscribe(subscription, decode=False):
+            if event.uri.path.startswith("/header"):
+                # Handle header events - typically these will be metadata or calibrations
+                self.add_header_event(event, payload)
             try:
                 self.record_queue.put_nowait((event, payload))
             except asyncio.QueueFull:
@@ -263,6 +302,9 @@ class RecorderService:
         # the recorder task
         self._recorder_task: asyncio.Task | None = None
 
+        # For tracking header events (e.g. metadata, calibrations) to be logged in the recordings
+        self.header_events: dict[str, tuple[event_pb2.Event, bytes]] = {}
+
     # public methods
 
     async def start_recording(
@@ -287,9 +329,32 @@ class RecorderService:
         self._recorder = EventServiceRecorder(
             config_name or "record_default",
             config_list,
+            list(self.header_events.values()),
         )
+        if self._recorder.recorder_config is None:
+            msg = "recorder_config is None"
+            raise ValueError(msg)
+
+        # Handle if the max_file_mb is set in the record_config args
+        # Expectation: single string of "--max-file-mb=500" or "--max-file-mb 500"
+        max_file_mb: int = 0
+        for arg in self._recorder.recorder_config.args:
+            if arg.startswith("--max-file-mb"):
+                try:
+                    eq_arg = arg.replace(" ", "=").strip()
+                    max_file_mb = int(eq_arg.split("=")[1])
+                    self._recorder.logger.info("Setting max_file_mb to %s", max_file_mb)
+                except ValueError:
+                    self._recorder.logger.exception(
+                        "Failed to parse max_file_mb from %s",
+                        eq_arg,
+                    )
+
         self._recorder_task = asyncio.create_task(
-            self._recorder.subscribe_and_record(file_base=file_base),
+            self._recorder.subscribe_and_record(
+                file_base=file_base,
+                max_file_mb=max_file_mb,
+            ),
         )
 
         def _safe_done_callback(
@@ -303,6 +368,7 @@ class RecorderService:
             finally:
                 del future
                 del recorder_task
+                self._recorder = None
 
         self._recorder_task.add_done_callback(
             lambda f: _safe_done_callback(f, self._recorder_task),
@@ -335,30 +401,61 @@ class RecorderService:
             Message: the response message.
         """
         cmd: str = request.event.uri.path
-        config_name: str | None = None
-        if cmd.count("/") == 1:
-            cmd, config_name = cmd.split("/")
+        # Ensure path was sent with a leading slash
+        if not cmd.startswith("/"):
+            cmd = "/" + cmd
 
-        if cmd == "start":
+        if cmd.startswith("/start"):
+            # config_name is the optional part of the path after "/start/"
+            config_name: str | None = cmd[7:] or None
+
             config_list: EventServiceConfigList = payload_to_protobuf(
                 request.event,
                 request.payload,
             )
-            self._event_service.logger.info("start %s: %s", config_name, config_list)
+            self._event_service.logger.info("/start %s: %s", config_name, config_list)
             file_base = self._data_dir.joinpath(get_file_name_base())
             await self.start_recording(file_base, config_list, config_name)
             return StringValue(value=str(file_base))
-        if cmd == "stop":
+        if cmd == "/stop":
+            self._event_service.logger.info("/stop")
             await self.stop_recording()
-        elif cmd == "metadata":
+        elif cmd.startswith("/header"):
+            header_detail: str = cmd[8:] or ""
+            if not header_detail:
+                msg = "/header command requires a specifier, e.g. '/header/metadata'"
+                raise ValueError(msg)
+            self._event_service.logger.info(
+                "header:\n%s",
+                payload_to_protobuf(request.event, request.payload),
+            )
+            self._event_service.logger.info("with uri:\n%s", request.event.uri)
+            self.add_header_event(request.event, request.payload)
+        elif cmd == "/clear_headers":
+            self._event_service.logger.info("/clear_headers")
+            self.header_events.clear()
             if self._recorder is not None:
-                self._event_service.logger.info("send_metadata: %s", request.payload)
-                await self._recorder.record_queue.put((request.event, request.payload))
-            else:
-                self._event_service.logger.warning(
-                    "requested to send metadata but not recording",
-                )
+                self._recorder.header_deque.clear()
         return Empty()
+
+    def add_header_event(self, event: event_pb2.Event, payload: bytes) -> None:
+        """Adds a header event to the header_events list.
+
+        If this is a duplicate (per URI), it will replace the existing message.
+
+        Args:
+            event (event_pb2.Event): the event.
+            payload (bytes): the payload.
+        """
+        if not isinstance(event, event_pb2.Event):
+            error_msg = f"header event must be Event, not {type(event)}"
+            raise TypeError(error_msg)
+        if not isinstance(payload, bytes):
+            error_msg = f"header payload must be bytes, not {type(payload)}"
+            raise TypeError(error_msg)
+        self.header_events[uri_to_string(event.uri)] = (event, payload)
+        if self._recorder is not None:
+            self._recorder.add_header_event(event, payload)
 
 
 def service_command(_args):
@@ -389,7 +486,7 @@ def client_start_command(_args):
 
     async def job():
         reply = await EventClient(service_config).request_reply(
-            f"start/{config_name}",
+            f"/start/{config_name}",
             config_list,
         )
         print(payload_to_protobuf(reply.event, reply.payload))
@@ -400,7 +497,7 @@ def client_start_command(_args):
 def client_stop_command(_args):
     config_list, service_config = load_service_config(args)
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(EventClient(service_config).request_reply("stop", Empty()))
+    loop.run_until_complete(EventClient(service_config).request_reply("/stop", Empty()))
 
 
 def record_command(_args):

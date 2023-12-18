@@ -15,7 +15,8 @@
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
                 "BUILD_SOPHUS_TESTS": "Off",
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "FARM_NG_PROVIDER_DEV_PACKAGES": "CLI11;Eigen3"
             }
         },
         {

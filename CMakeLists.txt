@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 # Installs the farm-ng dependency provider, which
 # provides a custom hook for find_package() that allows for 
 # easy switching between vcpkg-installed dependencies and submodule dependencies
-set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "cmake/farm_ng_provider.cmake")
+# set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "cmake/farm_ng_provider.cmake")
 
 project(farm_ng_core VERSION 0.2.0)
 
@@ -11,6 +11,17 @@ project(farm_ng_core VERSION 0.2.0)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/farm_ng_cmakeConfig.cmake)
 
 enable_testing()
+
+set(FARM_NG_PROVIDER_DEV_PACKAGES "" CACHE STRING "Packages to use local development versions of")
+include(FetchContent)
+foreach(package_name IN LISTS FARM_NG_PROVIDER_DEV_PACKAGES)
+    message("Using local development version of ${package_name}")
+    FetchContent_Declare(
+        ${package_name}
+        SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/${package_name}"
+        OVERRIDE_FIND_PACKAGE
+      )
+endforeach()
 
 find_package(fmt REQUIRED)
 find_package(GTest REQUIRED) 

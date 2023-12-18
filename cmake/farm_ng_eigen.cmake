@@ -1,0 +1,6 @@
+get_target_property(EIGEN_COMPILE_OPTIONS Eigen3::Eigen COMPILE_OPTIONS)
+message("! ${EIGEN_COMPILE_OPTIONS}")
+if(CMAKE_CXX_FLAGS MATCHES "-DNDEBUG" OR 
+  (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" AND CMAKE_CXX_FLAGS_RELWITHDEBINFO MATCHES "-DNDEBUG"))
+  message(WARNING "Eigen runtime asserts are disabled")
+endif()

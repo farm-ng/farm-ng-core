@@ -1,20 +1,4 @@
-#[[
-farm_ng_core_misc
-
-Header-only standard library additions such as erase, string utils, file system,
-threading tools and other general purpose miscellaneous utilities.
-
-Note: no geometry, no computer vision, not math.
-
-Only depends on farm_ng_core_enum and farm_ng_core_logging and should not
-pull in additional dependency in the future.
-
-]]
-
-farm_ng_add_library(farm_ng_core_misc
-  NAMESPACE farm_ng_core
-  INCLUDE_DIR ../../..
-  HEADERS
+add_library(farm_ng_core_misc SHARED 
   conversions.h
   erase.h
   filesystem.h
@@ -26,16 +10,22 @@ farm_ng_add_library(farm_ng_core_misc
   variant_utils.h
   uri.h
   void.h
-  SOURCES
   time_series.cpp
 )
+add_library(farm_ng_core::farm_ng_core_misc ALIAS farm_ng_core_misc)
+
+file(RELATIVE_PATH include_path_abs ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+target_include_directories(farm_ng_core_misc PUBLIC
+"$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/${include_path_abs}>"
+"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
 target_link_libraries(farm_ng_core_misc PUBLIC
-  farm_ng_core_enum farm_ng_core_logging
-  Sophus::sophus_linalg
+  farm_ng_core_enum
+  farm_ng_core_logging
+  # Sophus::sophus_linalg
 )
 
-foreach(test_basename
+set(TEST_BASENAMES
     conversions
     erase
     filesystem
@@ -44,13 +34,16 @@ foreach(test_basename
     time_series
     tokenize
     uri
-    )
-  farm_ng_add_test(${test_basename}
-                    PARENT_LIBRARY farm_ng_core_misc
-                    LINK_LIBRARIES farm_ng_core_misc
-                    LABELS small)
+)
+
+foreach(test_basename ${TEST_BASENAMES})
+  set(test_target ${test_basename}_test_farm_ng_core_misc)
+  set(test_src ${test_basename}_test.cpp)
+  add_executable(${test_target} ${test_src})
+  target_link_libraries(${test_target} farm_ng_core_misc GTest::gtest_main)
+  add_test(NAME ${test_target} COMMAND ${test_target})
+  set_property(TEST ${test_target} PROPERTY LABELS small)
 endforeach()
 
-if(BUILD_FARM_NG_PROTOS)
-    add_subdirectory(proto)
-endif()
+# TODO
+# add_subdirectory(proto)

@@ -43,8 +43,6 @@ foreach(test_basename ${farm_ng_component_src_prefixes})
                    LABELS small)
 endforeach()
 
-find_package(CLI11 REQUIRED)
-
 add_executable(remote_plot_example remote_plot_example.cpp)
 target_link_libraries(remote_plot_example
   farm_ng_core_plotting

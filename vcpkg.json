@@ -1,11 +1,22 @@
 {
   "dependencies": [
+    "boost-asio",
+    "cli11",
+    "eigen3",
     {
       "name": "fmt",
       "version>=": "8.1.1"
     },
+    {
+      "name": "grpc",
+      "features": [
+        "codegen"
+      ]
+    },
     "gtest",
-    "tl-expected"
+    "protobuf",
+    "tl-expected",
+    "boost-signals2"
   ],
   "overrides": [
     {

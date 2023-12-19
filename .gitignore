@@ -9,3 +9,6 @@ Cargo.lock
 docs/api_reference/html/
 docs/api_reference/projects/
 target/
+
+# User-defined cmake presets
+CMakeUserPresets.json

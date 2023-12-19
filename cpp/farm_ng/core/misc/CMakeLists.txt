@@ -22,7 +22,7 @@ target_include_directories(farm_ng_core_misc PUBLIC
 target_link_libraries(farm_ng_core_misc PUBLIC
   farm_ng_core_enum
   farm_ng_core_logging
-  # Sophus::sophus_linalg
+  Sophus::sophus_concept
 )
 
 set(TEST_BASENAMES

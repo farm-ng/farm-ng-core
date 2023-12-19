@@ -17,6 +17,7 @@ find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(CLI11 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(Sophus 2.0.0 REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)

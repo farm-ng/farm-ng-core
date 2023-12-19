@@ -2,13 +2,16 @@
 
 - Uses CMakePresets.json
 
+- Separate package description from development environment
+
 - Uses find_package for third-party dependencies
 
-- Supports 
+- Uses vcpkg as a package manager (not the only option)
+- Ideally addressing potential ODR violations
 
 - Developed in a devcontainer to avoid pollution by system-installed libraries
-
-- Tested in a devcontainer
+- Uses cmake modules for more declarative cmake files
+- Includes testing?
 
 # TODO
 - [] Custom registry (if necessary)

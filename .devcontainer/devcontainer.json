@@ -1,8 +1,7 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+// For format details, see https://aka.ms/devcontainer.json. 
+// For config options, see https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
   "name": "Ubuntu",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "customizations": {
     "vscode": {
@@ -16,23 +15,14 @@
     }
   },
 
-  // Features to add to the dev container. More info: https://containers.dev/features.
+  // Reference: https://containers.dev/features.
   "features": {
     "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-      "packages": "build-essential,ccache,clang,vim"
+      "packages": "build-essential,ccache,clang,clang-tidy,vim"
     }    
   },
 
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  // "forwardPorts": [],
-
-  // Use 'postCreateCommand' to run commands after the container is created.
+  // Runs commands after the container is created.
   "postCreateCommand": "pip install -r .devcontainer/requirements.txt"
-
-  // Configure tool-specific properties.
-  // "customizations": {},
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  // "remoteUser": "root"
 }

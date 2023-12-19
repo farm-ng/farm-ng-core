@@ -5,57 +5,57 @@ include(CMakePackageConfigHelpers)
 
 macro(farm_ng_module)
 
-  message(STATUS "farm_ng_module ${PROJECT_NAME}")
-  # Configure CCache if available
-  find_program(CCACHE_FOUND ccache)
-  if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-  endif(CCACHE_FOUND)
+  # message(STATUS "farm_ng_module ${PROJECT_NAME}")
+  # # Configure CCache if available
+  # find_program(CCACHE_FOUND ccache)
+  # if(CCACHE_FOUND)
+  #   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+  #   set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+  # endif(CCACHE_FOUND)
 
 
-  include(CMakeToolsHelpers OPTIONAL)
+  # include(CMakeToolsHelpers OPTIONAL)
   # No NDEBUG for RelWithDebInfo. Among others, this makes sure that essential Eigen
   # runtime asserts are enabled.
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+  # set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
-  set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
-  set(BUILD_SHARED_LIBS ON)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  # set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
+  # set(BUILD_SHARED_LIBS ON)
+  # set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
   # Coarsely, the c++ standard used is c++17 plus concepts from c++20.
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    # For clang, c++20 is enabled, but only concepts shall be used from the features newly added.
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wsign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-local-typedef -Wreorder-ctor -Wreorder-init-list")
-  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-maybe-uninitialized")
-  endif()
+  # if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  #   # For clang, c++20 is enabled, but only concepts shall be used from the features newly added.
+  #   set(CMAKE_CXX_STANDARD 20)
+  #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wsign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-local-typedef -Wreorder-ctor -Wreorder-init-list")
+  # elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  #   set(CMAKE_CXX_STANDARD 17)
+  #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts")
+  #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-maybe-uninitialized")
+  # endif()
 
-  if(BUILD_ASAN)
-    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-      message(FATAL_ERROR "need to build with Debug when using asan: " ${CMAKE_BUILD_TYPE})
-    endif()
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} \
-        -fsanitize=address \
-        -fsanitize=bool \
-        -fsanitize=bounds \
-        -fsanitize=enum \
-        -fsanitize=float-cast-overflow \
-        -fsanitize=float-divide-by-zero \
-        -fsanitize=nonnull-attribute \
-        -fsanitize=returns-nonnull-attribute \
-        -fsanitize=signed-integer-overflow \
-        -fsanitize=undefined \
-        -fsanitize=vla-bound \
-        -fno-sanitize=alignment \
-        -fsanitize=leak \
-    ")
-  endif()
+  # if(BUILD_ASAN)
+  #   if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+  #     message(FATAL_ERROR "need to build with Debug when using asan: " ${CMAKE_BUILD_TYPE})
+  #   endif()
+  #   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} \
+  #       -fsanitize=address \
+  #       -fsanitize=bool \
+  #       -fsanitize=bounds \
+  #       -fsanitize=enum \
+  #       -fsanitize=float-cast-overflow \
+  #       -fsanitize=float-divide-by-zero \
+  #       -fsanitize=nonnull-attribute \
+  #       -fsanitize=returns-nonnull-attribute \
+  #       -fsanitize=signed-integer-overflow \
+  #       -fsanitize=undefined \
+  #       -fsanitize=vla-bound \
+  #       -fno-sanitize=alignment \
+  #       -fsanitize=leak \
+  #   ")
+  # endif()
 
-  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endmacro()
 
 

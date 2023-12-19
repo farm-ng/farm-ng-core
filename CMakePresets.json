@@ -7,23 +7,20 @@
     },
     "configurePresets": [
         {
-            "name": "conf-common",
-            "description": "General settings that apply to all configurations",
+            "name": "common",
             "hidden": true,
+            "description": "Common farm-ng developer and CI configuration",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
                 "BUILD_SOPHUS_TESTS": "Off",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "FARM_NG_PROVIDER_DEV_PACKAGES": "CLI11;Eigen3;Sophus"
-            }
-        },
-        {
-            "name": "conf-unixlike-common",
-            "description": "Unix-like OS settings for gcc and clang toolchains",
-            "hidden": true,
-            "inherits": "conf-common",
+                "CMAKE_CXX_FLAGS": "-Werror -Wall -Wextra -Wpedantic -Wno-unused-local-typedef -Wno-unused-local-typedef -Wno-gnu-zero-variadic-macro-arguments -Wno-unused-parameter -Wno-unused-variable -Wno-vla-extension",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+            },
             "condition": {
                 "type": "inList",
                 "string": "${hostSystemName}",
@@ -31,13 +28,43 @@
                     "Linux",
                     "Darwin"
                 ]
+            },
+            "warnings": {
+                "dev": false,
+                "deprecated": true,
+                "uninitialized": true,
+                "unusedCli": true,
+                "systemVars": false
+            },
+            "errors": {
+                "dev": false,
+                "deprecated": true
             }
         },
         {
-            "name": "unixlike-gcc-debug",
+            "name": "dev-common",
+            "hidden": true,
+            "description": "Common farm-ng developer configuration",
+            "inherits": "common",
+            "cacheVariables": {
+                "FARM_NG_PROVIDER_DEV_PACKAGES": "CLI11;Eigen3;Sophus",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O2 -g"
+            }
+        },
+        {
+            "name": "ci-common",
+            "hidden": true,
+            "description": "Common farm-ng CI configuration",
+            "inherits": "common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "dev-gcc-debug",
             "displayName": "gcc Debug",
-            "description": "Target Unix-like OS with the gcc compiler, Debug build type",
-            "inherits": "conf-unixlike-common",
+            "description": "gcc Debug developer configuration",
+            "inherits": "dev-common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
@@ -45,10 +72,10 @@
             }
         },
         {
-            "name": "unixlike-gcc-release",
+            "name": "dev-gcc-relwithdebinfo",
             "displayName": "gcc RelWithDebInfo",
-            "description": "Target Unix-like OS with the gcc compiler, RelWithDebInfo build type",
-            "inherits": "conf-unixlike-common",
+            "description": "gcc RelWithDebInfo developer configuration",
+            "inherits": "dev-common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
@@ -56,10 +83,10 @@
             }
         },
         {
-            "name": "unixlike-clang-debug",
+            "name": "dev-clang-debug",
             "displayName": "clang Debug",
-            "description": "Target Unix-like OS with the clang compiler, Debug build type",
-            "inherits": "conf-unixlike-common",
+            "description": "clang Debug developer configuration",
+            "inherits": "dev-common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
@@ -67,15 +94,52 @@
             }
         },
         {
-            "name": "unixlike-clang-release",
+            "name": "dev-clang-relwithdebinfo",
             "displayName": "clang RelWithDebInfo",
-            "description": "Target Unix-like OS with the clang compiler, RelWithDebInfo build type",
-            "inherits": "conf-unixlike-common",
+            "description": "clang RelWithDebInfo developer configuration",
+            "inherits": "dev-common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
+        },
+        {
+            "name": "clang-tidy",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
+            }
+        },
+        {
+            "name": "ci-sanitize",
+            "displayName": "clang Sanitize",
+            "inherits": [
+                "ci-common"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Sanitize",
+                "CMAKE_CXX_FLAGS_SANITIZE": "-O2 -g -fsanitize=address,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,leak,nonnull-attribute,returns-nonnull-attribute,signed-integer-overflow,undefined,vla-bound -fno-omit-frame-pointer -fno-common -fno-sanitize=alignment"
+            }
+        },
+        {
+            "name": "ci-build",
+            "displayName": "clang CI",
+            "inherits": [
+                "ci-common",
+                "clang-tidy"
+            ]
+        },
+        {
+            "name": "dev-ci-build",
+            "displayName": "dev clang CI",
+            "inherits": [
+                "dev-common",
+                "ci-common",
+                "clang-tidy"
+            ]
         }
     ],
     "testPresets": [
@@ -92,32 +156,32 @@
             }
         },
         {
-            "name": "test-unixlike-gcc-debug",
+            "name": "test-dev-gcc-debug",
             "displayName": "Strict",
             "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "unixlike-gcc-debug"
+            "configurePreset": "dev-gcc-debug"
         },
         {
-            "name": "test-unixlike-gcc-release",
+            "name": "test-dev-gcc-relwithdebinfo",
             "displayName": "Strict",
             "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "unixlike-gcc-release"
+            "configurePreset": "dev-gcc-relwithdebinfo"
         },
         {
-            "name": "test-unixlike-clang-debug",
+            "name": "test-dev-clang-debug",
             "displayName": "Strict",
             "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "unixlike-clang-debug"
+            "configurePreset": "dev-clang-debug"
         },
         {
-            "name": "test-unixlike-clang-release",
+            "name": "test-dev-clang-relwithdebinfo",
             "displayName": "Strict",
             "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "unixlike-clang-release"
+            "configurePreset": "dev-clang-relwithdebinfo"
         }
     ]
 }

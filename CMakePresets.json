@@ -9,7 +9,7 @@
         {
             "name": "common",
             "hidden": true,
-            "description": "Common farm-ng developer and CI configuration",
+            "description": "Common farm-ng configuration",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/out/install/${presetName}",
@@ -19,7 +19,9 @@
                 "CMAKE_CXX_FLAGS": "-Werror -Wall -Wextra -Wpedantic -Wno-unused-local-typedef -Wno-unused-local-typedef -Wno-gnu-zero-variadic-macro-arguments -Wno-unused-parameter -Wno-unused-variable -Wno-vla-extension",
                 "CMAKE_CXX_EXTENSIONS": "OFF",
                 "CMAKE_CXX_STANDARD": "20",
-                "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O2 -g",
+                "FARM_NG_PROVIDER_DEV_PACKAGES": "CLI11;Eigen3;Sophus"
             },
             "condition": {
                 "type": "inList",
@@ -42,29 +44,9 @@
             }
         },
         {
-            "name": "dev-common",
-            "hidden": true,
-            "description": "Common farm-ng developer configuration",
+            "name": "gcc-debug",
+            "displayName": "GCC Debug",
             "inherits": "common",
-            "cacheVariables": {
-                "FARM_NG_PROVIDER_DEV_PACKAGES": "CLI11;Eigen3;Sophus",
-                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O2 -g"
-            }
-        },
-        {
-            "name": "ci-common",
-            "hidden": true,
-            "description": "Common farm-ng CI configuration",
-            "inherits": "common",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "dev-gcc-debug",
-            "displayName": "gcc Debug",
-            "description": "gcc Debug developer configuration",
-            "inherits": "dev-common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
@@ -72,10 +54,9 @@
             }
         },
         {
-            "name": "dev-gcc-relwithdebinfo",
-            "displayName": "gcc RelWithDebInfo",
-            "description": "gcc RelWithDebInfo developer configuration",
-            "inherits": "dev-common",
+            "name": "gcc-relwithdebinfo",
+            "displayName": "GCC RelWithDebInfo",
+            "inherits": "common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
@@ -83,10 +64,9 @@
             }
         },
         {
-            "name": "dev-clang-debug",
-            "displayName": "clang Debug",
-            "description": "clang Debug developer configuration",
-            "inherits": "dev-common",
+            "name": "clang-debug",
+            "displayName": "Clang Debug",
+            "inherits": "common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
@@ -94,10 +74,9 @@
             }
         },
         {
-            "name": "dev-clang-relwithdebinfo",
-            "displayName": "clang RelWithDebInfo",
-            "description": "clang RelWithDebInfo developer configuration",
-            "inherits": "dev-common",
+            "name": "clang-relwithdebinfo",
+            "displayName": "Clang RelWithDebInfo",
+            "inherits": "common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
@@ -106,40 +85,48 @@
         },
         {
             "name": "clang-tidy",
+            "displayName": "Clang Tidy",
             "hidden": true,
+            "inherits": "common",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
             }
         },
         {
-            "name": "ci-sanitize",
-            "displayName": "clang Sanitize",
-            "inherits": [
-                "ci-common"
-            ],
+            "name": "asan",
+            "displayName": "AddressSanitizer+",
+            "inherits": "common",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Sanitize",
-                "CMAKE_CXX_FLAGS_SANITIZE": "-O2 -g -fsanitize=address,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,leak,nonnull-attribute,returns-nonnull-attribute,signed-integer-overflow,undefined,vla-bound -fno-omit-frame-pointer -fno-common -fno-sanitize=alignment"
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Asan",
+                "CMAKE_CXX_FLAGS_ASAN": "-O2 -g -fsanitize=address,bool,builtin,bounds,enum,float-cast-overflow,float-divide-by-zero,function,implicit-unsigned-integer-truncation,implicit-signed-integer-truncation,implicit-integer-sign-change,integer-divide-by-zero,leak,nonnull-attribute,null,nullability-arg,nullability-assign,nullability-return,object-size,pointer-overflow,return,returns-nonnull-attribute,shift,unsigned-shift-base,signed-integer-overflow,undefined,unreachable,unsigned-integer-overflow,vla-bound,vptr -fno-omit-frame-pointer"
             }
         },
         {
-            "name": "ci-build",
-            "displayName": "clang CI",
-            "inherits": [
-                "ci-common",
-                "clang-tidy"
-            ]
+            "name": "tsan",
+            "displayName": "ThreadSanitizer",
+            "inherits": "common",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Tsan",
+                "CMAKE_CXX_FLAGS_TSAN": "-O2 -g -fsanitize=thread -fno-omit-frame-pointer"
+            }
         },
         {
-            "name": "dev-ci-build",
-            "displayName": "dev clang CI",
-            "inherits": [
-                "dev-common",
-                "ci-common",
-                "clang-tidy"
-            ]
+            "name": "msan",
+            "displayName": "MemorySanitizer",
+            "inherits": "common",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Msan",
+                "CMAKE_CXX_FLAGS_MSAN": "-O2 -g -fsanitize=memory -fno-omit-frame-pointer"
+            }
         }
     ],
     "testPresets": [
@@ -156,32 +143,28 @@
             }
         },
         {
-            "name": "test-dev-gcc-debug",
+            "name": "test-gcc-debug",
             "displayName": "Strict",
-            "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "dev-gcc-debug"
+            "configurePreset": "gcc-debug"
         },
         {
-            "name": "test-dev-gcc-relwithdebinfo",
+            "name": "test-gcc-relwithdebinfo",
             "displayName": "Strict",
-            "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "dev-gcc-relwithdebinfo"
+            "configurePreset": "gcc-relwithdebinfo"
         },
         {
-            "name": "test-dev-clang-debug",
+            "name": "test-clang-debug",
             "displayName": "Strict",
-            "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "dev-clang-debug"
+            "configurePreset": "clang-debug"
         },
         {
-            "name": "test-dev-clang-relwithdebinfo",
+            "name": "test-clang-relwithdebinfo",
             "displayName": "Strict",
-            "description": "Enable output and stop on failure",
             "inherits": "test-common",
-            "configurePreset": "dev-clang-relwithdebinfo"
+            "configurePreset": "clang-relwithdebinfo"
         }
     ]
 }

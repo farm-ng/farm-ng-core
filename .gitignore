@@ -1,4 +1,5 @@
 build
+out
 venv
 .pytest_cache
 .eggs

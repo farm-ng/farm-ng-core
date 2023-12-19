@@ -129,6 +129,24 @@
             }
         }
     ],
+    "buildPresets": [
+        {
+            "name": "gcc-debug",
+            "configurePreset": "gcc-debug"
+        },
+        {
+            "name": "gcc-relwithdebinfo",
+            "configurePreset": "gcc-relwithdebinfo"
+        },
+        {
+            "name": "clang-debug",
+            "configurePreset": "clang-debug"
+        },
+        {
+            "name": "clang-relwithdebinfo",
+            "configurePreset": "clang-relwithdebinfo"
+        }
+    ],
     "testPresets": [
         {
             "name": "test-common",
@@ -138,31 +156,26 @@
                 "outputOnFailure": true
             },
             "execution": {
-                "noTestsAction": "error",
-                "stopOnFailure": true
+                "noTestsAction": "error"
             }
         },
         {
-            "name": "test-gcc-debug",
-            "displayName": "Strict",
+            "name": "gcc-debug",
             "inherits": "test-common",
             "configurePreset": "gcc-debug"
         },
         {
-            "name": "test-gcc-relwithdebinfo",
-            "displayName": "Strict",
+            "name": "gcc-relwithdebinfo",
             "inherits": "test-common",
             "configurePreset": "gcc-relwithdebinfo"
         },
         {
-            "name": "test-clang-debug",
-            "displayName": "Strict",
+            "name": "clang-debug",
             "inherits": "test-common",
             "configurePreset": "clang-debug"
         },
         {
-            "name": "test-clang-relwithdebinfo",
-            "displayName": "Strict",
+            "name": "clang-relwithdebinfo",
             "inherits": "test-common",
             "configurePreset": "clang-relwithdebinfo"
         }

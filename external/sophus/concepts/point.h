@@ -52,7 +52,6 @@ concept EigenWithDimOrDynamic = EigenDenseType<TT> &&
                                  TT::RowsAtCompileTime == kRows) &&
                                 (TT::ColsAtCompileTime == Eigen::Dynamic ||
                                  TT::ColsAtCompileTime == kCols);
-;
 
 template <class TT>
 concept RealScalarType = std::is_floating_point_v<TT>;

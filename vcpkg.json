@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "boost-asio",
+    "ceres",
     "eigen3",
     {
       "name": "fmt",
@@ -8,9 +9,7 @@
     },
     {
       "name": "grpc",
-      "features": [
-        "codegen"
-      ]
+      "features": ["codegen"]
     },
     "gtest",
     "protobuf",

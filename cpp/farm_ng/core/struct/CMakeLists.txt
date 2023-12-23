@@ -1,33 +1,41 @@
-add_library(farm_ng_core_struct INTERFACE 
-    base.h
-    macro_lib.h
-    struct.h
+#[[
+farm_ng_core_struct
+
+Set of macros for compile-time enum introspection / autogeneration of auxiliary
+helper functions.
+
+Depends on third_party/farm_pp.
+
+]]
+
+set(
+  farm_ng_core_struct_files
+      base
+      macro_lib
+      struct)
+
+set(farm_ng_core_core_struct_headers)
+foreach(x ${farm_ng_core_struct_files} )
+    list(APPEND farm_ng_core_core_struct_headers ${x}.h)
+endforeach()
+
+
+farm_ng_add_library(farm_ng_core_struct
+  NAMESPACE farm_ng_core
+  INCLUDE_DIR ../../..
+  HEADERS
+   base
+   macro_lib
+   struct
 )
-add_library(farm_ng_core::farm_ng_core_struct ALIAS farm_ng_core_struct)
 
-file(RELATIVE_PATH include_path_abs ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+target_link_libraries(farm_ng_core_struct
+  INTERFACE farm_ng_core::farm_ng_core_logging farm_ng_core::farm_ng_core_proto_defs)
 
-target_include_directories(farm_ng_core_struct INTERFACE
-"$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/${include_path_abs}>"
-"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
-target_link_libraries(farm_ng_core_struct INTERFACE
-  farm_ng_core::farm_pp
-  farm_ng_core::farm_ng_core_proto_defs
-)
-
-# TODO: Install
-
-set(TEST_BASENAMES
-    base
-    macro_lib
-    struct)
-
-foreach(test_basename ${TEST_BASENAMES})
-  set(test_target ${test_basename}_test_farm_ng_core_struct)
-  set(test_src ${test_basename}_test.cpp)
-  add_executable(${test_target} ${test_src})
-  target_link_libraries(${test_target} farm_ng_core_struct GTest::gtest_main)
-  add_test(NAME ${test_target} COMMAND ${test_target})
-  set_property(TEST ${test_target} PROPERTY LABELS small)
+foreach(test_basename ${farm_ng_core_struct_files})
+    farm_ng_add_test(${test_basename}
+                      PARENT_LIBRARY farm_ng_core_struct
+                      LINK_LIBRARIES farm_ng_core_struct
+                      LABELS small)
 endforeach()

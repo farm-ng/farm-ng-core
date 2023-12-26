@@ -2,6 +2,7 @@
   "dependencies": [
     "boost-asio",
     "ceres",
+    "cli11",
     "eigen3",
     {
       "name": "fmt",

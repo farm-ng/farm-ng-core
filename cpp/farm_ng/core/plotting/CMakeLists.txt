@@ -21,7 +21,7 @@ endforeach()
 
 farm_ng_add_library(farm_ng_core_plotting
   NAMESPACE farm_ng_core
-  INCLUDE_DIR ../..
+  INCLUDE_DIR ../../..
   HEADERS
     ${farm_ng_component_headers}
   SOURCES

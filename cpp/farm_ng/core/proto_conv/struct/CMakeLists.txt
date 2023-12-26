@@ -1,6 +1,6 @@
 farm_ng_add_library(farm_ng_core_proto_conv_struct
 NAMESPACE farm_ng_core
-INCLUDE_DIR ../../..
+INCLUDE_DIR ../../../..
 HEADERS
   conv_impl_macro.ipp
 SOURCES

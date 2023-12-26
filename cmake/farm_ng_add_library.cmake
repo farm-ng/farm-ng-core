@@ -47,21 +47,21 @@ macro(farm_ng_add_library target)
       "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/${abs_include}>"
       "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
+  foreach ( file ${FARM_NG_ARGS_HEADERS} )
+    if(IS_ABSOLUTE ${file})
+      file(RELATIVE_PATH rel ${CMAKE_SOURCE_DIR}/${abs_include} ${file})
+    else()
+      file(RELATIVE_PATH rel ${CMAKE_SOURCE_DIR}/${abs_include} ${CMAKE_CURRENT_SOURCE_DIR}/${file})
+    endif()
+
+    get_filename_component( dir ${rel} DIRECTORY )
+    install( FILES ${file}
+        DESTINATION include/${dir}
+        COMPONENT Devel)
+  endforeach()
+
+
   if(DEFINED FARM_NG_ARGS_SOURCES)
-    foreach ( file ${FARM_NG_ARGS_HEADERS} )
-
-      if(IS_ABSOLUTE ${file})
-        file(RELATIVE_PATH rel ${CMAKE_SOURCE_DIR}/${abs_include} ${file})
-      else()
-        file(RELATIVE_PATH rel ${CMAKE_SOURCE_DIR}/${abs_include} ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-      endif()
-
-      get_filename_component( dir ${rel} DIRECTORY )
-      install( FILES ${file}
-          DESTINATION include/${dir}
-          COMPONENT Devel)
-    endforeach()
-
     string(REPLACE "." ";" VERSION_LIST ${PROJECT_VERSION})
     list(GET VERSION_LIST 0 VERSION_MAJOR)
     list(GET VERSION_LIST 1 VERSION_MINOR)

@@ -24,9 +24,9 @@ farm_ng_add_library(farm_ng_core_struct
   NAMESPACE farm_ng_core
   INCLUDE_DIR ../../..
   HEADERS
-   base
-   macro_lib
-   struct
+   base.h
+   macro_lib.h
+   struct.h
 )
 
 target_link_libraries(farm_ng_core_struct

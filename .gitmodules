@@ -10,9 +10,3 @@
 [submodule "vcpkg"]
 	path = vcpkg
 	url = https://github.com/Microsoft/vcpkg.git
-[submodule "external/CLI11"]
-	path = external/CLI11
-	url = https://github.com/CLIUtils/CLI11.git
-[submodule "external/Eigen3"]
-	path = external/Eigen3
-	url = https://gitlab.com/libeigen/eigen.git

@@ -26,22 +26,8 @@ enable_testing()
 add_subdirectory(cpp)
 add_subdirectory(protos)
 
-# add_executable(HelloWorld helloworld.cpp)
-# target_link_libraries(HelloWorld PRIVATE farm_ng_core::farm_ng_core_logging)
-
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-
-# configure_file(
-#   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/navidson.pc.in
-#   ${CMAKE_CURRENT_BINARY_DIR}/navidson.pc
-#   @ONLY
-# )
-
-# install(
-#   FILES ${CMAKE_CURRENT_BINARY_DIR}/navidson.pc
-#   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-# )
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
@@ -53,10 +39,5 @@ install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
 )
-
-# install(TARGETS house
-#   EXPORT farm_ng_coreTargets
-#   FILE_SET HEADERS
-# )
 
 install(EXPORT ${PROJECT_NAME}Targets NAMESPACE farm_ng:: DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})

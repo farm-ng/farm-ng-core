@@ -8,7 +8,7 @@ farm_ng_add_library(farm_ng_core_proto_conv_plotting
 )
 
 target_link_libraries(farm_ng_core_proto_conv_plotting PUBLIC
-  Sophus::sophus_color
+  farm_ng_core::sophus_color
   protobuf::libprotobuf
   farm_ng_core::farm_ng_core_proto_defs
   farm_ng_core::farm_ng_core_proto_conv_color

@@ -1,4 +1,4 @@
-project(Sophus VERSION 2.0.0)
+# project(Sophus VERSION 2.0.0)
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
@@ -41,4 +41,4 @@ target_link_libraries(sophus INTERFACE
   sophus_interp_spline
   sophus_geometry
 )
-add_library (Sophus::sophus ALIAS sophus)
+add_library (farm_ng_core::sophus ALIAS sophus)

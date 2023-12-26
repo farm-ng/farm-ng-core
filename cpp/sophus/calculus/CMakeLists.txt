@@ -6,7 +6,7 @@ sophus_calculus
 ]]
 
 farm_ng_add_library(sophus_calculus
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   num_diff.h

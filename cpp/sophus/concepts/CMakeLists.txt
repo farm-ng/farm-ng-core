@@ -5,7 +5,7 @@ sophus_common
 
 ]]
 farm_ng_add_library(sophus_concept
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   image.h

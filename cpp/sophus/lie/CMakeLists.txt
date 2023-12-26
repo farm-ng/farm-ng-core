@@ -32,7 +32,7 @@ endforeach()
 
 
 farm_ng_add_library(sophus_lie
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   ${sophus_lie_h}

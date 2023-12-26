@@ -21,7 +21,7 @@ foreach(x ${sophus_linalg_src_prefixes} )
 endforeach()
 
 farm_ng_add_library(sophus_linalg
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   ${sophus_linalg_h}

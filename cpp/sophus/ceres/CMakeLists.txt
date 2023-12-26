@@ -5,7 +5,7 @@ sophus_ceres
 
 ]]
 farm_ng_add_library(sophus_ceres
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   jet_helpers.h

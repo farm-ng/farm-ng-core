@@ -21,7 +21,7 @@ foreach(x ${sophus_sensor_src_prefixes} )
 endforeach()
 
 farm_ng_add_library(sophus_sensor SHARED
-NAMESPACE Sophus
+NAMESPACE ${PROJECT_NAME}
 INCLUDE_DIR ../../
 HEADERS
 ${sophus_sensor_h}

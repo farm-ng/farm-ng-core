@@ -30,7 +30,7 @@ foreach(x ${sophus_image_src_prefixes} )
 endforeach()
 
 farm_ng_add_library(sophus_image
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   ${sophus_image_h}

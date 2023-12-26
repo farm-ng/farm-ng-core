@@ -6,7 +6,7 @@ sophus_color
 ]]
 
 farm_ng_add_library(sophus_color
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   color.h

@@ -4,7 +4,7 @@ sophus_interp
 ]]
 
 farm_ng_add_library(sophus_interp
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../../
   HEADERS
   average.h

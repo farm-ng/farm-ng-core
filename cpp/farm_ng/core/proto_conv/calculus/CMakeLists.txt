@@ -8,7 +8,7 @@ farm_ng_add_library(farm_ng_core_proto_conv_calculus
 )
 
 target_link_libraries(farm_ng_core_proto_conv_calculus PUBLIC
-  Sophus::sophus_calculus
+  farm_ng_core::sophus_calculus
   protobuf::libprotobuf
   farm_ng_core::farm_ng_core_prototools
   farm_ng_core_proto_defs

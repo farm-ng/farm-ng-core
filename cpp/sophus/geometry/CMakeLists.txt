@@ -6,7 +6,7 @@ sophus_geometry
 ]]
 
 farm_ng_add_library(sophus_geometry
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   fit_plane.h

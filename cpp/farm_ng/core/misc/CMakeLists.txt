@@ -32,7 +32,7 @@ farm_ng_add_library(farm_ng_core_misc
 
 target_link_libraries(farm_ng_core_misc PUBLIC
   farm_ng_core_enum farm_ng_core_logging
-  Sophus::sophus_linalg
+  farm_ng_core::sophus_linalg
 )
 
 foreach(test_basename

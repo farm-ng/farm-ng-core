@@ -20,7 +20,7 @@ foreach(x ${sophus_manifold_src_prefixes} )
 endforeach()
 
 farm_ng_add_library(sophus_manifold
-  NAMESPACE Sophus
+  NAMESPACE ${PROJECT_NAME}
   INCLUDE_DIR ../../
   HEADERS
   ${sophus_manifold_h}

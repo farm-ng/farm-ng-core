@@ -5,7 +5,7 @@ sophus_interp_spline
 
 farm_ng_add_library(sophus_interp_spline
   NAMESPACE ${PROJECT_NAME}
-  INCLUDE_DIR ../../../../
+  INCLUDE_DIR ../../../
   HEADERS
   bspline.h
   group_bspline.h

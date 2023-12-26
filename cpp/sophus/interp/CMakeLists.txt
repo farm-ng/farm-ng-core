@@ -5,7 +5,7 @@ sophus_interp
 
 farm_ng_add_library(sophus_interp
   NAMESPACE ${PROJECT_NAME}
-  INCLUDE_DIR ../../../
+  INCLUDE_DIR ../../
   HEADERS
   average.h
   interpolate.h

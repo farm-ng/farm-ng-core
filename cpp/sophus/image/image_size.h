@@ -12,6 +12,7 @@
 #include "sophus/common/common.h"
 
 #include <Eigen/Dense>
+#include <fmt/ostream.h>
 
 #include <iostream>
 
@@ -84,3 +85,5 @@ auto operator<(ImageSize const& lhs, ImageSize const& rhs) -> bool;
 auto operator<<(std::ostream& os, ImageSize const& image_size) -> std::ostream&;
 
 }  // namespace sophus
+
+template <> struct fmt::formatter<sophus::ImageSize> : ostream_formatter {};

@@ -15,6 +15,7 @@
 #include "farm_ng/core/misc/time_series.h"
 
 #include "farm_ng/core/misc/conversions.h"
+#include "farm_ng/core/logging/fmt_eigen.h"
 #include "sophus/interp/interpolate.h"
 
 #include <gtest/gtest.h>

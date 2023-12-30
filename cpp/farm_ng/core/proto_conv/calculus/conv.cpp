@@ -14,6 +14,7 @@
 
 #include "farm_ng/core/proto_conv/calculus/conv.h"
 
+#include "farm_ng/core/logging/fmt_eigen.h"
 #include "farm_ng/core/proto_conv/linalg/conv.h"
 #include "farm_ng/core/proto_conv/std/conv_impl_macro.ipp"
 

@@ -15,6 +15,7 @@
 #include <Eigen/Geometry>
 #include <farm_ng/core/logging/assert_within.h>
 #include <farm_ng/core/logging/expected.h>
+#include <farm_ng/core/logging/fmt_eigen.h>
 #include <farm_ng/core/logging/format.h>
 #include <farm_ng/core/logging/logger.h>
 #include <farm_ng/core/misc/variant_utils.h>

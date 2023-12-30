@@ -4,10 +4,7 @@
     "ceres",
     "cli11",
     "eigen3",
-    {
-      "name": "fmt",
-      "version>=": "8.1.1"
-    },
+    "fmt",
     {
       "name": "grpc",
       "features": ["codegen"]
@@ -16,11 +13,5 @@
     "protobuf",
     "tl-expected",
     "boost-signals2"
-  ],
-  "overrides": [
-    {
-      "name": "fmt",
-      "version": "8.1.1"
-    }
   ]
 }

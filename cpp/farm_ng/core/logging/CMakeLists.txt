@@ -13,6 +13,10 @@ farm_ng_add_library(farm_ng_core_logging
   HEADERS
     assert_within.h
     expected.h
+    fmt_ceres.h
+    fmt_eigen.h
+    fmt_grpc.h
+    fmt_ptr.h
     format.h
     trace_debug_log.h
     logger.h

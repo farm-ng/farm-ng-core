@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "farm_ng/core/logging/fmt_ceres.h"
 #include "sophus/concepts/lie_group.h"
 #include "sophus/manifold/complex.h"
 #include "sophus/manifold/unit_vector.h"

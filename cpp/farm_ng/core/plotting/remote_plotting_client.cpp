@@ -13,6 +13,7 @@
 //    limitations under the License.
 
 #include "farm_ng/core/plotting/remote_plotting_client.h"
+#include "farm_ng/core/logging/fmt_grpc.h"
 
 #include "farm_ng/core/plotting/plotting.grpc.pb.h"
 #include "farm_ng/core/proto_conv/linalg/conv.h"

@@ -25,26 +25,30 @@
 
 #include "farm_ng/core/enum/enum_without_iostream.h"
 
+#include <fmt/ostream.h>
+
 #include <istream>
 #include <ostream>
 
 /// Adds ostream overloads for the enum.
-#define FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)                     \
-  namespace enum_wrapper_ {                                       \
-  inline auto operator<<(std::ostream &os, EnumName##Impl value)  \
-      -> std::ostream & {                                         \
-    os << toPretty(value);                                        \
-    return os;                                                    \
-  }                                                               \
-  inline auto operator>>(std::istream &is, EnumName##Impl &value) \
-      -> std::istream & {                                         \
-    std::string str;                                              \
-    is >> str;                                                    \
-    if (!trySetFromString(value, str)) {                          \
-      throw std::runtime_error(std::string("Bad Value: ") + str); \
-    }                                                             \
-    return is;                                                    \
-  }                                                               \
+#define FARM_ENUM_IOSTREAM_OVERLOAD(EnumName)                                     \
+  namespace enum_wrapper_ {                                                       \
+  inline auto operator<<(std::ostream &os, EnumName##Impl value)                  \
+      -> std::ostream & {                                                         \
+    os << toPretty(value);                                                        \
+    return os;                                                                    \
+  }                                                                               \
+  inline auto operator>>(std::istream &is, EnumName##Impl &value)                 \
+      -> std::istream & {                                                         \
+    std::string str;                                                              \
+    is >> str;                                                                    \
+    if (!trySetFromString(value, str)) {                                          \
+      throw std::runtime_error(std::string("Bad Value: ") + str);                 \
+    }                                                                             \
+    return is;                                                                    \
+  }                                                                               \
+                                                                                  \
+  auto inline format_as(EnumName##Impl value) { return toPretty(value); }         \
   }  // namespace enum_wrapper_
 
 /// Convenience marco which defines the enum plus alias and adds the ostream

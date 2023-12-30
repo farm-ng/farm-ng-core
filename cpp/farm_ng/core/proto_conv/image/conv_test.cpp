@@ -14,6 +14,8 @@
 
 #include "farm_ng/core/proto_conv/image/conv.h"
 
+#include "farm_ng/core/logging/fmt_eigen.h"
+
 #include <gtest/gtest.h>
 
 namespace farm_ng::test {

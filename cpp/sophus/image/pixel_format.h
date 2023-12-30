@@ -10,6 +10,8 @@
 
 #include "sophus/image/image_types.h"
 
+#include <fmt/ostream.h>
+
 namespace sophus {
 
 struct PixelFormat {
@@ -47,3 +49,5 @@ auto operator==(PixelFormat const& lhs, PixelFormat const& rhs) -> bool;
 /// "4U8";
 auto operator<<(std::ostream& os, PixelFormat const& type) -> std::ostream&;
 }  // namespace sophus
+
+template <> struct fmt::formatter<sophus::PixelFormat> : ostream_formatter {};

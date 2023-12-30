@@ -16,6 +16,7 @@
 
 #include "farm_ng/core/logging/logger.h"
 
+#include <fmt/ostream.h>
 #include <tl/expected.hpp>
 
 #include <iostream>
@@ -121,3 +122,7 @@ Expected<TT> fromOptional(std::optional<TT> optional) {
 }
 
 }  // namespace farm_ng
+
+template <typename T>
+    requires std::is_base_of_v<farm_ng::Error, T>
+struct fmt::formatter<T> : ostream_formatter {};

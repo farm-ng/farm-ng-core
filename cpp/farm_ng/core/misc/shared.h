@@ -15,6 +15,7 @@
 #pragma once
 
 #include "farm_ng/core/logging/expected.h"
+#include "farm_ng/core/logging/fmt_ptr.h"
 #include "farm_ng/core/misc/concept_utils.h"
 
 #include <memory>

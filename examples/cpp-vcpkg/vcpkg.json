@@ -1,0 +1,9 @@
+{
+  "dependencies": ["farm-ng-core"],
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "8.1.1"
+    }
+  ]
+}

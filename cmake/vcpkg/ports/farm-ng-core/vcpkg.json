@@ -1,0 +1,29 @@
+{
+  "name": "farm-ng-core",
+  "version": "0.2.0",
+  "homepage": "https://github.com/farm-ng/farm-ng-core",
+  "description": "A foundational library for robotics and machine sensing applications.",
+  "license": "Apache-2.0",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    "boost-asio",
+    "cli11",
+    "eigen3",
+    "fmt",
+    {
+      "name": "grpc",
+      "features": ["codegen"]
+    },
+    "gtest",
+    "protobuf",
+    "tl-expected",
+    "boost-signals2"
+  ]
+}

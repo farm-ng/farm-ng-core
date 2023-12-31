@@ -33,7 +33,8 @@ namespace farm_ng {
 inline double relativeCloseness(double x, double y) {
   // https://c-faq.com/fp/fpequal.html
   double abs_diff = std::abs(x - y);
-  double rel_diff = abs_diff / std::max(std::abs(x), std::abs(y));
+  auto max_abs = std::max(std::abs(x), std::abs(y));
+  double rel_diff = max_abs == 0.0 ? 0.0 : abs_diff / max_abs;
 
   // We are using "rel_diff" from the c-faq reference. However, instead of just
   // checking for x==0 and y==0, we perform the minimum over `rel_diff` and

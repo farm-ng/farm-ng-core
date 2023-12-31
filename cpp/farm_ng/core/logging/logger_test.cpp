@@ -34,11 +34,11 @@ void invokeAllLogMacros() {
 TEST(logger, compile_time_default_runtime_default) {  // NOLINT
   CaptureStdErr capture;
   invokeAllLogMacros();
+  // default log level is INFO and higher
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM CRITICAL in)"});
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(FARM ERROR in)"});
   EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM WARN in.*3)"});
-  // default log level is WARN and higher, so we do not expect to see INFO.
-  EXPECT_NOT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
+  EXPECT_CONTAINS(capture.buffer(), std::regex{R"(\[FARM INFO in.*2)"});
 }
 
 TEST(logger, compile_time_default_runtime_critical) {  // NOLINT

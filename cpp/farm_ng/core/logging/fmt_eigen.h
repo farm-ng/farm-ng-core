@@ -17,9 +17,15 @@
 #include <Eigen/Dense>
 #include <fmt/ostream.h>
 
+// Defined in fmt namespace due to gcc bug
+// https://stackoverflow.com/a/69144223
+namespace fmt {
+
 template <typename T>
     requires std::is_base_of_v<Eigen::DenseBase<T>, T>
-struct fmt::formatter<T> : ostream_formatter {};
+struct formatter<T> : ostream_formatter {};
 
 template <typename T, int N>
-struct fmt::formatter<Eigen::VectorBlock<T, N>> : ostream_formatter {};
+struct formatter<Eigen::VectorBlock<T, N>> : ostream_formatter {};
+
+}

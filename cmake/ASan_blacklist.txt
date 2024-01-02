@@ -1,3 +1,4 @@
 src:*include/ceres/*
 src:*include/eigen3/Eigen/*
 src:*include/google/protobuf/*
+src:*include/gtest/*

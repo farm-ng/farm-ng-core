@@ -123,7 +123,7 @@
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_BUILD_TYPE": "Tsan",
-        "CMAKE_CXX_FLAGS_TSAN": "-O2 -g -fsanitize=thread -fno-omit-frame-pointer"
+        "CMAKE_CXX_FLAGS_TSAN": "-O2 -g -fsanitize=thread -fno-omit-frame-pointer -fsanitize-blacklist=${sourceDir}/cmake/ASan_blacklist.txt"
       }
     },
     {
@@ -134,7 +134,7 @@
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_BUILD_TYPE": "Msan",
-        "CMAKE_CXX_FLAGS_MSAN": "-O2 -g -fsanitize=memory -fno-omit-frame-pointer"
+        "CMAKE_CXX_FLAGS_MSAN": "-O2 -g -fsanitize=memory -fno-omit-frame-pointer -fsanitize-blacklist=${sourceDir}/cmake/ASan_blacklist.txt"
       }
     }
   ],
@@ -192,6 +192,16 @@
       "name": "asan",
       "inherits": "test-common",
       "configurePreset": "asan"
+    },
+    {
+      "name": "tsan",
+      "inherits": "test-common",
+      "configurePreset": "tsan"
+    },
+    {
+      "name": "msan",
+      "inherits": "test-common",
+      "configurePreset": "msan"
     }
   ]
 }

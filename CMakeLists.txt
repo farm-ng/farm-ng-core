@@ -23,11 +23,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 enable_testing()
 
-add_subdirectory(cpp)
-add_subdirectory(protos)
-
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+
+add_subdirectory(cmake)
+add_subdirectory(cpp)
+add_subdirectory(protos)
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake

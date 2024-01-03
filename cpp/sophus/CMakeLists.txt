@@ -41,4 +41,9 @@ target_link_libraries(sophus INTERFACE
   sophus_interp_spline
   sophus_geometry
 )
-add_library (farm_ng_core::sophus ALIAS sophus)
+add_library(farm_ng_core::sophus ALIAS sophus)
+install(TARGETS sophus
+  EXPORT ${PROJECT_NAME}Targets
+  LIBRARY DESTINATION lib
+  COMPONENT Libs
+)

@@ -63,6 +63,7 @@ macro(farm_ng_add_protobufs target)
     SOURCES
     ${FARM_NG_ADD_PROTOBUFS_PROTO_FILES}
     )
+  message(VERBOSE "Added proto library ${target}.\n - INCLUDE_DIR: ${_proto_output_dir_cpp}")
 
   target_link_libraries(${target}
     PUBLIC protobuf::libprotobuf gRPC::grpc gRPC::grpc++

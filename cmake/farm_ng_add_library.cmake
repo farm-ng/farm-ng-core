@@ -82,4 +82,6 @@ macro(farm_ng_add_library target)
     COMPONENT Libs
   )
 
+  message(VERBOSE "Added library ${target}")
+
 endmacro()

@@ -67,7 +67,7 @@ class Rotation3Impl {
       return SOPHUS_UNEXPECTED(
           "quaternion number (({}), {}) is not unit length.\n"
           "Squared norm: {}, thr: {}",
-          unit_quaternion.template head<3>(),
+          unit_quaternion.template head<3>().eval(),
           unit_quaternion[3],
           squared_norm,
           kThr);

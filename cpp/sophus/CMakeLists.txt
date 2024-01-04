@@ -5,7 +5,6 @@ include(GNUInstallDirs)
 
 set(farm_ng_cmake_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake)
 
-message("farm_ng_cmake_DIR" ${farm_ng_cmake_DIR})
 include(${farm_ng_cmake_DIR}/farm_ng_cmakeConfig.cmake)
 
 find_package(Eigen3 3.4.0 REQUIRED)

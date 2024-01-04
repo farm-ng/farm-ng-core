@@ -6,4 +6,4 @@ find_package(farm_ng_core REQUIRED)
 
 add_executable(HelloWorld helloworld.cpp)
 
-target_link_libraries(HelloWorld PRIVATE farm_ng::farm_ng_core_logging)
+target_link_libraries(HelloWorld PRIVATE farm_ng_core::farm_ng_core_logging)

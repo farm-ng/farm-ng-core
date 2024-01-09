@@ -22,10 +22,11 @@
 namespace fmt {
 
 template <typename T>
-    requires std::is_base_of_v<Eigen::DenseBase<T>, T>
-struct formatter<T> : ostream_formatter {};
+requires std::is_base_of_v<Eigen::DenseBase<T>, T>
+struct formatter<T> : ostream_formatter {
+};
 
 template <typename T, int N>
 struct formatter<Eigen::VectorBlock<T, N>> : ostream_formatter {};
 
-}
+}  // namespace fmt

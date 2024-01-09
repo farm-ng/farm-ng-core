@@ -45,7 +45,8 @@ Expected<TProtobufT> readProtobufFromJsonFile(
   auto status = google::protobuf::util::JsonStringToMessage(
       json_string, &message, parse_options);
   if (!status.ok()) {
-    return FARM_UNEXPECTED("Failed to parse json string: {}", status);
+    return FARM_UNEXPECTED(
+        "Failed to parse json string: {}", status.ToString());
   }
   return message;
 }

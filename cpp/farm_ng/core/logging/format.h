@@ -15,6 +15,7 @@
 #pragma once
 
 #include <farm_ng/core/logging/backtrace.h>
+#include <farm_ng/core/logging/fmt_eigen.h>
 #include <farm_pp/preprocessor/comparison/equal.hpp>
 #include <farm_pp/preprocessor/control/if.hpp>
 #include <farm_pp/preprocessor/variadic/size.hpp>

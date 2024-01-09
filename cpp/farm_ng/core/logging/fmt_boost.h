@@ -14,7 +14,12 @@
 
 #pragma once
 
-#include <fmt/ostream.h>
+#include <boost/asio/error.hpp>
 #include <boost/system/error_code.hpp>
+#include <fmt/ostream.h>
 
-template <> struct fmt::formatter<boost::system::error_code> : ostream_formatter {};
+template <>
+struct fmt::formatter<boost::system::error_code> : ostream_formatter {};
+
+template <>
+struct fmt::formatter<boost::asio::error::basic_errors> : ostream_formatter {};

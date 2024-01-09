@@ -123,6 +123,11 @@ Expected<TT> fromOptional(std::optional<TT> optional) {
 
 }  // namespace farm_ng
 
+namespace fmt {
+
 template <typename T>
-    requires std::is_base_of_v<farm_ng::Error, T>
-struct fmt::formatter<T> : ostream_formatter {};
+requires std::is_base_of_v<farm_ng::Error, T>
+struct formatter<T> : ostream_formatter {
+};
+
+}  // namespace fmt

@@ -109,7 +109,8 @@ ext_modules = [
 ]
 
 setup(
-    ext_modules=ext_modules,
+    # DISABLED DURING VCPKG REFACTOR
+    # ext_modules=ext_modules,
     cmdclass={
         "install": BuildProtosInstall,
         "develop": BuildProtosDevelop,

@@ -17,7 +17,7 @@ repos:
     hooks:
       - id: mypy
         args: ["--check-untyped-defs", "--ignore-missing-imports", "--explicit-package-bases"]
-        additional_dependencies: ["types-protobuf", "types-requests"]
+        additional_dependencies: ["types-protobuf==4.24.0.1", "types-requests"]
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.1.13
     hooks:

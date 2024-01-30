@@ -40,7 +40,7 @@
 //   tuple:        (Type0, name0, {})
 //
 // Output: static_assert(TCpp::kFieldNames[i] == "name0");
-#define FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME(    \
+#define FARM_STRUCT_DETAILS_ASSERT_FIELD_NAME(     \
     Dummy_, Field_Names_, Index_, Type_Name_Init_) \
   static_assert(                                                             \
       Field_Names_[Index_] == \
@@ -193,13 +193,12 @@ struct ToProtImpl;
   };                                                                           \
                                                                                \
   template <>                                                                  \
-  auto fromProt<Proto_Type_>(Proto_Type_ const& proto)                         \
-      -> Expected<Cpp_Type_> {                                                 \
+  auto fromProt<Proto_Type_>(Proto_Type_ const& proto)->Expected<Cpp_Type_> {  \
     return FromProtImpl<Cpp_Type_, Proto_Type_>::impl(proto);                  \
   }                                                                            \
                                                                                \
   template <>                                                                  \
-  auto toProt<Cpp_Type_>(Cpp_Type_ const& s) -> Proto_Type_ {                  \
+  auto toProt<Cpp_Type_>(Cpp_Type_ const& s)->Proto_Type_ {                    \
     return ToProtImpl<Cpp_Type_, Proto_Type_>::impl(s);                        \
   }
 
@@ -275,3 +274,23 @@ struct ToProtImpl;
       },                                                                   \
       FARM_PP_TUPLE_SIZE(Tuple_Of_Fields_),                                \
       FARM_MACROLIB_SEQ_OF_TUPLES_FROM_TUPLE(Tuple_Of_Fields_))
+
+// Given a FARM_ENUM-defined C++ enum and a Proto type, create from-proto and
+// to-proto conversion code.
+//
+// Assumes the proto-representation of the enum is:
+// message FooEnum { string variant_name = 1; }
+#define FARM_PROTO_CONV_ENUM_IMPL(Cpp_Type_, Proto_Type_)                     \
+  template <>                                                                 \
+  auto fromProt<Proto_Type_>(Proto_Type_ const& proto)->Expected<Cpp_Type_> { \
+    Cpp_Type_ v;                                                              \
+    FARM_TRY_ASSERT(trySetFromString(v, proto.variant_name()));               \
+    return v;                                                                 \
+  }                                                                           \
+                                                                              \
+  template <>                                                                 \
+  auto toProt<Cpp_Type_>(Cpp_Type_ const& v)->Proto_Type_ {                   \
+    Proto_Type_ proto;                                                        \
+    proto.set_variant_name(toString(v));                                      \
+    return proto;                                                             \
+  }

@@ -25,3 +25,7 @@ message StructExample2 {
   string name = 1;
   StructExample1 ex1 = 2;
 }
+
+message EnumExample1 {
+  string variant_name = 1;
+}

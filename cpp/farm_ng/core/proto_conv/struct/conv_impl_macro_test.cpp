@@ -26,17 +26,16 @@ namespace farm_ng {
 FARM_STRUCT(StructExample1, ((int, integer, {1}), (float, f, {0.5})));
 FARM_STRUCT(
     StructExample2, ((std::string, name, {}), (StructExample1, ex1, {})));
+FARM_ENUM(EnumExample1, (a, b, c));
 
-// this typically goes in proto_conv.h file
+// these typically go in proto_conv.h file
 FARM_PROTO_CONV_TRAIT(StructExample1, core::proto::StructExample1);
+FARM_PROTO_CONV_TRAIT(StructExample2, core::proto::StructExample2);
+FARM_PROTO_CONV_TRAIT(EnumExample1, core::proto::EnumExample1);
 
-// this typically goes in proto_conv.cc file
+// these typically go in proto_conv.cc file
 FARM_PROTO_CONV_IMPL(StructExample1, core::proto::StructExample1, (integer, f));
 
-// this typically goes in proto_conv.h file
-FARM_PROTO_CONV_TRAIT(StructExample2, core::proto::StructExample2);
-
-// this typically goes in proto_conv.cc file
 FARM_PROTO_CONV_IMPL_FN(
     StructExample2,
     core::proto::StructExample2,
@@ -47,7 +46,26 @@ FARM_PROTO_CONV_IMPL_FN(
       return std::move(proto);
     });
 
+FARM_PROTO_CONV_ENUM_IMPL(EnumExample1, core::proto::EnumExample1);
+
 }  // namespace farm_ng
+
+TEST(FARM_PROTO_CONV_ENUM_IMPL, roundtrip) {
+  using namespace farm_ng;
+  auto value = EnumExample1::b;
+  auto proto = toProt(value);
+  auto maybe_value = fromProt(proto);
+  ASSERT_TRUE(maybe_value.has_value());
+  EXPECT_EQ(FARM_UNWRAP(maybe_value), value);
+}
+
+TEST(FARM_PROTO_CONV_ENUM_IMPL, invalid_proto) {
+  using namespace farm_ng;
+  core::proto::EnumExample1 invalid_proto;
+  invalid_proto.set_variant_name("invalid");
+  auto maybe_value = fromProt(invalid_proto);
+  EXPECT_FALSE(maybe_value.has_value());
+}
 
 TEST(FARM_STRUCT_DETAILS_FROM_PROTO, macro) {
   // clang-format off

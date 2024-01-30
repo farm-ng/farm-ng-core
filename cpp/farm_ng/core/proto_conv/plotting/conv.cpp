@@ -41,22 +41,7 @@ auto toProt<plotting::ClearCondition>(plotting::ClearCondition const& v)
   return proto;
 }
 
-template <>
-auto fromProt<core::plotting::proto::LineType>(
-    core::plotting::proto::LineType const& proto)
-    -> Expected<plotting::LineType> {
-  plotting::LineType line_type;
-  FARM_TRY_ASSERT(trySetFromString(line_type, proto.variant_name()));
-  return line_type;
-}
-
-template <>
-auto toProt<plotting::LineType>(plotting::LineType const& v)
-    -> core::plotting::proto::LineType {
-  core::plotting::proto::LineType proto;
-  proto.set_variant_name(toString(v));
-  return proto;
-}
+FARM_PROTO_CONV_ENUM_IMPL(plotting::LineType, core::plotting::proto::LineType);
 
 template <>
 auto fromProt<core::plotting::proto::XyPairsF64>(

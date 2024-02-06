@@ -12,8 +12,8 @@ set(VCPKG_CXX_FLAGS "-fconcepts ${VCPKG_CXX_FLAGS}")
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-    OPTIONS 
-        "-DBUILD_SOPHUS_TESTS=Off" 
+    OPTIONS
+        "-DBUILD_SOPHUS_TESTS=Off"
         "-DFARM_NG_PROVIDER_DEV_PACKAGES=Sophus"
         "-DCMAKE_CXX_STANDARD=17" # TODO: Should be able to remove
         "-DCMAKE_CXX_EXTENSIONS=On" # TODO: Should be able to remove

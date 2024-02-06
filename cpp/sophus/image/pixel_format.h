@@ -50,4 +50,5 @@ auto operator==(PixelFormat const& lhs, PixelFormat const& rhs) -> bool;
 auto operator<<(std::ostream& os, PixelFormat const& type) -> std::ostream&;
 }  // namespace sophus
 
-template <> struct fmt::formatter<sophus::PixelFormat> : ostream_formatter {};
+template <>
+struct fmt::formatter<sophus::PixelFormat> : ostream_formatter {};

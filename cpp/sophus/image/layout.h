@@ -83,4 +83,5 @@ auto operator<<(std::ostream& os, ImageLayout const& layout) -> std::ostream&;
 
 }  // namespace sophus
 
-template <> struct fmt::formatter<sophus::ImageLayout> : ostream_formatter {};
+template <>
+struct fmt::formatter<sophus::ImageLayout> : ostream_formatter {};

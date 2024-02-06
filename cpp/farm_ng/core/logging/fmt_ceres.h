@@ -17,4 +17,5 @@
 #include <ceres/jet.h>
 #include <fmt/ostream.h>
 
-template <typename T, int N> struct fmt::formatter<ceres::Jet<T, N>> : ostream_formatter {};
+template <typename T, int N>
+struct fmt::formatter<ceres::Jet<T, N>> : ostream_formatter {};

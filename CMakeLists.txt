@@ -11,7 +11,7 @@ include(farm_ng_dev_packages)
 include(farm_ng_ccache)
 
 find_package(fmt REQUIRED)
-find_package(GTest REQUIRED) 
+find_package(GTest REQUIRED)
 find_package(Eigen3 3.4.0 REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)

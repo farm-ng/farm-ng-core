@@ -1,4 +1,4 @@
-// For format details, see https://aka.ms/devcontainer.json. 
+// For format details, see https://aka.ms/devcontainer.json.
 // For config options, see https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
   "name": "Ubuntu",
@@ -20,7 +20,7 @@
     "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
       "packages": "build-essential,ccache,clang,clang-tidy,vim"
-    }    
+    }
   },
 
   // Runs commands after the container is created.

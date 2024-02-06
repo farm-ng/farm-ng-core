@@ -17,4 +17,5 @@
 #include <fmt/ostream.h>
 #include <grpcpp/support/status_code_enum.h>
 
-template <> struct fmt::formatter<grpc::StatusCode> : ostream_formatter {};
+template <>
+struct fmt::formatter<grpc::StatusCode> : ostream_formatter {};

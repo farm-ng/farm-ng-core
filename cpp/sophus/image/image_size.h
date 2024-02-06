@@ -86,4 +86,5 @@ auto operator<<(std::ostream& os, ImageSize const& image_size) -> std::ostream&;
 
 }  // namespace sophus
 
-template <> struct fmt::formatter<sophus::ImageSize> : ostream_formatter {};
+template <>
+struct fmt::formatter<sophus::ImageSize> : ostream_formatter {};

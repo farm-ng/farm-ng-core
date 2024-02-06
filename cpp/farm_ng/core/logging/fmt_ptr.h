@@ -20,8 +20,8 @@
 
 template <typename T>
 struct fmt::formatter<std::shared_ptr<T>> {
- constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
- auto format(const std::shared_ptr<T>& p, fmt::format_context& ctx) const {
-  return fmt::format_to(ctx.out(), "{}", fmt::ptr(p));
- }
+  auto constexpr parse(format_parse_context& ctx) { return ctx.begin(); }
+  auto format(std::shared_ptr<T> const& p, fmt::format_context& ctx) const {
+    return fmt::format_to(ctx.out(), "{}", fmt::ptr(p));
+  }
 };

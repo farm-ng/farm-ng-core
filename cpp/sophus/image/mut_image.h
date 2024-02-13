@@ -229,4 +229,12 @@ class MutImage : public MutImageView<TPixel> {
   /// MutImage has unique ownership.
   UniqueDataArea<TAllocator> unique_;
 };
+
+template <class TPixel>
+MutImage<TPixel, Eigen::aligned_allocator<uint8_t>>
+ImageView<TPixel>::cloneAsMut() const {
+  return MutImage<TPixel, Eigen::aligned_allocator<uint8_t>>::makeCopyFrom(
+      *this);
+}
+
 }  // namespace sophus

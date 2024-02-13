@@ -104,6 +104,10 @@ class Image : public ImageView<TPixel> {
     this->setViewToEmpty();
   }
 
+  /// This shadows implementation from ImageView to avoid the copy. We already
+  /// have a shared Image.
+  Image<TPixel> toShared() const { return *this; }
+
  private:
   template <class TT, class TAllocator2T>
   friend class MutImage;
@@ -118,5 +122,10 @@ class Image : public ImageView<TPixel> {
 
   std::shared_ptr<uint8_t> shared_;
 };
+
+template <class TPixel>
+Image<TPixel> ImageView<TPixel>::toShared() const {
+  return Image<TPixel>::makeCopyFrom(*this);
+}
 
 }  // namespace sophus

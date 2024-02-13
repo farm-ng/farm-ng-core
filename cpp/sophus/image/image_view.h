@@ -235,6 +235,17 @@ struct ImageView {
     return true;
   }
 
+  /// Returns an owned and shared Image. This often requires a copy of the data.
+  ///
+  /// The implementation is in image.h
+  Image<TPixel, Eigen::aligned_allocator<uint8_t>> toShared() const;
+
+  /// Creates a copy of the data in the image view and returns a owned and
+  /// mutable MutImage.
+  ///
+  /// The implementation is in mut_image.h
+  MutImage<TPixel, Eigen::aligned_allocator<uint8_t>> cloneAsMut() const;
+
  protected:
   /// Resets view such that it is empty.
   void setViewToEmpty() { *this = {}; }

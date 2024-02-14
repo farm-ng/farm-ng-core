@@ -25,5 +25,6 @@ FARM_PROTO_CONV_TRAIT(sophus::CameraModel, core::proto::CameraModel);
 FARM_PROTO_CONV_TRAIT(
     std::vector<sophus::CameraModel>, core::proto::CameraModels);
 FARM_PROTO_CONV_TRAIT(sophus::RigidCamera, core::proto::RigidCamera);
+FARM_PROTO_CONV_TRAIT(sophus::MultiCameraRig, core::proto::MultiCameraRig);
 
 }  // namespace farm_ng

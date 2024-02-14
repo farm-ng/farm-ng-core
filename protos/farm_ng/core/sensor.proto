@@ -68,6 +68,10 @@ message RigidCamera {
   Isometry3F64 rig_from_camera = 2;
 }
 
+message MultiCameraRig {
+  repeated RigidCamera cameras = 1;
+}
+
 message GyroModel {
   string model_type = 1;
   repeated double params = 2;

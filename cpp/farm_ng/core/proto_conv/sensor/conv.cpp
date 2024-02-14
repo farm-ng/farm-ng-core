@@ -94,4 +94,26 @@ auto toProt<sophus::RigidCamera>(sophus::RigidCamera const& s)
   return proto;
 }
 
+template <>
+auto fromProt<core::proto::MultiCameraRig>(
+    core::proto::MultiCameraRig const& proto)
+    -> Expected<sophus::MultiCameraRig> {
+  sophus::MultiCameraRig cameras;
+  for (int i = 0; i < proto.cameras_size(); ++i) {
+    SOPHUS_TRY(auto, cam, fromProt(proto.cameras(i)));
+    cameras.push_back(cam);
+  }
+  return cameras;
+}
+
+template <>
+auto toProt<sophus::MultiCameraRig>(sophus::MultiCameraRig const& cameras)
+    -> core::proto::MultiCameraRig {
+  core::proto::MultiCameraRig proto;
+  for (auto const& cam : cameras) {
+    *proto.add_cameras() = toProt(cam);
+  }
+  return proto;
+}
+
 }  // namespace farm_ng

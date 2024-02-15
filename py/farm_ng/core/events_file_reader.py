@@ -129,6 +129,10 @@ class EventLogPosition:
         """Read the message from the event."""
         return self.reader.read_message(self)
 
+    def read_payload(self) -> bytes:
+        """Read the message payload from the event."""
+        return self.reader.read_payload(self)
+
 
 class EventsFileReader:
     """EventsFileReader reads events from a file."""
@@ -294,12 +298,21 @@ class EventsFileReader:
         Args:
             event_log (EventLogPosition): the event log
         """
+        payload = self.read_payload(event_log)
+        return payload_to_protobuf(event_log.event, payload)
+
+    def read_payload(self, event_log: EventLogPosition) -> bytes:
+        """Read the payload from the event.
+
+        Args:
+            event_log (EventLogPosition): the event log
+        """
         file_stream = cast(IO, self._file_stream)
         file_stream.seek(event_log.pos, 0)
         payload: bytes = file_stream.read(event_log.event.payload_length)
         if len(payload) != event_log.event.payload_length:
             raise EOFError
-        return payload_to_protobuf(event_log.event, payload)
+        return payload
 
     def read(self) -> tuple[Event, Message]:
         """Read the next event and message and return them.

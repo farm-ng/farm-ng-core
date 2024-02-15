@@ -100,7 +100,7 @@ auto fromProt<core::proto::MultiCameraRig>(
     -> Expected<sophus::MultiCameraRig> {
   sophus::MultiCameraRig cameras;
   for (int i = 0; i < proto.cameras_size(); ++i) {
-    SOPHUS_TRY(auto, cam, fromProt(proto.cameras(i)));
+    FARM_TRY(auto, cam, fromProt(proto.cameras(i)));
     cameras.push_back(cam);
   }
   return cameras;

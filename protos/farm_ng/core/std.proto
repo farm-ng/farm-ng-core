@@ -22,6 +22,23 @@ package farm_ng.core.proto;
 // MesageNameG0ParameterName - e.g. OptionalG0Double which is
 // std::optional<double> in c++
 
+// Field naming pattern for primitives:
+//
+// ```
+// PRIMITIVE value = 1;
+// bool has_value = 2;
+// ````
+
+// Field naming pattern for messages:
+//
+// ```
+// MESSAGE value = 1;
+// bool has_message = 2;
+// ```
+//
+// ("has_value" is already auto-generaged for "value" in cpp
+//  proto, so we can't use that field name.)
+
 message OptionalG0Float {
   float value = 1;
   bool has_value = 2;
@@ -52,5 +69,8 @@ message OptionalG0String {
   bool has_value = 2;
 }
 
+message RepeatedG0Float {
+  repeated float value = 1;
+}
 
 message FileSystemPath { string path_string = 1; }

@@ -16,7 +16,7 @@
 
 #include "farm_ng/core/logging/fmt_eigen.h"
 #include "farm_ng/core/proto_conv/linalg/conv.h"
-#include "farm_ng/core/proto_conv/std/conv_impl_macro.ipp"
+#include "farm_ng/core/proto_conv/std/repeated_message_impl_macro.ipp"
 
 namespace farm_ng {
 
@@ -132,6 +132,7 @@ auto toProt<sophus::Region2F64>(sophus::Region2F64 const& region)
   return proto;
 }
 
-FARM_CONV_IMPL_REPEATED(core::proto::RepeatedG0Region2F64, sophus::Region2F64)
+FARM_CONV_IMPL_REPEATED_MESSAGE(
+    core::proto::RepeatedG0Region2F64, std::deque<sophus::Region2F64>)
 
 }  // namespace farm_ng

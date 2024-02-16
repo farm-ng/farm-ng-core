@@ -19,7 +19,7 @@
 #include "farm_ng/core/proto_conv/color/conv.h"
 #include "farm_ng/core/proto_conv/linalg/conv.h"
 #include "farm_ng/core/proto_conv/std/conv.h"
-#include "farm_ng/core/proto_conv/std/conv_impl_macro.ipp"
+#include "farm_ng/core/proto_conv/std/repeated_message_impl_macro.ipp"
 #include "farm_ng/core/proto_conv/struct/conv_impl_macro.ipp"
 
 namespace farm_ng {
@@ -124,8 +124,9 @@ auto toProt<std::deque<plotting::Vec7d>>(std::deque<plotting::Vec7d> const& v)
 FARM_PROTO_CONV_IMPL(
     plotting::ColoredRect, core::plotting::proto::ColoredRect, (color, region));
 
-FARM_CONV_IMPL_REPEATED(
-    core::plotting::proto::RepeatedG0ColoredRect, plotting::ColoredRect);
+FARM_CONV_IMPL_REPEATED_MESSAGE(
+    core::plotting::proto::RepeatedG0ColoredRect,
+    std::deque<plotting::ColoredRect>);
 
 FARM_PROTO_CONV_IMPL(
     plotting::RectPlot,

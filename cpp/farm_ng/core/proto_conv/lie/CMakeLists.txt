@@ -10,6 +10,7 @@ farm_ng_add_library(farm_ng_core_proto_conv_lie
 target_link_libraries(farm_ng_core_proto_conv_lie PUBLIC
   farm_ng_core::sophus_lie
   protobuf::libprotobuf
+  farm_ng_core::farm_ng_core_proto_conv_std
   farm_ng_core::farm_ng_core_proto_conv_linalg
   farm_ng_core::farm_ng_core_prototools
 )

@@ -22,6 +22,7 @@
 
 namespace farm_ng {
 
+// optional of primitive types
 FARM_PROTO_CONV_TRAIT(std::optional<float>, core::proto::OptionalG0Float);
 FARM_PROTO_CONV_TRAIT(std::optional<double>, core::proto::OptionalG0Double);
 FARM_PROTO_CONV_TRAIT(std::optional<int32_t>, core::proto::OptionalG0Int32);
@@ -29,6 +30,9 @@ FARM_PROTO_CONV_TRAIT(std::optional<int64_t>, core::proto::OptionalG0Int64);
 FARM_PROTO_CONV_TRAIT(
     std::optional<std::string>, core::proto::OptionalG0String);
 FARM_PROTO_CONV_TRAIT(std::optional<bool>, core::proto::OptionalG0Bool);
+
+// std::vector of primitive types
+FARM_PROTO_CONV_TRAIT(std::vector<float>, core::proto::RepeatedG0Float);
 
 FARM_PROTO_CONV_TRAIT(std::filesystem::path, core::proto::FileSystemPath);
 

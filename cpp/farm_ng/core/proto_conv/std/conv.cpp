@@ -13,19 +13,21 @@
 //    limitations under the License.
 #include "farm_ng/core/proto_conv/std/conv.h"
 
-#include "farm_ng/core/proto_conv/std/conv_impl_macro.ipp"
+#include "farm_ng/core/proto_conv/lie/conv.h"
+#include "farm_ng/core/proto_conv/std/optional_primitive_impl_macro.ipp"
+#include "farm_ng/core/proto_conv/std/repeated_primitive_impl_macro.ipp"
 
 namespace farm_ng {
 
-FARM_PP_SEQ_FOR_EACH(
-    FARM_CONV_IMPL_OPTIONAL_ONE_ITER,
-    _,
-    ((core::proto::OptionalG0Float, float))         //
-    ((core::proto::OptionalG0Double, double))       //
-    ((core::proto::OptionalG0Int32, int32_t))       //
-    ((core::proto::OptionalG0Int64, int64_t))       //
-    ((core::proto::OptionalG0String, std::string))  //
-    ((core::proto::OptionalG0Bool, bool)));
+FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0Float, float);
+FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0Double, double);
+FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0Int32, int32_t);
+FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0Int64, int64_t);
+FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0String, std::string);
+FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0Bool, bool);
+
+FARM_CONV_IMPL_REPEATED_PRIMITIVE(
+    core::proto::RepeatedG0Float, std::vector<float>);
 
 template <>
 auto fromProt<core::proto::FileSystemPath>(

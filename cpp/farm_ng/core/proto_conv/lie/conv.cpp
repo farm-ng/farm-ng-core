@@ -15,6 +15,8 @@
 #include "farm_ng/core/proto_conv/lie/conv.h"
 
 #include "farm_ng/core/proto_conv/linalg/conv.h"
+#include "farm_ng/core/proto_conv/std/optional_message_impl_macro.ipp"
+#include "farm_ng/core/proto_conv/std/repeated_message_impl_macro.ipp"
 
 namespace farm_ng {
 
@@ -105,5 +107,11 @@ auto toProt<sophus::Isometry3F64>(sophus::Isometry3F64 const& pose)
   *proto.mutable_translation() = toProt(pose.translation().eval());
   return proto;
 }
+
+FARM_CONV_IMPL_MESSAGE_OPTIONAL(
+    core::proto::OptionalG0Isometry3F64, sophus::Isometry3F64);
+
+FARM_CONV_IMPL_REPEATED_MESSAGE(
+    core::proto::RepeatedG0Isometry3F64, std::vector<sophus::Isometry3F64>);
 
 }  // namespace farm_ng

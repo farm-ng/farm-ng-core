@@ -36,7 +36,7 @@ package farm_ng.core.proto;
 // bool has_message = 2;
 // ```
 //
-// ("has_value" is already auto-generaged for "value" in cpp
+// ("has_value" is already auto-generated for "value" in cpp
 //  proto, so we can't use that field name.)
 
 message OptionalG0Float {

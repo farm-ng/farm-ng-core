@@ -51,6 +51,11 @@ T degFromRad(T rad) {
   return T(180.0) / M_PI * rad;
 }
 
+template <sophus::concepts::RealEigenDenseType TPoint>
+auto degFromRad(TPoint const& v_rad) {
+  return degFromRad(typename TPoint::Scalar(1.0)) * v_rad;
+}
+
 /// Converts degrees to radians
 template <sophus::concepts::RealScalarType T>
 T radFromDeg(T deg) {

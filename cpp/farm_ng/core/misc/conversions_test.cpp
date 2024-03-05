@@ -35,6 +35,10 @@ TEST(conversions, unit) {
   FARM_ASSERT_WITHIN_REL(degFromRad(M_PI), 180.0, 1e-3);
   FARM_ASSERT_WITHIN_REL(radFromDeg(180.0), M_PI, 1e-3);
 
+  using Vec2d = Eigen::Vector2d;
+  FARM_ASSERT(degFromRad(Vec2d{M_PI, M_PI}).isApprox(Vec2d{180.0, 180.0}));
+  FARM_ASSERT(radFromDeg(Vec2d{180.0, 180.0}).isApprox(Vec2d{M_PI, M_PI}));
+
   FARM_ASSERT_WITHIN_REL(radFromArcMinute(1.0), 0.000290888, 1e-3);
   FARM_ASSERT_WITHIN_REL(arcMinuteFromRad(1.0), 3437.75, 1e-3);
 }

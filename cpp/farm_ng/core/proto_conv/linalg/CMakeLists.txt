@@ -8,7 +8,7 @@ farm_ng_add_library(farm_ng_core_proto_conv_linalg
 )
 
 target_link_libraries(farm_ng_core_proto_conv_linalg PUBLIC
-  farm_ng_core::sophus_linalg
+  farm_ng_core::sophus2_linalg
   protobuf::libprotobuf
   farm_ng_core::farm_ng_core_proto_defs
   farm_ng_core::farm_ng_core_prototools

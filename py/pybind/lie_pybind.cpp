@@ -19,15 +19,15 @@
 #include <pybind11/operators.h>  // Required for the operator overloads
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <sophus/lie/isometry2.h>
-#include <sophus/lie/isometry3.h>
-#include <sophus/lie/pose3.h>
+#include <sophus2/lie/isometry2.h>
+#include <sophus2/lie/isometry3.h>
+#include <sophus2/lie/pose3.h>
 
 #include <iostream>
 
 namespace py = pybind11;
 using namespace pybind11::literals;  // to bring in the `_a` literal
-using sophus::Pose3F64;
+using sophus2::Pose3F64;
 
 // to guarantee that the array is contiguous, we need to use the buffer protocol
 using py_array = py::array_t<double, py::array::c_style | py::array::forcecast>;
@@ -73,7 +73,7 @@ void bind_lie(py::module_& m) {
       py::module_::import("farm_ng.core.lie_pb2").attr("Isometry3F64Tangent");
   py::object PbPose = py::module_::import("farm_ng.core.pose_pb2").attr("Pose");
   auto rotation3F64ToProto = [PbQuaternionF64, PbRotation3F64, PbVec3F64](
-                                 sophus::Rotation3F64 const& self) {
+                                 sophus2::Rotation3F64 const& self) {
     auto quat = self.unitQuaternion();
     return PbRotation3F64(
         "unit_quaternion"_a = PbQuaternionF64(
@@ -88,7 +88,7 @@ void bind_lie(py::module_& m) {
     py::object pb_quat = proto.attr("unit_quaternion");
     py::object imag = pb_quat.attr("imag");
 
-    sophus::QuaternionF64 quat;
+    sophus2::QuaternionF64 quat;
     quat.real() = py::cast<double>(pb_quat.attr("real"));
     quat.imag() = Eigen::Vector3d(
         py::cast<double>(imag.attr("x")),
@@ -101,11 +101,11 @@ void bind_lie(py::module_& m) {
           quat.squaredNorm(),
           quat.params().transpose()));
     }
-    return sophus::Rotation3F64::fromUnitQuaternion(quat);
+    return sophus2::Rotation3F64::fromUnitQuaternion(quat);
   };
 
   auto isometry3F64ToProto = [rotation3F64ToProto, PbVec3F64, PbIsometry3F64](
-                                 sophus::Isometry3F64 const& self) {
+                                 sophus2::Isometry3F64 const& self) {
     Eigen::Vector3d p = self.translation();
     return PbIsometry3F64(
         "rotation"_a = rotation3F64ToProto(self.rotation()),
@@ -114,7 +114,7 @@ void bind_lie(py::module_& m) {
 
   auto isometry3F64FromProto = [rotation3F64FromProto](py::object proto) {
     auto translation = proto.attr("translation");
-    return sophus::Isometry3F64(
+    return sophus2::Isometry3F64(
         Eigen::Vector3d(
             py::cast<double>(translation.attr("x")),
             py::cast<double>(translation.attr("y")),
@@ -167,100 +167,100 @@ void bind_lie(py::module_& m) {
         tangent_of_b_in_a);
   };
 
-  bind_liegroup<sophus::Rotation2F64>(m, "Rotation2F64")
+  bind_liegroup<sophus2::Rotation2F64>(m, "Rotation2F64")
       .def_property(
           "rotation_matrix",
-          &sophus::Rotation2F64::rotationMatrix,
-          [](sophus::Rotation2F64& self, Eigen::Matrix2d const& mat) {
-            self = sophus::Rotation2F64::fromRotationMatrix(mat);
+          &sophus2::Rotation2F64::rotationMatrix,
+          [](sophus2::Rotation2F64& self, Eigen::Matrix2d const& mat) {
+            self = sophus2::Rotation2F64::fromRotationMatrix(mat);
           })
       .def(
           "to_proto",
-          [PbRotation2F64](sophus::Rotation2F64& self) {
+          [PbRotation2F64](sophus2::Rotation2F64& self) {
             return PbRotation2F64("theta"_a = self.log()[0]);
           })
       .def_static("from_proto", [](py::object proto) {
-        return sophus::Rotation2F64::fromAngle(
+        return sophus2::Rotation2F64::fromAngle(
             py::cast<double>(proto.attr("theta")));
       });
 
-  bind_liegroup<sophus::Rotation3F64>(m, "Rotation3F64")
+  bind_liegroup<sophus2::Rotation3F64>(m, "Rotation3F64")
       .def_property(
           "rotation_matrix",
-          &sophus::Rotation3F64::rotationMatrix,
-          [](sophus::Rotation3F64& self, Eigen::Matrix3d const& mat) {
-            self = sophus::Rotation3F64::fromRotationMatrix(mat);
+          &sophus2::Rotation3F64::rotationMatrix,
+          [](sophus2::Rotation3F64& self, Eigen::Matrix3d const& mat) {
+            self = sophus2::Rotation3F64::fromRotationMatrix(mat);
           })
       .def("to_proto", rotation3F64ToProto)
       .def_static("from_proto", rotation3F64FromProto)
-      .def_static("Rx", sophus::Rotation3F64::fromRx)
-      .def_static("Ry", sophus::Rotation3F64::fromRy)
-      .def_static("Rz", sophus::Rotation3F64::fromRz);
+      .def_static("Rx", sophus2::Rotation3F64::fromRx)
+      .def_static("Ry", sophus2::Rotation3F64::fromRy)
+      .def_static("Rz", sophus2::Rotation3F64::fromRz);
 
-  bind_liegroup<sophus::Isometry3F64>(m, "Isometry3F64")
+  bind_liegroup<sophus2::Isometry3F64>(m, "Isometry3F64")
       .def(
           py::init([](Eigen::Vector3d const& translation,
-                      sophus::Rotation3F64 const& rotation) {
-            return sophus::Isometry3F64(translation, rotation);
+                      sophus2::Rotation3F64 const& rotation) {
+            return sophus2::Isometry3F64(translation, rotation);
           }),
           py::arg("translation") = Eigen::Vector3d::Zero(),
-          py::arg("rotation") = sophus::Rotation3F64())
+          py::arg("rotation") = sophus2::Rotation3F64())
       .def_property(
           "rotation_matrix",
-          &sophus::Isometry3F64::rotationMatrix,
-          [](sophus::Isometry3F64& self, Eigen::Matrix3d const& mat) {
-            self.setRotation(sophus::Rotation3F64::fromRotationMatrix(mat));
+          &sophus2::Isometry3F64::rotationMatrix,
+          [](sophus2::Isometry3F64& self, Eigen::Matrix3d const& mat) {
+            self.setRotation(sophus2::Rotation3F64::fromRotationMatrix(mat));
           })
       .def_property(
           "rotation",
-          [](sophus::Isometry3F64& self) { return self.rotation(); },
-          [](sophus::Isometry3F64& self, sophus::Rotation3F64 const& x) {
+          [](sophus2::Isometry3F64& self) { return self.rotation(); },
+          [](sophus2::Isometry3F64& self, sophus2::Rotation3F64 const& x) {
             return self.setRotation(x);
           })
       .def_property(
           "translation",
-          [](sophus::Isometry3F64& self) { return self.translation(); },
-          [](sophus::Isometry3F64& self, Eigen::Vector3d const& x) {
+          [](sophus2::Isometry3F64& self) { return self.translation(); },
+          [](sophus2::Isometry3F64& self, Eigen::Vector3d const& x) {
             return self.translation() = x;
           })
       .def("to_proto", isometry3F64ToProto)
       .def_static("from_proto", isometry3F64FromProto)
-      .def_static("Rx", sophus::Isometry3F64::fromRx)
-      .def_static("Ry", sophus::Isometry3F64::fromRy)
-      .def_static("Rz", sophus::Isometry3F64::fromRz);
+      .def_static("Rx", sophus2::Isometry3F64::fromRx)
+      .def_static("Ry", sophus2::Isometry3F64::fromRy)
+      .def_static("Rz", sophus2::Isometry3F64::fromRz);
 
   ;
-  bind_liegroup<sophus::Isometry2F64>(m, "Isometry2F64")
+  bind_liegroup<sophus2::Isometry2F64>(m, "Isometry2F64")
       .def(py::init([](Eigen::Vector2d const& translation,
-                       sophus::Rotation2F64 const& rotation) {
-        return sophus::Isometry2F64(translation, rotation);
+                       sophus2::Rotation2F64 const& rotation) {
+        return sophus2::Isometry2F64(translation, rotation);
       }))
       .def(py::init([](Eigen::Vector2d const& translation, double angle) {
-        return sophus::Isometry2F64(
-            translation, sophus::Rotation2F64::fromAngle(angle));
+        return sophus2::Isometry2F64(
+            translation, sophus2::Rotation2F64::fromAngle(angle));
       }))
       .def_property(
           "rotation_matrix",
-          &sophus::Isometry2F64::rotationMatrix,
-          [](sophus::Isometry2F64& self, Eigen::Matrix2d const& mat) {
-            self.setRotation(sophus::Rotation2F64::fromRotationMatrix(mat));
+          &sophus2::Isometry2F64::rotationMatrix,
+          [](sophus2::Isometry2F64& self, Eigen::Matrix2d const& mat) {
+            self.setRotation(sophus2::Rotation2F64::fromRotationMatrix(mat));
           })
       .def_property(
           "rotation",
-          [](sophus::Isometry2F64& self) { return self.rotation(); },
-          [](sophus::Isometry2F64& self, sophus::Rotation2F64 const& x) {
+          [](sophus2::Isometry2F64& self) { return self.rotation(); },
+          [](sophus2::Isometry2F64& self, sophus2::Rotation2F64 const& x) {
             return self.setRotation(x);
           })
       .def_property(
           "theta",
-          [](sophus::Isometry2F64& self) { return self.angle(); },
-          [](sophus::Isometry2F64& self, double theta) {
-            return self.setRotation(sophus::Rotation2F64::fromAngle(theta));
+          [](sophus2::Isometry2F64& self) { return self.angle(); },
+          [](sophus2::Isometry2F64& self, double theta) {
+            return self.setRotation(sophus2::Rotation2F64::fromAngle(theta));
           })
       .def_property(
           "translation",
-          [](sophus::Isometry2F64& self) { return self.translation(); },
-          [](sophus::Isometry2F64& self, Eigen::Vector2d const& x) {
+          [](sophus2::Isometry2F64& self) { return self.translation(); },
+          [](sophus2::Isometry2F64& self, Eigen::Vector2d const& x) {
             return self.translation() = x;
           });
 
@@ -304,7 +304,7 @@ void bind_lie(py::module_& m) {
       .def_property(
           "rotation",
           [](Pose3F64 const& self) { return self.rotation(); },
-          [](Pose3F64& self, sophus::Rotation3F64 const& x) {
+          [](Pose3F64& self, sophus2::Rotation3F64 const& x) {
             return self.setRotation(x);
           })
       .def_property(

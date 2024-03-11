@@ -22,20 +22,20 @@ namespace farm_ng {
 
 template <>
 auto fromProt<core::proto::RegionI32>(core::proto::RegionI32 const& proto)
-    -> Expected<sophus::RegionI> {
+    -> Expected<sophus2::RegionI> {
   if (proto.is_empty()) {
-    return sophus::RegionI::empty();
+    return sophus2::RegionI::empty();
   }
   if (!(proto.min() <= proto.max())) {
     return FARM_UNEXPECTED(
         "min {} must be <= max {}", proto.min(), proto.max());
   }
 
-  return sophus::RegionI::fromMinMax(proto.min(), proto.max());
+  return sophus2::RegionI::fromMinMax(proto.min(), proto.max());
 }
 
 template <>
-auto toProt<sophus::RegionI>(sophus::RegionI const& region)
+auto toProt<sophus2::RegionI>(sophus2::RegionI const& region)
     -> core::proto::RegionI32 {
   core::proto::RegionI32 proto;
   if (region.isEmpty()) {
@@ -50,19 +50,19 @@ auto toProt<sophus::RegionI>(sophus::RegionI const& region)
 
 template <>
 auto fromProt<core::proto::RegionF32>(core::proto::RegionF32 const& proto)
-    -> Expected<sophus::RegionF32> {
+    -> Expected<sophus2::RegionF32> {
   if (proto.is_empty()) {
-    return sophus::RegionF32::empty();
+    return sophus2::RegionF32::empty();
   }
   if (!(proto.min() <= proto.max())) {
     return FARM_UNEXPECTED(
         "min {} must be <= max {}", proto.min(), proto.max());
   }
 
-  return sophus::RegionF32::fromMinMax(proto.min(), proto.max());
+  return sophus2::RegionF32::fromMinMax(proto.min(), proto.max());
 }
 template <>
-auto toProt<sophus::RegionF32>(sophus::RegionF32 const& region)
+auto toProt<sophus2::RegionF32>(sophus2::RegionF32 const& region)
     -> core::proto::RegionF32 {
   core::proto::RegionF32 proto;
   if (region.isEmpty()) {
@@ -77,20 +77,20 @@ auto toProt<sophus::RegionF32>(sophus::RegionF32 const& region)
 
 template <>
 auto fromProt<core::proto::RegionF64>(core::proto::RegionF64 const& proto)
-    -> Expected<sophus::RegionF64> {
+    -> Expected<sophus2::RegionF64> {
   if (proto.is_empty()) {
-    return sophus::RegionF64::empty();
+    return sophus2::RegionF64::empty();
   }
   if (!(proto.min() <= proto.max())) {
     return FARM_UNEXPECTED(
         "min {} must be <= max {}", proto.min(), proto.max());
   }
 
-  return sophus::RegionF64::fromMinMax(proto.min(), proto.max());
+  return sophus2::RegionF64::fromMinMax(proto.min(), proto.max());
 }
 
 template <>
-auto toProt<sophus::RegionF64>(sophus::RegionF64 const& region)
+auto toProt<sophus2::RegionF64>(sophus2::RegionF64 const& region)
     -> core::proto::RegionF64 {
   core::proto::RegionF64 proto;
   if (region.isEmpty()) {
@@ -105,9 +105,9 @@ auto toProt<sophus::RegionF64>(sophus::RegionF64 const& region)
 
 template <>
 auto fromProt<core::proto::Region2F64>(core::proto::Region2F64 const& proto)
-    -> Expected<sophus::Region2F64> {
+    -> Expected<sophus2::Region2F64> {
   if (proto.is_empty()) {
-    return sophus::Region2F64::empty();
+    return sophus2::Region2F64::empty();
   }
   FARM_TRY(auto, mi, fromProt(proto.min()));
   FARM_TRY(auto, ma, fromProt(proto.max()));
@@ -115,11 +115,11 @@ auto fromProt<core::proto::Region2F64>(core::proto::Region2F64 const& proto)
     return FARM_UNEXPECTED(
         "min ({}) must be <= max ({})", mi.transpose(), ma.transpose());
   }
-  return sophus::Region2F64::fromMinMax(mi, ma);
+  return sophus2::Region2F64::fromMinMax(mi, ma);
 }
 
 template <>
-auto toProt<sophus::Region2F64>(sophus::Region2F64 const& region)
+auto toProt<sophus2::Region2F64>(sophus2::Region2F64 const& region)
     -> core::proto::Region2F64 {
   core::proto::Region2F64 proto;
   if (region.isEmpty()) {
@@ -133,6 +133,6 @@ auto toProt<sophus::Region2F64>(sophus::Region2F64 const& region)
 }
 
 FARM_CONV_IMPL_REPEATED_MESSAGE(
-    core::proto::RepeatedG0Region2F64, std::deque<sophus::Region2F64>)
+    core::proto::RepeatedG0Region2F64, std::deque<sophus2::Region2F64>)
 
 }  // namespace farm_ng

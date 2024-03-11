@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace sophus;
+using namespace sophus2;
 
 using namespace farm_ng;
 using namespace farm_ng::core;

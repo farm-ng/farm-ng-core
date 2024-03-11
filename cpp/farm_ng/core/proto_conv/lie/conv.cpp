@@ -23,8 +23,8 @@ namespace farm_ng {
 template <>
 auto fromProt<core::proto::QuaternionF64>(
     core::proto::QuaternionF64 const& proto)
-    -> Expected<sophus::QuaternionF64> {
-  sophus::QuaternionF64 quat;
+    -> Expected<sophus2::QuaternionF64> {
+  sophus2::QuaternionF64 quat;
   FARM_TRY(auto, vec3, fromProt(proto.imag()));
   quat.imag() = vec3;
   quat.real() = proto.real();
@@ -32,7 +32,7 @@ auto fromProt<core::proto::QuaternionF64>(
 }
 
 template <>
-auto toProt<sophus::QuaternionF64>(sophus::QuaternionF64 const& quat)
+auto toProt<sophus2::QuaternionF64>(sophus2::QuaternionF64 const& quat)
     -> core::proto::QuaternionF64 {
   core::proto::QuaternionF64 proto;
   proto.set_real(quat.real());
@@ -42,12 +42,12 @@ auto toProt<sophus::QuaternionF64>(sophus::QuaternionF64 const& quat)
 
 template <>
 auto fromProt<core::proto::Rotation2F64>(core::proto::Rotation2F64 const& proto)
-    -> Expected<sophus::Rotation2F64> {
-  return sophus::Rotation2F64(proto.theta());
+    -> Expected<sophus2::Rotation2F64> {
+  return sophus2::Rotation2F64(proto.theta());
 }
 
 template <>
-auto toProt<sophus::Rotation2F64>(sophus::Rotation2F64 const& rotation)
+auto toProt<sophus2::Rotation2F64>(sophus2::Rotation2F64 const& rotation)
     -> core::proto::Rotation2F64 {
   core::proto::Rotation2F64 proto;
   proto.set_theta(rotation.log()[0]);
@@ -56,14 +56,14 @@ auto toProt<sophus::Rotation2F64>(sophus::Rotation2F64 const& rotation)
 
 template <>
 auto fromProt<core::proto::Isometry2F64>(core::proto::Isometry2F64 const& proto)
-    -> Expected<sophus::Isometry2F64> {
+    -> Expected<sophus2::Isometry2F64> {
   FARM_TRY(auto, translation, fromProt(proto.translation()));
   FARM_TRY(auto, rotation, fromProt(proto.rotation()));
-  return sophus::Isometry2F64(translation, rotation);
+  return sophus2::Isometry2F64(translation, rotation);
 }
 
 template <>
-auto toProt<sophus::Isometry2F64>(sophus::Isometry2F64 const& pose)
+auto toProt<sophus2::Isometry2F64>(sophus2::Isometry2F64 const& pose)
     -> core::proto::Isometry2F64 {
   core::proto::Isometry2F64 proto;
   *proto.mutable_rotation() = toProt(pose.rotation());
@@ -73,18 +73,18 @@ auto toProt<sophus::Isometry2F64>(sophus::Isometry2F64 const& pose)
 
 template <>
 auto fromProt<core::proto::Rotation3F64>(core::proto::Rotation3F64 const& proto)
-    -> Expected<sophus::Rotation3F64> {
+    -> Expected<sophus2::Rotation3F64> {
   FARM_TRY(auto, quat, fromProt(proto.unit_quaternion()));
   auto valid =
-      sophus::lie::Rotation3Impl<double>::areParamsValid(quat.params());
+      sophus2::lie::Rotation3Impl<double>::areParamsValid(quat.params());
   if (!valid) {
     return FARM_UNEXPECTED("{}", valid.error());
   }
-  return sophus::Rotation3F64::fromUnitQuaternion(quat);
+  return sophus2::Rotation3F64::fromUnitQuaternion(quat);
 }
 
 template <>
-auto toProt<sophus::Rotation3F64>(sophus::Rotation3F64 const& rotation)
+auto toProt<sophus2::Rotation3F64>(sophus2::Rotation3F64 const& rotation)
     -> core::proto::Rotation3F64 {
   core::proto::Rotation3F64 proto;
   *proto.mutable_unit_quaternion() = toProt(rotation.unitQuaternion());
@@ -93,14 +93,14 @@ auto toProt<sophus::Rotation3F64>(sophus::Rotation3F64 const& rotation)
 
 template <>
 auto fromProt<core::proto::Isometry3F64>(core::proto::Isometry3F64 const& proto)
-    -> Expected<sophus::Isometry3F64> {
+    -> Expected<sophus2::Isometry3F64> {
   FARM_TRY(auto, rotation, fromProt(proto.rotation()));
   FARM_TRY(auto, translation, fromProt(proto.translation()));
-  return sophus::Isometry3F64(translation, rotation);
+  return sophus2::Isometry3F64(translation, rotation);
 }
 
 template <>
-auto toProt<sophus::Isometry3F64>(sophus::Isometry3F64 const& pose)
+auto toProt<sophus2::Isometry3F64>(sophus2::Isometry3F64 const& pose)
     -> core::proto::Isometry3F64 {
   core::proto::Isometry3F64 proto;
   *proto.mutable_rotation() = toProt(pose.rotation());
@@ -109,9 +109,9 @@ auto toProt<sophus::Isometry3F64>(sophus::Isometry3F64 const& pose)
 }
 
 FARM_CONV_IMPL_MESSAGE_OPTIONAL(
-    core::proto::OptionalG0Isometry3F64, sophus::Isometry3F64);
+    core::proto::OptionalG0Isometry3F64, sophus2::Isometry3F64);
 
 FARM_CONV_IMPL_REPEATED_MESSAGE(
-    core::proto::RepeatedG0Isometry3F64, std::vector<sophus::Isometry3F64>);
+    core::proto::RepeatedG0Isometry3F64, std::vector<sophus2::Isometry3F64>);
 
 }  // namespace farm_ng

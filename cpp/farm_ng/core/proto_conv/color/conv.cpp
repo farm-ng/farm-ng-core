@@ -17,12 +17,12 @@ namespace farm_ng {
 
 template <>
 auto fromProt<core::proto::Color>(core::proto::Color const& proto)
-    -> Expected<sophus::Color> {
-  return sophus::Color(proto.r(), proto.g(), proto.b(), proto.a());
+    -> Expected<sophus2::Color> {
+  return sophus2::Color(proto.r(), proto.g(), proto.b(), proto.a());
 }
 
 template <>
-auto toProt<sophus::Color>(sophus::Color const& c) -> core::proto::Color {
+auto toProt<sophus2::Color>(sophus2::Color const& c) -> core::proto::Color {
   core::proto::Color proto;
   proto.set_r(c.r);
   proto.set_g(c.g);

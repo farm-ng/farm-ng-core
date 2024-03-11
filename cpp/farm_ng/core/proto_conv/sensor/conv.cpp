@@ -21,7 +21,7 @@ namespace farm_ng {
 
 template <>
 auto fromProt<core::proto::CameraModel>(core::proto::CameraModel const& proto)
-    -> Expected<sophus::CameraModel> {
+    -> Expected<sophus2::CameraModel> {
   auto get_params = [&proto]() -> Eigen::VectorXd {
     Eigen::VectorXd params(proto.params_size());
     for (int i = 0; i < params.rows(); ++i) {
@@ -29,18 +29,18 @@ auto fromProt<core::proto::CameraModel>(core::proto::CameraModel const& proto)
     }
     return params;
   };
-  sophus::CameraDistortionType model = sophus::CameraDistortionType::pinhole;
+  sophus2::CameraDistortionType model = sophus2::CameraDistortionType::pinhole;
   FARM_TRY_ASSERT(
       trySetFromString(model, proto.distortion_type()),
       "distortion type not supported: {}",
       proto.distortion_type());
   FARM_TRY(auto, size, fromProt(proto.image_size()));
 
-  return sophus::CameraModel(size, model, get_params());
+  return sophus2::CameraModel(size, model, get_params());
 }
 
 template <>
-auto toProt<sophus::CameraModel>(sophus::CameraModel const& camera_model)
+auto toProt<sophus2::CameraModel>(sophus2::CameraModel const& camera_model)
     -> core::proto::CameraModel {
   core::proto::CameraModel proto;
   *proto.mutable_image_size() = toProt(camera_model.imageSize());
@@ -54,18 +54,18 @@ auto toProt<sophus::CameraModel>(sophus::CameraModel const& camera_model)
 
 template <>
 auto fromProt<core::proto::CameraModels>(core::proto::CameraModels const& proto)
-    -> Expected<std::vector<sophus::CameraModel>> {
-  std::vector<sophus::CameraModel> models;
+    -> Expected<std::vector<sophus2::CameraModel>> {
+  std::vector<sophus2::CameraModel> models;
   for (int i = 0; i < proto.camera_models_size(); ++i) {
-    SOPHUS_TRY(sophus::CameraModel, cam, fromProt(proto.camera_models(i)));
+    SOPHUS_TRY(sophus2::CameraModel, cam, fromProt(proto.camera_models(i)));
     models.push_back(cam);
   }
   return models;
 }
 
 template <>
-auto toProt<std::vector<sophus::CameraModel>>(
-    std::vector<sophus::CameraModel> const& camera_models)
+auto toProt<std::vector<sophus2::CameraModel>>(
+    std::vector<sophus2::CameraModel> const& camera_models)
     -> core::proto::CameraModels {
   core::proto::CameraModels proto;
   for (auto const& model : camera_models) {
@@ -76,8 +76,8 @@ auto toProt<std::vector<sophus::CameraModel>>(
 
 template <>
 auto fromProt<core::proto::RigidCamera>(core::proto::RigidCamera const& proto)
-    -> Expected<sophus::RigidCamera> {
-  sophus::RigidCamera s;
+    -> Expected<sophus2::RigidCamera> {
+  sophus2::RigidCamera s;
   SOPHUS_TRY(auto, intrinsics, fromProt(proto.intrinsics()));
   SOPHUS_TRY(auto, extrinsics, fromProt(proto.rig_from_camera()));
   s.intrinsics = intrinsics;
@@ -86,7 +86,7 @@ auto fromProt<core::proto::RigidCamera>(core::proto::RigidCamera const& proto)
 }
 
 template <>
-auto toProt<sophus::RigidCamera>(sophus::RigidCamera const& s)
+auto toProt<sophus2::RigidCamera>(sophus2::RigidCamera const& s)
     -> core::proto::RigidCamera {
   core::proto::RigidCamera proto;
   *proto.mutable_intrinsics() = toProt(s.intrinsics);
@@ -97,8 +97,8 @@ auto toProt<sophus::RigidCamera>(sophus::RigidCamera const& s)
 template <>
 auto fromProt<core::proto::MultiCameraRig>(
     core::proto::MultiCameraRig const& proto)
-    -> Expected<sophus::MultiCameraRig> {
-  sophus::MultiCameraRig cameras;
+    -> Expected<sophus2::MultiCameraRig> {
+  sophus2::MultiCameraRig cameras;
   for (int i = 0; i < proto.cameras_size(); ++i) {
     FARM_TRY(auto, cam, fromProt(proto.cameras(i)));
     cameras.push_back(cam);
@@ -107,7 +107,7 @@ auto fromProt<core::proto::MultiCameraRig>(
 }
 
 template <>
-auto toProt<sophus::MultiCameraRig>(sophus::MultiCameraRig const& cameras)
+auto toProt<sophus2::MultiCameraRig>(sophus2::MultiCameraRig const& cameras)
     -> core::proto::MultiCameraRig {
   core::proto::MultiCameraRig proto;
   for (auto const& cam : cameras) {

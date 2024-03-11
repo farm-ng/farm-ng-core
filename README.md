@@ -97,10 +97,10 @@ points North again. It wrapped around: `90 "+" 90 "+" 90 "+" 90 = 0`.
   // The following demonstrates the group multiplication of rotation matrices
 
   // Create rotation matrices from rotations around the x and y and z axes:
-  double const kPi = sophus::kPi<double>;
-  sophus::Rotation3F64 R1 = sophus::Rotation3F64::fromRx(kPi / 4);
-  sophus::Rotation3F64 R2 = sophus::Rotation3F64::fromRy(kPi / 6);
-  sophus::Rotation3F64 R3 = sophus::Rotation3F64::fromRz(-kPi / 3);
+  double const kPi = sophus2::kPi<double>;
+  sophus2::Rotation3F64 R1 = sophus2::Rotation3F64::fromRx(kPi / 4);
+  sophus2::Rotation3F64 R2 = sophus2::Rotation3F64::fromRy(kPi / 6);
+  sophus2::Rotation3F64 R3 = sophus2::Rotation3F64::fromRz(-kPi / 3);
 
   std::cout << "The rotation matrices are" << std::endl;
   std::cout << "R1:\n" << R1.matrix() << std::endl;
@@ -137,15 +137,15 @@ points North again. It wrapped around: `90 "+" 90 "+" 90 "+" 90 = 0`.
 
   // Let use assume there is a camera in the world. First we describe its
   // orientation in the world reference frame.
-  sophus::Rotation3F64 world_from_camera_rotation =
-      sophus::Rotation3F64::fromRx(sophus::kPi<double> / 4);
+  sophus2::Rotation3F64 world_from_camera_rotation =
+      sophus2::Rotation3F64::fromRx(sophus2::kPi<double> / 4);
   // Then the position of the camera in the world.
   Eigen::Vector3d camera_in_world(0.0, 0.0, 1.0);
 
   // The pose (position and orientation) of the camera in the world is
   // constructed by its orientation ``world_from_camera_rotation`` as well as
   // its position ``camera_in_world``.
-  sophus::Isometry3F64 world_anchored_camera_pose(
+  sophus2::Isometry3F64 world_anchored_camera_pose(
       world_from_camera_rotation, camera_in_world);
 
   // SE(3) naturally representation is a 4x4 matrix which can be accessed using

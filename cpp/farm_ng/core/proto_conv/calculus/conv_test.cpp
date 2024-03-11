@@ -16,21 +16,21 @@
 
 #include <gtest/gtest.h>
 
-using namespace sophus;
+using namespace sophus2;
 
 using namespace farm_ng;
 using namespace farm_ng::core;
 
 TEST(conv_calculus, unit) {
   {
-    sophus::RegionI region = sophus::RegionI::empty();
+    sophus2::RegionI region = sophus2::RegionI::empty();
     auto proto = toProt(region);
     EXPECT_TRUE(proto.is_empty());
     auto maybe_region = fromProt<core::proto::RegionI32>(proto);
     auto region_copy = FARM_UNWRAP(maybe_region);
     EXPECT_TRUE(region_copy.isEmpty());
 
-    region = sophus::RegionI::fromMinMax(1, 2);
+    region = sophus2::RegionI::fromMinMax(1, 2);
     proto = toProt(region);
     EXPECT_FALSE(proto.is_empty());
     maybe_region = fromProt<core::proto::RegionI32>(proto);
@@ -40,14 +40,14 @@ TEST(conv_calculus, unit) {
     EXPECT_EQ(region_copy.max(), 2);
   }
   {
-    sophus::RegionF32 region = sophus::RegionF32::empty();
+    sophus2::RegionF32 region = sophus2::RegionF32::empty();
     auto proto = toProt(region);
     EXPECT_TRUE(proto.is_empty());
     auto maybe_region = fromProt<core::proto::RegionF32>(proto);
     auto region_copy = FARM_UNWRAP(maybe_region);
     EXPECT_TRUE(region_copy.isEmpty());
 
-    region = sophus::RegionF32::fromMinMax(1, 2);
+    region = sophus2::RegionF32::fromMinMax(1, 2);
     proto = toProt(region);
     EXPECT_FALSE(proto.is_empty());
     maybe_region = fromProt<core::proto::RegionF32>(proto);
@@ -58,14 +58,14 @@ TEST(conv_calculus, unit) {
   }
 
   {
-    sophus::RegionF64 region = sophus::RegionF64::empty();
+    sophus2::RegionF64 region = sophus2::RegionF64::empty();
     auto proto = toProt(region);
     EXPECT_TRUE(proto.is_empty());
     auto maybe_region = fromProt<core::proto::RegionF64>(proto);
     auto region_copy = FARM_UNWRAP(maybe_region);
     EXPECT_TRUE(region_copy.isEmpty());
 
-    region = sophus::RegionF64::fromMinMax(1, 2);
+    region = sophus2::RegionF64::fromMinMax(1, 2);
     proto = toProt(region);
     EXPECT_FALSE(proto.is_empty());
     maybe_region = fromProt<core::proto::RegionF64>(proto);

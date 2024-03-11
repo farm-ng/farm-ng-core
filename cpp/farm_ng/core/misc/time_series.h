@@ -15,7 +15,7 @@
 #pragma once
 
 #include <farm_ng/core/logging/expected.h>
-#include <sophus/concepts/utils.h>
+#include <sophus2/concepts/utils.h>
 
 #include <deque>
 
@@ -36,7 +36,7 @@ auto getStamp(TType const& value) -> double {
 /// StampedValue is a type that has a timestamp.
 template <class TType>
 concept StampedValue = requires(TType m) {
-  { getStamp<TType>(m) } -> sophus::concepts::ConvertibleTo<double>;
+  { getStamp<TType>(m) } -> sophus2::concepts::ConvertibleTo<double>;
 };
 
 /// Interpolate between two values.
@@ -49,7 +49,7 @@ auto interpolate(
 template <class TType>
 concept InterpolativeValue = StampedValue<TType> &&
     requires(TType m, double p) {
-  { interpolate<TType>(m, m, p) } -> sophus::concepts::ConvertibleTo<TType>;
+  { interpolate<TType>(m, m, p) } -> sophus2::concepts::ConvertibleTo<TType>;
 };
 
 /// New type to specify maximal allowed time gap for interpolation.

@@ -16,19 +16,19 @@
 
 #include "farm_ng/core/calculus.pb.h"
 #include "farm_ng/core/proto_conv/traits.h"
-#include "sophus/calculus/region.h"
+#include "sophus2/calculus/region.h"
 
 #include <deque>
 
 namespace farm_ng {
 
-FARM_PROTO_CONV_TRAIT(sophus::RegionI, core::proto::RegionI32);
-FARM_PROTO_CONV_TRAIT(sophus::RegionF32, core::proto::RegionF32);
-FARM_PROTO_CONV_TRAIT(sophus::RegionF64, core::proto::RegionF64);
+FARM_PROTO_CONV_TRAIT(sophus2::RegionI, core::proto::RegionI32);
+FARM_PROTO_CONV_TRAIT(sophus2::RegionF32, core::proto::RegionF32);
+FARM_PROTO_CONV_TRAIT(sophus2::RegionF64, core::proto::RegionF64);
 
-FARM_PROTO_CONV_TRAIT(sophus::Region2F64, core::proto::Region2F64);
+FARM_PROTO_CONV_TRAIT(sophus2::Region2F64, core::proto::Region2F64);
 
 FARM_PROTO_CONV_TRAIT(
-    std::deque<sophus::Region2F64>, core::proto::RepeatedG0Region2F64);
+    std::deque<sophus2::Region2F64>, core::proto::RepeatedG0Region2F64);
 
 }  // namespace farm_ng

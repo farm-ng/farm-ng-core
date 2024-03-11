@@ -20,7 +20,7 @@
 
 namespace farm_ng::test {
 
-using namespace sophus;
+using namespace sophus2;
 
 template <class TPixel>
 void testPixelFormat() {

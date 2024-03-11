@@ -19,25 +19,25 @@ namespace farm_ng {
 namespace plotting {
 
 ColoredRect ColoredRect::xLine(
-    sophus::Color const& color,
+    sophus2::Color const& color,
     double x,
-    sophus::RegionF64 const& y_range,
+    sophus2::RegionF64 const& y_range,
     double thickness) {
   return ColoredRect{
       .color = color,
-      .region = sophus::Region2F64::fromMinMax(
+      .region = sophus2::Region2F64::fromMinMax(
           {x - 0.5 * thickness, y_range.min()},
           {x + 0.5 * thickness, y_range.max()}),
   };
 }
 ColoredRect ColoredRect::yLine(
-    sophus::Color const& color,
+    sophus2::Color const& color,
     double y,
-    sophus::RegionF64 const& x_range,
+    sophus2::RegionF64 const& x_range,
     double thickness) {
   return ColoredRect{
       .color = color,
-      .region = sophus::Region2F64::fromMinMax(
+      .region = sophus2::Region2F64::fromMinMax(
           {x_range.min(), y - 0.5 * thickness},
           {x_range.max(), y + 0.5 * thickness}),
   };

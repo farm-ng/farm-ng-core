@@ -24,8 +24,8 @@ MARKDOWN_SUPPORT       = YES
 INLINE_INHERITED_MEMB  = NO
 EXCLUDE_SYMBOLS        = ceres \
                          Eigen \
-                         sophus::details \
-                         sophus::interp_details \
+                         sophus2::details \
+                         sophus2::interp_details \
                          farm_ng::details \
                          farm_ng::proto_conv_details
 GENERATE_LATEX         = NO

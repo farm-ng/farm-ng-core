@@ -34,16 +34,16 @@ int main(int argc, char* argv[]) {
       .y_bounds = {.height = 2.0, .offset = -0.8}};
   trig_graph.path = "trig/ {sin,cos,tan}";
   trig_graph.color = {
-      sophus::Color::neonRed(),
-      sophus::Color::neonGreen(),
-      sophus::Color::neonBlue()};
+      sophus2::Color::neonRed(),
+      sophus2::Color::neonGreen(),
+      sophus2::Color::neonBlue()};
 
   plotting::Curve sawtooth;
   sawtooth.bounds = {
       .x_bounds = {.len = 2.5 * M_PI},
       .y_bounds = {.height = 2.0, .offset = 0.0}};
   sawtooth.path = "trig1/sawtooth";
-  sawtooth.color = sophus::Color::blue();
+  sawtooth.color = sophus2::Color::blue();
 
   plotting::Vec3CurveWithConfInterval conf_trig_graph;
   conf_trig_graph.bounds = {
@@ -51,13 +51,13 @@ int main(int argc, char* argv[]) {
       .y_bounds = {.height = 2.5, .offset = 0.0}};
   conf_trig_graph.path = "trig3/ {sin,cos,tan}_conf";
   conf_trig_graph.color = {
-      sophus::Color::neonRed(),
-      sophus::Color::neonGreen(),
-      sophus::Color::neonBlue()};
+      sophus2::Color::neonRed(),
+      sophus2::Color::neonGreen(),
+      sophus2::Color::neonBlue()};
   conf_trig_graph.conf_color = {
-      sophus::Color::darkRed(),
-      sophus::Color::darkGreen(),
-      sophus::Color::darkBlue()};
+      sophus2::Color::darkRed(),
+      sophus2::Color::darkGreen(),
+      sophus2::Color::darkBlue()};
 
   plotting::RectPlot timestamps;
   timestamps.path = "t/timestamps";

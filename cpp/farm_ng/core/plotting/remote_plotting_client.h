@@ -15,7 +15,7 @@
 #include "farm_ng/core/misc/shared.h"
 #include "farm_ng/core/pipeline/component.h"
 #include "farm_ng/core/plotting/types.h"
-#include "sophus/calculus/region.h"
+#include "sophus2/calculus/region.h"
 
 #pragma once
 

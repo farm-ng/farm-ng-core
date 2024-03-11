@@ -16,21 +16,22 @@
 
 #include <gtest/gtest.h>
 
-using namespace sophus;
+using namespace sophus2;
 
 using namespace farm_ng;
 using namespace farm_ng::core;
 
 TEST(conv_geometry, unit) {
   {
-    auto uvec = sophus::UnitVector3F64::fromVectorAndNormalize({1.0, 2.0, 3.0});
+    auto uvec =
+        sophus2::UnitVector3F64::fromVectorAndNormalize({1.0, 2.0, 3.0});
     proto::UnitVec3F64 proto = toProt(uvec);
     EXPECT_EQ(proto.vec3().x(), uvec.vector().x());
     EXPECT_EQ(proto.vec3().y(), uvec.vector().y());
     EXPECT_EQ(proto.vec3().z(), uvec.vector().z());
 
     auto maybe_uvec2 = fromProt(proto);
-    sophus::UnitVector3F64 uvec2 = FARM_UNWRAP(maybe_uvec2);
+    sophus2::UnitVector3F64 uvec2 = FARM_UNWRAP(maybe_uvec2);
     EXPECT_EQ(uvec2.vector(), uvec.vector());
     auto vec = uvec2.vector();
     EXPECT_NEAR(vec.norm(), 1.0, 1e-6);

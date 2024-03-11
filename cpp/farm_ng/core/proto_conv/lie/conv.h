@@ -17,24 +17,24 @@
 #include "farm_ng/core/lie.pb.h"
 #include "farm_ng/core/proto_conv/std/conv.h"
 #include "farm_ng/core/proto_conv/traits.h"
-#include "sophus/lie/isometry2.h"
-#include "sophus/lie/isometry3.h"
-#include "sophus/lie/rotation2.h"
-#include "sophus/lie/rotation3.h"
+#include "sophus2/lie/isometry2.h"
+#include "sophus2/lie/isometry3.h"
+#include "sophus2/lie/rotation2.h"
+#include "sophus2/lie/rotation3.h"
 
 #include <vector>
 
 namespace farm_ng {
 
-FARM_PROTO_CONV_TRAIT(sophus::QuaternionF64, core::proto::QuaternionF64);
-FARM_PROTO_CONV_TRAIT(sophus::Rotation2F64, core::proto::Rotation2F64);
-FARM_PROTO_CONV_TRAIT(sophus::Isometry2F64, core::proto::Isometry2F64);
-FARM_PROTO_CONV_TRAIT(sophus::Rotation3F64, core::proto::Rotation3F64);
-FARM_PROTO_CONV_TRAIT(sophus::Isometry3F64, core::proto::Isometry3F64);
+FARM_PROTO_CONV_TRAIT(sophus2::QuaternionF64, core::proto::QuaternionF64);
+FARM_PROTO_CONV_TRAIT(sophus2::Rotation2F64, core::proto::Rotation2F64);
+FARM_PROTO_CONV_TRAIT(sophus2::Isometry2F64, core::proto::Isometry2F64);
+FARM_PROTO_CONV_TRAIT(sophus2::Rotation3F64, core::proto::Rotation3F64);
+FARM_PROTO_CONV_TRAIT(sophus2::Isometry3F64, core::proto::Isometry3F64);
 
 FARM_PROTO_CONV_TRAIT(
-    std::optional<sophus::Isometry3F64>, core::proto::OptionalG0Isometry3F64);
+    std::optional<sophus2::Isometry3F64>, core::proto::OptionalG0Isometry3F64);
 FARM_PROTO_CONV_TRAIT(
-    std::vector<sophus::Isometry3F64>, core::proto::RepeatedG0Isometry3F64);
+    std::vector<sophus2::Isometry3F64>, core::proto::RepeatedG0Isometry3F64);
 
 }  // namespace farm_ng

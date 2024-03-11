@@ -13,8 +13,8 @@
 //    limitations under the License.
 
 #include "farm_ng/core/struct/struct.h"
-#include "sophus/calculus/region.h"
-#include "sophus/color/color.h"
+#include "sophus2/calculus/region.h"
+#include "sophus2/color/color.h"
 
 #include <deque>
 
@@ -61,19 +61,19 @@ FARM_STRUCT(
     Curve,
     ((Bounds, bounds, {}),
      (ClearCondition, clear_cond, {}),
-     (sophus::Color, color, {}),
+     (sophus2::Color, color, {}),
      (LineType, line_type, {LineType::line_strip}),
      (std::filesystem::path, path, {}),
      (std::deque<Eigen::Vector2d>, x_y_pairs, {})));
 
 // No commas allowed in macro arguments, so we need to define this here.
-using ColorArray3 = std::array<sophus::Color, 3>;
+using ColorArray3 = std::array<sophus2::Color, 3>;
 ColorArray3 constexpr kDefaultColorArray3 = {
-    sophus::Color::red(), sophus::Color::green(), sophus::Color::blue()};
+    sophus2::Color::red(), sophus2::Color::green(), sophus2::Color::blue()};
 ColorArray3 constexpr kDefaultConfColorArray3 = {
-    sophus::Color::orange(),
-    sophus::Color::turquoise(),
-    sophus::Color::violet()};
+    sophus2::Color::orange(),
+    sophus2::Color::turquoise(),
+    sophus2::Color::violet()};
 
 // Add a "3-vec curve" to the plot or append to exiting one with path being
 // "plot_name/curve_name". If a curve with that name already exists, it will be
@@ -115,7 +115,7 @@ struct ColoredRect {
       "color", "region"};
 
   /// Tuple of field types (for FARM_PROTO_CONV_IMPL to work)
-  using FieldTypes = std::tuple<sophus::Region2F64, sophus::Color>;
+  using FieldTypes = std::tuple<sophus2::Region2F64, sophus2::Color>;
   static_assert(
       std::tuple_size_v<FieldTypes> == kNumFields,
       "Tuple size mismatch. Make sure to update kNumFields and kFieldNames when"
@@ -123,23 +123,23 @@ struct ColoredRect {
 
   /// Vertical Line
   static ColoredRect xLine(
-      sophus::Color const& color,
+      sophus2::Color const& color,
       double x,
-      sophus::RegionF64 const& y_range,
+      sophus2::RegionF64 const& y_range,
       double thickness = 0.01);
 
   /// Horizontal line
   static ColoredRect yLine(
-      sophus::Color const& color,
+      sophus2::Color const& color,
       double y,
-      sophus::RegionF64 const& x_range,
+      sophus2::RegionF64 const& x_range,
       double thickness = 0.01);
 
   /// Color of the rectangle.
-  sophus::Color color{};
+  sophus2::Color color{};
 
   /// Region the rectangle describes.
-  sophus::Region2F64 region = sophus::Region2F64::empty();
+  sophus2::Region2F64 region = sophus2::Region2F64::empty();
 };
 
 FARM_STRUCT(

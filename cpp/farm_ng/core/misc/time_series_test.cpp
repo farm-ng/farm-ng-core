@@ -16,10 +16,10 @@
 
 #include "farm_ng/core/logging/fmt_eigen.h"
 #include "farm_ng/core/misc/conversions.h"
-#include "sophus/interp/interpolate.h"
+#include "sophus2/interp/interpolate.h"
 
 #include <gtest/gtest.h>
-#include <sophus/lie/rotation3.h>
+#include <sophus2/lie/rotation3.h>
 
 #include <random>
 
@@ -181,7 +181,7 @@ TEST(time_series, index) {
 
 struct StampedInterpolative {
   double t;
-  sophus::Rotation3F64 world_from_foo;
+  sophus2::Rotation3F64 world_from_foo;
   Eigen::Vector3d angular_velocity;
 };
 
@@ -199,7 +199,7 @@ auto interpolate<StampedInterpolative>(
   StampedInterpolative result;
   result.t = (1.0 - p) * lhs.t + p * rhs.t;
   result.world_from_foo =
-      sophus::interpolate(lhs.world_from_foo, rhs.world_from_foo, p);
+      sophus2::interpolate(lhs.world_from_foo, rhs.world_from_foo, p);
   result.angular_velocity =
       (1.0 - p) * lhs.angular_velocity + p * rhs.angular_velocity;
   return result;
@@ -245,7 +245,7 @@ TEST(interpolative_time_series, regression) {
   double acceleration_y = 0.033;
 
   Eigen::Vector3d angular_velocity(0.0, 0.0, 0.0);
-  sophus::Rotation3F64 world_from_foo;
+  sophus2::Rotation3F64 world_from_foo;
 
   TimeSeries<StampedInterpolative> series;
 
@@ -253,7 +253,7 @@ TEST(interpolative_time_series, regression) {
     StampedInterpolative value;
     value.t = t;
     value.world_from_foo =
-        world_from_foo * sophus::Rotation3F64::exp(delta_t * angular_velocity);
+        world_from_foo * sophus2::Rotation3F64::exp(delta_t * angular_velocity);
     value.angular_velocity = angular_velocity;
     angular_velocity.x() += delta_t * acceleration_x;
     angular_velocity.y() += delta_t * acceleration_y;
@@ -287,7 +287,7 @@ TEST(interpolative_time_series, regression) {
         "interp.world_from_foo:\n {}",
         interpolated.world_from_foo.compactMatrix());
 
-    static double const kEps = sophus::kEpsilonF32;
+    static double const kEps = sophus2::kEpsilonF32;
     FARM_ASSERT_WITHIN_REL(interpolated.t, value.t, kEps);
     FARM_ASSERT_WITHIN_REL(
         interpolated.angular_velocity, value.angular_velocity, 0.01);

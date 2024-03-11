@@ -16,15 +16,15 @@
 
 #include "farm_ng/core/proto_conv/traits.h"
 #include "farm_ng/core/sensor.pb.h"
-#include "sophus/sensor/camera_model.h"
-#include "sophus/sensor/camera_rig.h"
+#include "sophus2/sensor/camera_model.h"
+#include "sophus2/sensor/camera_rig.h"
 
 namespace farm_ng {
 
-FARM_PROTO_CONV_TRAIT(sophus::CameraModel, core::proto::CameraModel);
+FARM_PROTO_CONV_TRAIT(sophus2::CameraModel, core::proto::CameraModel);
 FARM_PROTO_CONV_TRAIT(
-    std::vector<sophus::CameraModel>, core::proto::CameraModels);
-FARM_PROTO_CONV_TRAIT(sophus::RigidCamera, core::proto::RigidCamera);
-FARM_PROTO_CONV_TRAIT(sophus::MultiCameraRig, core::proto::MultiCameraRig);
+    std::vector<sophus2::CameraModel>, core::proto::CameraModels);
+FARM_PROTO_CONV_TRAIT(sophus2::RigidCamera, core::proto::RigidCamera);
+FARM_PROTO_CONV_TRAIT(sophus2::MultiCameraRig, core::proto::MultiCameraRig);
 
 }  // namespace farm_ng

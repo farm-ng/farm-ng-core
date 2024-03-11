@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace sophus;
+using namespace sophus2;
 
 using namespace farm_ng;
 using namespace farm_ng::core;
@@ -31,7 +31,7 @@ TEST(conv_quat, unit) {
     EXPECT_EQ(proto.imag().y(), 3);
     EXPECT_EQ(proto.imag().z(), 4);
     auto maybe_q2 = fromProt(proto);
-    sophus::QuaternionF64 q2 = FARM_UNWRAP(maybe_q2);
+    sophus2::QuaternionF64 q2 = FARM_UNWRAP(maybe_q2);
     EXPECT_EQ(q2.real(), q.real());
     EXPECT_EQ(q2.imag(), q.imag());
   }
@@ -44,7 +44,7 @@ TEST(conv_quat, unit) {
     EXPECT_EQ(proto.imag().y(), 0);
     EXPECT_EQ(proto.imag().z(), 0);
     auto maybe_q2 = fromProt(proto);
-    sophus::QuaternionF64 q2 = FARM_UNWRAP(maybe_q2);
+    sophus2::QuaternionF64 q2 = FARM_UNWRAP(maybe_q2);
     EXPECT_EQ(q2.real(), q.real());
     EXPECT_EQ(q2.imag(), q.imag());
   }
@@ -56,12 +56,12 @@ TEST(conv_rot, unit) {
     proto::Rotation2F64 proto = toProt(q);
     EXPECT_EQ(proto.theta(), 1);
     auto maybe_q2 = fromProt(proto);
-    sophus::Rotation2F64 q2 = FARM_UNWRAP(maybe_q2);
+    sophus2::Rotation2F64 q2 = FARM_UNWRAP(maybe_q2);
     EXPECT_EQ(q2.angle(), q.angle());
   }
 
   {
-    auto q = sophus::Rotation3F64::elementExamples().at(1);
+    auto q = sophus2::Rotation3F64::elementExamples().at(1);
     proto::Rotation3F64 proto = toProt(q);
     EXPECT_EQ(proto.unit_quaternion().real(), q.unitQuaternion().real());
     EXPECT_EQ(
@@ -72,7 +72,7 @@ TEST(conv_rot, unit) {
         proto.unit_quaternion().imag().z(), q.unitQuaternion().imag().z());
 
     auto maybe_q2 = fromProt(proto);
-    sophus::Rotation3F64 q2 = FARM_UNWRAP(maybe_q2);
+    sophus2::Rotation3F64 q2 = FARM_UNWRAP(maybe_q2);
     EXPECT_EQ(q2.unitQuaternion().real(), q.unitQuaternion().real());
     EXPECT_EQ(q2.unitQuaternion().imag(), q.unitQuaternion().imag());
     EXPECT_EQ(q2.params(), q.params());
@@ -87,20 +87,20 @@ TEST(conv_rot, unit) {
 
 TEST(conv_isometry, unit) {
   {
-    auto iso = sophus::Isometry2F64::elementExamples().at(1);
+    auto iso = sophus2::Isometry2F64::elementExamples().at(1);
     proto::Isometry2F64 proto = toProt(iso);
     EXPECT_EQ(proto.translation().x(), iso.translation().x());
     EXPECT_EQ(proto.translation().y(), iso.translation().y());
     EXPECT_EQ(proto.rotation().theta(), iso.rotation().angle());
 
     auto maybe_iso2 = fromProt(proto);
-    sophus::Isometry2F64 iso2 = FARM_UNWRAP(maybe_iso2);
+    sophus2::Isometry2F64 iso2 = FARM_UNWRAP(maybe_iso2);
     EXPECT_EQ(iso2.translation(), iso.translation());
     EXPECT_EQ(iso2.rotation().angle(), iso.rotation().angle());
   }
 
   {
-    auto iso = sophus::Isometry3F64::elementExamples().at(1);
+    auto iso = sophus2::Isometry3F64::elementExamples().at(1);
     proto::Isometry3F64 proto = toProt(iso);
     EXPECT_EQ(proto.translation().x(), iso.translation().x());
     EXPECT_EQ(proto.translation().y(), iso.translation().y());
@@ -119,7 +119,7 @@ TEST(conv_isometry, unit) {
         iso.rotation().unitQuaternion().imag().z());
 
     auto maybe_iso2 = fromProt(proto);
-    sophus::Isometry3F64 iso2 = FARM_UNWRAP(maybe_iso2);
+    sophus2::Isometry3F64 iso2 = FARM_UNWRAP(maybe_iso2);
     EXPECT_EQ(iso2.compactMatrix(), iso.compactMatrix());
   }
 }

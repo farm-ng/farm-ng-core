@@ -16,29 +16,29 @@
 
 #include "farm_ng/core/image.pb.h"
 #include "farm_ng/core/proto_conv/traits.h"
-#include "sophus/image/dyn_image_types.h"
+#include "sophus2/image/dyn_image_types.h"
 
 namespace farm_ng {
 
-FARM_PROTO_CONV_TRAIT(sophus::ImageSize, core::proto::ImageSize);
-FARM_PROTO_CONV_TRAIT(sophus::ImageLayout, core::proto::ImageLayout);
-FARM_PROTO_CONV_TRAIT(sophus::PixelFormat, core::proto::PixelFormat);
-FARM_PROTO_CONV_TRAIT(sophus::AnyImage<>, core::proto::DynImage);
+FARM_PROTO_CONV_TRAIT(sophus2::ImageSize, core::proto::ImageSize);
+FARM_PROTO_CONV_TRAIT(sophus2::ImageLayout, core::proto::ImageLayout);
+FARM_PROTO_CONV_TRAIT(sophus2::PixelFormat, core::proto::PixelFormat);
+FARM_PROTO_CONV_TRAIT(sophus2::AnyImage<>, core::proto::DynImage);
 
-/// Converts core::proto::DynImage to a sophus::IntensityImage.
-Expected<sophus::IntensityImage<>> intensityImageFromProto(
+/// Converts core::proto::DynImage to a sophus2::IntensityImage.
+Expected<sophus2::IntensityImage<>> intensityImageFromProto(
     core::proto::DynImage const& proto);
 
-/// Associates a proto type to a sophus::IntensityImage<>.
+/// Associates a proto type to a sophus2::IntensityImage<>.
 template <>
-struct ToProtoTrait<sophus::IntensityImage<>> {
+struct ToProtoTrait<sophus2::IntensityImage<>> {
   /// proto type
   using ProtoType = core::proto::DynImage;
 };
 
-/// Converts a sophus::IntensityImage<> to a proto.
+/// Converts a sophus2::IntensityImage<> to a proto.
 template <>
-auto toProt<sophus::IntensityImage<>>(sophus::IntensityImage<> const& cpp)
+auto toProt<sophus2::IntensityImage<>>(sophus2::IntensityImage<> const& cpp)
     -> core::proto::DynImage;
 
 }  // namespace farm_ng

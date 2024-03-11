@@ -16,13 +16,13 @@
 
 #include "farm_ng/core/geometry.pb.h"
 #include "farm_ng/core/proto_conv/traits.h"
-#include "sophus/geometry/ray.h"
+#include "sophus2/geometry/ray.h"
 
 namespace farm_ng {
 
 using Hyperplane3d = Eigen::Hyperplane<double, 3>;
 
-FARM_PROTO_CONV_TRAIT(sophus::UnitVector3F64, core::proto::UnitVec3F64);
+FARM_PROTO_CONV_TRAIT(sophus2::UnitVector3F64, core::proto::UnitVec3F64);
 FARM_PROTO_CONV_TRAIT(Hyperplane3d, core::proto::Hyperplane3F64);
 
 }  // namespace farm_ng

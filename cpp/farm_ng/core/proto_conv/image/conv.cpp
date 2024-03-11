@@ -18,12 +18,12 @@ namespace farm_ng {
 
 template <>
 auto fromProt<core::proto::ImageSize>(core::proto::ImageSize const& proto)
-    -> Expected<sophus::ImageSize> {
-  return sophus::ImageSize(proto.width(), proto.height());
+    -> Expected<sophus2::ImageSize> {
+  return sophus2::ImageSize(proto.width(), proto.height());
 }
 
 template <>
-auto toProt<sophus::ImageSize>(sophus::ImageSize const& image_size)
+auto toProt<sophus2::ImageSize>(sophus2::ImageSize const& image_size)
     -> core::proto::ImageSize {
   core::proto::ImageSize proto;
   proto.set_width(image_size.width);
@@ -33,13 +33,13 @@ auto toProt<sophus::ImageSize>(sophus::ImageSize const& image_size)
 
 template <>
 auto fromProt<core::proto::ImageLayout>(core::proto::ImageLayout const& proto)
-    -> Expected<sophus::ImageLayout> {
+    -> Expected<sophus2::ImageLayout> {
   FARM_TRY(auto, size, fromProt(proto.size()));
-  return sophus::ImageLayout(size, proto.pitch_bytes());
+  return sophus2::ImageLayout(size, proto.pitch_bytes());
 }
 
 template <>
-auto toProt<sophus::ImageLayout>(sophus::ImageLayout const& layout)
+auto toProt<sophus2::ImageLayout>(sophus2::ImageLayout const& layout)
     -> core::proto::ImageLayout {
   core::proto::ImageLayout proto;
   *proto.mutable_size() = toProt(layout.imageSize());
@@ -49,8 +49,8 @@ auto toProt<sophus::ImageLayout>(sophus::ImageLayout const& layout)
 
 template <>
 auto fromProt<core::proto::PixelFormat>(core::proto::PixelFormat const& proto)
-    -> Expected<sophus::PixelFormat> {
-  sophus::PixelFormat format;
+    -> Expected<sophus2::PixelFormat> {
+  sophus2::PixelFormat format;
   FARM_TRY_ASSERT(trySetFromString(format.number_type, proto.number_type()));
   format.num_components = proto.num_components();
   format.num_bytes_per_component = proto.num_bytes_per_component();
@@ -58,7 +58,7 @@ auto fromProt<core::proto::PixelFormat>(core::proto::PixelFormat const& proto)
 }
 
 template <>
-auto toProt<sophus::PixelFormat>(sophus::PixelFormat const& layout)
+auto toProt<sophus2::PixelFormat>(sophus2::PixelFormat const& layout)
     -> core::proto::PixelFormat {
   core::proto::PixelFormat proto;
   proto.set_number_type(toString(layout.number_type));
@@ -69,19 +69,19 @@ auto toProt<sophus::PixelFormat>(sophus::PixelFormat const& layout)
 
 template <>
 auto fromProt<core::proto::DynImage>(core::proto::DynImage const& proto)
-    -> Expected<sophus::AnyImage<>> {
-  SOPHUS_TRY(sophus::PixelFormat, format, fromProt(proto.pixel_format()));
+    -> Expected<sophus2::AnyImage<>> {
+  SOPHUS_TRY(sophus2::PixelFormat, format, fromProt(proto.pixel_format()));
   SOPHUS_TRY(auto, layout, fromProt(proto.layout()));
 
   SOPHUS_ASSERT_EQ(size_t(layout.sizeBytes()), proto.data().size());
   SOPHUS_TRY(
-      auto, mut_image, sophus::MutAnyImage<>::tryFromFormat(layout, format));
+      auto, mut_image, sophus2::MutAnyImage<>::tryFromFormat(layout, format));
   std::memcpy(mut_image.rawMutPtr(), proto.data().data(), proto.data().size());
   return mut_image;
 }
 
 template <>
-auto toProt<sophus::AnyImage<>>(sophus::AnyImage<> const& image)
+auto toProt<sophus2::AnyImage<>>(sophus2::AnyImage<> const& image)
     -> core::proto::DynImage {
   core::proto::DynImage proto;
   *proto.mutable_pixel_format() = toProt(image.pixelFormat());
@@ -90,14 +90,14 @@ auto toProt<sophus::AnyImage<>>(sophus::AnyImage<> const& image)
   return proto;
 }
 
-Expected<sophus::IntensityImage<>> intensityImageFromProto(
+Expected<sophus2::IntensityImage<>> intensityImageFromProto(
     core::proto::DynImage const& proto) {
-  SOPHUS_TRY(sophus::AnyImage<>, any_image, fromProt(proto));
-  return sophus::IntensityImage<>::tryFrom(any_image);
+  SOPHUS_TRY(sophus2::AnyImage<>, any_image, fromProt(proto));
+  return sophus2::IntensityImage<>::tryFrom(any_image);
 }
 
 template <>
-auto toProt<sophus::IntensityImage<>>(sophus::IntensityImage<> const& image)
+auto toProt<sophus2::IntensityImage<>>(sophus2::IntensityImage<> const& image)
     -> core::proto::DynImage {
   core::proto::DynImage proto;
   *proto.mutable_pixel_format() = toProt(image.pixelFormat());

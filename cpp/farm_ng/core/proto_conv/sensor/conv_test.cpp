@@ -16,14 +16,14 @@
 
 #include <gtest/gtest.h>
 
-using namespace sophus;
+using namespace sophus2;
 
 using namespace farm_ng;
 using namespace farm_ng::core;
 
 TEST(conv_sensor, unit) {
   {
-    sophus::CameraModel pinhole = createDefaultPinholeModel({64, 24});
+    sophus2::CameraModel pinhole = createDefaultPinholeModel({64, 24});
     proto::CameraModel proto = toProt(pinhole);
     EXPECT_EQ(proto.image_size().width(), 64);
     EXPECT_EQ(proto.image_size().height(), 24);
@@ -34,21 +34,21 @@ TEST(conv_sensor, unit) {
     }
 
     auto maybe_pinhole2 = fromProt(proto);
-    sophus::CameraModel pinhole2 = FARM_UNWRAP(maybe_pinhole2);
+    sophus2::CameraModel pinhole2 = FARM_UNWRAP(maybe_pinhole2);
     EXPECT_EQ(pinhole2.imageSize(), pinhole.imageSize());
     ASSERT_EQ(pinhole2.params(), pinhole.params());
     EXPECT_EQ(pinhole2.distortionType(), pinhole.distortionType());
   }
 
   {
-    std::vector<sophus::CameraModel> models;
+    std::vector<sophus2::CameraModel> models;
     models.push_back(createDefaultPinholeModel({64, 24}));
     models.push_back(createDefaultOrthoModel({128, 48}));
     proto::CameraModels proto = toProt(models);
     ASSERT_EQ(proto.camera_models_size(), models.size());
 
     auto maybe_models2 = fromProt(proto);
-    std::vector<sophus::CameraModel> models2 = FARM_UNWRAP(maybe_models2);
+    std::vector<sophus2::CameraModel> models2 = FARM_UNWRAP(maybe_models2);
     ASSERT_EQ(models2.size(), models.size());
     for (size_t i = 0; i < models.size(); ++i) {
       EXPECT_EQ(models2[i].imageSize(), models[i].imageSize());

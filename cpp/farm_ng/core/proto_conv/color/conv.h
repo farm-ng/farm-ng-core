@@ -16,10 +16,10 @@
 
 #include "farm_ng/core/color.pb.h"
 #include "farm_ng/core/proto_conv/traits.h"
-#include "sophus/color/color.h"
+#include "sophus2/color/color.h"
 
 namespace farm_ng {
 
-FARM_PROTO_CONV_TRAIT(sophus::Color, core::proto::Color);
+FARM_PROTO_CONV_TRAIT(sophus2::Color, core::proto::Color);
 
 }  // namespace farm_ng

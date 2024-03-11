@@ -8,7 +8,7 @@ farm_ng_add_library(farm_ng_core_proto_conv_geometry
 )
 
 target_link_libraries(farm_ng_core_proto_conv_geometry PUBLIC
-  farm_ng_core::sophus_geometry
+  farm_ng_core::sophus2_geometry
   protobuf::libprotobuf
   farm_ng_core::farm_ng_core_prototools
   farm_ng_core_proto_defs

@@ -132,6 +132,26 @@ struct ImageTraits<Eigen::Matrix<TT, kNumChannelsT, 1>> {
       std::is_floating_point_v<ChannelT> || std::is_unsigned_v<ChannelT>);
 };
 
+/// Visits the corresponding pixels of two ImageViews
+///
+/// Precondition: `lhs` and `rhs` are the same size and not empty
+template <class TPixel, class TFunc>
+auto visit(ImageView<TPixel> lhs, ImageView<TPixel> rhs, TFunc const& user_function) {
+  SOPHUS_ASSERT(!lhs.isEmpty());
+  SOPHUS_ASSERT(!rhs.isEmpty());
+  SOPHUS_ASSERT_EQ(lhs.imageSize(), rhs.imageSize());
+
+  for (int v = 0; v < lhs.height(); ++v) {
+    TPixel const* lhs_p = lhs.rowPtr(v);
+    TPixel const* rhs_p = rhs.rowPtr(v);
+
+    TPixel const* end_of_row = lhs_p + lhs.width();
+    for (; lhs_p != end_of_row; ++lhs_p, ++rhs_p) {
+      user_function(*lhs_p, *rhs_p);
+    }
+  }
+}
+
 /// Returns boolean image with the result per pixel:
 ///
 /// mask(..) = lhs(..) == rhs (..)

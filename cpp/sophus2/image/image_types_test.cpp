@@ -41,6 +41,19 @@ TEST(ImageBool, logic) {
   SOPHUS_ASSERT_EQ(first_true_pixel, Eigen::Vector2i(0, 0));
 }
 
+TEST(image_types, visit) {
+  auto const kImageSize = sophus2::ImageSize(2, 2);
+  sophus2::ImageF32 img_a = sophus2::ImageF32::makeGenerative(
+      kImageSize, [&](int u, int v) { return v * kImageSize.width + u; });
+  sophus2::ImageF32 img_b = sophus2::ImageF32::makeGenerative(
+      kImageSize, [&](int u, int v) { return -(v * kImageSize.width + u); });
+  visit(img_a, img_b, [](float a, float b) {
+    EXPECT_GE(a, 0);
+    EXPECT_LE(b, 0);
+    EXPECT_EQ(a, -b);
+  });
+}
+
 TEST(SOPHUS_ASSERT_IMAGE_EQ, death_test) {
   MutImage<float> mut_image({2, 3});
   mut_image.fill(0.25f);

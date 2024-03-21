@@ -23,11 +23,20 @@ TEST(struct_test, unit) {
       "static int constexpr kNumFields = 2; "
       "static std::array<std::string_view, kNumFields> constexpr kFieldNames = { \"i\" , \"d\" }; "
       "using FieldTypes = std::tuple<int , double >; "
+         "static Foo fromTuple(FieldTypes&& tuple) noexcept { "
+          "Foo s; "
+          "s.i = std::move(std::get<0>(tuple)); "
+          "s.d = std::move(std::get<1>(tuple)); "
+          "return s; "
+      "} "
+      "auto toTuple() const noexcept -> FieldTypes { "
+        "return std::make_tuple(this->i , this->d ); "
+      "} "
       "int i {1}; "
       "double d {0.5};");
   // clang-format on
   EXPECT_EQ(
-      FARM_PP_STRINGIZE(
-          FARM_STRUCT_DETAILS_BASE(2, ((int, i, {1}))((double, d, {0.5})))),
+      FARM_PP_STRINGIZE(FARM_STRUCT_DETAILS_BASE(
+          Foo, 2, ((int, i, {1}))((double, d, {0.5})))),
       expected_string);
 }

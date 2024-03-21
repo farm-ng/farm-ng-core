@@ -33,6 +33,15 @@ TEST(struct_test, unit) {
         "static std::array<std::string_view, kNumFields> constexpr kFieldNames "
           "= { \"i\" , \"d\" }; "
         "using FieldTypes = std::tuple<int , double >; "
+        "static Foo fromTuple(FieldTypes&& tuple) noexcept { "
+          "Foo s; "
+          "s.i = std::move(std::get<0>(tuple)); "
+          "s.d = std::move(std::get<1>(tuple)); "
+            "return s; "
+        "} "
+        "auto toTuple() const noexcept -> FieldTypes { "
+            "return std::make_tuple(this->i , this->d ); "
+        "} "
         "int i {1}; "
         "double d {0.5}; "
       "}");
@@ -40,4 +49,14 @@ TEST(struct_test, unit) {
   EXPECT_EQ(
       FARM_PP_STRINGIZE(FARM_STRUCT(Foo, ((int, i, {1}), (double, d, {0.5})))),
       expected_string);
+
+  StructExample1 instance;
+  std::tuple<int, float> tuple = instance.toTuple();
+  FARM_ASSERT_EQ(std::get<0>(tuple), instance.integer);
+  FARM_ASSERT_EQ(std::get<1>(tuple), instance.f);
+  tuple = std::make_tuple(-1, 0.25);
+  StructExample1 instance2 = StructExample1::fromTuple(std::move(tuple));
+
+  FARM_ASSERT_EQ(std::get<0>(tuple), instance2.integer);
+  FARM_ASSERT_EQ(std::get<1>(tuple), instance2.f);
 }

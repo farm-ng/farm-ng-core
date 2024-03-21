@@ -19,7 +19,7 @@
 
 /// Takes in a struct name and a sequence of fields and generates a struct.
 ///
-/// This is an implementation details. User shall call FARM_STRUCT(StructName,
+/// This is an implementation details. User shall call FARM_STRUCT(Struct_Name_,
 /// ((Type0, name0, init0), ...))); instead;
 ///
 /// This intermediate macro exists since the conversion from a list to a
@@ -27,7 +27,7 @@
 /// it.
 #define FARM_STRUCT_DETAIL_FROM_SEQ(Struct_Name_, Num_Fields_, Field_Seq_) \
   struct Struct_Name_ {                                                    \
-    FARM_STRUCT_DETAILS_BASE(Num_Fields_, Field_Seq_)                      \
+    FARM_STRUCT_DETAILS_BASE(Struct_Name_, Num_Fields_, Field_Seq_)        \
   }
 
 /// Takes in a struct name and a tuple of fields and generates a struct.

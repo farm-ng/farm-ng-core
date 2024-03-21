@@ -25,12 +25,20 @@ namespace farm_ng {
 inline std::vector<std::string> tokenize(
     std::string const& str, char delimiter = ' ') {
   std::vector<std::string> tokens;
-
   std::stringstream strstream(str);
   std::string token;
 
-  while (getline(strstream, token, delimiter)) {
+  // Added check to handle the case where the last character is the delimiter
+  bool lastCharDelimiter = !str.empty() && str.back() == delimiter;
+
+  while (std::getline(strstream, token, delimiter)) {
     tokens.push_back(token);
+  }
+
+  // If the last character in the input string is a delimiter,
+  // add an empty string to tokens to account for the final empty token.
+  if (lastCharDelimiter) {
+    tokens.push_back("");
   }
 
   return tokens;

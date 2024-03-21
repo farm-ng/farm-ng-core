@@ -136,7 +136,8 @@ struct ImageTraits<Eigen::Matrix<TT, kNumChannelsT, 1>> {
 ///
 /// Precondition: `lhs` and `rhs` are the same size and not empty
 template <class TPixel, class TFunc>
-auto visit(ImageView<TPixel> lhs, ImageView<TPixel> rhs, TFunc const& user_function) {
+auto visit(
+    ImageView<TPixel> lhs, ImageView<TPixel> rhs, TFunc const& user_function) {
   SOPHUS_ASSERT(!lhs.isEmpty());
   SOPHUS_ASSERT(!rhs.isEmpty());
   SOPHUS_ASSERT_EQ(lhs.imageSize(), rhs.imageSize());

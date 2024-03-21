@@ -14,6 +14,23 @@
 
 #include "farm_ng/core/misc/tokenize.h"
 
+#include <farm_ng/core/logging/expected.h>
 #include <gtest/gtest.h>
 
-TEST(tokenize, smoke) {}  // NOLINT
+TEST(tokenize, smoke) {
+  using namespace farm_ng;
+
+  std::vector<std::string> tokens = tokenize("foo bar");
+  FARM_ASSERT_EQ(tokens.size(), 2);
+  FARM_ASSERT_EQ(tokens[0], "foo");
+  FARM_ASSERT_EQ(tokens[1], "bar");
+
+  tokens = tokenize(",foo,,bar,", ',');
+  FARM_ASSERT_EQ(tokens.size(), 5);
+  FARM_ASSERT_EQ(tokens[0], "");
+  FARM_ASSERT_EQ(tokens[1], "foo");
+  FARM_ASSERT_EQ(tokens[2], "");
+  FARM_ASSERT_EQ(tokens[3], "bar");
+  FARM_ASSERT_EQ(tokens[4], "");
+
+}  // NOLINT

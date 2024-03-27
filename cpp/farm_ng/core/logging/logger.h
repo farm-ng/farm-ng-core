@@ -296,6 +296,24 @@ inline StreamLogger& defaultLogger() {
     }                                                           \
   } while (false)
 
+/// LOG WARN: Only log every nth encounter.
+#define FARM_WARN_EVERY_N(N, ...)                               \
+  do {                                                          \
+    static std::atomic<int> counter(0);                         \
+    ++counter;                                                  \
+    if (counter > (N)) {                                        \
+      counter -= (N);                                           \
+    }                                                           \
+    if (counter == 1) {                                         \
+      farm_ng::defaultLogger().log(                             \
+          farm_ng::LogLevel::warning,                              \
+          FARM_FORMAT("LOG WARN EVERY N( = {} )", #N),          \
+          __FILE__,                                             \
+          __LINE__,                                             \
+          __func__ FARM_MAYBE_VARGS(__VA_ARGS__)(__VA_ARGS__)); \
+    }                                                           \
+  } while (false)
+
 /// If condition is false, Print formatted error message and then panic.
 #define FARM_ASSERT(condition, ...)                                            \
   do {                                                                         \

@@ -28,6 +28,8 @@ FARM_CONV_IMPL_PRIMITIVE_OPTIONAL(core::proto::OptionalG0Bool, bool);
 
 FARM_CONV_IMPL_REPEATED_PRIMITIVE(
     core::proto::RepeatedG0Float, std::vector<float>);
+FARM_CONV_IMPL_REPEATED_PRIMITIVE(
+    core::proto::RepeatedG0UInt32, std::vector<uint32_t>);
 
 template <>
 auto fromProt<core::proto::FileSystemPath>(

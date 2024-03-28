@@ -73,4 +73,9 @@ message RepeatedG0Float {
   repeated float value = 1;
 }
 
+message RepeatedG0UInt32{
+  repeated uint32 value = 1;
+}
+
+
 message FileSystemPath { string path_string = 1; }

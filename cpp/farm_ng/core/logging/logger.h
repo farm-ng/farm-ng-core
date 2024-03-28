@@ -306,7 +306,7 @@ inline StreamLogger& defaultLogger() {
     }                                                           \
     if (counter == 1) {                                         \
       farm_ng::defaultLogger().log(                             \
-          farm_ng::LogLevel::warning,                              \
+          farm_ng::LogLevel::warning,                           \
           FARM_FORMAT("LOG WARN EVERY N( = {} )", #N),          \
           __FILE__,                                             \
           __LINE__,                                             \

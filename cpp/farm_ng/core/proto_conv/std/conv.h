@@ -33,6 +33,7 @@ FARM_PROTO_CONV_TRAIT(std::optional<bool>, core::proto::OptionalG0Bool);
 
 // std::vector of primitive types
 FARM_PROTO_CONV_TRAIT(std::vector<float>, core::proto::RepeatedG0Float);
+FARM_PROTO_CONV_TRAIT(std::vector<uint32_t>, core::proto::RepeatedG0UInt32);
 
 FARM_PROTO_CONV_TRAIT(std::filesystem::path, core::proto::FileSystemPath);
 

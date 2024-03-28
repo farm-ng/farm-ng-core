@@ -51,6 +51,7 @@ void StreamLogger::writeHeader(
           fmt::arg("text", header_text),
           fmt::arg("file", file),
           fmt::arg("line", line),
+          fmt::arg("filename", std::filesystem::path(file).filename()),
           fmt::arg("function", function)));
 }
 
@@ -115,7 +116,7 @@ void StreamLogger::flush(DiskLogging& disk_logging) {
 }
 
 std::string const StreamLogger::kDefaultHeaderFormat =
-    "[FARM {text} in {file}:{line}]\n";
+    "[FARM {text} in {filename}:{line}]\n";
 
 StreamLogger::LogClock const StreamLogger::kDefaultLogClock =
     StreamLogger::LogClock{.now = []() {

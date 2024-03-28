@@ -42,6 +42,9 @@ void StreamLogger::writeHeader(
     std::string const& file,
     int line,
     std::string const& function) {
+  auto filename_idx = file.rfind("/", std::string::npos);
+  auto parent_idx = file.rfind("/", filename_idx - 1);
+
   write(
       disk_logging_,
       FARM_FORMAT(
@@ -51,6 +54,8 @@ void StreamLogger::writeHeader(
           fmt::arg("text", header_text),
           fmt::arg("file", file),
           fmt::arg("line", line),
+          fmt::arg("fileparent", file.substr(parent_idx + 1)),
+          fmt::arg("filename", file.substr(filename_idx + 1)),
           fmt::arg("function", function)));
 }
 
@@ -115,7 +120,7 @@ void StreamLogger::flush(DiskLogging& disk_logging) {
 }
 
 std::string const StreamLogger::kDefaultHeaderFormat =
-    "[FARM {text} in {file}:{line}]\n";
+    "[FARM {text} in {fileparent}:{line}]\n";
 
 StreamLogger::LogClock const StreamLogger::kDefaultLogClock =
     StreamLogger::LogClock{.now = []() {

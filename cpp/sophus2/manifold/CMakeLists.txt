@@ -28,11 +28,9 @@ farm_ng_add_library(sophus_manifold
 
 target_link_libraries(sophus_manifold INTERFACE sophus2_linalg)
 
-if(${BUILD_SOPHUS_TESTS})
   foreach(test_basename ${sophus_manifold_src_prefixes})
     farm_ng_add_test(${test_basename}
                           PARENT_LIBRARY sophus_manifold
                           LINK_LIBRARIES sophus_manifold
                           LABELS small)
   endforeach()
-endif()

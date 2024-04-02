@@ -204,6 +204,8 @@ class Rotation2Impl {
     Scalar halftheta_by_tan_of_halftheta;
 
     Scalar real_minus_one = z.x() - Scalar(1.);
+    using std::abs;
+
     if (abs(real_minus_one) < kEpsilon<Scalar>) {
       halftheta_by_tan_of_halftheta =
           Scalar(1.) - Scalar(1. / 12) * theta[0] * theta[0];
@@ -291,4 +293,4 @@ class Rotation2Impl {
 };
 
 }  // namespace lie
-}  // namespace sophus2
+}  // namespace sophus

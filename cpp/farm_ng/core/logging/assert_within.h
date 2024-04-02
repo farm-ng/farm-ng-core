@@ -15,6 +15,7 @@
 #pragma once
 
 #include "farm_ng/core/logging/expected.h"
+#include "sophus2/linalg/batch.h"
 
 #include <Eigen/Core>
 
@@ -144,6 +145,74 @@ struct CheckNear<
   }
 };
 
+template <class TBatch, int kRows, int kCols>
+struct CheckNear<
+    Eigen::Matrix<TBatch, kRows, kCols>,
+    Eigen::Matrix<TBatch, kRows, kCols>,
+    std::enable_if_t<sophus2::BatchTrait<TBatch>::kIsBatch>> {
+  static Expected<Success> check(
+      bool check_relative,
+      Eigen::Matrix<TBatch, kRows, kCols> const& lhs,
+      char const* lhs_cstr,
+      Eigen::Matrix<TBatch, kRows, kCols> const& rhs,
+      char const* rhs_cstr,
+      double const& thr) {
+    double max_error = 0.0;
+    int max_row_idx = -1;
+    int max_col_idx = -1;
+    int max_batch_idx = -1;
+
+    auto nearness_fn =
+        check_relative
+            ? [](double x, double y) { return relativeCloseness(x, y); }
+            : [](double x, double y) { return std::abs(x - y); };
+
+    for (int c = 0; c < lhs.cols(); ++c) {
+      for (int r = 0; r < lhs.rows(); ++r) {
+        for (int batch = 0; r < sophus2::BatchTrait<TBatch>::kNumSingeScalars;
+             ++r) {
+          double err = nearness_fn(lhs(r, c).b[batch], rhs(r, c).b[batch]);
+
+          if (!(err <= max_error)) {
+            // inverted comparison,  so we also end up here if err or max_error
+            // are NAN
+            max_error = err;
+            max_row_idx = r;
+            max_col_idx = c;
+            max_batch_idx = batch;
+          }
+        }
+      }
+    }
+    if (max_error < thr) {
+      // all errors below threshold
+      return Success{};
+    }
+    return FARM_UNEXPECTED(
+        "Not true: {}[{}, {}; {}] near {}[{}, {}; {}]; has error of {} (thr: {})\n"
+        "LHS `{}` is:\n"
+        "{}\n\n"
+        "RHS `{}` is:\n"
+        "{}\n\n",
+        lhs_cstr,
+        max_row_idx,
+        max_col_idx,
+        max_batch_idx,
+        rhs_cstr,
+        max_row_idx,
+        max_col_idx,
+        max_batch_idx,
+        max_error,
+        thr,
+        lhs_cstr,
+        lhs,
+        rhs_cstr,
+        rhs);
+
+    return Success{};
+  }
+};
+
 template <class TScalar, class TScalar2>
 inline Expected<Success> checkAbsNear(
     TScalar lhs,
@@ -164,8 +233,8 @@ inline Expected<Success> checkRelativeNear(
     double thr) {
   if (!((thr >= 0.0) && (thr <= 1.0))) {
     FARM_WARN(
-        "The threshold of the WITHIN_REL macro shall be in [0.0, 1.0], but we "
-        "got `{}`.",
+        "The threshold of the WITHIN_REL macro shall be in [0.0, 1.0], but "
+        "we got `{}`.",
         thr);
   }
   return CheckNear<TScalar, TScalar2>::check(

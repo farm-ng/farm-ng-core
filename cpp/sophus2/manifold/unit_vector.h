@@ -155,6 +155,7 @@ class UnitVectorImpl {
     Tangent tail = params.template tail<kDof>();
     Scalar theta = tail.norm();
 
+    using std::abs;
     if (abs(theta) < kEpsilon<Scalar>) {
       return atan2(Scalar(0.0), x) * kUnitX;
     }

@@ -90,6 +90,7 @@ class BrownConradyTransform {
     PixelImage<TScalar> xy = uv_normalized;
 
     for (int i = 0; i < 50; ++i) {
+      using std::abs;
       TScalar x = xy[0];
       TScalar y = xy[1];
 
@@ -202,8 +203,8 @@ class BrownConradyTransform {
 
   template <class TScalar>
   static auto undistort(
-      Params<TScalar> const& params, PixelImage<TScalar> const& pixel_image)
-      -> ProjInCameraZ1Plane<TScalar> {
+      Params<TScalar> const& params,
+      PixelImage<TScalar> const& pixel_image) -> ProjInCameraZ1Plane<TScalar> {
     PixelImage<TScalar> proj_point_in_camera_z1_plane = unprojImpl(
         params.template tail<kNumDistortionParams>().eval(),
         AffineTransform::undistort(

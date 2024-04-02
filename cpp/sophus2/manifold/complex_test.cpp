@@ -19,4 +19,9 @@ TEST(complex, unit) { Complex<double> z; }
 TEST(complex, prop_test) {
   test::DivisionRingTestSuite<Complex<double>>::runAllTests("Complex<double>");
   test::DivisionRingTestSuite<Complex<float>>::runAllTests("Complex<float>");
+
+  test::DivisionRingTestSuite<Complex<Batch<double, 8>>>::runAllTests(
+      "Batch<double, 8>");
+
+  Complex<Batch<double, 8>> complex;
 }

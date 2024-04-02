@@ -90,6 +90,7 @@ class BrownConradyTransform {
     PixelImage<TScalar> xy = uv_normalized;
 
     for (int i = 0; i < 50; ++i) {
+      using std::abs;
       TScalar x = xy[0];
       TScalar y = xy[1];
 

@@ -6,6 +6,7 @@ sophus2_linalg
 ]]
 
 set(sophus2_linalg_src_prefixes
+    batch
     cast
     homogeneous
     orthogonal

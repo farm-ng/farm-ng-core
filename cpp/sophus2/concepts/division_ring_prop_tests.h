@@ -42,7 +42,7 @@ struct DivisionRingTestSuite {
           SOPHUS_ASSERT_WITHIN_REL(
               left_hugging.params(),
               right_hugging.params(),
-              10.0 * kEpsilonSqrt<Scalar>,
+              10.0 * kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>,
               "`(g1*g2)*g3 == g1*(g2*g3)` Test for {}, #{}/#{}/#{}",
               ring_name,
               params_id,
@@ -70,7 +70,7 @@ struct DivisionRingTestSuite {
           SOPHUS_ASSERT_WITHIN_REL(
               left_hugging.params(),
               right_hugging.params(),
-              kEpsilonSqrt<Scalar>,
+              kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>,
               "`g1 * g2 == g2 * g3` Test for {}, #{}/#{}",
               ring_name,
               params_id,
@@ -90,16 +90,31 @@ struct DivisionRingTestSuite {
           Ring g2 = Ring::fromParams(params2);
           Ring left_hugging = g1 * g2;
           Ring right_hugging = g2 * g1;
-          ++num_cases;
-          if ((left_hugging.params() - right_hugging.params()).norm() <
-              kEpsilonSqrt<Scalar>) {
-            ++num_commutativity;
+
+          if constexpr (BatchTrait<Scalar>::kIsBatch) {
+            Scalar batch_nrm =
+                (left_hugging.params() - right_hugging.params()).norm();
+
+            for (int b = 0; b < BatchTrait<Scalar>::kBatchSize; ++b) {
+              if (batch_nrm.lanes[b] <
+                  kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>) {
+                ++num_commutativity;
+              }
+            }
+
+          } else {
+            ++num_cases;
+
+            if ((left_hugging.params() - right_hugging.params()).norm() <
+                kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>) {
+              ++num_commutativity;
+            }
           }
         }
       }
       if (num_cases > 0) {
-        Scalar commutativity_percentage =
-            Scalar(num_commutativity) / Scalar(num_cases);
+        double commutativity_percentage =
+            double(num_commutativity) / double(num_cases);
         SOPHUS_ASSERT_LE(commutativity_percentage, 0.75);
       }
     }
@@ -114,7 +129,7 @@ struct DivisionRingTestSuite {
       SOPHUS_ASSERT_WITHIN_REL(
           g.params(),
           (g + Ring::zero()).params(),
-          kEpsilonSqrt<Scalar>,
+          kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>,
           "`g + 0 == g` Test for {}, #{}",
           ring_name,
           params_id);
@@ -127,14 +142,15 @@ struct DivisionRingTestSuite {
       Params params = SOPHUS_AT(kParamsExamples, params_id);
       Ring g = Ring::fromParams(params);
 
-      if (g.params().norm() < kEpsilonSqrt<Scalar>) {
+      if (BatchTrait<Scalar>::anyLessEqual(
+              g.params().norm(), kEpsilonSqrt<Scalar>)) {
         continue;
       }
 
       SOPHUS_ASSERT_WITHIN_REL(
           g.params(),
           (g * Ring::one()).params(),
-          kEpsilonSqrt<Scalar>,
+          kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>,
           "`g * 1 == g` Test for {}, #{}",
           ring_name,
           params_id);
@@ -142,7 +158,7 @@ struct DivisionRingTestSuite {
       SOPHUS_ASSERT_WITHIN_REL(
           (g * g.inverse()).params(),
           Ring::one().params(),
-          kEpsilonSqrt<Scalar>,
+          kEpsilonSqrt<typename BatchTrait<Scalar>::Scalar>,
           "`g * 1 == g` Test for {}, #{}",
           ring_name,
           params_id);

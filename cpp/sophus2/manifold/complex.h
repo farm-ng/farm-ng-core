@@ -9,6 +9,7 @@
 #pragma once
 #include "sophus2/common/common.h"
 #include "sophus2/concepts/division_ring.h"
+#include "sophus2/linalg/batch.h"
 #include "sophus2/linalg/vector_space.h"
 
 namespace sophus2 {
@@ -16,11 +17,13 @@ namespace sophus2 {
 /// Generic complex number implementation
 ///
 /// Impl class without any storage, but only static methods.
-template <class TScalar>
+template <class TBatch>
 class ComplexImpl {
  public:
   /// The underlying scalar type.
-  using Scalar = TScalar;
+  using Scalar = typename BatchTrait<TBatch>::ScalarBatch;
+  static int constexpr kNumSingles = BatchTrait<TBatch>::kNumSingles;
+
   /// A complex number is a tuple.
   static int constexpr kNumParams = 2;
   /// Complex multiplication is commutative (and it is a field itself).

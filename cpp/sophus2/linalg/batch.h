@@ -9,6 +9,7 @@
 #pragma once
 
 #include "sophus2/common/common.h"
+#include "sophus2/concepts/batch.h"
 
 namespace sophus2 {
 
@@ -87,22 +88,6 @@ template <class TT, int N>
 inline Batch<TT, N> operator*(TT s, Batch<TT, N> const& f) {
   return Batch{(s * f.lanes).eval()};
 }
-
-template <class TScalar>
-struct BatchTrait {
-  using Scalar = TScalar;
-  using ScalarBatch = TScalar;
-  static int constexpr kBatchSize = 1;
-  static bool constexpr kIsBatch = false;
-
-  static bool anyLessEqual(TScalar const& lhs, TScalar const& rhs) {
-    return lhs < rhs;
-  }
-
-  static bool allLessEqual(TScalar const& lhs, TScalar const& rhs) {
-    return lhs < rhs;
-  }
-};
 
 template <class TScalar, int kNum>
 struct BatchTrait<Batch<TScalar, kNum>> {

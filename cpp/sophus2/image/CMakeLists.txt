@@ -41,11 +41,9 @@ target_link_libraries(sophus2_image sophus2_geometry)
 
 
 
-if(${BUILD_SOPHUS_TESTS})
   foreach(test_basename ${sophus2_image_src_prefixes})
     farm_ng_add_test(${test_basename}
                           PARENT_LIBRARY sophus2_image
                           LINK_LIBRARIES sophus2_image
                           LABELS small)
   endforeach()
-endif()

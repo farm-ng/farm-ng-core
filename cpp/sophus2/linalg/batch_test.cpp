@@ -12,7 +12,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace sophus;
+using namespace sophus2;
 
 TEST(batch, unit) {
   int constexpr kNumBatches = 8;
@@ -34,7 +34,7 @@ TEST(batch, unit) {
     for (int n = 0; n < kN; ++n) {
       Batch<double, kNumBatches>& batch = batched_mat_7x3(m, n);
       for (int b = 0; b < kNumBatches; ++b) {
-        batch.b[b] = mat7x3_vec[b](m, n);
+        batch.lanes[b] = mat7x3_vec[b](m, n);
       }
     }
   }
@@ -44,7 +44,7 @@ TEST(batch, unit) {
     for (int o = 0; o < kO; ++o) {
       Batch<double, kNumBatches>& batch = batched_mat_3x5(n, o);
       for (int b = 0; b < kNumBatches; ++b) {
-        batch.b[b] = mat3x5_vec[b](n, o);
+        batch.lanes[b] = mat3x5_vec[b](n, o);
       }
     }
   }
@@ -59,7 +59,7 @@ TEST(batch, unit) {
     for (int o = 0; o < kO; ++o) {
       Batch<double, kNumBatches>& batch = batched_mat_7x5(m, o);
       for (int b = 0; b < kNumBatches; ++b) {
-        FARM_ASSERT_NEAR(batch.b[b], mat7x5_vec[b](m, o), 0.001);
+        FARM_ASSERT_WITHIN_ABS(batch.lanes[b], mat7x5_vec[b](m, o), 0.001);
       }
     }
   }

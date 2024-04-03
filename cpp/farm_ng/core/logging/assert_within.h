@@ -15,9 +15,11 @@
 #pragma once
 
 #include "farm_ng/core/logging/expected.h"
-#include "sophus2/linalg/batch.h"
+#include "sophus2/concepts/batch.h"
 
 #include <Eigen/Core>
+
+
 
 namespace farm_ng {
 
@@ -147,7 +149,7 @@ template <class TBatch, int kRows, int kCols>
 struct CheckNear<
     Eigen::Matrix<TBatch, kRows, kCols>,
     Eigen::Matrix<TBatch, kRows, kCols>,
-    std::enable_if_t<sophus2::BatchTrait<TBatch>::kIsBatch>> {
+    std::enable_if_t<::sophus2::BatchTrait<TBatch>::kIsBatch>> {
   static Expected<Success> check(
       bool check_relative,
       Eigen::Matrix<TBatch, kRows, kCols> const& lhs,

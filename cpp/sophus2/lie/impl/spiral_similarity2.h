@@ -10,6 +10,7 @@
 #include "sophus2/concepts/lie_group.h"
 #include "sophus2/lie/impl/rotation2.h"
 #include "sophus2/lie/impl/sim_mat_w.h"
+#include "sophus2/linalg/batch.h"
 #include "sophus2/manifold/complex.h"
 #include "sophus2/manifold/unit_vector.h"
 
@@ -100,6 +101,7 @@ class SpiralSimilarity2Impl {
   }
 
   static auto log(Params const& complex) -> Tangent {
+    using std::atan2;
     using std::log;
     Tangent theta_sigma;
     theta_sigma[0] =

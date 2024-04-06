@@ -115,7 +115,4 @@ struct ScalarBinaryOpTraits<
   using ReturnType = sophus2::concepts::CompatScalarEx<TT>;
 };
 
-
-
-
 }  // namespace Eigen

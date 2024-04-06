@@ -213,12 +213,12 @@ class CameraModelT {
 
   [[nodiscard]] auto scale(ImageSize const& image_size) const -> CameraModelT {
     Params params = this->params_;
-    params[0] = Scalar(image_size.width) / Scalar(image_size_.width) *
-                params[0];  // fx
+    params[0] =
+        Scalar(image_size.width) / Scalar(image_size_.width) * params[0];  // fx
     params[1] = Scalar(image_size.height) / Scalar(image_size_.height) *
                 params[1];  // fy
-    params[2] = Scalar(image_size.width) / Scalar(image_size_.width) *
-                params[2];  // cx
+    params[2] =
+        Scalar(image_size.width) / Scalar(image_size_.width) * params[2];  // cx
     params[3] = Scalar(image_size.height) / Scalar(image_size_.height) *
                 params[3];  // cy
     return CameraModelT({image_size.width, image_size.height}, params);
@@ -277,9 +277,10 @@ class CameraModelT {
   ///
   /// The point is projected onto the xy-plane at z = `depth_z`.
   [[nodiscard]] auto camUnproj(
-      PixelImage const& pixel_in_image, double depth_z) const -> PointCamera {
-    return Proj::unproj(
-        Distortion::template undistort(params_, pixel_in_image), depth_z);
+      PixelImage const& pixel_in_image, Scalar depth_z) const -> PointCamera {
+    ProjInCameraLifted dist =
+        Distortion::template undistort(params_, pixel_in_image);
+    return Proj::unproj(dist, depth_z);
   }
 
   /// Raw data access. To be used in ceres optimization only.
@@ -414,7 +415,7 @@ class CameraModel {
   [[nodiscard]] auto params() const -> Eigen::VectorXd;
 
   /// Sets `params` vector.
-  ///
+  /// Batch8PinholeModel batch_model;
   /// Precontion: ``params.size()`` must match the number of parameters of the
   ///             specified `projection_type` (TransformModel::kNumParams).
   void setParams(Eigen::VectorXd const& params);
@@ -461,8 +462,8 @@ class CameraModel {
   /// See for details:
   /// https://docs.google.com/document/d/1xmhCMWklP2UoQMGaMqFnsoPWoeMvBfXN7S8-ie9k0UA/edit#heading=h.97r8rr8owwpc
   ///
-  /// If the original width [height] is odd, the new width [height] will be:
-  /// (width+1)/2 [height+1)/2].
+  /// If the original width [height] is oddBatch8PinholeModel batch_model;, the
+  /// new width [height] will be: (width+1)/2 [height+1)/2].
   [[nodiscard]] auto subsampleDown() const -> CameraModel;
 
   /// Subsamples pixel up, factor of 2.0.

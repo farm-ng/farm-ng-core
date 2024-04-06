@@ -28,7 +28,7 @@ farm_ng_add_library(sophus2_linalg
   ${sophus2_linalg_h}
 )
 
-target_link_libraries(sophus2_linalg INTERFACE sophus2_common sophus_concept)
+target_link_libraries(sophus2_linalg INTERFACE sophus2_common sophus_concept farm_ng_core_pipeline)
 
   foreach(test_basename ${sophus2_linalg_src_prefixes})
     farm_ng_add_test(${test_basename}

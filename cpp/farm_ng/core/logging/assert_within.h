@@ -19,8 +19,6 @@
 
 #include <Eigen/Core>
 
-
-
 namespace farm_ng {
 
 /// Checks whether two floating point numbers x, y are close to each other.

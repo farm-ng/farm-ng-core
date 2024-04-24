@@ -133,6 +133,6 @@ class TestEventServiceGrpc:
             assert message.value == 42
             break
 
-    @pytest.mark.skip(reason="TODO: implement me")
+    # @pytest.mark.skip(reason="TODO: implement me")
     def test_list_uris(self) -> None:
         pass

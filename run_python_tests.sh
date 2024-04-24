@@ -11,11 +11,11 @@ if [[ "$*" == *"--asyncio"* ]]; then
     # iterate over all files in the directory
     for file in $PYTHON_ASYNCIO_TESTS_DIR/*.py; do
         # run the test
-        pytest -v $file || EXIT_STATUS=$?
+        pytest -vv $file || EXIT_STATUS=$?
     done
 
 # otherwise, run all tests except asyncio tests
 else
-    pytest -v $PYTHON_TESTS_DIR --ignore $PYTHON_ASYNCIO_TESTS_DIR || EXIT_STATUS=$?
+    pytest -vv $PYTHON_TESTS_DIR --ignore $PYTHON_ASYNCIO_TESTS_DIR || EXIT_STATUS=$?
 fi
 exit $EXIT_STATUS

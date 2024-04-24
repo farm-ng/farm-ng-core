@@ -148,7 +148,7 @@ def test_pose():
         err = ng.Pose3F64.error(world_from_robot, world_from_robot_now) * (1 / dt)
         print("err:", err)
         print("tan:", world_from_robot_now.tangent_of_b_in_a)
-        assert np.allclose(err, world_from_robot_now.tangent_of_b_in_a, atol=1e-6, rtol=1e-6)
+        assert np.allclose(err, world_from_robot_now.tangent_of_b_in_a)
         world_from_robot = world_from_robot_now
 
     world_from_robot_finish = ng.Pose3F64(

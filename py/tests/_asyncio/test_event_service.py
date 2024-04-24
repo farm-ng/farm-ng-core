@@ -12,9 +12,10 @@ from google.protobuf.wrappers_pb2 import Int32Value, StringValue
 if TYPE_CHECKING:
     from farm_ng.core.event_service import EventServiceGrpc
 
+pytestmark = pytest.mark.anyio
+
 
 class TestEventServiceGrpc:
-    @pytest.mark.anyio()
     async def test_smoke(self, event_service: EventServiceGrpc) -> None:
         # reset the counts
         event_service.reset()
@@ -27,7 +28,6 @@ class TestEventServiceGrpc:
         assert not event_service.uris
         assert event_service.request_reply_handler is None
 
-    @pytest.mark.anyio()
     async def test_publish(self, event_service: EventServiceGrpc) -> None:
         # reset the counts
         event_service.reset()
@@ -57,7 +57,6 @@ class TestEventServiceGrpc:
         assert event_service.metrics.data["/bar/send_count"] == 1
         assert event_service.uris["/bar"].query == message_uri.query
 
-    @pytest.mark.anyio()
     async def test_publish_error(self, event_service: EventServiceGrpc) -> None:
         # reset the counts
         event_service.reset()
@@ -72,7 +71,6 @@ class TestEventServiceGrpc:
         ):
             await event_service.publish(path="/foo", message=Int32Value(value=0))
 
-    @pytest.mark.anyio()
     async def test_multiple_publishers(self, event_service: EventServiceGrpc) -> None:
         async def _publish_message(
             event_service: EventServiceGrpc,
@@ -99,7 +97,6 @@ class TestEventServiceGrpc:
         assert event_service.metrics.data["/foo/send_count"] == 2
         assert event_service.metrics.data["/bar/send_count"] == 3
 
-    @pytest.mark.anyio()
     async def test_latch(self, event_service: EventServiceGrpc) -> None:
         # reset the counts
         event_service.reset()

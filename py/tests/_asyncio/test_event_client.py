@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     )
     from google.protobuf.message import Message
 
+pytestmark = pytest.mark.anyio
+
 
 class TestEventClient:
     def test_smoke(self, event_client: EventClient) -> None:
@@ -24,7 +26,6 @@ class TestEventClient:
         assert event_client.logger.name == "test_service/client"
         assert event_client.server_address == "localhost:5001"
 
-    @pytest.mark.anyio()
     async def test_publish_subscribe(
         self,
         event_service: EventServiceGrpc,
@@ -71,7 +72,6 @@ class TestEventClient:
                 pass
         assert task.done()
 
-    @pytest.mark.anyio()
     async def test_request_reply(
         self,
         event_service: EventServiceGrpc,
@@ -109,7 +109,6 @@ class TestEventClient:
         assert "StringValue" in res.event.uri.query
         assert res.payload == b"\n\x03foo"
 
-    @pytest.mark.anyio()
     async def test_request_reply_callback(
         self,
         event_service: EventServiceGrpc,

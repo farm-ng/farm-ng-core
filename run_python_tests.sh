@@ -10,8 +10,10 @@ EXIT_STATUS=0
 if [[ "$*" == *"--asyncio"* ]]; then
     # iterate over all files in the directory
     for file in $PYTHON_ASYNCIO_TESTS_DIR/*.py; do
-        # run the test
-        pytest -v $file || EXIT_STATUS=$?
+        if [[ "$(basename $file)" != "__init__.py" ]]; then
+            # run the test
+            pytest -v $file || EXIT_STATUS=$?
+        fi
     done
 
 # otherwise, run all tests except asyncio tests

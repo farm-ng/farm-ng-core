@@ -1,4 +1,5 @@
 import pytest
+from farm_ng.core import uri_pb2
 from farm_ng.core.event_client_manager import EventClientSubscriptionManager
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfigList,
@@ -38,7 +39,13 @@ class TestEventServiceBackend:
         event_manager: EventClientSubscriptionManager,
     ) -> None:
         # register a topic
-        assert event_manager._try_register_topic("test_service", "/foo")
+        uri_foo: uri_pb2.Uri = uri_pb2.Uri(
+            scheme="protobuf",
+            authority="localhost",
+            path="/foo",
+            query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto&service_name=test_service",
+        )
+        assert event_manager._try_register_topic("test_service", uri=uri_foo)
         assert "test_service/foo" in event_manager._subscriptions
         assert event_manager._subscriptions["test_service/foo"].uri.path == "/foo"
         assert (
@@ -47,24 +54,34 @@ class TestEventServiceBackend:
         )
         assert event_manager._subscriptions["test_service/foo"].every_n == 1
 
-        # register a second topic
-        assert event_manager._try_register_topic("test_service", "/bar")
-        assert "test_service/bar" in event_manager._subscriptions
-        assert event_manager._subscriptions["test_service/bar"].uri.path == "/bar"
-        assert (
-            event_manager._subscriptions["test_service/bar"].uri.query
-            == "service_name=test_service"
+        # register a second topic, on a sub-service
+        uri_bar: uri_pb2.Uri = uri_pb2.Uri(
+            path="/bar",
+            query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto&service_name=sub_service",
         )
-        assert event_manager._subscriptions["test_service/bar"].every_n == 1
+        assert event_manager._try_register_topic("test_service", uri_bar)
+        assert "sub_service/bar" in event_manager._subscriptions
+        assert event_manager._subscriptions["sub_service/bar"].uri.path == "/bar"
+        assert (
+            event_manager._subscriptions["sub_service/bar"].uri.query
+            == "service_name=sub_service"
+        )
+        assert event_manager._subscriptions["sub_service/bar"].every_n == 1
 
         # register a topic for a service that doesn't exist
-        assert not event_manager._try_register_topic("unexisting_service", "/bar")
+        assert not event_manager._try_register_topic("unexisting_service", uri_bar)
 
         # register a topic that already exists
-        assert not event_manager._try_register_topic("test_service", "/foo")
+        assert not event_manager._try_register_topic("test_service", uri_foo)
 
     def test_get_all_uris(self, event_manager: EventClientSubscriptionManager) -> None:
-        assert event_manager._try_register_topic("test_service", "/foo")
+        uri: uri_pb2.Uri = uri_pb2.Uri(
+            scheme="protobuf",
+            authority="localhost",
+            path="/foo",
+            query="type=farm_ng.core.proto.Timestamp&pb=farm_ng/core/timestamp.proto&service_name=sub_service",
+        )
+        assert event_manager._try_register_topic("test_service", uri)
         config_list = event_manager.get_all_uris_config_list(
             config_name="record_default",
         )
@@ -75,6 +92,6 @@ class TestEventServiceBackend:
         assert config_list.configs[1].subscriptions[0].uri.path == "/foo"
         assert (
             config_list.configs[1].subscriptions[0].uri.query
-            == "service_name=test_service"
+            == "service_name=sub_service"
         )
         assert config_list.configs[1].subscriptions[0].every_n == 1

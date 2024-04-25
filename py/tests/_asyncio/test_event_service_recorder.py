@@ -18,6 +18,8 @@ from google.protobuf.wrappers_pb2 import Int32Value
 if TYPE_CHECKING:
     from farm_ng.core.uri_pb2 import Uri
 
+pytestmark = pytest.mark.anyio
+
 
 async def request_reply_handler(
     request: RequestReplyRequest,
@@ -37,7 +39,6 @@ class TestEventServiceRecorder:
         assert recorder_service.logger.name == "record_default"
         assert recorder_service.record_queue.qsize() == 0
 
-    @pytest.mark.anyio()
     async def test_event_service_recorder(
         self,
         tmp_path: Path,
@@ -85,7 +86,6 @@ class TestEventServiceRecorder:
             event_message = event_log.read_message()
             assert event_message == message
 
-    @pytest.mark.anyio()
     async def test_file_headers(
         self,
         tmp_path: Path,
@@ -147,7 +147,6 @@ class TestEventServiceRecorder:
 
 
 class TestRecorderService:
-    @pytest.mark.anyio()
     async def test_recorder_service(
         self,
         tmp_path: Path,

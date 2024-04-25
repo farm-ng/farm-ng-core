@@ -13,6 +13,8 @@ from farm_ng.core.event_service_recorder import EventServiceRecorder
 
 from .event_common import event_service_config_list as _event_service_config_list
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture(scope="session")
 def anyio_backend():
@@ -31,7 +33,6 @@ def event_service_config(
     return event_service_config_list.configs[0]
 
 
-@pytest.mark.anyio()
 @pytest.fixture(scope="module")
 async def event_service(
     event_service_config: EventServiceConfig,

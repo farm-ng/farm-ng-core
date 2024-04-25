@@ -14,13 +14,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10']
+        # Using macos-12 bc:
+        #  1. they removed support for python 3.8 & 3.9 on macos-14 (now macos-latest)
+        #    - See: https://github.com/actions/setup-python/issues/696#issuecomment-2071769156
+        #  2. `test_pose` fails on macos-13 and macos-14 (but not macos-12)
+        os: [ubuntu-latest, macos-12]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: "recursive"
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies

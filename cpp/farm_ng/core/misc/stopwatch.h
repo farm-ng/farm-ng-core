@@ -62,6 +62,7 @@ class StopwatchSingleton {
     }
     b.sum += d;
     ++b.num;
+    b.last = d;
     return d;
   }
 
@@ -75,6 +76,8 @@ class StopwatchSingleton {
     double max;
     /// Number of times timer was called.
     int num;
+    /// Last duration of timer.
+    double last;
   };
 
   /// Return container of stopwatch timer statistics.
@@ -86,6 +89,7 @@ class StopwatchSingleton {
       stats.num = bucket.second.num;
       stats.min = bucket.second.min;
       stats.max = bucket.second.max;
+      stats.last = bucket.second.last;
       stats_vec.insert({bucket.first, stats});
     }
     return stats_vec;
@@ -97,7 +101,8 @@ class StopwatchSingleton {
       std::cout << stats.first << " mean time: " << stats.second.mean
                 << " min time: " << stats.second.min
                 << " max time: " << stats.second.max
-                << " num: " << stats.second.num << std::endl;
+                << " num: " << stats.second.num
+                << " last: " << stats.second.last << std::endl;
     }
   }
 
@@ -111,6 +116,7 @@ class StopwatchSingleton {
     double sum = 0.0;
     double min = std::numeric_limits<double>::max();
     double max = std::numeric_limits<double>::lowest();
+    double last = 0.0;
   };
 
   std::map<std::string, Bucket> timers_;

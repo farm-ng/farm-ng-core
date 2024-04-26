@@ -19,6 +19,7 @@
 #include <chrono>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <optional>
 #include <stdexcept>
 
@@ -36,21 +37,33 @@ class StopwatchSingleton {
 
   /// Start a new, named timer.
   void start(std::string str) {
+    std::scoped_lock lock(timers_mutex_);
     auto start_time = std::chrono::high_resolution_clock::now();
 
     Bucket& b = timers_[str];
-    FARM_ASSERT(!b.maybe_start, "{} is already started", str);
+    if (b.maybe_start) {
+      FARM_WARN("'{}' is already started", str);
+    }
     b.maybe_start = start_time;
   }
 
   /// Stops the named timer and returns the duration.
   double stop(std::string str) {
+    std::scoped_lock lock(timers_mutex_);
+
     auto stop_time = std::chrono::high_resolution_clock::now();
 
     auto it = timers_.find(str);
-    FARM_ASSERT(it != timers_.end());
+    if (it == timers_.end()) {
+      FARM_WARN("{} is not started, but 'stop' was called!", str);
+      return 0.0;
+    }
     Bucket& b = it->second;
-    FARM_ASSERT(b.maybe_start);
+
+    if (!b.maybe_start) {
+      FARM_WARN("Tried stopping '{}', but 'stop' was called already.", str);
+      return 0.0;
+    }
     std::chrono::duration<double> diff = stop_time - *b.maybe_start;
     b.maybe_start.reset();
     double d = diff.count();
@@ -79,6 +92,8 @@ class StopwatchSingleton {
 
   /// Return container of stopwatch timer statistics.
   std::map<std::string, StopwatchStats> getStats() {
+    std::scoped_lock lock(timers_mutex_);
+
     std::map<std::string, StopwatchStats> stats_vec;
     for (auto const& bucket : timers_) {
       StopwatchStats stats;
@@ -112,7 +127,7 @@ class StopwatchSingleton {
     double min = std::numeric_limits<double>::max();
     double max = std::numeric_limits<double>::lowest();
   };
-
+  std::mutex timers_mutex_;
   std::map<std::string, Bucket> timers_;
 };
 

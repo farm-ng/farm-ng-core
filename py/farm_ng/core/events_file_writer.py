@@ -26,7 +26,9 @@ __all__ = [
 
 
 def proto_to_json_file(
-    file_path: str | Path, proto_message: Message, preserving_proto_field_name=False,
+    file_path: str | Path,
+    proto_message: Message,
+    preserving_proto_field_name=False,
 ) -> bool:
     """Write a proto Message to a JSON file. The parent directory of the file must exist.
 
@@ -48,7 +50,8 @@ def proto_to_json_file(
     with Path(file_path).open("w", encoding="utf-8") as file:
         file.write(
             MessageToJson(
-                proto_message, preserving_proto_field_name=preserving_proto_field_name,
+                proto_message,
+                preserving_proto_field_name=preserving_proto_field_name,
             ),
         )
         file.write("\n")

@@ -25,12 +25,17 @@ __all__ = [
 ]
 
 
-def proto_to_json_file(file_path: str | Path, proto_message: Message) -> bool:
+def proto_to_json_file(
+    file_path: str | Path,
+    proto_message: Message,
+    preserving_proto_field_name=False,
+) -> bool:
     """Write a proto Message to a JSON file. The parent directory of the file must exist.
 
     Args:
         file_path (str | Path): The path to the JSON file to create / overwrite.
         proto_message (Message): The proto message to write to the JSON file.
+        preserving_proto_field_name (bool): See MessageToJson in https://googleapis.dev/python/protobuf/latest/google/protobuf/json_format.html
 
     Returns:
         True if the file was written successfully, False otherwise.
@@ -43,7 +48,12 @@ def proto_to_json_file(file_path: str | Path, proto_message: Message) -> bool:
         return False
 
     with Path(file_path).open("w", encoding="utf-8") as file:
-        file.write(MessageToJson(proto_message))
+        file.write(
+            MessageToJson(
+                proto_message,
+                preserving_proto_field_name=preserving_proto_field_name,
+            ),
+        )
         file.write("\n")
 
     return True

@@ -313,6 +313,8 @@ class EventServiceGrpc:
         event.uri.path = "/request" + event.uri.path
 
         reply_message: Message
+        maybe_updated_event: Event | None = None
+        maybe_new_stamps: list[Timestamp] | None = None
         if self._request_reply_handler is not None:
             # decode the requested message to satisfy the handler signature
             if self._decode_request_reply_handler_message:
@@ -329,6 +331,9 @@ class EventServiceGrpc:
                     "Request invalid, please check your request channel and packet %s",
                     request,
                 )
+
+            if isinstance(reply_message, Event):
+                maybe_updated_event = reply_message
         else:
             reply_message = Empty()
 
@@ -345,12 +350,21 @@ class EventServiceGrpc:
         timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
         timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
 
+        if maybe_updated_event is not None:
+            maybe_new_stamps = [stamp for stamp in maybe_updated_event.timestamps if stamp.semantics != StampSemantics.SERVICE_SEND]
+
+
         event = Event(
             uri=reply_uri,
             timestamps=timestamps,
             payload_length=len(reply_payload),
             sequence=event.sequence,
         )
+
+        if maybe_new_stamps is not None:
+            for stamp in maybe_new_stamps:
+                event.timestamps.append(stamp)
+
         return RequestReplyReply(event=event, payload=reply_payload)
 
     # private methods

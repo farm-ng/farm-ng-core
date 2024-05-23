@@ -12,7 +12,7 @@ import inspect
 import logging
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, AsyncIterator, Callable
+from typing import TYPE_CHECKING, AsyncIterator, Callable, Optional, Tuple
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
@@ -313,27 +313,30 @@ class EventServiceGrpc:
         event.uri.path = "/request" + event.uri.path
 
         reply_message: Message
-        maybe_updated_event: Event | None = None
-        maybe_new_stamps: list[Timestamp] | None = None
+        reply_event: Optional[Event] = None
+
+        async def request_handler_wrapper(*args, **kwargs) -> Tuple[Message, Optional[Event]]:
+            result = await self._request_reply_handler(*args, **kwargs)
+            if isinstance(result, tuple) and len(result) == 2:
+                return result
+            return result, None
+
         if self._request_reply_handler is not None:
             # decode the requested message to satisfy the handler signature
             if self._decode_request_reply_handler_message:
                 message = payload_to_protobuf(request.event, request.payload)
-                reply_message = await self._request_reply_handler(
+                reply_message, reply_event = await request_handler_wrapper(
                     request.event,
                     message,
                 )
             else:
-                reply_message = await self._request_reply_handler(request)
+                reply_message, reply_event = await request_handler_wrapper(request)
 
             if reply_message is None:
                 self.logger.error(
                     "Request invalid, please check your request channel and packet %s",
                     request,
                 )
-
-            if isinstance(reply_message, Event):
-                maybe_updated_event = reply_message
         else:
             reply_message = Empty()
 
@@ -350,9 +353,10 @@ class EventServiceGrpc:
         timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
         timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
 
-        if maybe_updated_event is not None:
-            maybe_new_stamps = [stamp for stamp in maybe_updated_event.timestamps if stamp.semantics != StampSemantics.SERVICE_SEND]
-
+        if reply_event is not None:
+            timestamps.extend(
+                timestamp for timestamp in reply_event.timestamps if timestamp.semantics != StampSemantics.SERVICE_SEND
+            )
 
         event = Event(
             uri=reply_uri,
@@ -361,11 +365,9 @@ class EventServiceGrpc:
             sequence=event.sequence,
         )
 
-        if maybe_new_stamps is not None:
-            for stamp in maybe_new_stamps:
-                event.timestamps.append(stamp)
-
         return RequestReplyReply(event=event, payload=reply_payload)
+
+
 
     # private methods
 

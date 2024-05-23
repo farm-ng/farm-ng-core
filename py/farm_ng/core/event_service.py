@@ -12,7 +12,7 @@ import inspect
 import logging
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, AsyncIterator, Callable, Optional, Tuple
+from typing import TYPE_CHECKING, AsyncIterator, Callable
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
@@ -313,11 +313,18 @@ class EventServiceGrpc:
         event.uri.path = "/request" + event.uri.path
 
         reply_message: Message
-        reply_event: Optional[Event] = None
+        reply_event: Event | None = None
 
-        async def request_handler_wrapper(*args, **kwargs) -> Tuple[Message, Optional[Event]]:
+        async def request_handler_wrapper(
+            *args,
+            **kwargs,
+        ) -> tuple[Message, Event | None]:
+            if self._request_reply_handler is None:
+                self.logger.error("No request/reply handler set, returning Empty()")
+                return Empty(), None
+            expected_args: int = 2
             result = await self._request_reply_handler(*args, **kwargs)
-            if isinstance(result, tuple) and len(result) == 2:
+            if isinstance(result, tuple) and len(result) == expected_args:
                 return result
             return result, None
 
@@ -355,7 +362,9 @@ class EventServiceGrpc:
 
         if reply_event is not None:
             timestamps.extend(
-                timestamp for timestamp in reply_event.timestamps if timestamp.semantics != StampSemantics.SERVICE_SEND
+                timestamp
+                for timestamp in reply_event.timestamps
+                if timestamp.semantics != StampSemantics.SERVICE_SEND
             )
 
         event = Event(
@@ -366,8 +375,6 @@ class EventServiceGrpc:
         )
 
         return RequestReplyReply(event=event, payload=reply_payload)
-
-
 
     # private methods
 

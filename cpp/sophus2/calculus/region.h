@@ -1,4 +1,3 @@
-
 // Copyright (c) 2011, Hauke Strasdat
 // Copyright (c) 2012, Steven Lovegrove
 // Copyright (c) 2021, farm-ng, inc.
@@ -43,7 +42,7 @@ using Region4F64 = Region4<double>;
 /// A region is a closed interval [a, b] with a being the lower bound (=min) and
 /// b being the upper bound (=max).
 ///
-/// Here, the bounds a, b are either both  scalars (e.g. floats, doubles)
+/// Here, the bounds a, b are either both scalars (e.g. floats, doubles)
 /// or fixed length vectors/arrays (such as Eigen::Vector3f or Eigen::Array2d).
 ///
 /// Special case for integer numbers:
@@ -70,12 +69,12 @@ class Region {
   static int constexpr kDim = kRows * kCols;
 
   /// Creates an uninitialized region.
-  static auto uninitialized() noexcept -> Region<TPoint> {
+  static constexpr auto uninitialized() noexcept -> Region<TPoint> {
     return Region(UninitTag{});
   }
 
   /// Creates and empty region.
-  static auto empty() noexcept -> Region<TPoint> {
+  static constexpr auto empty() noexcept -> Region<TPoint> {
     auto region = Region<TPoint>::uninitialized();
     region.min_max_ = {
         PointTraits<TPoint>::max(), PointTraits<TPoint>::lowest()};
@@ -85,7 +84,7 @@ class Region {
   /// Creates unbounded region.
   ///
   /// If TPoint is floating point, the region is [-inf, +inf].
-  static auto unbounded() noexcept -> Region<TPoint> {
+  static constexpr auto unbounded() noexcept -> Region<TPoint> {
     auto region = Region<TPoint>::uninitialized();
     region.min_max_ = {
         PointTraits<TPoint>::lowest(), PointTraits<TPoint>::max()};
@@ -95,7 +94,7 @@ class Region {
   /// Creates a region from a given point.
   ///
   /// If TPoint is a floating point then the region is considered degenerated.
-  static auto from(TPoint const& p) noexcept -> Region<TPoint> {
+  static constexpr auto from(TPoint const& p) noexcept -> Region<TPoint> {
     auto region = Region<TPoint>::empty();
     SOPHUS_ASSERT(!isNan(p));
     region.min_max_[0] = p;
@@ -107,7 +106,7 @@ class Region {
   ///
   /// The points min, max need not to be ordered. After construction it will be
   /// true that this->min() <= this->max().
-  static auto fromMinMax(TPoint const& min, TPoint const& max) noexcept
+  static constexpr auto fromMinMax(TPoint const& min, TPoint const& max) noexcept
       -> Region<TPoint> {
     auto region = Region<TPoint>::empty();
     SOPHUS_ASSERT(!isNan(min));
@@ -125,7 +124,7 @@ class Region {
   /// Note: This constructor is only available for scalar regions. For
   /// multi-dim regions, use the  fromMinMax() factory instead.,
   template <class TScalar>
-  requires std::is_same_v<TPoint, TScalar> Region(
+  requires std::is_same_v<TPoint, TScalar> constexpr Region(
       TScalar const& p1, TScalar const& p2)
   noexcept : min_max_{p1, p1} {
     SOPHUS_ASSERT(!isNan(p1));
@@ -138,7 +137,7 @@ class Region {
   ///  - interval segment along X
   ///  - interval segment along Y
   template <class TScalar>
-  static auto createPerAxis(
+  static constexpr auto createPerAxis(
       Region<TScalar> const& segment_x,
       Region<TScalar> const& segment_y) noexcept -> Region2<TScalar> {
     auto region = Region<TPoint>::uninitialized();
@@ -153,7 +152,7 @@ class Region {
   ///  - interval segment along Y
   ///  - interval segment along Z
   template <class TScalar>
-  static auto createPerAxis(
+  static constexpr auto createPerAxis(
       Region<TScalar> const& segment_x,
       Region<TScalar> const& segment_y,
       Region<TScalar> const& segment_z) noexcept -> Region2<TScalar> {
@@ -171,7 +170,7 @@ class Region {
   ///  - interval segment along dimension 2
   ///  - interval segment along dimension 3
   template <class TScalar>
-  static auto createPerAxis(
+  static constexpr auto createPerAxis(
       Region<TScalar> const& segment_0,
       Region<TScalar> const& segment_1,
       Region<TScalar> const& segment_2,
@@ -185,14 +184,14 @@ class Region {
   }
 
   /// Precondition: !this->isEmptpy()
-  [[nodiscard]] auto getElem(size_t row) const -> Region<Scalar> const& {
+  [[nodiscard]] constexpr auto getElem(size_t row) const -> Region<Scalar> const& {
     return {
         SOPHUS_UNWRAP(tryGetElem(min(), row)),
         SOPHUS_UNWRAP(tryGetElem(max(), row))};
   }
 
   /// Precondition: !this->isEmptpy()
-  void setElem(size_t row, Region<Scalar> const& s) {
+  constexpr void setElem(size_t row, Region<Scalar> const& s) {
     SOPHUS_UNWRAP(trySetElem(min(), s, row));
     SOPHUS_UNWRAP(trySetElem(max(), s, row));
   }
@@ -200,7 +199,7 @@ class Region {
   /// Returns the lower bound of the region.
   ///
   /// Precondition: !this->isEmptpy()
-  [[nodiscard]] auto min() const noexcept -> TPoint const& {
+  [[nodiscard]] constexpr auto min() const noexcept -> TPoint const& {
     SOPHUS_ASSERT(!this->isEmpty());
     return min_max_[0];
   }
@@ -208,13 +207,13 @@ class Region {
   /// Returns the upper bound of the region.
   ///
   /// Precondition: !this->isEmptpy()
-  [[nodiscard]] auto max() const noexcept -> TPoint const& {
+  [[nodiscard]] constexpr auto max() const noexcept -> TPoint const& {
     SOPHUS_ASSERT(!this->isEmpty());
     return min_max_[1];
   }
 
   /// Returns the lower bound of the region if it exit and nullopt otherwise.
-  [[nodiscard]] auto tryMin() const noexcept -> std::optional<TPoint> {
+  [[nodiscard]] constexpr auto tryMin() const noexcept -> std::optional<TPoint> {
     if (isEmpty()) {
       return std::nullopt;
     }
@@ -222,7 +221,7 @@ class Region {
   }
 
   /// Returns the lower bound of the region if it exists and nullopt otherwise.
-  [[nodiscard]] auto tryMax() const noexcept -> std::optional<TPoint> {
+  [[nodiscard]] constexpr auto tryMax() const noexcept -> std::optional<TPoint> {
     if (isEmpty()) {
       return std::nullopt;
     }
@@ -232,12 +231,12 @@ class Region {
   /// Returns the clamped version of the given point.
   ///
   /// Precondition: !this->isEmptpy()
-  [[nodiscard]] auto clamp(TPoint const& point) const noexcept -> TPoint {
+  [[nodiscard]] constexpr auto clamp(TPoint const& point) const noexcept -> TPoint {
     return sophus2::clamp(point, min(), max());
   }
 
   /// Returns true if the region contains the given point.
-  [[nodiscard]] auto contains(TPoint const& point) const noexcept -> bool {
+  [[nodiscard]] constexpr auto contains(TPoint const& point) const noexcept -> bool {
     if (isEmpty()) {
       return false;
     }
@@ -247,7 +246,7 @@ class Region {
   /// Returns the range of the region.
   ///
   /// It is zero if the region is not proper.
-  [[nodiscard]] auto range() const noexcept -> TPoint {
+  [[nodiscard]] constexpr auto range() const noexcept -> TPoint {
     if (isEmpty()) {
       return zero<TPoint>();
     }
@@ -265,12 +264,12 @@ class Region {
   /// the closed integer.
   ///
   /// Precondition: !this->isEmptpy()
-  [[nodiscard]] auto mid() const noexcept -> TPoint {
+  [[nodiscard]] constexpr auto mid() const noexcept -> TPoint {
     return eval(min() + range() / 2);
   }
 
   /// Extends this by other region.
-  auto extend(Region const& other) noexcept -> Region<TPoint>& {
+  constexpr auto extend(Region const& other) noexcept -> Region<TPoint>& {
     if (other.isEmpty()) {
       return *this;
     }
@@ -284,7 +283,7 @@ class Region {
   }
 
   /// Extends this by given point.
-  auto extend(TPoint const& point) noexcept -> Region<TPoint>& {
+  constexpr auto extend(TPoint const& point) noexcept -> Region<TPoint>& {
     if (this->isEmpty()) {
       *this = from(point);
     } else {
@@ -295,7 +294,7 @@ class Region {
   }
 
   /// Returns translated region.
-  [[nodiscard]] auto translated(TPoint const& p) const noexcept
+  [[nodiscard]] constexpr auto translated(TPoint const& p) const noexcept
       -> Region<TPoint> {
     return Region<TPoint>::fromMinMax(min_max_[0] + p, min_max_[1] + p);
   }
@@ -312,7 +311,7 @@ class Region {
   /// Note: floating point to integer is not supported and shall not compile.
   ///       Use either encloseCast or roundCast.
   template <class TOtherPoint>
-  auto cast() const noexcept -> Region<TOtherPoint> {
+  constexpr auto cast() const noexcept -> Region<TOtherPoint> {
     if (isEmpty()) {
       return Region<TOtherPoint>::empty();
     }
@@ -340,7 +339,7 @@ class Region {
   ///
   /// example: [1.2, 1.3] -> [1, 2]
   template <class TOtherPoint>
-  auto encloseCast() const noexcept -> Region<TOtherPoint> {
+  constexpr auto encloseCast() const noexcept -> Region<TOtherPoint> {
     static_assert(!kIsInteger && Region<TOtherPoint>::kIsInteger);
     if (isEmpty()) {
       return Region<TOtherPoint>::empty();
@@ -355,7 +354,7 @@ class Region {
   /// example: [1.2, 2.3] -> [1, 2]
   /// example: [1.1, 2.7] -> [1, 3]
   template <class TOtherPoint>
-  auto roundCast() const noexcept -> Region<TOtherPoint> {
+  constexpr auto roundCast() const noexcept -> Region<TOtherPoint> {
     if (isEmpty()) {
       return Region<TOtherPoint>::empty();
     }
@@ -366,37 +365,37 @@ class Region {
   }
 
   /// Returns true if region is empty.
-  [[nodiscard]] auto isEmpty() const noexcept -> bool {
+  [[nodiscard]] constexpr auto isEmpty() const noexcept -> bool {
     return allTrue(min_max_[0] == PointTraits<TPoint>::max()) &&
            allTrue(min_max_[1] == PointTraits<TPoint>::lowest());
   }
 
   /// Returns true if region contains a single floating point number.
-  [[nodiscard]] auto isDegenerated() const noexcept -> bool {
+  [[nodiscard]] constexpr auto isDegenerated() const noexcept -> bool {
     return !kIsInteger && allTrue(min_max_[0] == min_max_[1]);
   }
 
   /// Returns true if region is neither empty nor degenerated.
   /// Hence it contains a range of values.
-  [[nodiscard]] auto isProper() const noexcept -> bool {
+  [[nodiscard]] constexpr auto isProper() const noexcept -> bool {
     return !this->isEmpty() && !this->isDegenerated();
   }
 
   /// Returns true if region has no bounds.
-  [[nodiscard]] auto isUnbounded() const noexcept -> bool {
+  [[nodiscard]] constexpr auto isUnbounded() const noexcept -> bool {
     return allTrue(min_max_[0] == PointTraits<TPoint>::lowest()) &&
            allTrue(min_max_[1] == PointTraits<TPoint>::max());
   }
 
  private:
-  explicit Region(UninitTag /*unused*/) {}
+  explicit constexpr Region(UninitTag /*unused*/) {}
 
   // invariant: this->isEmpty() or min_max[0] <= min_max[1]
   std::array<TPoint, 2> min_max_;
 };
 
 template <class TT>
-auto operator==(Region<TT> const& lhs, Region<TT> const& rhs) -> bool {
+constexpr auto operator==(Region<TT> const& lhs, Region<TT> const& rhs) -> bool {
   return lhs.min() == rhs.min() && lhs.max() == rhs.max();
 }
 

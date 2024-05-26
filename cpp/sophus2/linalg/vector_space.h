@@ -51,7 +51,7 @@ auto eval(TPoint const& p) {
 }
 
 template <::sophus2::concepts::ScalarType TPoint>
-auto allTrue(TPoint const& p) -> bool {
+auto constexpr allTrue(TPoint const& p) -> bool {
   return bool(p);
 }
 
@@ -81,7 +81,7 @@ auto isFinite(TPoint const& p) -> bool {
 }
 
 template <::sophus2::concepts::ScalarType TPoint>
-auto isNan(TPoint const& p) -> bool {
+auto constexpr isNan(TPoint const& p) -> bool {
   return std::isnan(p);
 }
 
@@ -101,22 +101,22 @@ auto square(TPoint const& v) {
 }
 
 template <::sophus2::concepts::ScalarType TPoint>
-auto min(TPoint const& a, TPoint const& b) -> TPoint {
+auto constexpr min(TPoint const& a, TPoint const& b) -> TPoint {
   return std::min(a, b);
 }
 
 template <::sophus2::concepts::EigenDenseType TPoint>
-auto min(TPoint const& a, TPoint const& b) -> TPoint {
+auto constexpr min(TPoint const& a, TPoint const& b) -> TPoint {
   return a.cwiseMin(b);
 }
 
 template <::sophus2::concepts::ScalarType TPoint>
-auto max(TPoint const& a, TPoint const& b) -> TPoint {
+auto constexpr max(TPoint const& a, TPoint const& b) -> TPoint {
   return std::max(a, b);
 }
 
 template <::sophus2::concepts::EigenDenseType TPoint>
-auto max(TPoint const& a, TPoint const& b) -> TPoint {
+auto constexpr max(TPoint const& a, TPoint const& b) -> TPoint {
   return a.cwiseMax(b);
 }
 

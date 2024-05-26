@@ -89,9 +89,9 @@ struct PointTraits<TPoint> {
   static bool constexpr kHasSignalingNan =
       std::numeric_limits<Scalar>::has_signaling_NaN;
 
-  static TPoint lowest() { return std::numeric_limits<Scalar>::lowest(); };
-  static TPoint min() { return std::numeric_limits<Scalar>::min(); };
-  static TPoint max() { return std::numeric_limits<Scalar>::max(); };
+  static constexpr TPoint lowest() { return std::numeric_limits<Scalar>::lowest(); };
+  static constexpr TPoint min() { return std::numeric_limits<Scalar>::min(); };
+  static constexpr TPoint max() { return std::numeric_limits<Scalar>::max(); };
 };
 // END(exclude from doxygen) \endcond
 

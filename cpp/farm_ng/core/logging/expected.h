@@ -30,6 +30,11 @@ namespace farm_ng {
 struct Error {
   /// A list (or stack) of error details.
   std::vector<ErrorDetail> details;
+
+  /// Method to easily append details from another Error object
+  void appendErrorDetails(Error const& error) {
+    details.insert(details.end(), error.details.begin(), error.details.end());
+  }
 };
 
 std::ostream& operator<<(std::ostream& os, Error const& error);
@@ -91,14 +96,14 @@ struct UnwrapImpl<tl::expected<TT, TE>> {
 
 /// Assigns `*expression` to `var` of `Type`, but returns error if there is
 /// one.
-#define FARM_TRY(Type, var, expression)                     \
-  auto maybe##var = (expression);                           \
-  if (!maybe##var) {                                        \
-    auto error = maybe##var.error();                        \
-    error.details.emplace_back(                             \
-        FARM_ERROR_DETAIL("FARM_TRY propagated error.\n")); \
-    return ::tl::make_unexpected(error);                    \
-  }                                                         \
+#define FARM_TRY(Type, var, expression)                   \
+  auto maybe##var = (expression);                         \
+  if (!maybe##var) {                                      \
+    auto error = maybe##var.error();                      \
+    error.details.emplace_back(                           \
+        FARM_ERROR_DETAIL("FARM_TRY propagated error.")); \
+    return ::tl::make_unexpected(error);                  \
+  }                                                       \
   Type var = ::std::move(*maybe##var);
 
 #define FARM_TRY_ASSERT(condition, ...)                                  \

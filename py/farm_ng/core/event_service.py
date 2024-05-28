@@ -322,9 +322,9 @@ class EventServiceGrpc:
             if self._request_reply_handler is None:
                 self.logger.error("No request/reply handler set, returning Empty()")
                 return Empty(), None
-            expected_args: int = 2
+            expected_args: list = ["reply_message", "reply_event"]
             result = await self._request_reply_handler(*args, **kwargs)
-            if isinstance(result, tuple) and len(result) == expected_args:
+            if isinstance(result, tuple) and len(result) == len(expected_args):
                 return result
             return result, None
 

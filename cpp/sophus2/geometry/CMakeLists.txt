@@ -17,7 +17,6 @@ farm_ng_add_library(sophus2_geometry
 )
 target_link_libraries(sophus2_geometry INTERFACE sophus2_lie)
 
-if(${BUILD_SOPHUS_TESTS})
   foreach(test_basename
     fit_plane
     inverse_depth
@@ -29,4 +28,3 @@ if(${BUILD_SOPHUS_TESTS})
                           LINK_LIBRARIES sophus2_geometry
                           LABELS small)
   endforeach()
-endif()

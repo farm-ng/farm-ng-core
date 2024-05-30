@@ -388,7 +388,7 @@ class Region {
   }
 
  private:
-  explicit constexpr Region(UninitTag /*unused*/) {}
+  explicit constexpr Region(UninitTag /*unused*/): min_max_({TPoint{}, TPoint{}})  {}
 
   // invariant: this->isEmpty() or min_max[0] <= min_max[1]
   std::array<TPoint, 2> min_max_;

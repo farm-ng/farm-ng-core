@@ -36,11 +36,9 @@ SOURCES
 target_link_libraries(sophus2_sensor sophus2_lie sophus2_image)
 
 
-if(${BUILD_SOPHUS_TESTS})
-  foreach(test_basename ${sophus2_sensor_src_prefixes})
-    farm_ng_add_test(${test_basename}
-                          PARENT_LIBRARY sophus2_sensor
-                          LINK_LIBRARIES sophus2_sensor
-                          LABELS small)
-  endforeach()
-endif()
+foreach(test_basename ${sophus2_sensor_src_prefixes})
+  farm_ng_add_test(${test_basename}
+                        PARENT_LIBRARY sophus2_sensor
+                        LINK_LIBRARIES sophus2_sensor
+                        LABELS small)
+endforeach()

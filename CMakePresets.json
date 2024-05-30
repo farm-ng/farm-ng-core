@@ -14,7 +14,6 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "BUILD_SOPHUS_TESTS": "On",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_CXX_FLAGS": "-Werror -Wall -Wextra -Wpedantic -Wno-unused-local-typedef -Wno-unused-local-typedef -Wno-gnu-zero-variadic-macro-arguments -Wno-unused-parameter -Wno-unused-variable -Wno-vla-extension",
         "CMAKE_CXX_EXTENSIONS": "OFF",
@@ -58,7 +57,6 @@
       "displayName": "GCC RelWithDebInfo",
       "inherits": "common",
       "cacheVariables": {
-        "BUILD_SOPHUS_TESTS": "On",
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",

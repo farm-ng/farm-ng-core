@@ -30,11 +30,9 @@ farm_ng_add_library(sophus2_linalg
 
 target_link_libraries(sophus2_linalg INTERFACE sophus2_common sophus_concept)
 
-if(${BUILD_SOPHUS_TESTS})
-  foreach(test_basename ${sophus2_linalg_src_prefixes})
-    farm_ng_add_test(${test_basename}
-                          PARENT_LIBRARY sophus2_linalg
-                          LINK_LIBRARIES sophus2_linalg
-                          LABELS small)
-  endforeach()
-endif()
+foreach(test_basename ${sophus2_linalg_src_prefixes})
+  farm_ng_add_test(${test_basename}
+                        PARENT_LIBRARY sophus2_linalg
+                        LINK_LIBRARIES sophus2_linalg
+                        LABELS small)
+endforeach()

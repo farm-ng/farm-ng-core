@@ -64,7 +64,7 @@ class Ray {
   }
 
   struct IntersectionResult {
-    double lambda;
+    TScalar lambda;
     Eigen::Matrix<TScalar, kN, 1> point;
   };
 

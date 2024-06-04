@@ -16,6 +16,10 @@ auto operator==(PixelFormat const& lhs, PixelFormat const& rhs) -> bool {
          lhs.num_bytes_per_component == rhs.num_bytes_per_component;
 }
 
+auto operator!=(PixelFormat const& lhs, PixelFormat const& rhs) -> bool {
+  return !(lhs == rhs);
+}
+
 auto operator<<(std::ostream& os, PixelFormat const& type) -> std::ostream& {
   std::string type_char = "?";
   switch (type.number_type) {

@@ -396,7 +396,7 @@ class Region {
   explicit constexpr Region(UninitTag /*unused*/) {}
 
   // invariant: this->isEmpty() or min_max[0] <= min_max[1]
-  std::array<TPoint, 2> min_max_;
+  std::array<TPoint, 2> min_max_{};
 };
 
 template <class TT>

@@ -42,6 +42,7 @@ struct PixelFormat {
 };
 
 auto operator==(PixelFormat const& lhs, PixelFormat const& rhs) -> bool;
+auto operator!=(PixelFormat const& lhs, PixelFormat const& rhs) -> bool;
 
 /// Example:
 /// PixelFormat::fromTemplate<float>() outputs: "1F32";

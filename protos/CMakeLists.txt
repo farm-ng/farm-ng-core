@@ -4,6 +4,7 @@ PROTO_FILES
 ./farm_ng/core/color.proto
 ./farm_ng/core/examples.proto
 ./farm_ng/core/event.proto
+./farm_ng_core/event_service.proto
 ./farm_ng/core/timestamp.proto
 ./farm_ng/core/uri.proto
 ./farm_ng/core/linalg.proto

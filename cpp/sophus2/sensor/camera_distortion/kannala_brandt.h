@@ -133,7 +133,7 @@ class KannalaBrandtK3Transform {
       const TScalar step = (thd - rth) / d_thd_wtr_th;
       th -= step;
       // has converged?
-      if (abs(step) < sophus2::kEpsilon<TScalar> * sophus2::kEpsilon<TScalar>) {
+      if (abs(step) < sophus2::kEpsilon<TScalar>) {
         break;
       }
     }

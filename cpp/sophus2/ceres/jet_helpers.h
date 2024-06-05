@@ -26,7 +26,9 @@ struct GetValue {
 
 template <class TScalar, int kN>
 struct GetValue<::ceres::Jet<TScalar, kN>> {
-  static auto impl(TScalar const& t) -> TScalar { return t.a; }
+  static auto impl(::ceres::Jet<TScalar, kN> const& t) -> TScalar {
+    return t.a;
+  }
 };
 
 }  // namespace jet_helpers

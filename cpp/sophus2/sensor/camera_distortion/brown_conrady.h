@@ -67,6 +67,8 @@ class BrownConradyTransform {
   static auto unprojImpl(
       DistorationParams<TScalar> const& distortion,
       PixelImage<TScalar> const& uv_normalized) -> PixelImage<TScalar> {
+      using std::abs;
+
     // We had no luck with OpenCV's undistort. It seems not to be accurate if
     // "icdist" is close to 0.
     // https://github.com/opencv/opencv/blob/63bb2abadab875fc648a572faccafee134f06fc8/modules/calib3d/src/undistort.dispatch.cpp#L365
@@ -90,7 +92,6 @@ class BrownConradyTransform {
     PixelImage<TScalar> xy = uv_normalized;
 
     for (int i = 0; i < 50; ++i) {
-      using std::abs;
       TScalar x = xy[0];
       TScalar y = xy[1];
 
@@ -126,7 +127,7 @@ class BrownConradyTransform {
         TScalar const c14 = c4 * d[4];
         TScalar const c15 =
             TScalar(2.0) * (c10 * d[6] + c11 * d[7] + d[5]) * (c12 + c13 + c14 + TScalar(1.0));
-        TScalar const c16 = TScalar(2.0) * c10 * d[1] + 2.0 * c11 * d[4] + TScalar( 2.0) * d[0];
+        TScalar const c16 = TScalar(2.0) * c10 * d[1] + TScalar( 2.0) * c11 * d[4] + TScalar( 2.0) * d[0];
         TScalar const c17 = TScalar(1.0) * c12 + TScalar(1.0) * c13 + TScalar(1.0) * c14 + TScalar(1.0);
         TScalar const c18 = b * d[3];
         TScalar const c19 = a * b;

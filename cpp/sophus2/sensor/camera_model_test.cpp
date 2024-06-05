@@ -11,6 +11,7 @@
 #include "sophus2/calculus/num_diff.h"
 #include "sophus2/image/interpolation.h"
 #include "sophus2/lie/se3.h"
+#include "sophus2/linalg/batch.h"
 #include "sophus2/sensor/orthographic.h"
 
 #include <gtest/gtest.h>
@@ -32,30 +33,95 @@ auto openCvCameraModel() -> CameraModel {
   return CameraModel(BrownConradyModel({w, h}, get_params));
 }
 
-// TODO: move to farm_ng_utils
+TEST(camera_model, batch_model) {
+  static int constexpr kBatchSize = 8;
+  using Batch8PinholeModel =
+      CameraModelT<Batch<double, kBatchSize>, AffineTransform, ProjectionZ1>;
+  using Batch8KannalaBrandtModel = CameraModelT<
+      Batch<double, kBatchSize>,
+      KannalaBrandtK3Transform,
+      ProjectionZ1>;
 
-// Eigen::Vector2d findImagePoint(
-//     cv::Mat image, int near_x, int near_y, int window) {
-//   SOPHUS_ASSERT_EQ(image.type(), CV_32FC1);
-//   double x_res = 0;
-//   double y_res = 0;
-//   double total = 0;
-//   for (int i = -window; i <= window; ++i) {
-//     for (int j = -window; j <= window; ++j) {
-//       double pixel =
-//           static_cast<double>(image.at<float>(i + near_y, j + near_x));
-//       if (pixel < 1) {
-//         y_res += static_cast<double>(i + near_y) * (1 - pixel);
-//         x_res += static_cast<double>(j + near_x) * (1 - pixel);
-//         total += (1 - pixel);
-//       }
-//     }
-//   }
-//   if (total == 0) {
-//     return Eigen::Vector2d(-1, -1);
-//   }
-//   return Eigen::Vector2d(x_res / total, y_res / total);
-// }
+  std::vector<Eigen::Vector2d> pixels_image = {
+      {2, 2},
+      {1, 400},
+      {320, 240},
+      {319.5, 239.5},
+      {100, 40},
+      {639, 479},
+      {10, 40},
+      {100, 43},
+  };
+
+  BatchVector<double, 2, kBatchSize> batch_pixel;
+
+  for (int r = 0; r < 2; ++r) {
+    for (int i = 0; i < kBatchSize; ++i) {
+      Eigen::Vector2d pixel = FARM_AT(pixels_image, i);
+      batch_pixel[r].lanes[i] = pixel[r];
+    }
+  }
+
+  ImageSize image_size{640, 480};
+  {
+    PinholeModel model = createDefaultPinholeModel(image_size);
+    typename Batch8PinholeModel::Params batch_params;
+
+    for (int r = 0; r < Batch8PinholeModel::kNumParams; ++r) {
+      for (int i = 0; i < kBatchSize; ++i) {
+        batch_params[r].lanes[i] = model.params()[r];
+      }
+    }
+    Batch8PinholeModel batch_model(image_size, batch_params);
+
+    BatchVector<double, 3, kBatchSize> batch_point =
+        batch_model.camUnproj(batch_pixel, Batch<double, kBatchSize>(1.0));
+
+    BatchVector<double, 2, kBatchSize> reproj_batch_pixel =
+        batch_model.camProj(batch_point);
+
+    FARM_ASSERT_WITHIN_ABS(batch_pixel, reproj_batch_pixel, 1e-2);
+  }
+  {
+    Eigen::VectorXd get_params(8);
+    get_params << 1000, 1000, 320, 280, 0.1, 0.01, 0.001, 0.0001;
+    KannalaBrandtK3Model model({640, 480}, get_params);
+
+    typename Batch8KannalaBrandtModel::Params batch_params;
+
+    for (int r = 0; r < Batch8KannalaBrandtModel::kNumParams; ++r) {
+      for (int i = 0; i < kBatchSize; ++i) {
+        batch_params[r].lanes[i] = model.params()[r];
+      }
+    }
+    Batch8KannalaBrandtModel batch_model(image_size, batch_params);
+
+    BatchVector<double, 3, kBatchSize> batch_point =
+        batch_model.camUnproj(batch_pixel, Batch<double, kBatchSize>(1.0));
+    BatchVector<double, 2, kBatchSize> reproj_batch_pixel =
+        batch_model.camProj(batch_point);
+
+    auto dx = KannalaBrandtK3Transform::dxDistort(
+        batch_params, ProjectionZ1::proj(batch_point));
+
+    for (int i = 0; i < kBatchSize; ++i) {
+      Eigen::Vector<double, 3> point = model.camUnproj(pixels_image[i], 1.0);
+
+      FARM_ASSERT_WITHIN_ABS(point.x(), batch_point.x().lanes[i], 1e-2);
+      FARM_ASSERT_WITHIN_ABS(point.y(), batch_point.y().lanes[i], 1e-2);
+      FARM_ASSERT_WITHIN_ABS(point.z(), batch_point.z().lanes[i], 1e-2);
+
+      Eigen::Vector<double, 2> reproj_pixel = model.camProj(point);
+
+      FARM_ASSERT_WITHIN_ABS(
+          reproj_pixel.x(), reproj_batch_pixel.x().lanes[i], 1e-2);
+      FARM_ASSERT_WITHIN_ABS(
+          reproj_pixel.y(), reproj_batch_pixel.y().lanes[i], 1e-2);
+    }
+
+    FARM_ASSERT_WITHIN_ABS(batch_pixel, reproj_batch_pixel, 1e-2);
+  }
+}
 
 TEST(camera_model, projection_round_trip) {
   std::vector<CameraModel> camera_models;

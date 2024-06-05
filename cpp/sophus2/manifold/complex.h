@@ -22,7 +22,7 @@ class ComplexImpl {
  public:
   /// The underlying scalar type.
   using Scalar = typename BatchTrait<TBatch>::ScalarBatch;
-  static int constexpr kNumSingles = BatchTrait<TBatch>::kNumSingles;
+  static int constexpr kBatchSize = BatchTrait<TBatch>::kBatchSize;
 
   /// A complex number is a tuple.
   static int constexpr kNumParams = 2;

@@ -79,9 +79,13 @@ auto binUp(Eigen::Matrix<TScalar, 2, 1> const& in)
 }
 
 /// Camera model class template for pinhole-like camera projections.
-template <class TScalar, class TDistortion, class TProj = ProjectionZ1>
+template <class TBatch, class TDistortion, class TProj = ProjectionZ1>
 class CameraModelT {
  public:
+  /// The underlying scalar type.
+  using Scalar = typename BatchTrait<TBatch>::ScalarBatch;
+  static int constexpr kBatchSize = BatchTrait<TBatch>::kBatchSize;
+
   using Distortion = TDistortion;
   using Proj = TProj;
   static int constexpr kNumDistortionParams = Distortion::kNumDistortionParams;
@@ -89,11 +93,11 @@ class CameraModelT {
   static std::string_view constexpr const kProjectionModel =
       Distortion::kProjectionModel;
 
-  using PointCamera = Eigen::Matrix<TScalar, 3, 1>;
-  using PixelImage = Eigen::Matrix<TScalar, 2, 1>;
-  using ProjInCameraLifted = Eigen::Matrix<TScalar, 2, 1>;
-  using Params = Eigen::Matrix<TScalar, kNumParams, 1>;
-  using DistorationParams = Eigen::Matrix<TScalar, kNumDistortionParams, 1>;
+  using PointCamera = Eigen::Matrix<Scalar, 3, 1>;
+  using PixelImage = Eigen::Matrix<Scalar, 2, 1>;
+  using ProjInCameraLifted = Eigen::Matrix<Scalar, 2, 1>;
+  using Params = Eigen::Matrix<Scalar, kNumParams, 1>;
+  using DistorationParams = Eigen::Matrix<Scalar, kNumDistortionParams, 1>;
 
   /// Constructs camera model from image size and set up parameters.
   CameraModelT(ImageSize const& image_size, Params const& params)
@@ -106,9 +110,9 @@ class CameraModelT {
 
   /// Returns camera model from raw data pointer. To be used within ceres
   /// optimization only.
-  static auto fromData(TScalar const* const ptr) -> CameraModelT {
+  static auto fromData(Scalar const* const ptr) -> CameraModelT {
     CameraModelT out;
-    Eigen::Map<Eigen::Matrix<TScalar, kNumParams, 1> const> map(
+    Eigen::Map<Eigen::Matrix<Scalar, kNumParams, 1> const> map(
         ptr, kNumParams, 1);
     out.params_ = map;
     return out;
@@ -139,11 +143,11 @@ class CameraModelT {
   }
 
   /// Parameters mutator
-  auto params() -> Eigen::Matrix<TScalar, kNumParams, 1>& { return params_; }
+  auto params() -> Eigen::Matrix<Scalar, kNumParams, 1>& { return params_; }
 
   /// Parameters accessor
   [[nodiscard]] auto params() const
-      -> Eigen::Matrix<TScalar, kNumParams, 1> const& {
+      -> Eigen::Matrix<Scalar, kNumParams, 1> const& {
     return params_;
   }
 
@@ -156,8 +160,8 @@ class CameraModelT {
   /// (width+1)/2 [height+1)/2].
   [[nodiscard]] auto subsampleDown() const -> CameraModelT {
     Params params = this->params_;
-    params[0] = TScalar(0.5) * params[0];  // fx
-    params[1] = TScalar(0.5) * params[1];  // fy
+    params[0] = Scalar(0.5) * params[0];  // fx
+    params[1] = Scalar(0.5) * params[1];  // fy
     params.template segment<2>(2) = ::sophus2::subsampleDown(
         params.template segment<2>(2).eval());  // cx, cy
     return CameraModelT(half(image_size_), params);
@@ -169,8 +173,8 @@ class CameraModelT {
   /// https://docs.google.com/document/d/1xmhCMWklP2UoQMGaMqFnsoPWoeMvBfXN7S8-ie9k0UA/edit#heading=h.97r8rr8owwpc
   [[nodiscard]] auto subsampleUp() const -> CameraModelT {
     Params params = this->params_;
-    params[0] = TScalar(2.0) * params[0];  // fx
-    params[1] = TScalar(2.0) * params[1];  // fy
+    params[0] = Scalar(2.0) * params[0];  // fx
+    params[1] = Scalar(2.0) * params[1];  // fy
     params.template segment<2>(2) =
         ::sophus2::subsampleUp(params.template segment<2>(2).eval());  // cx, cy
     return CameraModelT(
@@ -186,8 +190,8 @@ class CameraModelT {
   /// (width+1)/2 [height+1)/2].
   [[nodiscard]] auto binDown() const -> CameraModelT {
     Params params = this->params_;
-    params[0] = TScalar(0.5) * params[0];  // fx
-    params[1] = TScalar(0.5) * params[1];  // fy
+    params[0] = Scalar(0.5) * params[0];  // fx
+    params[1] = Scalar(0.5) * params[1];  // fy
     params.template segment<2>(2) =
         ::sophus2::binDown(params.template segment<2>(2).eval());  // cx, cy
     return CameraModelT(half(image_size_), params);
@@ -199,8 +203,8 @@ class CameraModelT {
   /// https://docs.google.com/document/d/1xmhCMWklP2UoQMGaMqFnsoPWoeMvBfXN7S8-ie9k0UA/edit#heading=h.elfm6123mecj
   [[nodiscard]] auto binUp() const -> CameraModelT {
     Params params = this->params_;
-    params[0] = TScalar(2.0) * params[0];  // fx
-    params[1] = TScalar(2.0) * params[1];  // fy
+    params[0] = Scalar(2.0) * params[0];  // fx
+    params[1] = Scalar(2.0) * params[1];  // fy
     params.template segment<2>(2) =
         ::sophus2::binUp(params.template segment<2>(2).eval());  // cx, cy
     return CameraModelT(
@@ -209,13 +213,13 @@ class CameraModelT {
 
   [[nodiscard]] auto scale(ImageSize const& image_size) const -> CameraModelT {
     Params params = this->params_;
-    params[0] = TScalar(image_size.width) / TScalar(image_size_.width) *
-                params[0];  // fx
-    params[1] = TScalar(image_size.height) / TScalar(image_size_.height) *
+    params[0] =
+        Scalar(image_size.width) / Scalar(image_size_.width) * params[0];  // fx
+    params[1] = Scalar(image_size.height) / Scalar(image_size_.height) *
                 params[1];  // fy
-    params[2] = TScalar(image_size.width) / TScalar(image_size_.width) *
-                params[2];  // cx
-    params[3] = TScalar(image_size.height) / TScalar(image_size_.height) *
+    params[2] =
+        Scalar(image_size.width) / Scalar(image_size_.width) * params[2];  // cx
+    params[3] = Scalar(image_size.height) / Scalar(image_size_.height) *
                 params[3];  // cy
     return CameraModelT({image_size.width, image_size.height}, params);
   }
@@ -236,7 +240,7 @@ class CameraModelT {
   }
 
   [[nodiscard]] auto dxDistort(PixelImage const& pixel_in_image) const
-      -> Eigen::Matrix<TScalar, 2, 2> {
+      -> Eigen::Matrix<Scalar, 2, 2> {
     return Distortion::template dxDistort(params_, pixel_in_image);
   }
 
@@ -264,7 +268,7 @@ class CameraModelT {
   }
 
   [[nodiscard]] auto dxCamProjX(PointCamera const& point_in_camera) const
-      -> Eigen::Matrix<TScalar, 2, 3> {
+      -> Eigen::Matrix<Scalar, 2, 3> {
     ProjInCameraLifted point_in_lifted = Proj::proj(point_in_camera);
     return dxDistort(point_in_lifted) * Proj::dxProjX(point_in_camera);
   }
@@ -273,13 +277,14 @@ class CameraModelT {
   ///
   /// The point is projected onto the xy-plane at z = `depth_z`.
   [[nodiscard]] auto camUnproj(
-      PixelImage const& pixel_in_image, double depth_z) const -> PointCamera {
-    return Proj::unproj(
-        Distortion::template undistort(params_, pixel_in_image), depth_z);
+      PixelImage const& pixel_in_image, Scalar depth_z) const -> PointCamera {
+    ProjInCameraLifted dist =
+        Distortion::template undistort(params_, pixel_in_image);
+    return Proj::unproj(dist, depth_z);
   }
 
   /// Raw data access. To be used in ceres optimization only.
-  auto data() -> TScalar* { return params_.data(); }
+  auto data() -> Scalar* { return params_.data(); }
 
   /// Accessor of image size.
   [[nodiscard]] auto imageSize() const -> ImageSize const& {
@@ -298,7 +303,7 @@ class CameraModelT {
   ///
   /// Note: Positive border makes the image frame smaller.
   [[nodiscard]] auto contains(
-      PixelImage const& obs, TScalar border = TScalar(0)) const -> bool {
+      PixelImage const& obs, Scalar border = Scalar(0)) const -> bool {
     return this->image_size_.contains(obs, border);
   }
 
@@ -312,7 +317,7 @@ class CameraModelT {
 
  private:
   ImageSize image_size_;
-  Eigen::Matrix<TScalar, kNumParams, 1> params_;
+  Eigen::Matrix<Scalar, kNumParams, 1> params_;
 };
 
 /// Camera model projection type.
@@ -410,7 +415,7 @@ class CameraModel {
   [[nodiscard]] auto params() const -> Eigen::VectorXd;
 
   /// Sets `params` vector.
-  ///
+  /// Batch8PinholeModel batch_model;
   /// Precontion: ``params.size()`` must match the number of parameters of the
   ///             specified `projection_type` (TransformModel::kNumParams).
   void setParams(Eigen::VectorXd const& params);
@@ -457,8 +462,8 @@ class CameraModel {
   /// See for details:
   /// https://docs.google.com/document/d/1xmhCMWklP2UoQMGaMqFnsoPWoeMvBfXN7S8-ie9k0UA/edit#heading=h.97r8rr8owwpc
   ///
-  /// If the original width [height] is odd, the new width [height] will be:
-  /// (width+1)/2 [height+1)/2].
+  /// If the original width [height] is oddBatch8PinholeModel batch_model;, the
+  /// new width [height] will be: (width+1)/2 [height+1)/2].
   [[nodiscard]] auto subsampleDown() const -> CameraModel;
 
   /// Subsamples pixel up, factor of 2.0.

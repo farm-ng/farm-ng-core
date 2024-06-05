@@ -133,7 +133,7 @@ class BrownConradyTransform {
         TScalar const c20 = -c15 * c19 + c16 * c19 * c5;
         du_dx =
             c7 * (-c0 * c15 + c5 * (c0 * c16 + c17) + c6 * (b * c9 + TScalar(6.0) * c8));
-        du_dy = c7 * (c20 + c6 * (a * c9 + 2 * c18));
+        du_dy = c7 * (c20 + c6 * (a * c9 + TScalar(2) * c18));
         dv_dx = c7 * (c20 + c6 * (TScalar(2) * a * d[2] + TScalar(2.0) * c18));
         dv_dy = c7 * (-c1 * c15 + c5 * (c1 * c16 + c17) +
                       c6 * (TScalar(6.0) * b * d[2] + TScalar(2.0) * c8));

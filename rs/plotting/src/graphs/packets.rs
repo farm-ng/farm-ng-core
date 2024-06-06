@@ -1,5 +1,5 @@
 use super::{
-    common::{Bounds, ClearCondition, Color, LineType},
+    common::{Bounds, ClearCondition},
     scalar_curve::{NamedScalarCurve, ScalarCurve, ScalarCurveStyle},
     vec3_conf_curve::{NamedVec3ConfCurve, Vec3ConfCurve, Vec3ConfCurveStyle},
     vec3_curve::{NamedVec3Curve, Vec3Curve, Vec3CurveStyle},

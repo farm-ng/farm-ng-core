@@ -105,6 +105,51 @@ auto projTransform(
   return proj(scaledTransform(foo_from_bar, inverse_depth_point_in_bar));
 }
 
+/// Returns pose derivative of inverse depth point projection at the identity:
+///
+///   Dx proj(exp(x) * foo_from_bar * foo_in_bar.toEuclideanPoint3()) at x=0
+///
+/// with foo_in_bar = (a,b,psi) being an inverse depth point.
+template <class TT>
+[[nodiscard]] auto dxProjExpXTransformPointAt0(
+    sophus2::Isometry3<TT> const& foo_from_bar,
+    InverseDepthPoint3<TT> const& inverse_depth_point_in_bar)
+    -> Eigen::Matrix<TT, 2, 6> {
+  Eigen::Matrix<TT, 2, 6> dx;
+  TT i = TT(1);
+  TT psi = inverse_depth_point_in_bar.psi();
+  Eigen::Matrix<TT, 3, 1> scaled_point_in_foo =
+      scaledTransform(foo_from_bar, inverse_depth_point_in_bar);
+  TT x = scaled_point_in_foo[0];
+  TT y = scaled_point_in_foo[1];
+  TT z = scaled_point_in_foo[2];
+  TT z_sq = z * z;
+
+  // clang-format off
+    dx <<
+      psi/z,     0, -psi * x / z_sq,     -x*y/z_sq, x*x/z_sq + i, -y/z,
+          0, psi/z, -psi * y / z_sq, -y*y/z_sq - i,     x*y/z_sq,  x/z;
+  // clang-format on
+  return dx;
+}
+
+/// Returns pose derivative of inverse depth point projection at the identity:
+///
+///   Dx proj(foo_from_bar * exp(x) * bar_from_daz *
+///   foo_in_daz.toEuclideanPoint3()) at x=0
+///
+/// with foo_in_daz = (a,b,psi) being an inverse depth point.
+template <class TT>
+[[nodiscard]] auto dxProjTransformExpXTransformPointAt0(
+    sophus2::Isometry3<TT> const& foo_from_bar,
+    sophus2::Isometry3<TT> const& bar_from_daz,
+    InverseDepthPoint3<TT> const& inverse_depth_point_in_daz)
+    -> Eigen::Matrix<TT, 2, 6> {
+   return dxProjExpXTransformPointAt0(
+             foo_from_bar * bar_from_daz, inverse_depth_point_in_daz) *
+         foo_from_bar.adj();
+}
+
 /// Functor to efficiently transform a number of point given a Isometry3 pose.
 ///
 /// When transforming a point `point_in_bar` given a sophus2::Isometry3 pose

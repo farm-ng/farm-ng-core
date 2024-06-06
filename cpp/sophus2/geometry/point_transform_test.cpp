@@ -158,6 +158,31 @@ TEST(point_transform, integrations) {
                 inverse_depth_in_bar.params());
         SOPHUS_ASSERT_WITHIN_REL(dx, num_dx, 0.002);
       }
+
+      Eigen::Matrix<double, 2, 6> dx2 = dxProjExpXTransformPointAt0(
+          foo_from_bar_isometry, inverse_depth_in_bar);
+      SOPHUS_ASSERT_WITHIN_REL(dx2, num_dx, kEpsilonSqrtF64);
+
+      for (Eigen::Vector<double, 6> const& t : tangent_vec) {
+        sophus2::SE3d bar_from_daz_isometry = sophus2::SE3d::exp(t);
+        InverseDepthPoint3F64 inverse_depth_in_daz = inverse_depth_in_bar;
+
+        Eigen::Vector<double, 6> zero;
+        zero.setZero();
+        Eigen::Matrix<double, 2, 6> const num_dx =
+            vectorFieldNumDiff<double, 2, 6>(
+                [&](Eigen::Vector<double, 6> const& vec_a) {
+                  return proj(
+                      foo_from_bar_isometry *
+                      sophus2::Isometry3F64::exp(vec_a) *
+                      bar_from_daz_isometry * point_in_bar);
+                },
+                zero);
+
+        Eigen::Matrix<double, 2, 6> dx3 = dxProjTransformExpXTransformPointAt0(
+            foo_from_bar_isometry, bar_from_daz_isometry, inverse_depth_in_bar);
+        SOPHUS_ASSERT_WITHIN_REL(dx3, num_dx, kEpsilonSqrtF64);
+      }
     }
 
     // For points at infinity

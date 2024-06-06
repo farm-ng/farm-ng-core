@@ -26,6 +26,7 @@
 #include <mutex>
 #include <optional>
 #include <unordered_set>
+#include <variant>
 
 namespace farm_ng {
 FARM_ENUM(
@@ -359,7 +360,6 @@ inline StreamLogger& defaultLogger() {
   FARM_IMPL_ASSERT_OP(>, "GT", lhs, rhs, __VA_ARGS__)
 
 namespace farm_ng {
-
 /// Expected error stack trace line
 struct ErrorDetail {
   /// File where the error occurred
@@ -371,6 +371,30 @@ struct ErrorDetail {
 };
 
 namespace details {
+
+template <class Type, class Variant>
+auto checkedGetVariant(
+    Variant const& value,
+    char const* type_cstr,
+    std::string const& file,
+    int line,
+    std::string const& func,
+    std::string const& str) -> Type {
+  if (!std::holds_alternative<Type>(value)) {
+    farm_ng::defaultLogger().log(
+        farm_ng::LogLevel::critical,
+        FARM_FORMAT(
+            "PANIC: FARM_GET_VARIANT failed\n"
+            "Does not hold alternative: {}",
+            type_cstr),
+        file,
+        line,
+        func,
+        str);
+    FARM_IMPL_ABORT();
+  }
+  return std::get<Type>(value);
+}
 
 template <class TContainer>
 auto checkedAtContiguousContainer(
@@ -386,7 +410,8 @@ auto checkedAtContiguousContainer(
     farm_ng::defaultLogger().log(
         farm_ng::LogLevel::critical,
         FARM_FORMAT(
-            "FARM_AT index `{}` (={}) not in contiguous container `{}` of size "
+            "FARM_AT index `{}` (={}) not in contiguous container `{}` of "
+            "size "
             "`{}`",
             index_cstr,
             index,
@@ -416,7 +441,8 @@ auto checkedGetFromAssociativeContainer(
     farm_ng::defaultLogger().log(
         farm_ng::LogLevel::critical,
         FARM_FORMAT(
-            "FARM_GET key `{}` (={}) not in associative container `{}` of size "
+            "FARM_GET key `{}` (={}) not in associative container `{}` of "
+            "size "
             "`{}`",
             key_cstr,
             key,
@@ -449,7 +475,8 @@ auto insertKeyValueInMap(
     farm_ng::defaultLogger().log(
         farm_ng::LogLevel::critical,
         FARM_FORMAT(
-            "FARM_INSERT key `{}` (={}) is already in map `{}` of size `{}`.\n"
+            "FARM_INSERT key `{}` (={}) is already in map `{}` of size "
+            "`{}`.\n"
             "We cannot insert value `{}`.",
             key_cstr,
             key,
@@ -489,13 +516,23 @@ struct UnwrapImpl {
 
 template <class TWrapper>
 auto unwrapImpl(
-    TWrapper& wrapper, char const* wrapper_cstr, ::farm_ng::ErrorDetail detail)
-    -> decltype(*wrapper) {
+    TWrapper& wrapper,
+    char const* wrapper_cstr,
+    ::farm_ng::ErrorDetail detail) -> decltype(*wrapper) {
   return UnwrapImpl<TWrapper>::impl(wrapper, wrapper_cstr, std::move(detail));
 }
 
 }  // namespace details
 }  // namespace farm_ng
+
+#define FARM_GET_VARIANT(Type_Name, Variant_Value, ...)                    \
+  farm_ng::details::checkedGetVariant<Type_Name, decltype(Variant_Value)>( \
+      Variant_Value,                                                       \
+      #Type_Name,                                                          \
+      __FILE__,                                                            \
+      __LINE__,                                                            \
+      __func__,                                                            \
+      FARM_FORMAT(__VA_ARGS__))
 
 /// Returns `contiguous_container[index]`, but panics if `index` is out of
 /// bounds.

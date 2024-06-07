@@ -67,6 +67,8 @@ class BrownConradyTransform {
   static auto unprojImpl(
       DistorationParams<TScalar> const& distortion,
       PixelImage<TScalar> const& uv_normalized) -> PixelImage<TScalar> {
+    using std::abs;
+
     // We had no luck with OpenCV's undistort. It seems not to be accurate if
     // "icdist" is close to 0.
     // https://github.com/opencv/opencv/blob/63bb2abadab875fc648a572faccafee134f06fc8/modules/calib3d/src/undistort.dispatch.cpp#L365
@@ -90,7 +92,6 @@ class BrownConradyTransform {
     PixelImage<TScalar> xy = uv_normalized;
 
     for (int i = 0; i < 50; ++i) {
-      using std::abs;
       TScalar x = xy[0];
       TScalar y = xy[1];
 
@@ -116,27 +117,29 @@ class BrownConradyTransform {
         TScalar const c4 = c3 * c2;  // pow(c2, 3);
         TScalar const c5 = c2 * d[5] + c3 * d[6] + c4 * d[7] + 1.0;
         TScalar const c6 = c5 * c5;  // pow(c5, 2);
-        TScalar const c7 = 1.0 / c6;
+        TScalar const c7 = TScalar(1.0) / c6;
         TScalar const c8 = a * d[3];
-        TScalar const c9 = 2.0 * d[2];
-        TScalar const c10 = 2 * c2;
-        TScalar const c11 = 3 * c3;
+        TScalar const c9 = TScalar(2.0) * d[2];
+        TScalar const c10 = TScalar(2) * c2;
+        TScalar const c11 = TScalar(3) * c3;
         TScalar const c12 = c2 * d[0];
         TScalar const c13 = c3 * d[1];
         TScalar const c14 = c4 * d[4];
-        TScalar const c15 =
-            2.0 * (c10 * d[6] + c11 * d[7] + d[5]) * (c12 + c13 + c14 + 1.0);
-        TScalar const c16 = 2.0 * c10 * d[1] + 2.0 * c11 * d[4] + 2.0 * d[0];
-        TScalar const c17 = 1.0 * c12 + 1.0 * c13 + 1.0 * c14 + 1.0;
+        TScalar const c15 = TScalar(2.0) * (c10 * d[6] + c11 * d[7] + d[5]) *
+                            (c12 + c13 + c14 + TScalar(1.0));
+        TScalar const c16 = TScalar(2.0) * c10 * d[1] +
+                            TScalar(2.0) * c11 * d[4] + TScalar(2.0) * d[0];
+        TScalar const c17 = TScalar(1.0) * c12 + TScalar(1.0) * c13 +
+                            TScalar(1.0) * c14 + TScalar(1.0);
         TScalar const c18 = b * d[3];
         TScalar const c19 = a * b;
         TScalar const c20 = -c15 * c19 + c16 * c19 * c5;
-        du_dx =
-            c7 * (-c0 * c15 + c5 * (c0 * c16 + c17) + c6 * (b * c9 + 6.0 * c8));
-        du_dy = c7 * (c20 + c6 * (a * c9 + 2 * c18));
-        dv_dx = c7 * (c20 + c6 * (2 * a * d[2] + 2.0 * c18));
+        du_dx = c7 * (-c0 * c15 + c5 * (c0 * c16 + c17) +
+                      c6 * (b * c9 + TScalar(6.0) * c8));
+        du_dy = c7 * (c20 + c6 * (a * c9 + TScalar(2) * c18));
+        dv_dx = c7 * (c20 + c6 * (TScalar(2) * a * d[2] + TScalar(2.0) * c18));
         dv_dy = c7 * (-c1 * c15 + c5 * (c1 * c16 + c17) +
-                      c6 * (6.0 * b * d[2] + 2.0 * c8));
+                      c6 * (TScalar(6.0) * b * d[2] + TScalar(2.0) * c8));
       }
 
       //     | du_dx  du_dy |      | a  b |
@@ -161,7 +164,7 @@ class BrownConradyTransform {
       Eigen::Matrix<TScalar, 2, 2> j_inv = TScalar(1) / (a * d - b * c) * m;
       PixelImage<TScalar> step = j_inv * f_xy;
 
-      if (abs(jet_helpers::GetValue<TScalar>::impl(step.squaredNorm())) <
+      if (abs(step.squaredNorm()) <
           sophus2::kEpsilon<TScalar> * sophus2::kEpsilon<TScalar>) {
         break;
       }

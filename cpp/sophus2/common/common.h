@@ -72,7 +72,7 @@ template <>
 inline float const kEpsilon<float> = float(1e-5);
 
 static float const kEpsilonF32 = kEpsilon<float>;
-static float const kEpsilonF64 = kEpsilon<double>;
+static double const kEpsilonF64 = kEpsilon<double>;
 
 /// Slightly larger than kEpsilon.
 template <class TScalar>

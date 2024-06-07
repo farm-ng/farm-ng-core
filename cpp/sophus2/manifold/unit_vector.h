@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "sophus2/ceres/jet_helpers.h"
 #include "sophus2/common/common.h"
 #include "sophus2/concepts/manifold.h"
 
@@ -77,9 +78,11 @@ class UnitVectorImpl {
   /// Returns false if the norm of the vector if not close to 1.
   static auto areParamsValid(Params const& unit_vector)
       -> sophus2::Expected<Success> {
-    static Scalar const kThr = kEpsilon<Scalar>;
-    Scalar const squared_norm = unit_vector.squaredNorm();
     using std::abs;
+    static auto const kThr =
+        jet_helpers::GetValue<Scalar>::impl(kEpsilon<Scalar>);
+    auto const squared_norm =
+        jet_helpers::GetValue<Scalar>::impl(unit_vector.squaredNorm());
     if (!(abs(squared_norm - 1.0) <= kThr)) {
       return SOPHUS_UNEXPECTED(
           "unit vector ({}) is not of unit length.\n"

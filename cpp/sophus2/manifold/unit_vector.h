@@ -78,10 +78,11 @@ class UnitVectorImpl {
   /// Returns false if the norm of the vector if not close to 1.
   static auto areParamsValid(Params const& unit_vector)
       -> sophus2::Expected<Success> {
-    static double const kThr = kEpsilon<double>;
-    double const squared_norm =
-        jet_helpers::GetValue<Scalar>::impl(unit_vector.squaredNorm());
     using std::abs;
+    static auto const kThr =
+        jet_helpers::GetValue<Scalar>::impl(kEpsilon<Scalar>);
+    auto const squared_norm =
+        jet_helpers::GetValue<Scalar>::impl(unit_vector.squaredNorm());
     if (!(abs(squared_norm - 1.0) <= kThr)) {
       return SOPHUS_UNEXPECTED(
           "unit vector ({}) is not of unit length.\n"

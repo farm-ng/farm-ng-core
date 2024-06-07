@@ -15,4 +15,5 @@ PROTO_FILES
 ./farm_ng/core/image.proto
 ./farm_ng/core/sensor.proto
 ./farm_ng/core/std.proto
-./farm_ng/core/plotting/plotting.proto)
+./farm_ng/core/plotting/plotting.proto
+./farm_ng/core/recorder.proto)

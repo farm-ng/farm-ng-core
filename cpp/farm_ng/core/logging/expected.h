@@ -43,7 +43,7 @@ namespace details {
 template <class TT, class TE>
 struct UnwrapImpl<tl::expected<TT, TE>> {
   static auto impl(
-      tl::expected<TT, TE>& wrapper,
+      tl::expected<TT, TE>&& wrapper,
       char const* wrapper_cstr,
       ::farm_ng::ErrorDetail detail) -> decltype(*wrapper) {
     if (!bool(wrapper)) {

@@ -313,16 +313,31 @@ class EventServiceGrpc:
         event.uri.path = "/request" + event.uri.path
 
         reply_message: Message
+        reply_event: Event | None = None
+
+        async def request_handler_wrapper(
+            *args,
+            **kwargs,
+        ) -> tuple[Message, Event | None]:
+            if self._request_reply_handler is None:
+                self.logger.error("No request/reply handler set, returning Empty()")
+                return Empty(), None
+            expected_args: list = ["reply_message", "reply_event"]
+            result = await self._request_reply_handler(*args, **kwargs)
+            if isinstance(result, tuple) and len(result) == len(expected_args):
+                return result
+            return result, None
+
         if self._request_reply_handler is not None:
             # decode the requested message to satisfy the handler signature
             if self._decode_request_reply_handler_message:
                 message = payload_to_protobuf(request.event, request.payload)
-                reply_message = await self._request_reply_handler(
+                reply_message, reply_event = await request_handler_wrapper(
                     request.event,
                     message,
                 )
             else:
-                reply_message = await self._request_reply_handler(request)
+                reply_message, reply_event = await request_handler_wrapper(request)
 
             if reply_message is None:
                 self.logger.error(
@@ -345,12 +360,20 @@ class EventServiceGrpc:
         timestamps.append(get_monotonic_now(semantics=StampSemantics.SERVICE_SEND))
         timestamps.append(get_system_clock_now(semantics=StampSemantics.SERVICE_SEND))
 
+        if reply_event is not None:
+            timestamps.extend(
+                timestamp
+                for timestamp in reply_event.timestamps
+                if timestamp.semantics != StampSemantics.SERVICE_SEND
+            )
+
         event = Event(
             uri=reply_uri,
             timestamps=timestamps,
             payload_length=len(reply_payload),
             sequence=event.sequence,
         )
+
         return RequestReplyReply(event=event, payload=reply_payload)
 
     # private methods

@@ -17,28 +17,45 @@
 namespace sophus {
 namespace test {
 
+/// Property tests for Lie groups (e.g. sophus::Isometry3, sophus::Rotaton2,
+/// ...)
 template <concepts::LieGroup TGroup>
 struct LieGroupPropTestSuite {
+  /// the group
   using Group = TGroup;
 
+  /// the underlying scalar
   using Scalar = typename Group::Scalar;
 
+  /// degrees of freedom - dimensionality of tangent space
   static int constexpr kDof = Group::kDof;
+  /// number of parameters
   static int constexpr kNumParams = Group::kNumParams;
+  /// dimensionality of points group acts on
   static int constexpr kPointDim = Group::kPointDim;
+  /// group is represented by kAmbientDim x kAmbientDim matrices
   static int constexpr kAmbientDim = Group::kAmbientDim;
 
+  /// kElementExamples
   static decltype(Group::elementExamples()) const kElementExamples;
+  /// kTangentExamples
   static decltype(Group::tangentExamples()) const kTangentExamples;
+  /// kPointExamples
   static decltype(pointExamples<Scalar, Group::kPointDim>())
       const kPointExamples;
 
+  /// element of tangent space
   using Tangent = Eigen::Vector<Scalar, kDof>;
+  /// internal representation
   using Params = Eigen::Vector<Scalar, kNumParams>;
+  /// point type
   using Point = Eigen::Vector<Scalar, kPointDim>;
+  /// square matrix representation of group element
   using Matrix = Eigen::Matrix<Scalar, kAmbientDim, kAmbientDim>;
+  /// compact matrix representation of group element
   using CompactMatrix = Eigen::Matrix<Scalar, kPointDim, kAmbientDim>;
 
+  /// must preserve specified constraints
   static auto preservabilityTests(std::string group_name) -> void {
     if (kElementExamples.size() == 0) {
       return;
@@ -141,6 +158,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// test properties of group / matrix exponential
   static auto expTests(std::string group_name) -> void {
     for (size_t g_id = 0; g_id < kElementExamples.size(); ++g_id) {
       Group g = SOPHUS_AT(kElementExamples, g_id);
@@ -183,6 +201,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// test properties of group adjoint
   static auto adjointTests(std::string group_name) -> void {
     for (size_t g_id = 0; g_id < kElementExamples.size(); ++g_id) {
       Group g = SOPHUS_AT(kElementExamples, g_id);
@@ -260,6 +279,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// test properties of hat operator
   static auto hatTests(std::string group_name) -> void {
     for (size_t i = 0; i < kTangentExamples.size(); ++i) {
       Tangent tangent = SOPHUS_AT(kTangentExamples, i);
@@ -274,6 +294,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// test properties of group multiplication
   static auto groupOperationTests(std::string group_name) -> void {
     for (size_t g_id1 = 0; g_id1 < kElementExamples.size(); ++g_id1) {
       Group g1 = SOPHUS_AT(kElementExamples, g_id1);
@@ -319,6 +340,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// test properties of group actions / point transformations.
   static auto groupActionTests(std::string group_name) -> void {
     for (size_t point_id = 0; point_id < kPointExamples.size(); ++point_id) {
       auto point_in = SOPHUS_AT(kPointExamples, point_id);
@@ -362,6 +384,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// test properties of Jacobians
   static void expJacobiansTest(std::string group_name) {
     if constexpr (kDof == 0) {
       return;
@@ -461,6 +484,7 @@ struct LieGroupPropTestSuite {
     }
   }
 
+  /// all tests
   static auto runAllTests(std::string group_name) -> void {
     preservabilityTests(group_name);
     expTests(group_name);

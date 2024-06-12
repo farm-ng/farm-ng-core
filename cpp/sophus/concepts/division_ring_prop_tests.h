@@ -13,15 +13,24 @@
 namespace sophus {
 namespace test {
 
+/// Property tests for division rings (e.g. sophus::Complex and
+/// sophus::Quaternion)
 template <concepts::DivisionRingConcept TRing>
 struct DivisionRingTestSuite {
+  /// the ring
   using Ring = TRing;
+  /// underlying scalar
   using Scalar = typename TRing::Scalar;
+  /// number of parameters of ring element
   static int constexpr kNumParams = TRing::kNumParams;
+
+  /// kParamsExamples
   static decltype(Ring::Impl::paramsExamples()) const kParamsExamples;
 
+  /// internal representation
   using Params = Eigen::Vector<Scalar, kNumParams>;
 
+  /// multiplication must be associative
   static void associativityTests(std::string ring_name) {
     for (size_t params_id = 0; params_id < kParamsExamples.size();
          ++params_id) {
@@ -53,6 +62,9 @@ struct DivisionRingTestSuite {
     }
   }
 
+  /// Is multiplication commutative?
+  ///
+  /// yes for complex numbers, no for quaternion numbers
   static void commutativityTests(std::string ring_name) {
     if (Ring::Impl::kIsCommutative) {
       for (size_t params_id = 0; params_id < kParamsExamples.size();
@@ -105,6 +117,7 @@ struct DivisionRingTestSuite {
     }
   }
 
+  /// must have standard addition
   static void additionTests(std::string ring_name) {
     for (size_t params_id = 0; params_id < kParamsExamples.size();
          ++params_id) {
@@ -121,6 +134,7 @@ struct DivisionRingTestSuite {
     }
   }
 
+  /// tests for multiplicative inverse and neutral element
   static void multiplicationTests(std::string ring_name) {
     for (size_t params_id = 0; params_id < kParamsExamples.size();
          ++params_id) {
@@ -149,6 +163,7 @@ struct DivisionRingTestSuite {
     }
   }
 
+  /// all tests
   static void runAllTests(std::string ring_name) {
     associativityTests(ring_name);
     commutativityTests(ring_name);

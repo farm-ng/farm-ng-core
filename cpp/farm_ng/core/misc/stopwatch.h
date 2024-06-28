@@ -17,17 +17,22 @@
 #include "farm_ng/core/logging/logger.h"
 
 #include <chrono>
+#include <deque>
 #include <iostream>
 #include <map>
 #include <mutex>
 #include <optional>
-#include <stdexcept>
 
 namespace farm_ng {
 
 /// Stopwatch class for creating multiple, optionally concurrent, timers
 class StopwatchSingleton {
  public:
+  using Clock = std::chrono::high_resolution_clock;
+  using TimePoint = std::chrono::time_point<Clock>;
+
+  static size_t constexpr kWindowSize = 30;
+
   /// Returns an instance of the stopwatch timer.
   static StopwatchSingleton& getInstance() {
     // https://stackoverflow.com/a/17712497
@@ -38,94 +43,141 @@ class StopwatchSingleton {
   /// Start a new, named timer.
   void start(std::string str) {
     std::scoped_lock lock(timers_mutex_);
-    auto start_time = std::chrono::high_resolution_clock::now();
+    auto start_time = Clock::now();
 
     Bucket& b = timers_[str];
-    if (b.maybe_start) {
-      FARM_WARN("'{}' is already started", str);
+
+    std::thread::id this_id = std::this_thread::get_id();
+
+    auto& maybe_start = b.maybe_start[this_id];
+    if (maybe_start) {
+      FARM_WARN("'{}' is already started (on thread {})", str, this_id);
     }
-    b.maybe_start = start_time;
+    maybe_start = start_time;
   }
 
   /// Stops the named timer and returns the duration.
   double stop(std::string str) {
     std::scoped_lock lock(timers_mutex_);
 
-    auto stop_time = std::chrono::high_resolution_clock::now();
+    auto stop_time = Clock::now();
 
     auto it = timers_.find(str);
     if (it == timers_.end()) {
-      FARM_WARN("{} is not started, but 'stop' was called!", str);
+      FARM_WARN(
+          "{} was not started on any thread, but 'stop' was called!", str);
       return 0.0;
     }
     Bucket& b = it->second;
 
-    if (!b.maybe_start) {
-      FARM_WARN("Tried stopping '{}', but 'stop' was called already.", str);
+    auto& maybe_start = b.maybe_start[std::this_thread::get_id()];
+
+    if (!maybe_start) {
+      FARM_WARN(
+          "Tried stopping '{}' (on thread {}), but 'stop' was called already.",
+          std::this_thread::get_id(),
+          str);
       return 0.0;
     }
-    std::chrono::duration<double> diff = stop_time - *b.maybe_start;
-    b.maybe_start.reset();
-    double d = diff.count();
-    if (d < b.min) {
-      b.min = d;
+
+    std::chrono::duration<double> diff = (stop_time - *maybe_start);
+    double diff_seconds = diff.count();
+    maybe_start.reset();
+
+    b.data.sliding_window.push_back(diff_seconds);
+    if (b.data.sliding_window.size() > kWindowSize) {
+      b.data.sliding_window.pop_front();
     }
-    if (d > b.max) {
-      b.max = d;
-    }
-    b.sum += d;
-    ++b.num;
-    return d;
+    ++b.data.total_num;
+
+    return diff_seconds;
   }
 
+  struct Stats {
+    double last = -1.0;
+    double second_last = -1.0;
+    double min = -1.0;
+    double max = -1.0;
+    double median = -1.0;
+    size_t total_num = 0;
+  };
+
   /// Container for statistics on stopwatch timers.
-  struct StopwatchStats {
-    /// Mean time of timer.
-    double mean;
-    /// Minimum time of timer.
-    double min;
-    /// Maximum time of timer.
-    double max;
-    /// Number of times timer was called.
-    int num;
+  struct Measurements {
+    Stats calcStats() const {
+      Stats stats;
+      stats.total_num = total_num;
+      if (sliding_window.empty()) {
+        return stats;
+      }
+
+      std::vector<double> sorted;
+      for (auto const& t : sliding_window) {
+        sorted.push_back(t);
+      }
+      std::sort(sorted.begin(), sorted.end());
+
+      stats.last = sorted.back();
+      stats.second_last = sorted.size() > 1 ? sorted[sorted.size() - 2] : -1.0;
+      stats.min = sorted.front();
+      stats.max = sorted.back();
+      stats.median = sorted[sorted.size() / 2];
+      return stats;
+    }
+
+    /// total number of timer starts.
+    size_t total_num = 0;
+    /// total time elapsed.
+    std::deque<double> sliding_window;
   };
 
   /// Return container of stopwatch timer statistics.
-  std::map<std::string, StopwatchStats> getStats() {
+  std::map<std::string, Measurements> getMeasurements() {
     std::scoped_lock lock(timers_mutex_);
 
-    std::map<std::string, StopwatchStats> stats_vec;
+    std::map<std::string, Measurements> stats_vec;
     for (auto const& bucket : timers_) {
-      StopwatchStats stats;
-      stats.mean = bucket.second.sum / bucket.second.num;
-      stats.num = bucket.second.num;
-      stats.min = bucket.second.min;
-      stats.max = bucket.second.max;
-      stats_vec.insert({bucket.first, stats});
+      stats_vec.insert({bucket.first, bucket.second.data});
+    }
+    return stats_vec;
+  }
+
+  /// Return container of stopwatch timer statistics.
+  std::map<std::string, Stats> getStats() {
+    std::scoped_lock lock(timers_mutex_);
+
+    std::map<std::string, Stats> stats_vec;
+    for (auto const& bucket : timers_) {
+      stats_vec.insert({bucket.first, bucket.second.data.calcStats()});
     }
     return stats_vec;
   }
 
   /// Prints statistics of stopwatch timers.
-  void print() {
-    for (auto const& stats : getStats()) {
-      std::cout << stats.first << " mean time: " << stats.second.mean
-                << " min time: " << stats.second.min
-                << " max time: " << stats.second.max
-                << " num: " << stats.second.num << std::endl;
+  std::string summaryString() {
+    std::string str;
+    for (auto const& [name, stats] : getStats()) {
+      str += FARM_FORMAT(
+          "dt `{}` - #{}, LAST: {:.3f} [2nd last {:.3f}], MEDIAN: {:3f} [{:3f} "
+          "- "
+          "{:3f}] \n",
+          name,
+          stats.total_num,
+          stats.last,
+          stats.second_last,
+          stats.median,
+          stats.min,
+          stats.max);
     }
+    return str;
   }
 
  private:
   StopwatchSingleton() {}
-  struct Bucket {
-    std::optional<std::chrono::time_point<std::chrono::high_resolution_clock>>
-        maybe_start;
 
-    size_t num = 0;
-    double sum = 0.0;
-    double min = std::numeric_limits<double>::max();
-    double max = std::numeric_limits<double>::lowest();
+  struct Bucket {
+    std::unordered_map<std::thread::id, std::optional<TimePoint>> maybe_start;
+    Measurements data;
   };
   std::mutex timers_mutex_;
   std::map<std::string, Bucket> timers_;

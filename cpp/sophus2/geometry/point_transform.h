@@ -145,7 +145,7 @@ template <class TT>
     sophus2::Isometry3<TT> const& bar_from_daz,
     InverseDepthPoint3<TT> const& inverse_depth_point_in_daz)
     -> Eigen::Matrix<TT, 2, 6> {
-   return dxProjExpXTransformPointAt0(
+  return dxProjExpXTransformPointAt0(
              foo_from_bar * bar_from_daz, inverse_depth_point_in_daz) *
          foo_from_bar.adj();
 }

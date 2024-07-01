@@ -40,55 +40,38 @@ class StopwatchSingleton {
     return Static_S;
   }
 
+  struct StartToken {
+    std::string event_name;
+    TimePoint start_time;
+  };
+
   /// Start a new, named timer.
-  void start(std::string str) {
-    std::scoped_lock lock(timers_mutex_);
+  StartToken start(std::string event_name) {
     auto start_time = Clock::now();
 
-    Bucket& b = timers_[str];
-
-    std::thread::id this_id = std::this_thread::get_id();
-
-    auto& maybe_start = b.maybe_start[this_id];
-    if (maybe_start) {
-      FARM_WARN("'{}' is already started (on thread {})", str, this_id);
-    }
-    maybe_start = start_time;
+    return StartToken{
+        .event_name = event_name,
+        .start_time = start_time,
+    };
   }
 
   /// Stops the named timer and returns the duration.
-  double stop(std::string str) {
+  double stop(StartToken start_token) {
     std::scoped_lock lock(timers_mutex_);
 
     auto stop_time = Clock::now();
 
-    auto it = timers_.find(str);
-    if (it == timers_.end()) {
-      FARM_WARN(
-          "{} was not started on any thread, but 'stop' was called!", str);
-      return 0.0;
-    }
-    Bucket& b = it->second;
+    // Find the bucket for the event name, create if it doesn't exist.
+    Measurements& b = buckets_[start_token.event_name];
 
-    auto& maybe_start = b.maybe_start[std::this_thread::get_id()];
-
-    if (!maybe_start) {
-      FARM_WARN(
-          "Tried stopping '{}' (on thread {}), but 'stop' was called already.",
-          std::this_thread::get_id(),
-          str);
-      return 0.0;
-    }
-
-    std::chrono::duration<double> diff = (stop_time - *maybe_start);
+    std::chrono::duration<double> diff = (stop_time - start_token.start_time);
     double diff_seconds = diff.count();
-    maybe_start.reset();
 
-    b.data.sliding_window.push_back(diff_seconds);
-    if (b.data.sliding_window.size() > kWindowSize) {
-      b.data.sliding_window.pop_front();
+    b.sliding_window.push_back(diff_seconds);
+    if (b.sliding_window.size() > kWindowSize) {
+      b.sliding_window.pop_front();
     }
-    ++b.data.total_num;
+    ++b.total_num;
 
     return diff_seconds;
   }
@@ -131,15 +114,22 @@ class StopwatchSingleton {
     std::deque<double> sliding_window;
   };
 
-  /// Return container of stopwatch timer statistics.
+  /// Return container of stopwatch measurements.
   std::map<std::string, Measurements> getMeasurements() {
     std::scoped_lock lock(timers_mutex_);
 
-    std::map<std::string, Measurements> stats_vec;
-    for (auto const& bucket : timers_) {
-      stats_vec.insert({bucket.first, bucket.second.data});
+    return buckets_;
+  }
+
+  /// Return measurements for a specific event.
+  std::optional<Measurements> getMeasurementForEvent(std::string event) {
+    std::scoped_lock lock(timers_mutex_);
+
+    auto it = buckets_.find(event);
+    if (it == buckets_.end()) {
+      return std::nullopt;
     }
-    return stats_vec;
+    return it->second;
   }
 
   /// Return container of stopwatch timer statistics.
@@ -147,17 +137,17 @@ class StopwatchSingleton {
     std::scoped_lock lock(timers_mutex_);
 
     std::map<std::string, Stats> stats_vec;
-    for (auto const& bucket : timers_) {
-      stats_vec.insert({bucket.first, bucket.second.data.calcStats()});
+    for (auto const& bucket : buckets_) {
+      stats_vec.insert({bucket.first, bucket.second.calcStats()});
     }
     return stats_vec;
   }
 
   /// Prints statistics of stopwatch timers.
   std::string summaryString() {
-    std::string str;
+    std::string event_name;
     for (auto const& [name, stats] : getStats()) {
-      str += FARM_FORMAT(
+      event_name += FARM_FORMAT(
           "dt `{}` - #{}, LAST: {:.3f} [2nd last {:.3f}], MEDIAN: {:3f} [{:3f} "
           "- "
           "{:3f}] \n",
@@ -169,32 +159,28 @@ class StopwatchSingleton {
           stats.min,
           stats.max);
     }
-    return str;
+    return event_name;
   }
 
  private:
   StopwatchSingleton() {}
 
-  struct Bucket {
-    std::unordered_map<std::thread::id, std::optional<TimePoint>> maybe_start;
-    Measurements data;
-  };
   std::mutex timers_mutex_;
-  std::map<std::string, Bucket> timers_;
+  std::map<std::string, Measurements> buckets_;
 };
 
 /// Stopwatch for a single, named timer.
 struct ScopedTimer {
   /// Default constructor, requires timer name.
-  ScopedTimer(std::string str) : str_(str) {
-    StopwatchSingleton::getInstance().start(str);
+  ScopedTimer(std::string event_name) {
+    token_ = StopwatchSingleton::getInstance().start(event_name);
   }
 
   /// Destructor that returns the timer duration.
-  ~ScopedTimer() { StopwatchSingleton::getInstance().stop(str_); }
+  ~ScopedTimer() { StopwatchSingleton::getInstance().stop(this->token_); }
 
  private:
-  std::string str_;
+  StopwatchSingleton::StartToken token_;
 };
 
 }  // namespace farm_ng

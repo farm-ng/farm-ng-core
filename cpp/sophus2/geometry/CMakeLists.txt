@@ -17,14 +17,14 @@ farm_ng_add_library(sophus2_geometry
 )
 target_link_libraries(sophus2_geometry INTERFACE sophus2_lie)
 
-  foreach(test_basename
-    fit_plane
-    inverse_depth
-    plane_conv
-    point_transform
-    ray)
-    farm_ng_add_test(${test_basename}
-                          PARENT_LIBRARY sophus2_geometry
-                          LINK_LIBRARIES sophus2_geometry
-                          LABELS small)
-  endforeach()
+foreach(test_basename
+  fit_plane
+  inverse_depth
+  plane_conv
+  point_transform
+  ray)
+  farm_ng_add_test(${test_basename}
+                        PARENT_LIBRARY sophus2_geometry
+                        LINK_LIBRARIES sophus2_geometry
+                        LABELS small)
+endforeach()

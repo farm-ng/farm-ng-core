@@ -25,7 +25,7 @@ namespace farm_ng {
 struct PlottingComponentImpl : public Component, public PlottingComponent {
   PlottingComponentImpl(
       Context const& ctx, RemotePlottingClient::Params const& params)
-      : Component(ctx, "plotting", this, ""),
+      : Component(ctx, "other", this, "plotting"),
         input_messages_(
             this,
             "on_messages",

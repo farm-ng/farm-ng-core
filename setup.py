@@ -11,7 +11,7 @@ from farm_ng.package.commands import (
 from pybind11.setup_helpers import ParallelCompile, Pybind11Extension, build_ext
 from setuptools import setup
 
-__version__ = "2.3.2-dev"
+__version__ = "2.3.1"
 
 
 platform_cxx_flags = []

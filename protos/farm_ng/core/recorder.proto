@@ -15,7 +15,6 @@
 syntax = "proto3";
 
 import "farm_ng/core/event_service.proto";
-import "farm_ng/core/timestamp.proto";
 
 package farm_ng.core.proto;
 
@@ -37,7 +36,7 @@ message RecorderProfile {
 // A message that can be used to live annotate a recording.
 
 message RecorderAnnotation {
-    Timestamp stamp = 1; // The timestamp of the annotation.
+    double stamp = 1; // The timestamp of the annotation.
     AnnotationKind kind = 2; // The kind of annotation.
     string message = 3; // An optional message of the annotation. E.g., "Start of row 1".
 }

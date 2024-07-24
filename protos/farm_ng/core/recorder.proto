@@ -15,10 +15,29 @@
 syntax = "proto3";
 
 import "farm_ng/core/event_service.proto";
+import "farm_ng/core/timestamp.proto";
 
 package farm_ng.core.proto;
+
+enum AnnotationKind {
+    ANNOTATION_UNKNOWN = 0;
+    ANNOTATION_ROW_START = 1;
+    ANNOTATION_ROW_END = 2;
+    ANNOTATION_PATH_START = 3;
+    ANNOTATION_PATH_END = 4;
+    ANNOTATION_WAYPOINT = 5;
+    ANNOTATION_NOTE = 6;
+}
 
 message RecorderProfile {
     string name = 1;
     repeated SubscribeRequest subscriptions = 2;
+}
+
+// A message that can be used to live annotate a recording.
+
+message RecorderAnnotation {
+    Timestamp stamp = 1; // The timestamp of the annotation.
+    AnnotationKind kind = 2; // The kind of annotation.
+    string message = 3; // An optional message of the annotation. E.g., "Start of row 1".
 }

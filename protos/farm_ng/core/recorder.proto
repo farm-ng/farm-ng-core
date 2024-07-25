@@ -37,7 +37,7 @@ message RecorderProfile {
 // A message that can be used to live annotate a recording.
 
 message RecorderAnnotation {
-    Timestamp stamp = 1; // The timestamp of the annotation.
+    repeated Timestamp stamp = 1; // The timestamp of the annotation.
     AnnotationKind kind = 2; // The kind of annotation.
     string message = 3; // An optional message of the annotation. E.g., "Start of row 1".
 }

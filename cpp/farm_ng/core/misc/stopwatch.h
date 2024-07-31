@@ -98,10 +98,13 @@ class StopwatchSingleton {
       for (auto const& t : sliding_window) {
         sorted.push_back(t);
       }
-      std::sort(sorted.begin(), sorted.end());
-
+      // intentially done before sorting
       stats.last = sorted.back();
       stats.second_last = sorted.size() > 1 ? sorted[sorted.size() - 2] : -1.0;
+
+      // now sort
+      std::sort(sorted.begin(), sorted.end());
+
       stats.min = sorted.front();
       stats.max = sorted.back();
       stats.median = sorted[sorted.size() / 2];

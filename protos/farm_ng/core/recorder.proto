@@ -41,6 +41,7 @@ message RecorderProfile {
     repeated SubscribeRequest subscriptions = 2;
     ImageOutputFormat image_output_format = 3;
     google.protobuf.Struct metadata = 4;
+    string file_name_prefix = 5;
 }
 
 // A message that can be used to live annotate a recording.

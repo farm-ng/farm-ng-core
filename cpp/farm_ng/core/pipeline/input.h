@@ -74,9 +74,17 @@ class Input {
     int count = count_.load();
     if (config_.max_queue_length != 0 && count > 0 &&
         size_t(count) >= config_.max_queue_length) {
+      FARM_WARN(
+          "dropping message, queue size {:02d} input: {}",
+          count,
+          uri_.string());
       return false;
     }
-    count_++;
+    count = count_++;
+    if (config_.max_queue_length == 0 && count > 1) {
+      FARM_WARN("queue size > 1: {:02d} input: {}", count_, uri_.string());
+    }
+
     // request the strand to invoke the function and send the message value
     // NOTE: seems that `io_context::strand::post` it's deprecated and need
     // to be use `boost::asio::post` instead. See:

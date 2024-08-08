@@ -59,47 +59,31 @@ void StreamLogger::writeHeader(
           fmt::arg("function", function)));
 }
 
-bool StreamLogger::trySetLogDir(std::filesystem::path const& path) noexcept {
-  if (!std::filesystem::exists(path)) {
+bool StreamLogger::trySetLogPath(std::filesystem::path const& path) noexcept {
+  auto parent_dir = path.parent_path();
+  if (!std::filesystem::is_directory(parent_dir)) {
     FARM_WARN(
-        "Failed to enable text logging to disk. The path `{}` does not exist.",
-        path);
+        "Failed to enable text logging to disk, `{}` is not a directory.",
+        parent_dir);
     return false;
   }
-  if (!std::filesystem::is_directory(path)) {
+
+  disk_logging_.log_path = path;
+  disk_logging_.log_file_stream = std::ofstream(path.string());
+  if (!disk_logging_.log_file_stream) {
     FARM_WARN(
-        "Failed to enable text logging to disk. The path `{}` is not a "
-        "directory.",
+        "Failed to enable text logging to disk, unable to open stream for `{}`",
         path);
-    return false;
-  }
-  this->disk_logging_.log_dir = path;
-
-  std::filesystem::path log_file_path = path / "text.log";
-
-  this->disk_logging_.log_file_stream = std::ofstream(log_file_path.string());
-
-  if (!this->disk_logging_.log_file_stream) {
-    FARM_WARN(
-        "Failed to enable text logging to disk. Unable to open stream for "
-        "`{}`.",
-        log_file_path);
     return false;
   }
 
   return true;
 }
 
-// Get the directory where log files are written to. Returns nullopt if no
-// directory has been set.
-std::optional<std::filesystem::path> StreamLogger::getLogDir() const noexcept {
-  return disk_logging_.log_dir;
-}
-
 void StreamLogger::write(DiskLogging& disk_logging, std::string const& str) {
   std::cerr << str;
 
-  if (disk_logging.log_dir) {
+  if (disk_logging.log_path) {
     // Note: "log_file_stream_ << str; would not work since writing to streams
     //        other than cout and cerr is not thread safe.
     std::scoped_lock lock(disk_logging.log_file_mutex);
@@ -110,7 +94,7 @@ void StreamLogger::write(DiskLogging& disk_logging, std::string const& str) {
 
 void StreamLogger::flush(DiskLogging& disk_logging) {
   std::cerr << std::endl;
-  if (disk_logging.log_dir) {
+  if (disk_logging.log_path) {
     std::scoped_lock lock(disk_logging.log_file_mutex);
     // Note: log_file_stream.flush is not threadsafe.
     fmt::print(disk_logging.log_file_stream, "\n");

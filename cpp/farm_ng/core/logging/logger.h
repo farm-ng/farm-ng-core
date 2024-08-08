@@ -46,8 +46,8 @@ class StreamLogger {
  public:
   /// Details of the disk logging implementation.
   struct DiskLogging {
-    /// if log_dir_!=nullopt, then logging to a file is enabled.
-    std::optional<std::filesystem::path> log_dir;
+    /// if log_path!=nullopt, then logging to a file is enabled.
+    std::optional<std::filesystem::path> log_path;
     /// The file stream to write to.
     std::ofstream log_file_stream;
     /// Mutex guarding the file stream.
@@ -67,15 +67,10 @@ class StreamLogger {
   /// Get the current runtime log level
   LogLevel getLogLevel();
 
-  /// Set the directory where log files are written to. A file named
-  /// "text.log" will be created in this directory.
+  /// Set the path where a log file is written to.
   ///
-  /// If the directory does not exist, or is not writable, false is returned.
-  bool trySetLogDir(std::filesystem::path const& path) noexcept;
-
-  /// Get the directory where log files are written to. Returns nullopt if no
-  /// directory has been set.
-  std::optional<std::filesystem::path> getLogDir() const noexcept;
+  /// Fails if `path`'s parent directory does not exist.
+  bool trySetLogPath(std::filesystem::path const& path) noexcept;
 
   /// A type-erased generator of timestamp strings
   struct LogClock {

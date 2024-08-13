@@ -20,6 +20,22 @@
 namespace farm_ng {
 
 template <>
+auto fromProt<core::proto::ClippingPlanes>(
+    core::proto::ClippingPlanes const& proto)
+    -> Expected<sophus2::ClippingPlanes> {
+  return sophus2::ClippingPlanes{.near = proto.near(), .far = proto.far()};
+}
+
+template <>
+auto toProt<sophus2::ClippingPlanes>(sophus2::ClippingPlanes const& planes)
+    -> core::proto::ClippingPlanes {
+  core::proto::ClippingPlanes proto;
+  proto.set_near(planes.near);
+  proto.set_far(planes.far);
+  return proto;
+}
+
+template <>
 auto fromProt<core::proto::CameraModel>(core::proto::CameraModel const& proto)
     -> Expected<sophus2::CameraModel> {
   auto get_params = [&proto]() -> Eigen::VectorXd {

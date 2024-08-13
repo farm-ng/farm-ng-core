@@ -18,6 +18,7 @@
 #include "farm_ng/core/sensor.pb.h"
 #include "sophus2/sensor/camera_model.h"
 #include "sophus2/sensor/camera_rig.h"
+#include "sophus2/sensor/clipping_planes.h"
 
 namespace farm_ng {
 
@@ -26,5 +27,6 @@ FARM_PROTO_CONV_TRAIT(
     std::vector<sophus2::CameraModel>, core::proto::CameraModels);
 FARM_PROTO_CONV_TRAIT(sophus2::RigidCamera, core::proto::RigidCamera);
 FARM_PROTO_CONV_TRAIT(sophus2::MultiCameraRig, core::proto::MultiCameraRig);
+FARM_PROTO_CONV_TRAIT(sophus2::ClippingPlanes, core::proto::ClippingPlanes);
 
 }  // namespace farm_ng

@@ -16,6 +16,7 @@ syntax = "proto3";
 
 import "farm_ng/core/event_service.proto";
 import "farm_ng/core/timestamp.proto";
+import "google/protobuf/struct.proto";
 
 package farm_ng.core.proto;
 
@@ -32,6 +33,7 @@ enum AnnotationKind {
 message RecorderProfile {
     string name = 1;
     repeated SubscribeRequest subscriptions = 2;
+    google.protobuf.Struct metadata = 3;
 }
 
 // A message that can be used to live annotate a recording.

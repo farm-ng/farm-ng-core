@@ -31,6 +31,17 @@ TEST(format, functional) {  // NOLINT
       FARM_FORMAT("d: {:0.3f} | s: {}", d, s), "d: -11.235 | s: " + s);
 }
 
+TEST(format, format_error) {  // NOLINT
+  int i = 10;
+  float f = 10.0;
+
+  FARM_ASSERT_EQ(
+      FARM_FORMAT("i: {} {}", i), "i: {} {}; format error: argument not found");
+  FARM_ASSERT_EQ(
+      FARM_FORMAT("hex: {:02x}", f),
+      "hex: {:02x}; format error: invalid format specifier");
+}
+
 TEST(runtime_format, functional) {  // NOLINT
   int i = 10;
   uint8_t hex = 0x1f;

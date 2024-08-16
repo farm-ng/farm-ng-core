@@ -32,15 +32,24 @@ double secondsFromDuration(std::chrono::duration<Rep, Period> const& duration) {
   return 1e-6 * std::chrono::duration_cast<std::chrono::microseconds>(duration)
                     .count();
 }
+
+std::shared_ptr<grpc::Channel> createCustomChannel(
+    RemotePlottingClient::Params const& params) {
+  grpc::ChannelArguments args;
+  args.SetInt(
+      GRPC_ARG_MAX_RECONNECT_BACKOFF_MS, params.grpc_max_reconnect_backoff_ms);
+  return grpc::CreateCustomChannel(
+      FARM_FORMAT("{}:{}", params.host, params.port),
+      grpc::InsecureChannelCredentials(),
+      args);
+}
 }  // namespace
 
 class PlottingRemoteClientImpl : public RemotePlottingClient {
  public:
   PlottingRemoteClientImpl(RemotePlottingClient::Params const& params)
       : params_(params),
-        channel_(grpc::CreateChannel(
-            FARM_FORMAT("{}:{}", params.host, params.port),
-            grpc::InsecureChannelCredentials())),
+        channel_(createCustomChannel(params)),
         stub_(core::plotting::proto::PlottingWidget::NewStub(channel_)) {}
 
   ~PlottingRemoteClientImpl() { flush(); }
@@ -74,11 +83,18 @@ class PlottingRemoteClientImpl : public RemotePlottingClient {
     core::plotting::proto::Messages proto = toProt(messages);
     grpc::Status status = stub_->send(&context, proto, &response);
     if (!status.ok()) {
+      if (status.error_code() == int(GRPC_STATUS_UNAVAILABLE)) {
       FARM_INFO_EVERY_N(
-          1000,
-          "Error sending point: [{}] {}",
+          120,
+          "Can't connect to plotting service. Likely the plotting service is not running.\nDetails: [{}] {}",
           status.error_code(),
           status.error_message());
+      } else {
+        FARM_WARN(
+            "Error connecting to plotting service: [{}] {}",
+            status.error_code(),
+            status.error_message());
+      }
     }
   }
   RemotePlottingClient::Params params_;

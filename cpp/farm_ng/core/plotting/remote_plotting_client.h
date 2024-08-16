@@ -28,6 +28,7 @@ class RemotePlottingClient {
  public:
   /// Parameters for the plotting component.
   struct Params {
+    int grpc_max_reconnect_backoff_ms = 500;
     /// The host of the plotting service.
     std::string host = "localhost";
     /// The port of the plotting service.

@@ -85,7 +85,8 @@ std::string runtimeFormatImpl(
         "[FARM_RUNTIME_FORMAT in {}:{}]. We will return what we can, and "
         "continue. Details: {}",
         file,
-        line,e.what());
+        line,
+        e.what());
     return str + "; format error: " + e.what();
   }
   // unreachable

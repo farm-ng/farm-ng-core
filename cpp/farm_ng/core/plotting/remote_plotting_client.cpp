@@ -84,11 +84,12 @@ class PlottingRemoteClientImpl : public RemotePlottingClient {
     grpc::Status status = stub_->send(&context, proto, &response);
     if (!status.ok()) {
       if (status.error_code() == int(GRPC_STATUS_UNAVAILABLE)) {
-      FARM_INFO_EVERY_N(
-          120,
-          "Can't connect to plotting service. Likely the plotting service is not running.\nDetails: [{}] {}",
-          status.error_code(),
-          status.error_message());
+        FARM_INFO_EVERY_N(
+            120,
+            "Can't connect to plotting service. Likely the plotting service is "
+            "not running.\nDetails: [{}] {}",
+            status.error_code(),
+            status.error_message());
       } else {
         FARM_WARN(
             "Error connecting to plotting service: [{}] {}",

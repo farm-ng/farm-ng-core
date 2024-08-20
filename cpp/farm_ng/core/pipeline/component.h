@@ -81,9 +81,25 @@ Input<TArg>::Input(
     : context_strand_(FARM_UNWRAP(component).getContextStrand()),
       uri_(FARM_UNWRAP(component).uri()),
       config_(config),
+      function_([f](TArg arg, size_t){f(arg);}),
+      count_(0) {
+  uri_.query = FARM_FORMAT("in={}", name);
+}
+
+/// Templated ``Input`` constructor
+template <class TArg>
+Input<TArg>::Input(
+    Component const *component,
+std::function<void(TArg, size_t)> const &f,
+    std::string const &name,
+    InputConfig const &config)
+    : context_strand_(FARM_UNWRAP(component).getContextStrand()),
+      uri_(FARM_UNWRAP(component).uri()),
+      config_(config),
       function_(f),
       count_(0) {
   uri_.query = FARM_FORMAT("in={}", name);
 }
+
 
 }  // namespace farm_ng

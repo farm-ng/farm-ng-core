@@ -50,6 +50,18 @@ class Input {
       std::function<void(TArg)> const& f,
       InputConfig const& config = InputConfig());
 
+explicit Input(
+      Component const* component,
+std::function<void(TArg, size_t)> const& f,
+      std::string const& name,
+      InputConfig const& config = InputConfig());
+
+//  static Input withQueueSize(
+//      Component const* component,
+//      std::string const& name,
+//      std::function<void(TArg, size_t)> const& f,
+//      InputConfig const& config = InputConfig());
+
   /// Default destructor
   ~Input() {}
 
@@ -89,18 +101,19 @@ class Input {
     // NOTE: seems that `io_context::strand::post` it's deprecated and need
     // to be use `boost::asio::post` instead. See:
     // https://www.boost.org/doc/libs/1_78_0/doc/html/boost_asio/reference/io_context__strand/post.html
-    context_strand_.getAsioStrand().post([this, value = std::move(value)] {
-      this->strandedSlot(std::move(value));
-    });
+    context_strand_.getAsioStrand().post(
+        [this, count, value = std::move(value)] {
+          this->strandedSlot(std::move(value), count);
+        });
     return true;
   }
 
   // strandedSlot is called on the strand associated with ContextStrand
   // context_strand_, and it can be a generic place to track things like
   // function execution time, and manage the queue length.
-  void strandedSlot(TArg value) {
+  void strandedSlot(TArg value, size_t queue_size) {
     // begin timing
-    function_(std::move(value));
+    function_(std::move(value), queue_size);
     // end timing
     // e.g. context_strand_.report_timing(input_name_, timing)
     count_--;
@@ -113,7 +126,7 @@ class Input {
   /// The configuration structure for the class instance.
   InputConfig config_;
   /// The callback function definition.
-  std::function<void(TArg)> function_;
+  std::function<void(TArg, size_t)> function_;
   /// The list contained connections between other functions.
   std::vector<std::shared_ptr<boost::signals2::scoped_connection>> connections_;
   /// A counter tracking the number of calls made to the function.

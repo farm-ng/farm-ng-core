@@ -50,17 +50,11 @@ class Input {
       std::function<void(TArg)> const& f,
       InputConfig const& config = InputConfig());
 
-explicit Input(
+  explicit Input(
       Component const* component,
-std::function<void(TArg, size_t)> const& f,
+      std::function<void(TArg, size_t)> const& f,
       std::string const& name,
       InputConfig const& config = InputConfig());
-
-//  static Input withQueueSize(
-//      Component const* component,
-//      std::string const& name,
-//      std::function<void(TArg, size_t)> const& f,
-//      InputConfig const& config = InputConfig());
 
   /// Default destructor
   ~Input() {}

@@ -98,7 +98,7 @@ class StopwatchSingleton {
       for (auto const& t : sliding_window) {
         sorted.push_back(t);
       }
-      // intentially done before sorting
+      // intentionally done before sorting
       stats.last = sorted.back();
       stats.second_last = sorted.size() > 1 ? sorted[sorted.size() - 2] : -1.0;
 

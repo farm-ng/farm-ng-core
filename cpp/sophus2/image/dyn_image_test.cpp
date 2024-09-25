@@ -23,7 +23,7 @@ using namespace sophus2;
   } while (false)
 
 TEST(AnyImage, create_access_and_extract) {
-  const ImageSize size64{6, 4};
+  ImageSize const size64{6, 4};
   MutImage<float> mut_image(size64);
   mut_image.fill(0.5f);
   Image<float> image(std::move(mut_image));
@@ -58,7 +58,7 @@ TEST(AnyImage, create_access_and_extract) {
 }
 
 TEST(IntensityImage, create_access_and_extract) {
-  const ImageSize size64{6, 4};
+  ImageSize const size64{6, 4};
   MutImage<float> mut_image(size64);
   mut_image.fill(0.5f);
   Image<float> image(std::move(mut_image));
@@ -70,7 +70,7 @@ TEST(IntensityImage, create_access_and_extract) {
 
 TEST(AnyImage, runtime_type_info) {
   {
-    const ImageSize size64{6, 4};
+    ImageSize const size64{6, 4};
     MutImage<float> mut_image(size64);
     AnyImage<> any_image(std::move(mut_image));
 
@@ -88,7 +88,7 @@ TEST(AnyImage, runtime_type_info) {
     SOPHUS_ASSERT(maybe_any_image2);
   }
   {
-    const ImageSize size64{6, 4};
+    ImageSize const size64{6, 4};
     MutImage<uint8_t> mut_image(size64);
     AnyImage<> any_image(std::move(mut_image));
 
@@ -98,7 +98,7 @@ TEST(AnyImage, runtime_type_info) {
     SOPHUS_ASSERT_EQ(any_image.pixelFormat().num_bytes_per_component, 1);
   }
   {
-    const ImageSize size64{6, 4};
+    ImageSize const size64{6, 4};
     MutImage3F32 mut_image(size64);
     AnyImage<> any_image(std::move(mut_image));
 
@@ -108,7 +108,7 @@ TEST(AnyImage, runtime_type_info) {
     SOPHUS_ASSERT_EQ(any_image.pixelFormat().num_bytes_per_component, 4);
   }
   {
-    const ImageSize size64{6, 4};
+    ImageSize const size64{6, 4};
     MutImage3U8 mut_image(size64);
     AnyImage<> any_image(std::move(mut_image));
 
@@ -118,7 +118,7 @@ TEST(AnyImage, runtime_type_info) {
     SOPHUS_ASSERT_EQ(any_image.pixelFormat().num_bytes_per_component, 1);
   }
   {
-    const ImageSize size64{6, 4};
+    ImageSize const size64{6, 4};
     MutImage<Eigen::Vector4f> mut_image(size64);
     AnyImage<> any_image(std::move(mut_image));
 
@@ -128,7 +128,7 @@ TEST(AnyImage, runtime_type_info) {
     SOPHUS_ASSERT_EQ(any_image.pixelFormat().num_bytes_per_component, 4);
   }
   {
-    const ImageSize size64{6, 4};
+    ImageSize const size64{6, 4};
     MutImage4U8 mut_image(size64);
     AnyImage<> any_image(std::move(mut_image));
 
@@ -276,5 +276,27 @@ TEST(IntensityImage, visitor) {
             [&](auto const& /*unused*/) { SOPHUS_ASSERT(false); },
         },
         runtime_sub);
+  }
+}
+
+TEST(IntensityImage, conversion) {
+  auto typed_rgba_image = Image4U8::makeGenerative(
+      ImageSize{2, 3},
+      [](int u, int v) { return Pixel4<uint8_t>{u, 2 * v, 3, 255}; });
+
+  auto intensity_image = IntensityImage<>(typed_rgba_image);
+
+  FARM_ASSERT(intensity_image.has<Pixel4<uint8_t>>());
+
+  auto typed_rgba_image2 = intensity_image.image<Pixel4<uint8_t>>();
+
+  auto r_channel_image = sophus2::ImageU8::makeFromTransform(
+      typed_rgba_image2,
+      [](Pixel4<uint8_t> rgba_pixel) { return rgba_pixel.x(); });
+
+  for (int v = 0; v < r_channel_image.height(); ++v) {
+    for (int u = 0; u < r_channel_image.width(); ++u) {
+      SOPHUS_ASSERT_EQ(r_channel_image(u, v), u);
+    }
   }
 }

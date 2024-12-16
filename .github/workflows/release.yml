@@ -13,7 +13,7 @@ jobs:
   # Based on https://dev.to/eugenebabichenko/automated-multi-platform-releases-with-github-actions-1abg
   create_release:
     name: Create Release and Provide Upload URL.
-    runs-on: ubuntu-22.04 # OS to create release, not for build
+    runs-on: ubuntu-20.04 # OS to create release, not for build
     outputs:
       # This job will provide URL for build jobs to use for uploading assets
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -39,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04]
+        os: [ubuntu-20.04]
       fail-fast: false
 
     steps:
@@ -49,7 +49,7 @@ jobs:
 
       - name: Install system dependencies (Ubuntu)
         run: ./scripts/install_deps_ubuntu.sh
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-20.04'
 
       - name: Install venv dependencies
         run: ./scripts/build_venv/build_venv.sh

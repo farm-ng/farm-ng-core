@@ -9,6 +9,7 @@ brew install --verbose \
     ccache \
     ffmpeg \
     glew \
+    glog \
     libjpeg \
     libpng \
     libtiff \

@@ -26,6 +26,7 @@ sudo apt-get -y install \
      libegl1-mesa-dev \
      libglew-dev \
      libglm-dev \
+     libgoogle-glog-dev \
      libgtest-dev \
      libopencv-dev \
      libssl-dev \

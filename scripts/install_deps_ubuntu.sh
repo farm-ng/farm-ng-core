@@ -36,5 +36,5 @@ sudo apt-get -y install \
      libtiff-dev \
      ninja-build \
      python3-dev \
-     python3.8-venv \
+     python3-venv \
      && sudo apt-get clean

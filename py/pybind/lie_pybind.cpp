@@ -332,11 +332,8 @@ void bind_lie(py::module_& m) {
       .def_static(
           "error",
           [](sophus::Pose3F64 const& lhs_a_from_b, sophus::Pose3F64 const& rhs_a_from_b) {
-            // Note: error is a friend function defined inline in Pose3<T>, so it can only
-            // be found via ADL. That requires unqualified name lookup; sophus::error
-            // would not be found.
             farm_ng::Expected<sophus::Pose3F64::Tangent> err =
-                error(lhs_a_from_b, rhs_a_from_b);
+                sophus::Pose3F64::error(lhs_a_from_b, rhs_a_from_b);
             if (err) {
               return err->array();
             }

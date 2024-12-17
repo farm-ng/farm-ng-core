@@ -142,6 +142,8 @@ def test_pose():
 
     for _i in range(50):
         world_from_robot_now = world_from_robot.evolve(dt)
+        print("world_from_robot:", world_from_robot.log())
+        print("world_from_robot_now:", world_from_robot_now.log())
 
         # computes the error between frame_b of two respective poses
         # e.g. robot and robot now

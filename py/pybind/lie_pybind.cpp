@@ -27,6 +27,7 @@
 
 namespace py = pybind11;
 using namespace pybind11::literals;  // to bring in the `_a` literal
+using sophus::Pose3F64;
 
 // to guarantee that the array is contiguous, we need to use the buffer protocol
 using py_array = py::array_t<double, py::array::c_style | py::array::forcecast>;
@@ -124,7 +125,7 @@ void bind_lie(py::module_& m) {
   auto Pose3F64ToProto = [isometry3F64ToProto,
                           PbVec3F64,
                           PbPose,
-                          PbIsometry3F64Tangent](sophus::Pose3F64 const& self) {
+                          PbIsometry3F64Tangent](Pose3F64 const& self) {
     Eigen::Vector3d lv = self.tangentOfBInA().head<3>();
     Eigen::Vector3d av = self.tangentOfBInA().tail<3>();
     return PbPose(
@@ -139,7 +140,7 @@ void bind_lie(py::module_& m) {
   };
 
   auto Pose3F64FromProto = [isometry3F64FromProto](py::object proto) {
-    sophus::Pose3F64::Tangent tangent_of_b_in_a = sophus::Pose3F64::Tangent::Zero();
+    Pose3F64::Tangent tangent_of_b_in_a = Pose3F64::Tangent::Zero();
     auto tangent = proto.attr("tangent_of_b_in_a");
     if (!tangent.is_none()) {
       auto linear_vel = tangent.attr("linear_velocity");
@@ -159,7 +160,7 @@ void bind_lie(py::module_& m) {
             py::cast<double>(angular_vel.attr("z")));
       }
     }
-    return sophus::Pose3F64(
+    return Pose3F64(
         isometry3F64FromProto(proto.attr("a_from_b")),
         py::cast<std::string>(proto.attr("frame_a")),
         py::cast<std::string>(proto.attr("frame_b")),
@@ -263,62 +264,62 @@ void bind_lie(py::module_& m) {
             return self.translation() = x;
           });
 
-  py::class_<sophus::Pose3F64>(m, "Pose3F64")
+  py::class_<Pose3F64>(m, "Pose3F64")
       .def(
           py::init<
-              sophus::Pose3F64::Isometry const&,
+              Pose3F64::Isometry const&,
               std::string const&,
               std::string const&,
-              sophus::Pose3F64::Tangent const&>(),
+              Pose3F64::Tangent const&>(),
           py::arg("a_from_b"),
           py::arg("frame_a"),
           py::arg("frame_b"),
-          py::arg("tangent_of_b_in_a") = sophus::Pose3F64::Tangent::Zero())
+          py::arg("tangent_of_b_in_a") = Pose3F64::Tangent::Zero())
       .def_property(
           "frame_a",
-          [](sophus::Pose3F64 const& self) { return self.frameA(); },
-          [](sophus::Pose3F64& self, std::string const& frame_a) {
+          [](Pose3F64 const& self) { return self.frameA(); },
+          [](Pose3F64& self, std::string const& frame_a) {
             self.frameA() = frame_a;
           })
       .def_property(
           "frame_b",
-          [](sophus::Pose3F64 const& self) { return self.frameB(); },
-          [](sophus::Pose3F64& self, std::string const& frame_b) {
+          [](Pose3F64 const& self) { return self.frameB(); },
+          [](Pose3F64& self, std::string const& frame_b) {
             self.frameB() = frame_b;
           })
       .def_property(
           "a_from_b",
-          [](sophus::Pose3F64 const& self) { return self.aFromB(); },
-          [](sophus::Pose3F64& self, sophus::Pose3F64::Isometry const& a_from_b) {
+          [](Pose3F64 const& self) { return self.aFromB(); },
+          [](Pose3F64& self, Pose3F64::Isometry const& a_from_b) {
             self.aFromB() = a_from_b;
           })
       .def_property_readonly(
-          "b_from_a", [](sophus::Pose3F64 const& self) { return self.bFromA(); })
+          "b_from_a", [](Pose3F64 const& self) { return self.bFromA(); })
       .def_property(
           "tangent_of_b_in_a",
-          [](sophus::Pose3F64 const& self) { return self.tangentOfBInA(); },
-          [](sophus::Pose3F64& self, sophus::Pose3F64::Tangent const& tangent_of_b_in_a) {
+          [](Pose3F64 const& self) { return self.tangentOfBInA(); },
+          [](Pose3F64& self, Pose3F64::Tangent const& tangent_of_b_in_a) {
             self.tangentOfBInA() = tangent_of_b_in_a;
           })
       .def_property(
           "rotation",
-          [](sophus::Pose3F64 const& self) { return self.rotation(); },
-          [](sophus::Pose3F64& self, sophus::Rotation3F64 const& x) {
+          [](Pose3F64 const& self) { return self.rotation(); },
+          [](Pose3F64& self, sophus::Rotation3F64 const& x) {
             return self.setRotation(x);
           })
       .def_property(
           "translation",
-          [](sophus::Pose3F64 const& self) { return self.translation(); },
-          [](sophus::Pose3F64& self, Eigen::Vector3d const& x) {
+          [](Pose3F64 const& self) { return self.translation(); },
+          [](Pose3F64& self, Eigen::Vector3d const& x) {
             return self.translation() = x;
           })
-      .def("inverse", &sophus::Pose3F64::inverse)
-      .def("log", &sophus::Pose3F64::log)
-      .def("evolve", &sophus::Pose3F64::evolve)
+      .def("inverse", &Pose3F64::inverse)
+      .def("log", &Pose3F64::log)
+      .def("evolve", &Pose3F64::evolve)
       .def(
           "__mul__",
-          [](sophus::Pose3F64 const& a_from_b, sophus::Pose3F64 const& b_from_c) {
-            farm_ng::Expected<sophus::Pose3F64> a_from_c = a_from_b * b_from_c;
+          [](Pose3F64 const& a_from_b, Pose3F64 const& b_from_c) {
+            farm_ng::Expected<Pose3F64> a_from_c = a_from_b * b_from_c;
             if (a_from_c) {
               return *a_from_c;
             }
@@ -326,14 +327,14 @@ void bind_lie(py::module_& m) {
           })
       .def(
           "__mul__",
-          [](sophus::Pose3F64 const& a_from_b, Eigen::Vector3d const& point_in_b) {
+          [](Pose3F64 const& a_from_b, Eigen::Vector3d const& point_in_b) {
             return a_from_b.aFromB() * point_in_b;
           })
       .def_static(
           "error",
-          [](sophus::Pose3F64 const& lhs_a_from_b, sophus::Pose3F64 const& rhs_a_from_b) {
-            farm_ng::Expected<sophus::Pose3F64::Tangent> err =
-                sophus::Pose3F64::error(lhs_a_from_b, rhs_a_from_b);
+          [](Pose3F64 const& lhs_a_from_b, Pose3F64 const& rhs_a_from_b) {
+            farm_ng::Expected<Pose3F64::Tangent> err =
+                Pose3F64::error(lhs_a_from_b, rhs_a_from_b);
             if (err) {
               return err->array();
             }

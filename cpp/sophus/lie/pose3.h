@@ -104,10 +104,7 @@ class Pose3 {
 
   static Expected<Tangent> error(
       Pose3 const& lhs_a_from_b, Pose3 const& rhs_a_from_b) {
-    Expected<Pose3> product = lhs_a_from_b.inverse() * rhs_a_from_b;
-    if (!product) {
-      return product.error();
-    }
+    FARM_TRY(Pose3, product, lhs_a_from_b.inverse() * rhs_a_from_b);
     return product->log();
   }
 

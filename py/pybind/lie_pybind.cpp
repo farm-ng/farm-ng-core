@@ -332,7 +332,8 @@ void bind_lie(py::module_& m) {
           })
       .def_static(
           "error",
-          [](Pose3F64 const& lhs_a_from_b, Pose3F64 const& rhs_a_from_b) {
+          [](Pose3F64 const& lhs_a_from_b,
+             Pose3F64 const& rhs_a_from_b) -> Eigen::Vector<double, 6> {
             farm_ng::Expected<Pose3F64::Tangent> err =
                 Pose3F64::error(lhs_a_from_b, rhs_a_from_b);
             if (err) {

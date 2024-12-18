@@ -104,10 +104,11 @@ class Pose3 {
 
   static Expected<Tangent> error(
       Pose3 const& lhs_a_from_b, Pose3 const& rhs_a_from_b) {
-    return (lhs_a_from_b.inverse() * rhs_a_from_b)
-        .and_then([](Expected<Pose3> const& pose) -> Expected<Tangent> {
-          return pose->log();
-        });
+    Expected<Pose3> product = lhs_a_from_b.inverse() * rhs_a_from_b;
+    if (!product) {
+      return product.error();
+    }
+    return product->log();
   }
 
   friend Expected<Pose3> operator*(Pose3 const& lhs, Pose3 const& rhs) {

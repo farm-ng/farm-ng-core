@@ -17,7 +17,9 @@ jobs:
         # We use ubuntu-22.04 and macos-13 because they are the final Github runner images
         # with Python 3.8 pre-installed. Brain OS images based on Jetpack 5 use 3.8 as the
         # system Python, so we want to test 3.8 even though it is EOL.
-        os: [ubuntu-22.04, macos-13]
+        # os: [ubuntu-22.04, macos-13]
+        # TODO(SWE-538): Fix MacOS CI and release actions on macos-13.
+        os: [ubuntu-22.04]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
     - uses: actions/checkout@v4

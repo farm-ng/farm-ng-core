@@ -12,7 +12,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13]
+        # TODO(SWE-538): Fix MacOS CI and release actions on macos-13.
+        # os: [ubuntu-22.04, macos-13]
+        os: [ubuntu-22.04]
     steps:
       - uses: actions/checkout@v4
         with:

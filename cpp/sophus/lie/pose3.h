@@ -105,7 +105,16 @@ class Pose3 {
   static Expected<Tangent> error(
       Pose3 const& lhs_a_from_b, Pose3 const& rhs_a_from_b) {
     FARM_TRY(Pose3, product, lhs_a_from_b.inverse() * rhs_a_from_b);
-    return product->log();
+
+    FARM_INFO(
+        "lhs:\n {}\n rhs: {}\n prod: {}",
+        lhs_a_from_b.a_from_b_.matrix(),
+        rhs_a_from_b.a_from_b_.matrix(),
+        product.a_from_b_.matrix());
+    Tangent log =  product.log();
+
+    FARM_INFO("log: {}", log);
+    return log;
   }
 
   friend Expected<Pose3> operator*(Pose3 const& lhs, Pose3 const& rhs) {

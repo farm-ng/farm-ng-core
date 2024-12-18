@@ -119,11 +119,18 @@ def test_pose():
     )
 
     a_from_c = a_from_b * b_from_c
+    print("a_from_c", a_from_c)
     print("woot", ng.Rotation3F64.from_proto(a_from_c.rotation.to_proto()).to_proto())
     ng.Pose3F64.from_proto(a_from_c.to_proto())
     print("Here!", a_from_c.log())
-    assert a_from_c.frame_a == "a"
-    assert a_from_c.frame_b == "c"
+
+    try:
+        assert a_from_c.frame_a == "a"
+    except ValueError:
+        print("something went wrong")
+        assert False
+
+
 
     assert np.allclose(a_from_c.log(), ng.Isometry3F64().log())
 

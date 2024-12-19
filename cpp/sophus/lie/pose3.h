@@ -102,7 +102,7 @@ class Pose3 {
         tangent_in_b_);
   }
 
-  friend Expected<Tangent> error(
+  static Expected<Tangent> error(
       Pose3 const& lhs_a_from_b, Pose3 const& rhs_a_from_b) {
     return (lhs_a_from_b.inverse() * rhs_a_from_b)
         .and_then([](Expected<Pose3> const& pose) -> Expected<Tangent> {

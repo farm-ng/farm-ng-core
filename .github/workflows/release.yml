@@ -13,7 +13,7 @@ jobs:
   # Based on https://dev.to/eugenebabichenko/automated-multi-platform-releases-with-github-actions-1abg
   create_release:
     name: Create Release and Provide Upload URL.
-    runs-on: ubuntu-latest # OS to create release, not for build
+    runs-on: ubuntu-20.04 # OS to create release, not for build
     outputs:
       # This job will provide URL for build jobs to use for uploading assets
       upload_url: ${{ steps.create_release.outputs.upload_url }}

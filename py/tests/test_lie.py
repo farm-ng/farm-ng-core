@@ -142,10 +142,14 @@ def test_pose():
 
     for _i in range(50):
         world_from_robot_now = world_from_robot.evolve(dt)
+        print("world_from_robot:", world_from_robot.log())
+        print("world_from_robot_now:", world_from_robot_now.log())
 
         # computes the error between frame_b of two respective poses
         # e.g. robot and robot now
-        err = ng.Pose3F64.error(world_from_robot, world_from_robot_now) * (1 / dt)
+        err_unscaled = ng.Pose3F64.error(world_from_robot, world_from_robot_now)
+        print("err_unscaled:", err_unscaled)
+        err = err_unscaled * (1 / dt)
         print("err:", err)
         print("tan:", world_from_robot_now.tangent_of_b_in_a)
         assert np.allclose(err, world_from_robot_now.tangent_of_b_in_a)

@@ -14,11 +14,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Using macos-12 bc:
-        #  1. they removed support for python 3.8 & 3.9 on macos-14 (now macos-latest)
-        #    - See: https://github.com/actions/setup-python/issues/696#issuecomment-2071769156
-        #  2. `test_pose` fails on macos-13 and macos-14 (but not macos-12)
-        os: [ubuntu-latest, macos-12]
+        # We use ubuntu-22.04 and macos-13 because they are the final Github runner images
+        # with Python 3.8 pre-installed. Brain OS images based on Jetpack 5 use 3.8 as the
+        # system Python, so we want to test 3.8 even though it is EOL.
+        os: [ubuntu-22.04, macos-13]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
     - uses: actions/checkout@v4
@@ -28,7 +27,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip3 install -vvv -e .[dev]
+      run: pip3 install -v -e .[dev]
     - name: Run sequential tests
       run: ./run_python_tests.sh
     - name: Run asyncio tests

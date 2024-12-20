@@ -3,5 +3,10 @@ requires = [
     "setuptools",
     "farm-ng-package",
     "pybind11",
+    "wheel",
+    # Ensure a Cython compatible with Python 3.12:
+    # https://github.com/cython/cython/issues/5285
+    "Cython>=0.29.37",
+
 ]
 build-backend = "setuptools.build_meta"

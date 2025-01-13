@@ -54,15 +54,17 @@ concept Params = std::is_same_v<
   { m.unsafeMutPtr() } -> ConvertibleTo<typename TT::Scalar *>;
 };
 
-// Example scalar type to be used when specifying concepts interfaces.
-//
-// The main motivation are compatible scalar types such as
-// ceres::Jet<double,...> which mix well with the scalar ``double``.
-// However, we do not want include ceres::Jet<double,...> here.
+/// Example scalar type to be used when specifying concepts interfaces.
+///
+/// The main motivation are compatible scalar types such as
+/// ceres::Jet<double,...> which mix well with the scalar ``double``.
+/// However, we do not want include ceres::Jet<double,...> here.
 template <class TT>
 struct CompatScalarEx {
+  /// Construct from value.
   CompatScalarEx(TT const &value) : value(value) {}
 
+  /// the value
   TT value;
 };
 

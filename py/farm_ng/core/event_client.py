@@ -9,14 +9,18 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-from typing import TYPE_CHECKING, AsyncIterator, Protocol
+from typing import TYPE_CHECKING, Any, AsyncGenerator, AsyncIterator, Protocol
 
 import grpc
 from farm_ng.core import event_service_pb2_grpc
 from farm_ng.core.event_pb2 import Event
-from farm_ng.core.event_service import add_service_parser, load_service_config
+from farm_ng.core.event_service import (
+    add_service_parser,
+    load_service_config,
+)
 from farm_ng.core.event_service_pb2 import (
     EventServiceConfig,
+    EventServiceConfigList,
     ListUrisReply,
     ListUrisRequest,
     RequestReplyReply,
@@ -32,6 +36,7 @@ from farm_ng.core.stamp import (
     get_stamp_by_semantics_and_clock_type,
     get_system_clock_now,
 )
+from farm_ng.core.uri import uri_query_to_dict
 
 if TYPE_CHECKING:
     from farm_ng.core.timestamp_pb2 import Timestamp
@@ -44,6 +49,26 @@ logging.basicConfig(level=logging.INFO)
 
 
 __all__ = ["EventClient"]
+
+
+def make_event_and_payload(
+    path: str,
+    message: Message,
+    service_name: str,
+    sequence: int,
+    timestamps: list[Timestamp] | None = None,
+):
+    uri = make_proto_uri(path=path, message=message, service_name=service_name)
+    payload = message.SerializeToString()
+    return (
+        Event(
+            uri=uri,
+            timestamps=timestamps or [],
+            payload_length=len(payload),
+            sequence=sequence,
+        ),
+        payload,
+    )
 
 
 class EventClientProtocol(Protocol):
@@ -63,6 +88,70 @@ def _check_valid_response(response: SubscribeReply | None) -> None:
     if not response or response == grpc.aio.EOF:
         msg = "End of stream"
         raise grpc.RpcError(msg)
+
+
+class EventClientReceiver:
+    def __init__(
+        self,
+        config_list: EventServiceConfigList,
+        service_config: EventServiceConfig,
+    ):
+        self.config_list = config_list
+        self.service_config = service_config
+        # prepares the message subscribers
+        self.client_configs: dict[str, EventServiceConfig] = {}
+        for config in config_list.configs:
+            if config.port != 0:
+                self.client_configs[config.name] = config
+
+    async def receive(
+        self,
+        decode: bool = True,
+    ) -> AsyncGenerator[tuple[Event, Any], None]:
+        clients: dict[str, EventClient] = {}
+        message_queue: asyncio.Queue = asyncio.Queue()
+        tasks = []
+
+        # subscribe to the topics
+        subscription: SubscribeRequest
+        for subscription in self.service_config.subscriptions:
+            query: dict[str, str] = uri_query_to_dict(uri=subscription.uri)
+            query_service_name: str = query["service_name"]
+            if query_service_name not in self.client_configs:
+                msg = f"Unknown service_name in subscription: {subscription}\n{self.client_configs}"
+                raise ValueError(
+                    msg,
+                )
+
+            if query_service_name not in clients:
+                clients[query_service_name] = EventClient(
+                    self.client_configs[query_service_name],
+                )
+
+            client: EventClient = clients[query_service_name]
+
+            async def subscribe(client=client, subscription=subscription):
+                async for event, message in client.subscribe(
+                    subscription,
+                    decode=decode,
+                ):
+                    await message_queue.put((event, message))
+                await message_queue.put((None, None))  # sentinel value
+
+            tasks.append(asyncio.create_task(subscribe()))
+
+        done_count = 0
+        n_subscriptions = len(tasks)
+        event: Event | None
+        message: Any | None
+        while done_count < n_subscriptions:
+            event, message = await message_queue.get()
+            if event is not None and message is not None:
+                yield event, message
+            else:
+                done_count += 1
+
+        await asyncio.gather(*tasks)
 
 
 class EventClient:

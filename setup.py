@@ -101,13 +101,13 @@ ext_modules = [
             # suppress warnings from them.
             # This might allow removing some of the -Wno-* flags above.
             "-isystem",
-            source_dir / "cpp/thirdparty/expected/include",
+            str(source_dir / "cpp/thirdparty/expected/include"),
             "-isystem",
-            source_dir / "cpp/thirdparty/farm_pp/include",
+            str(source_dir / "cpp/thirdparty/farm_pp/include"),
             "-isystem",
-            source_dir / "cpp/thirdparty/fmt/include",
+            str(source_dir / "cpp/thirdparty/fmt/include"),
             "-isystem",
-            source_dir / "cpp/thirdparty/eigen",
+            str(source_dir / "cpp/thirdparty/eigen"),
         ],
         include_dirs=[
             source_dir / "cpp",

@@ -23,6 +23,9 @@ if sys.platform.startswith("darwin"):
         "-std=c++20",
         "-mmacosx-version-min=11.0",
         "-D_LIBCPP_DISABLE_DEPRECATION_WARNINGS=1",
+        # GCC and Clang may support slightly different sets of warning options.
+        # GCC will tolerate unknown ones by default, but Clang needs this.
+        "-Wno-unknown-warning-option",
     ]
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
 

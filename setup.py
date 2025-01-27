@@ -91,20 +91,26 @@ ext_modules = [
             "-Wall",
             "-Wextra",
             "-Werror",
-            "-Wno-unknown-warning-option",
             "-Wno-unused-parameter",
             "-Wno-missing-field-initializers",
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-function",
             "-Wno-maybe-uninitialized",
+            # Treat thirdparty libraries as system header directories to
+            # suppress warnings from them.
+            # This might allow removing some of the -Wno-* flags above.
+            "-isystem",
+            source_dir / "cpp/thirdparty/expected/include",
+            "-isystem",
+            source_dir / "cpp/thirdparty/farm_pp/include",
+            "-isystem",
+            source_dir / "cpp/thirdparty/fmt/include",
+            "-isystem",
+            source_dir / "cpp/thirdparty/eigen",
         ],
         include_dirs=[
             source_dir / "cpp",
-            source_dir / "cpp/thirdparty/expected/include",
-            source_dir / "cpp/thirdparty/farm_pp/include",
-            source_dir / "cpp/thirdparty/fmt/include",
-            source_dir / "cpp/thirdparty/eigen",
         ],
     ),
 ]

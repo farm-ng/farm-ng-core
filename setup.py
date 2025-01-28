@@ -23,6 +23,9 @@ if sys.platform.startswith("darwin"):
         "-std=c++20",
         "-mmacosx-version-min=11.0",
         "-D_LIBCPP_DISABLE_DEPRECATION_WARNINGS=1",
+        # GCC and Clang may support slightly different sets of warning options.
+        # GCC will tolerate unknown ones by default, but Clang needs this.
+        "-Wno-unknown-warning-option",
     ]
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
 
@@ -91,20 +94,26 @@ ext_modules = [
             "-Wall",
             "-Wextra",
             "-Werror",
-            "-Wno-unknown-warning-option",
             "-Wno-unused-parameter",
             "-Wno-missing-field-initializers",
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-function",
             "-Wno-maybe-uninitialized",
+            # Treat thirdparty libraries as system header directories to
+            # suppress warnings from them.
+            # This might allow removing some of the -Wno-* flags above.
+            "-isystem",
+            str(source_dir / "cpp/thirdparty/expected/include"),
+            "-isystem",
+            str(source_dir / "cpp/thirdparty/farm_pp/include"),
+            "-isystem",
+            str(source_dir / "cpp/thirdparty/fmt/include"),
+            "-isystem",
+            str(source_dir / "cpp/thirdparty/eigen"),
         ],
         include_dirs=[
             source_dir / "cpp",
-            source_dir / "cpp/thirdparty/expected/include",
-            source_dir / "cpp/thirdparty/farm_pp/include",
-            source_dir / "cpp/thirdparty/fmt/include",
-            source_dir / "cpp/thirdparty/eigen",
         ],
     ),
 ]

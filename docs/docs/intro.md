@@ -11,8 +11,6 @@ sidebar_position: 1
 
 ### One time setup
 
-```bash
-
 
 Run
 

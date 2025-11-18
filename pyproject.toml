@@ -1,11 +1,11 @@
 [build-system]
 requires = [
-    "setuptools",
-    "pybind11",
-    "wheel",
-    # Note: v0.1.4 was yanked.
-    "farm-ng-package",
-    "protobuf<=5.27.5",
-    "grpcio-tools==1.64.1",
+  "setuptools",
+  "pybind11",
+  "wheel",
+  # Note: v0.1.4 was yanked.
+  "farm-ng-package",
+  "protobuf<=5.27.5",
+  "grpcio-tools==1.64.1",
 ]
 build-backend = "setuptools.build_meta"

@@ -6,6 +6,6 @@ requires = [
     # Note: v0.1.4 was yanked.
     "farm-ng-package",
     "protobuf",
-    "grpcio-tools",
+    "grpcio-tools>=1.76.0",  # Pin to latest to force using protoc 6.x
 ]
 build-backend = "setuptools.build_meta"

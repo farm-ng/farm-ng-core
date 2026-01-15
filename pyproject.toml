@@ -5,7 +5,7 @@ requires = [
     "wheel",
     # Note: v0.1.4 was yanked.
     "farm-ng-package",
-    "protobuf<=5.27.5",
-    "grpcio-tools==1.64.1",
+    "protobuf",
+    "grpcio-tools",
 ]
 build-backend = "setuptools.build_meta"

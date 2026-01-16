@@ -3,9 +3,8 @@ requires = [
     "setuptools",
     "pybind11",
     "wheel",
-    # Note: v0.1.4 was yanked.
     "farm-ng-package",
-    "protobuf",
-    "grpcio-tools>=1.76.0",  # Pin to latest to force using protoc 6.x
+    "protobuf>=5.26.0",
+    "grpcio-tools>=1.76.0",
 ]
 build-backend = "setuptools.build_meta"

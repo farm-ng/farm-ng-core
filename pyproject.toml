@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools",
+    "setuptools<78",
     "pybind11",
     "wheel",
     "farm-ng-package",

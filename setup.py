@@ -100,6 +100,7 @@ ext_modules = [
             "-Wno-unused-variable",
             "-Wno-unused-function",
             "-Wno-maybe-uninitialized",
+            "-Wno-dangling-reference",  # False positive in fmt v8 with GCC 13+
             # Treat thirdparty libraries as system header directories to
             # suppress warnings from them.
             # This might allow removing some of the -Wno-* flags above.

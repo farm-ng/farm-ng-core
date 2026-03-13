@@ -113,9 +113,6 @@ ext_modules = [
             "-isystem",
             str(source_dir / "cpp/thirdparty/eigen"),
         ],
-        extra_link_args=[
-            "-static-libstdc++",
-        ],
         include_dirs=[
             source_dir / "cpp",
         ],

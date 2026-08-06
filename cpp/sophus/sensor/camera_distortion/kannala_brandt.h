@@ -115,8 +115,9 @@ class KannalaBrandtK3Transform {
 
     const TScalar rth = sqrt(rth2);
 
-    // Use Newtons method to solve for theta, 50 iterations max
-    TScalar th = sqrt(rth);
+    // The normalized distorted radius is d(theta), so use its linear term as
+    // the initial estimate when inverting the distortion polynomial.
+    TScalar th = rth;
     for (int i = 0; i < 500; ++i) {
       const TScalar th2 = th * th;
       const TScalar th4 = th2 * th2;

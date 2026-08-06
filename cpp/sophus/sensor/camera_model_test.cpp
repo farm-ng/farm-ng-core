@@ -15,6 +15,8 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+
 using namespace sophus;
 
 double constexpr kEps = 1e-5;
@@ -232,6 +234,25 @@ TEST(camera_model, projection_round_trip) {
           }
         }
       }
+    }
+  }
+}
+
+TEST(camera_model, kannala_brandt_projection_round_trip) {
+  KannalaBrandtK3Transform::Params<double> params;
+  params << 400.0, 420.0, 320.0, 240.0, -0.08, 0.02, -0.002, 0.0001;
+
+  for (double theta : {0.001, 0.05, 0.3, 0.7, 1.1, 1.4}) {
+    for (double azimuth : {0.0, 0.7, 1.9, -2.4}) {
+      Eigen::Vector2d const point_in_camera_z1_plane =
+          std::tan(theta) *
+          Eigen::Vector2d(std::cos(azimuth), std::sin(azimuth));
+      Eigen::Vector2d const pixel =
+          KannalaBrandtK3Transform::distort(params, point_in_camera_z1_plane);
+      Eigen::Vector2d const recovered_point =
+          KannalaBrandtK3Transform::undistort(params, pixel);
+
+      EXPECT_TRUE(recovered_point.isApprox(point_in_camera_z1_plane, 1e-10));
     }
   }
 }

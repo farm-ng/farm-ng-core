@@ -163,13 +163,13 @@ class EventServiceRecorder:
                 # Add any header events added during recording
                 while self.header_deque:
                     event, payload = self.header_deque.popleft()
-                    writer.add_header_event(event, payload, write=True)
+                    await writer.add_header_event_async(event, payload, write=True)
                 # await a new event and payload, and write it to the file
                 event, payload = await self.record_queue.get()
                 event.timestamps.append(
                     get_monotonic_now(semantics=StampSemantics.FILE_WRITE),
                 )
-                writer.write_event_payload(event, payload)
+                await writer.write_event_payload_async(event, payload)
 
     async def subscribe(
         self,

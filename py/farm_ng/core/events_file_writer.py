@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import struct
+from functools import partial
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, cast
+from typing import IO, TYPE_CHECKING, Callable, cast
 
 # pylint can't find Event or Uri in protobuf generated files
 # https://github.com/protocolbuffers/protobuf/issues/10372
@@ -93,6 +95,7 @@ class EventsFileWriter:
         self._file_idx: int = 0
 
         self._header_events: dict[str, tuple[Event, bytes]] = {}
+        self._async_write_lock: asyncio.Lock | None = None
         for (event, payload) in header_events or []:
             self.add_header_event(event, payload)
 
@@ -200,6 +203,23 @@ class EventsFileWriter:
             if write:
                 self.write_event_payload(event, payload)
 
+    async def add_header_event_async(
+        self,
+        event: Event,
+        payload: bytes,
+        write: bool = False,
+    ) -> None:
+        """Add a header event without blocking the running event loop.
+
+        Args:
+            event: Event to add.
+            payload: Payload to add.
+            write: If True, write the header event to the file. Defaults to False.
+        """
+        await self._run_in_executor(
+            partial(self.add_header_event, event, payload, write),
+        )
+
     def write_header_events(self) -> None:
         """Write the header events to the file.
 
@@ -238,6 +258,21 @@ class EventsFileWriter:
         self._file_stream = None
         return self.is_closed()
 
+    async def _run_in_executor(self, callback: Callable[[], None]) -> None:
+        """Run a file operation serially without blocking the event loop."""
+        if self._async_write_lock is None:
+            self._async_write_lock = asyncio.Lock()
+
+        async with self._async_write_lock:
+            future = asyncio.get_running_loop().run_in_executor(None, callback)
+            try:
+                await asyncio.shield(future)
+            except asyncio.CancelledError:
+                # A running executor job cannot be cancelled. Wait for it to finish so
+                # the writer is not closed while the background thread is still writing.
+                await future
+                raise
+
     def write_event_payload(self, event: Event, payload: bytes) -> None:
         if self.is_closed():
             msg = f"Event log is not open: {self.file_name}"
@@ -268,6 +303,12 @@ class EventsFileWriter:
             if not self.open():
                 msg = f"Failed to open file: {self.file_name}"
                 raise RuntimeError(msg)
+
+    async def write_event_payload_async(self, event: Event, payload: bytes) -> None:
+        """Write an event and payload without blocking the running event loop."""
+        await self._run_in_executor(
+            partial(self.write_event_payload, event, payload),
+        )
 
     def _write_raw(
         self,
@@ -313,3 +354,22 @@ class EventsFileWriter:
             timestamps.append(get_system_clock_now(semantics=StampSemantics.FILE_WRITE))
         uri = make_proto_uri(path=path, message=message)
         self._write_raw(uri=uri, message=message, timestamps=timestamps)
+
+    async def write_async(
+        self,
+        path: str,
+        message: Message,
+        timestamps: list[Timestamp] | None = None,
+        write_stamps: bool = True,
+    ) -> None:
+        """Write a message without blocking the running event loop.
+
+        Args:
+            path: Path to the message.
+            message: Message to write.
+            timestamps: List of timestamps to write.
+            write_stamps: If True, append FILE_WRITE timestamps to the event when writing.
+        """
+        await self._run_in_executor(
+            partial(self.write, path, message, timestamps, write_stamps),
+        )
